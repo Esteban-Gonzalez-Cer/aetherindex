@@ -1,0 +1,9 @@
+# ninja log v7
+1	94	1791585478153828798	build.ninja	64c8674a420abb19
+1	94	1791585478153262755	/Users/estebangonzalezcervantes/Documents/aetherindex/build/cmake_install.cmake	64c8674a420abb19
+1	91	1791585478153828798	build.ninja	64c8674a420abb19
+1	91	1791585478153828798	/Users/estebangonzalezcervantes/Documents/aetherindex/build/cmake_install.cmake	64c8674a420abb19
+1	574	1791585527400976398	CMakeFiles/aetherindex.dir/src/main.cpp.o	14b51f2d7da80dc2
+575	666	1791585527975492472	aetherindex	92f3e7ab01aa9741
+13	570	1791585744562828086	CMakeFiles/aetherindex.dir/src/main.cpp.o	14b51f2d7da80dc2
+570	659	1791585745119597689	aetherindex	92f3e7ab01aa9741

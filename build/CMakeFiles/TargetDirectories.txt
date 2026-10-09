@@ -1,0 +1,3 @@
+/Users/estebangonzalezcervantes/Documents/aetherindex/build/CMakeFiles/aetherindex.dir
+/Users/estebangonzalezcervantes/Documents/aetherindex/build/CMakeFiles/edit_cache.dir
+/Users/estebangonzalezcervantes/Documents/aetherindex/build/CMakeFiles/rebuild_cache.dir
