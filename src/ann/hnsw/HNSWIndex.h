@@ -3,56 +3,66 @@
 #define AETHERINDEX_HNSW_INDEX_H
 
 #include "HNSWNode.h"
+#include "aether/storage/vector_store.hpp"
 
 #include <cstddef>
+#include <span>
 #include <unordered_map>
+#include <utility>
 #include <vector>
+
+namespace aetherindex {
 
 class HNSWIndex {
 public:
-    explicit HNSWIndex(std::size_t M = 8);
-
-    // Registra un vector y lo incorpora al grafo.
-    void insert(
-        std::size_t id,
-        const std::vector<float>& vector
+    explicit HNSWIndex(
+        const VectorStore& store,
+        std::size_t M = 8,
+        std::size_t efConstruction = 50,
+        std::size_t efSearch = 20
     );
 
-    // Devuelve los k identificadores más cercanos
-    // encontrados mediante el grafo.
-    std::vector<std::size_t> search(
-        const std::vector<float>& query,
+    // El vector ya debe existir en VectorStore.
+    void insert(VectorId id);
+
+    std::vector<VectorId> search(
+        std::span<const EmbeddingValue> query,
         std::size_t k
     ) const;
 
-    std::size_t size() const;
+    std::size_t size() const noexcept;
 
 private:
-    std::size_t M;
+    using Candidate = std::pair<float, VectorId>;
 
-    std::unordered_map<std::size_t, HNSWNode> nodes;
+    const VectorStore& store_;
 
-    // Almacenamiento temporal para este primer prototipo.
-    // Después lo conectaremos a tu VectorStore.
-    std::unordered_map<
-        std::size_t,
-        std::vector<float>
-    > vectors;
+    std::size_t M_;
+    std::size_t efConstruction_;
+    std::size_t efSearch_;
 
-    std::size_t entryPoint;
-    bool hasEntryPoint;
+    std::unordered_map<VectorId, HNSWNode> nodes_;
+
+    VectorId entryPoint_{};
+    bool hasEntryPoint_ = false;
 
     float distance(
-        const std::vector<float>& a,
-        const std::vector<float>& b
+        std::span<const EmbeddingValue> a,
+        std::span<const EmbeddingValue> b
     ) const;
 
-    void connect(
-        std::size_t a,
-        std::size_t b
-    );
+    // Explora un nivel del grafo desde uno o varios puntos iniciales.
+    std::vector<Candidate> searchLayer(
+        std::span<const EmbeddingValue> query,
+        const std::vector<VectorId>& entryPoints,
+        std::size_t ef
+    ) const;
 
-    void pruneNeighbors(std::size_t id);
+    void connect(VectorId a, VectorId b);
+
+    void pruneNeighbors(VectorId id);
 };
+
+}  // namespace aetherindex
 
 #endif
