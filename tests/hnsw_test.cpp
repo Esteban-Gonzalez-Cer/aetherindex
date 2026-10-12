@@ -1,6 +1,6 @@
 
 #include "aether/storage/vector_store.hpp"
-#include "hnsw/HNSWIndex.h"
+#include "../src/ann/hnsw/HNSWIndex.h"
 
 #include <iostream>
 #include <vector>
