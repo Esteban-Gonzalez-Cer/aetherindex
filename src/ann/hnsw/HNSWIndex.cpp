@@ -3,60 +3,83 @@
 
 #include <algorithm>
 #include <cmath>
-#include <limits>
+#include <functional>
 #include <queue>
 #include <stdexcept>
-#include <utility>
+#include <unordered_set>
 
-HNSWIndex::HNSWIndex(std::size_t M)
-    : M(M),
-      entryPoint(0),
-      hasEntryPoint(false) {
+namespace aetherindex {
+
+HNSWIndex::HNSWIndex(
+    const VectorStore& store,
+    std::size_t M,
+    std::size_t efConstruction,
+    std::size_t efSearch
+)
+    : store_(store),
+      M_(M),
+      efConstruction_(std::max(M, efConstruction)),
+      efSearch_(std::max<std::size_t>(1, efSearch)) {
     if (M == 0) {
-        throw std::invalid_argument("M debe ser mayor que cero");
+        throw std::invalid_argument("M debe ser mayor que cero.");
     }
 }
 
 float HNSWIndex::distance(
-    const std::vector<float>& a,
-    const std::vector<float>& b
+    std::span<const EmbeddingValue> a,
+    std::span<const EmbeddingValue> b
 ) const {
     if (a.size() != b.size()) {
         throw std::invalid_argument(
-            "Los vectores tienen dimensiones diferentes"
+            "Los vectores tienen dimensiones diferentes."
         );
     }
 
     float sum = 0.0f;
 
-    for (std::size_t i = 0; i < a.size(); ++i) {
-        const float diff = a[i] - b[i];
-        sum += diff * diff;
+    if (store_.distance_kind() == DistanceKind::SquaredEuclidean) {
+        for (std::size_t i = 0; i < a.size(); ++i) {
+            const float diff = a[i] - b[i];
+            sum += diff * diff;
+        }
+
+        return sum;
     }
 
-    return std::sqrt(sum);
+    // Distancia coseno: 1 - similitud coseno.
+    float dot = 0.0f;
+    float normA = 0.0f;
+    float normB = 0.0f;
+
+    for (std::size_t i = 0; i < a.size(); ++i) {
+        dot += a[i] * b[i];
+        normA += a[i] * a[i];
+        normB += b[i] * b[i];
+    }
+
+    if (normA == 0.0f || normB == 0.0f) {
+        throw std::invalid_argument(
+            "La distancia coseno no admite vectores cero."
+        );
+    }
+
+    const float similarity =
+        dot / std::sqrt(normA * normB);
+
+    return 1.0f - std::clamp(similarity, -1.0f, 1.0f);
 }
 
-void HNSWIndex::connect(
-    std::size_t a,
-    std::size_t b
-) {
-    auto& neighborsA = nodes.at(a).neighbors;
-    auto& neighborsB = nodes.at(b).neighbors;
+void HNSWIndex::connect(VectorId a, VectorId b) {
+    auto& neighborsA = nodes_.at(a).neighbors;
+    auto& neighborsB = nodes_.at(b).neighbors;
 
-    if (std::find(
-            neighborsA.begin(),
-            neighborsA.end(),
-            b
-        ) == neighborsA.end()) {
+    if (std::find(neighborsA.begin(), neighborsA.end(), b)
+        == neighborsA.end()) {
         neighborsA.push_back(b);
     }
 
-    if (std::find(
-            neighborsB.begin(),
-            neighborsB.end(),
-            a
-        ) == neighborsB.end()) {
+    if (std::find(neighborsB.begin(), neighborsB.end(), a)
+        == neighborsB.end()) {
         neighborsB.push_back(a);
     }
 
@@ -64,153 +87,213 @@ void HNSWIndex::connect(
     pruneNeighbors(b);
 }
 
-void HNSWIndex::pruneNeighbors(std::size_t id) {
-    auto& neighbors = nodes.at(id).neighbors;
+void HNSWIndex::pruneNeighbors(VectorId id) {
+    auto& neighbors = nodes_.at(id).neighbors;
+    const auto embedding = store_.find(id);
 
-    if (neighbors.size() <= M) {
-        return;
+    if (!embedding) {
+        throw std::logic_error(
+            "El nodo no existe en VectorStore."
+        );
     }
-
-    const auto& currentVector = vectors.at(id);
 
     std::sort(
         neighbors.begin(),
         neighbors.end(),
-        [&](std::size_t a, std::size_t b) {
+        [&](VectorId a, VectorId b) {
             return distance(
-                currentVector,
-                vectors.at(a)
+                *embedding,
+                *store_.find(a)
             ) < distance(
-                currentVector,
-                vectors.at(b)
+                *embedding,
+                *store_.find(b)
             );
         }
     );
 
-    neighbors.resize(M);
+    if (neighbors.size() > M_) {
+        neighbors.resize(M_);
+    }
 }
 
-void HNSWIndex::insert(
-    std::size_t id,
-    const std::vector<float>& vector
-) {
-    if (vectors.count(id) > 0) {
+void HNSWIndex::insert(VectorId id) {
+    const auto embedding = store_.find(id);
+
+    if (!embedding) {
         throw std::invalid_argument(
-            "El identificador ya existe"
+            "El vector debe existir en VectorStore antes de indexarlo."
         );
     }
 
-    if (!vectors.empty() &&
-        vector.size() != vectors.begin()->second.size()) {
+    if (nodes_.contains(id)) {
         throw std::invalid_argument(
-            "Los vectores tienen dimensiones diferentes"
+            "El vector ya fue indexado en HNSW."
         );
     }
 
-    vectors.emplace(id, vector);
-    nodes.emplace(id, HNSWNode{id});
+    nodes_.emplace(id, HNSWNode{id});
 
-    if (!hasEntryPoint) {
-        entryPoint = id;
-        hasEntryPoint = true;
+    if (!hasEntryPoint_) {
+        entryPoint_ = id;
+        hasEntryPoint_ = true;
         return;
     }
 
-    // Prototipo: comparar con todos los nodos anteriores
-    // para seleccionar los M vecinos más cercanos.
-    std::vector<std::pair<float, std::size_t>> candidates;
-
-    for (const auto& [otherId, otherVector] : vectors) {
-        if (otherId == id) {
-            continue;
-        }
-
-        candidates.emplace_back(
-            distance(vector, otherVector),
-            otherId
-        );
-    }
-
-    const std::size_t count = std::min(M, candidates.size());
-
-    if (count == 0) {
-        return;
-    }
-
-    std::partial_sort(
-        candidates.begin(),
-        candidates.begin() + count,
-        candidates.end()
+    const auto candidates = searchLayer(
+        *embedding,
+        {entryPoint_},
+        efConstruction_
     );
+
+    const std::size_t count = std::min(M_, candidates.size());
 
     for (std::size_t i = 0; i < count; ++i) {
         connect(id, candidates[i].second);
     }
 }
 
-std::vector<std::size_t> HNSWIndex::search(
-    const std::vector<float>& query,
-    std::size_t k
+std::vector<HNSWIndex::Candidate> HNSWIndex::searchLayer(
+    std::span<const EmbeddingValue> query,
+    const std::vector<VectorId>& entryPoints,
+    std::size_t ef
 ) const {
-    if (k == 0 || !hasEntryPoint) {
+    if (ef == 0 || nodes_.empty()) {
         return {};
     }
 
-    if (query.size() != vectors.at(entryPoint).size()) {
-        throw std::invalid_argument(
-            "La consulta tiene una dimension incorrecta"
-        );
-    }
-
-    // Distancia y nodo.
-    using Candidate = std::pair<float, std::size_t>;
-
-    // Menor distancia primero.
+    // C: min-heap. El candidato más cercano sale primero.
     std::priority_queue<
         Candidate,
         std::vector<Candidate>,
         std::greater<Candidate>
     > candidates;
 
-    std::unordered_map<std::size_t, bool> visited;
+    // W: max-heap. El resultado más lejano sale primero.
+    std::priority_queue<Candidate> results;
 
-    candidates.emplace(
-        distance(query, vectors.at(entryPoint)),
-        entryPoint
-    );
+    std::unordered_set<VectorId> visited;
 
-    visited[entryPoint] = true;
+    for (VectorId id : entryPoints) {
+        if (!nodes_.contains(id) || !visited.insert(id).second) {
+            continue;
+        }
 
-    std::vector<Candidate> results;
+        const auto embedding = store_.find(id);
 
-    while (!candidates.empty()) {
-        const auto [currentDistance, currentId] =
-            candidates.top();
-
-        candidates.pop();
-
-        results.emplace_back(currentDistance, currentId);
-
-        for (std::size_t neighbor :
-             nodes.at(currentId).neighbors) {
-            if (visited.count(neighbor)) {
-                continue;
-            }
-
-            visited[neighbor] = true;
-
-            candidates.emplace(
-                distance(query, vectors.at(neighbor)),
-                neighbor
+        if (!embedding) {
+            throw std::logic_error(
+                "El vector indexado no existe en VectorStore."
             );
+        }
+
+        const float d = distance(query, *embedding);
+
+        candidates.emplace(d, id);
+        results.emplace(d, id);
+
+        if (results.size() > ef) {
+            results.pop();
         }
     }
 
-    std::sort(results.begin(), results.end());
+    while (!candidates.empty()) {
+        const Candidate current = candidates.top();
 
+        // Si ya tenemos ef resultados mejores, podemos detenernos.
+        if (results.size() >= ef &&
+            current.first > results.top().first) {
+            break;
+        }
+
+        candidates.pop();
+
+        for (VectorId neighbor :
+             nodes_.at(current.second).neighbors) {
+            if (!visited.insert(neighbor).second) {
+                continue;
+            }
+
+            const auto embedding = store_.find(neighbor);
+
+            if (!embedding) {
+                throw std::logic_error(
+                    "Un vecino no existe en VectorStore."
+                );
+            }
+
+            const float d = distance(query, *embedding);
+
+            if (results.size() < ef ||
+                d < results.top().first) {
+                candidates.emplace(d, neighbor);
+                results.emplace(d, neighbor);
+
+                if (results.size() > ef) {
+                    results.pop();
+                }
+            }
+        }
+    }
+
+    // Devolver los candidatos del más cercano al más lejano.
+    std::vector<Candidate> ordered;
+    ordered.reserve(results.size());
+
+    while (!results.empty()) {
+        ordered.push_back(results.top());
+        results.pop();
+    }
+
+    std::sort(ordered.begin(), ordered.end());
+
+    return ordered;
+}
+
+std::vector<VectorId> HNSWIndex::search(
+    std::span<const EmbeddingValue> query,
+    std::size_t k
+) const {
+    if (k == 0 || !hasEntryPoint_) {
+        return {};
+    }
+
+    if (query.size() != store_.dimension()) {
+        throw std::invalid_argument(
+            "La consulta tiene una dimension incorrecta."
+        );
+    }
+
+    // Validar los valores antes de usarlos en las colas.
+    bool nonzero = false;
+
+    for (EmbeddingValue value : query) {
+        if (!std::isfinite(value)) {
+            throw std::invalid_argument(
+                "La consulta contiene valores no finitos."
+            );
+        }
+
+        nonzero = nonzero || value != 0.0f;
+    }
+
+    if (store_.distance_kind() == DistanceKind::Cosine &&
+        !nonzero) {
+        throw std::invalid_argument(
+            "La consulta coseno no puede ser un vector cero."
+        );
+    }
+
+    const std::size_t ef = std::max(k, efSearch_);
+
+    const auto results = searchLayer(
+        query,
+        {entryPoint_},
+        ef
+    );
+
+    std::vector<VectorId> ids;
     const std::size_t count = std::min(k, results.size());
 
-    std::vector<std::size_t> ids;
     ids.reserve(count);
 
     for (std::size_t i = 0; i < count; ++i) {
@@ -220,6 +303,8 @@ std::vector<std::size_t> HNSWIndex::search(
     return ids;
 }
 
-std::size_t HNSWIndex::size() const {
-    return nodes.size();
+std::size_t HNSWIndex::size() const noexcept {
+    return nodes_.size();
 }
+
+}  // namespace aetherindex
