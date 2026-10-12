@@ -6,6 +6,7 @@
 #include "aether/storage/vector_store.hpp"
 
 #include <cstddef>
+#include <random>
 #include <span>
 #include <unordered_map>
 #include <utility>
@@ -22,7 +23,6 @@ public:
         std::size_t efSearch = 20
     );
 
-    // El vector ya debe existir en VectorStore.
     void insert(VectorId id);
 
     std::vector<VectorId> search(
@@ -45,22 +45,27 @@ private:
 
     VectorId entryPoint_{};
     bool hasEntryPoint_ = false;
+    int maxLevel_ = -1;
+
+    std::mt19937 randomEngine_;
+
+    int randomLevel();
 
     float distance(
         std::span<const EmbeddingValue> a,
         std::span<const EmbeddingValue> b
     ) const;
 
-    // Explora un nivel del grafo desde uno o varios puntos iniciales.
     std::vector<Candidate> searchLayer(
         std::span<const EmbeddingValue> query,
         const std::vector<VectorId>& entryPoints,
-        std::size_t ef
+        std::size_t ef,
+        int level
     ) const;
 
-    void connect(VectorId a, VectorId b);
+    void connect(VectorId a, VectorId b, int level);
 
-    void pruneNeighbors(VectorId id);
+    void pruneNeighbors(VectorId id, int level);
 };
 
 }  // namespace aetherindex

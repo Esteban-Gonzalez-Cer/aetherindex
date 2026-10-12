@@ -19,10 +19,29 @@ HNSWIndex::HNSWIndex(
     : store_(store),
       M_(M),
       efConstruction_(std::max(M, efConstruction)),
-      efSearch_(std::max<std::size_t>(1, efSearch)) {
-    if (M == 0) {
-        throw std::invalid_argument("M debe ser mayor que cero.");
+      efSearch_(std::max<std::size_t>(1, efSearch)),
+      randomEngine_(std::random_device{}()) {
+    if (M < 2) {
+        throw std::invalid_argument(
+            "M debe ser al menos 2 para generar niveles."
+        );
     }
+}
+
+int HNSWIndex::randomLevel() {
+    // La probabilidad de pertenecer a niveles altos disminuye
+    // exponencialmente.
+    double u = 0.0;
+
+    do {
+        u = std::generate_canonical<double, 53>(randomEngine_);
+    } while (u <= 0.0);
+
+    const double level =
+        -std::log(u) / std::log(static_cast<double>(M_));
+
+    // Evita niveles desproporcionados en casos extremos.
+    return std::min(32, static_cast<int>(level));
 }
 
 float HNSWIndex::distance(
@@ -35,9 +54,9 @@ float HNSWIndex::distance(
         );
     }
 
-    float sum = 0.0f;
-
     if (store_.distance_kind() == DistanceKind::SquaredEuclidean) {
+        float sum = 0.0f;
+
         for (std::size_t i = 0; i < a.size(); ++i) {
             const float diff = a[i] - b[i];
             sum += diff * diff;
@@ -46,7 +65,6 @@ float HNSWIndex::distance(
         return sum;
     }
 
-    // Distancia coseno: 1 - similitud coseno.
     float dot = 0.0f;
     float normA = 0.0f;
     float normB = 0.0f;
@@ -69,26 +87,11 @@ float HNSWIndex::distance(
     return 1.0f - std::clamp(similarity, -1.0f, 1.0f);
 }
 
-void HNSWIndex::connect(VectorId a, VectorId b) {
-    auto& neighborsA = nodes_.at(a).neighbors;
-    auto& neighborsB = nodes_.at(b).neighbors;
+void HNSWIndex::pruneNeighbors(VectorId id, int level) {
+    auto& neighbors = nodes_.at(id).neighbors.at(
+        static_cast<std::size_t>(level)
+    );
 
-    if (std::find(neighborsA.begin(), neighborsA.end(), b)
-        == neighborsA.end()) {
-        neighborsA.push_back(b);
-    }
-
-    if (std::find(neighborsB.begin(), neighborsB.end(), a)
-        == neighborsB.end()) {
-        neighborsB.push_back(a);
-    }
-
-    pruneNeighbors(a);
-    pruneNeighbors(b);
-}
-
-void HNSWIndex::pruneNeighbors(VectorId id) {
-    auto& neighbors = nodes_.at(id).neighbors;
     const auto embedding = store_.find(id);
 
     if (!embedding) {
@@ -102,11 +105,9 @@ void HNSWIndex::pruneNeighbors(VectorId id) {
         neighbors.end(),
         [&](VectorId a, VectorId b) {
             return distance(
-                *embedding,
-                *store_.find(a)
+                *embedding, *store_.find(a)
             ) < distance(
-                *embedding,
-                *store_.find(b)
+                *embedding, *store_.find(b)
             );
         }
     );
@@ -116,65 +117,59 @@ void HNSWIndex::pruneNeighbors(VectorId id) {
     }
 }
 
-void HNSWIndex::insert(VectorId id) {
-    const auto embedding = store_.find(id);
-
-    if (!embedding) {
-        throw std::invalid_argument(
-            "El vector debe existir en VectorStore antes de indexarlo."
-        );
-    }
-
-    if (nodes_.contains(id)) {
-        throw std::invalid_argument(
-            "El vector ya fue indexado en HNSW."
-        );
-    }
-
-    nodes_.emplace(id, HNSWNode{id});
-
-    if (!hasEntryPoint_) {
-        entryPoint_ = id;
-        hasEntryPoint_ = true;
-        return;
-    }
-
-    const auto candidates = searchLayer(
-        *embedding,
-        {entryPoint_},
-        efConstruction_
+void HNSWIndex::connect(
+    VectorId a,
+    VectorId b,
+    int level
+) {
+    auto& neighborsA = nodes_.at(a).neighbors.at(
+        static_cast<std::size_t>(level)
+    );
+    auto& neighborsB = nodes_.at(b).neighbors.at(
+        static_cast<std::size_t>(level)
     );
 
-    const std::size_t count = std::min(M_, candidates.size());
-
-    for (std::size_t i = 0; i < count; ++i) {
-        connect(id, candidates[i].second);
+    if (std::find(neighborsA.begin(), neighborsA.end(), b)
+        == neighborsA.end()) {
+        neighborsA.push_back(b);
     }
+
+    if (std::find(neighborsB.begin(), neighborsB.end(), a)
+        == neighborsB.end()) {
+        neighborsB.push_back(a);
+    }
+
+    pruneNeighbors(a, level);
+    pruneNeighbors(b, level);
 }
 
 std::vector<HNSWIndex::Candidate> HNSWIndex::searchLayer(
     std::span<const EmbeddingValue> query,
     const std::vector<VectorId>& entryPoints,
-    std::size_t ef
+    std::size_t ef,
+    int level
 ) const {
-    if (ef == 0 || nodes_.empty()) {
+    if (ef == 0 || nodes_.empty() || level < 0) {
         return {};
     }
 
-    // C: min-heap. El candidato más cercano sale primero.
-    std::priority_queue<
+    using MinHeap = std::priority_queue<
         Candidate,
         std::vector<Candidate>,
         std::greater<Candidate>
-    > candidates;
+    >;
 
-    // W: max-heap. El resultado más lejano sale primero.
+    MinHeap candidates;
     std::priority_queue<Candidate> results;
-
     std::unordered_set<VectorId> visited;
 
     for (VectorId id : entryPoints) {
-        if (!nodes_.contains(id) || !visited.insert(id).second) {
+        const auto nodeIt = nodes_.find(id);
+
+        if (nodeIt == nodes_.end() ||
+            nodeIt->second.neighbors.size() <=
+                static_cast<std::size_t>(level) ||
+            !visited.insert(id).second) {
             continue;
         }
 
@@ -199,7 +194,6 @@ std::vector<HNSWIndex::Candidate> HNSWIndex::searchLayer(
     while (!candidates.empty()) {
         const Candidate current = candidates.top();
 
-        // Si ya tenemos ef resultados mejores, podemos detenernos.
         if (results.size() >= ef &&
             current.first > results.top().first) {
             break;
@@ -207,8 +201,12 @@ std::vector<HNSWIndex::Candidate> HNSWIndex::searchLayer(
 
         candidates.pop();
 
-        for (VectorId neighbor :
-             nodes_.at(current.second).neighbors) {
+        const auto& neighbors =
+            nodes_.at(current.second).neighbors.at(
+                static_cast<std::size_t>(level)
+            );
+
+        for (VectorId neighbor : neighbors) {
             if (!visited.insert(neighbor).second) {
                 continue;
             }
@@ -235,7 +233,6 @@ std::vector<HNSWIndex::Candidate> HNSWIndex::searchLayer(
         }
     }
 
-    // Devolver los candidatos del más cercano al más lejano.
     std::vector<Candidate> ordered;
     ordered.reserve(results.size());
 
@@ -247,6 +244,81 @@ std::vector<HNSWIndex::Candidate> HNSWIndex::searchLayer(
     std::sort(ordered.begin(), ordered.end());
 
     return ordered;
+}
+
+void HNSWIndex::insert(VectorId id) {
+    const auto embedding = store_.find(id);
+
+    if (!embedding) {
+        throw std::invalid_argument(
+            "El vector debe existir en VectorStore antes de indexarlo."
+        );
+    }
+
+    if (nodes_.contains(id)) {
+        throw std::invalid_argument(
+            "El vector ya fue indexado en HNSW."
+        );
+    }
+
+    const int newLevel = randomLevel();
+
+    nodes_.emplace(id, HNSWNode{id, newLevel});
+
+    if (!hasEntryPoint_) {
+        entryPoint_ = id;
+        maxLevel_ = newLevel;
+        hasEntryPoint_ = true;
+        return;
+    }
+
+    VectorId currentEntry = entryPoint_;
+
+    // Primera fase: bajar por los niveles en los que
+    // el nuevo nodo no participa.
+    for (int level = maxLevel_; level > newLevel; --level) {
+        const auto nearest = searchLayer(
+            *embedding,
+            {currentEntry},
+            1,
+            level
+        );
+
+        if (!nearest.empty()) {
+            currentEntry = nearest.front().second;
+        }
+    }
+
+    // Segunda fase: buscar vecinos y conectar en cada
+    // nivel compartido entre el nuevo nodo y el grafo.
+    const int lowestLevel = std::min(newLevel, maxLevel_);
+
+    for (int level = lowestLevel; level >= 0; --level) {
+        const auto candidates = searchLayer(
+            *embedding,
+            {currentEntry},
+            efConstruction_,
+            level
+        );
+
+        const std::size_t count =
+            std::min(M_, candidates.size());
+
+        for (std::size_t i = 0; i < count; ++i) {
+            connect(id, candidates[i].second, level);
+        }
+
+        if (!candidates.empty()) {
+            currentEntry = candidates.front().second;
+        }
+    }
+
+    // Si el nodo nuevo alcanza un nivel superior,
+    // se convierte en el nuevo punto de entrada.
+    if (newLevel > maxLevel_) {
+        entryPoint_ = id;
+        maxLevel_ = newLevel;
+    }
 }
 
 std::vector<VectorId> HNSWIndex::search(
@@ -263,7 +335,6 @@ std::vector<VectorId> HNSWIndex::search(
         );
     }
 
-    // Validar los valores antes de usarlos en las colas.
     bool nonzero = false;
 
     for (EmbeddingValue value : query) {
@@ -283,12 +354,30 @@ std::vector<VectorId> HNSWIndex::search(
         );
     }
 
+    VectorId currentEntry = entryPoint_;
+
+    // Fase 1: búsqueda rápida en los niveles superiores.
+    for (int level = maxLevel_; level > 0; --level) {
+        const auto nearest = searchLayer(
+            query,
+            {currentEntry},
+            1,
+            level
+        );
+
+        if (!nearest.empty()) {
+            currentEntry = nearest.front().second;
+        }
+    }
+
+    // Fase 2: búsqueda más amplia en el nivel base.
     const std::size_t ef = std::max(k, efSearch_);
 
     const auto results = searchLayer(
         query,
-        {entryPoint_},
-        ef
+        {currentEntry},
+        ef,
+        0
     );
 
     std::vector<VectorId> ids;
