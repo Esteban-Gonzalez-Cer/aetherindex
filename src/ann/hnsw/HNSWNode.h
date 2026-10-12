@@ -2,17 +2,20 @@
 #ifndef AETHERINDEX_HNSW_NODE_H
 #define AETHERINDEX_HNSW_NODE_H
 
-#include <cstddef>
+#include "aether/storage/vector_store.hpp"
+
 #include <vector>
 
+namespace aetherindex {
+
 struct HNSWNode {
-    std::size_t vectorId;
+    VectorId vector_id;
+    std::vector<VectorId> neighbors;
 
-    // Conexiones con otros nodos del grafo.
-    std::vector<std::size_t> neighbors;
-
-    explicit HNSWNode(std::size_t id)
-        : vectorId(id) {}
+    explicit HNSWNode(VectorId id)
+        : vector_id(id) {}
 };
+
+}  // namespace aetherindex
 
 #endif
