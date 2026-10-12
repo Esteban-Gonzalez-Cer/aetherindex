@@ -15,6 +15,21 @@ El proyecto contempla los siguientes algoritmos:
 
 El desarrollo se realiza de manera incremental mediante sprints.
 
+La estructura de directorios y las responsabilidades de cada módulo están
+documentadas en [Arquitectura del proyecto](docs/architecture/README.md).
+Las carpetas reservadas para funcionalidades futuras contienen `.gitkeep`
+para conservarse en Git; todavía no implementan algoritmos ni servicios.
+
+`VectorStore` almacena embeddings contiguos con IDs `uint32_t`, dimensión fija
+por instancia y acceso sin copia. `distance` implementa coseno y euclidiana al
+cuadrado. Fuerza bruta utiliza estos módulos a través de `QueryEngine`; el ejemplo
+de la CLI selecciona euclidiana al cuadrado y devuelve tres vecinos.
+
+Consultar [VectorStore y distancias](docs/algorithms/vector_store_and_distances.md)
+para el contrato y los comandos de pruebas, [Fuerza bruta](docs/algorithms/brute_force.md)
+para el flujo de búsqueda y [Evidencia de validación](docs/architecture/vector_store_validation.md)
+para los resultados registrados.
+
 ## 1. Requisitos del sistema
 
 Para compilar y ejecutar AetherIndex en Windows se necesita:

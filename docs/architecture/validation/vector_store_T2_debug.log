@@ -1,0 +1,114 @@
+Start testing: Oct 11 22:49 CST
+----------------------------------------------------------
+1/7 Testing: unit.vector_store
+1/7 Test: unit.vector_store
+Command: "/private/tmp/aetherindex-t2-debug-01a12e3a/tests/aether_vector_store_tests"
+Directory: /private/tmp/aetherindex-t2-debug-01a12e3a/tests
+"unit.vector_store" start time: Oct 11 22:49 CST
+Output:
+----------------------------------------------------------
+1000/1000 embeddings of dimension 128 recovered exactly (seed 42).
+<end of output>
+Test time =   0.27 sec
+----------------------------------------------------------
+Test Passed.
+"unit.vector_store" end time: Oct 11 22:49 CST
+"unit.vector_store" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/7 Testing: unit.vector_store_allocation
+2/7 Test: unit.vector_store_allocation
+Command: "/private/tmp/aetherindex-t2-debug-01a12e3a/tests/aether_vector_store_allocation_tests"
+Directory: /private/tmp/aetherindex-t2-debug-01a12e3a/tests
+"unit.vector_store_allocation" start time: Oct 11 22:49 CST
+Output:
+----------------------------------------------------------
+Rollback verified at 5 allocation points with 0 existing embeddings.
+Rollback verified at 4 allocation points with 1 existing embeddings.
+Rollback verified at 5 allocation points with 2 existing embeddings.
+Rollback verified at 2 allocation points with 13 existing embeddings.
+Rollback verified at 2 allocation points with 29 existing embeddings.
+<end of output>
+Test time =   0.29 sec
+----------------------------------------------------------
+Test Passed.
+"unit.vector_store_allocation" end time: Oct 11 22:49 CST
+"unit.vector_store_allocation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/7 Testing: unit.distance
+3/7 Test: unit.distance
+Command: "/private/tmp/aetherindex-t2-debug-01a12e3a/tests/aether_distance_tests"
+Directory: /private/tmp/aetherindex-t2-debug-01a12e3a/tests
+"unit.distance" start time: Oct 11 22:49 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.29 sec
+----------------------------------------------------------
+Test Passed.
+"unit.distance" end time: Oct 11 22:49 CST
+"unit.distance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/7 Testing: unit.brute_force
+4/7 Test: unit.brute_force
+Command: "/private/tmp/aetherindex-t2-debug-01a12e3a/tests/aether_brute_force_tests"
+Directory: /private/tmp/aetherindex-t2-debug-01a12e3a/tests
+"unit.brute_force" start time: Oct 11 22:49 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.38 sec
+----------------------------------------------------------
+Test Passed.
+"unit.brute_force" end time: Oct 11 22:49 CST
+"unit.brute_force" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/7 Testing: integration.storage_distance
+5/7 Test: integration.storage_distance
+Command: "/private/tmp/aetherindex-t2-debug-01a12e3a/tests/aether_storage_distance_tests"
+Directory: /private/tmp/aetherindex-t2-debug-01a12e3a/tests
+"integration.storage_distance" start time: Oct 11 22:49 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.34 sec
+----------------------------------------------------------
+Test Passed.
+"integration.storage_distance" end time: Oct 11 22:49 CST
+"integration.storage_distance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/7 Testing: integration.dense_retrieval
+6/7 Test: integration.dense_retrieval
+Command: "/private/tmp/aetherindex-t2-debug-01a12e3a/tests/aether_query_engine_tests"
+Directory: /private/tmp/aetherindex-t2-debug-01a12e3a/tests
+"integration.dense_retrieval" start time: Oct 11 22:49 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.33 sec
+----------------------------------------------------------
+Test Passed.
+"integration.dense_retrieval" end time: Oct 11 22:49 CST
+"integration.dense_retrieval" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/7 Testing: e2e.cli_demo
+7/7 Test: e2e.cli_demo
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-t2-debug-01a12e3a/aetherindex" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_demo_test.cmake"
+Directory: /private/tmp/aetherindex-t2-debug-01a12e3a/tests
+"e2e.cli_demo" start time: Oct 11 22:49 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.39 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_demo" end time: Oct 11 22:49 CST
+"e2e.cli_demo" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 11 22:49 CST

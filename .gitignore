@@ -1,0 +1,10 @@
+# Compilaciones locales de CMake
+/build/
+/build-*/
+/cmake-build-*/
+/CMakeUserPresets.json
+/compile_commands.json
+
+# Archivos locales del sistema
+.DS_Store
+Thumbs.db
