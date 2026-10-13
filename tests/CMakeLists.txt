@@ -33,3 +33,11 @@ set_tests_properties(
     integration.storage_distance integration.dense_retrieval e2e.cli_demo
     PROPERTIES TIMEOUT 30
 )
+
+add_executable(aether_hnsw_tests hnsw/hnsw_tests.cpp)
+target_link_libraries(aether_hnsw_tests PRIVATE aether_hnsw aether_brute_force)
+target_include_directories(aether_hnsw_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/ann/hnsw")
+foreach(T T4.1 T4.2 T4.3 T4.4 T4.5 T4.6)
+    add_test(NAME hnsw.${T} COMMAND aether_hnsw_tests ${T})
+    set_tests_properties(hnsw.${T} PROPERTIES TIMEOUT 900)
+endforeach()

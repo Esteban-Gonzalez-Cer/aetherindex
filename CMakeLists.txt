@@ -25,6 +25,9 @@ target_link_libraries(aether_brute_force
     PRIVATE aether_distance
 )
 
+add_library(aether_hnsw STATIC src/ann/hnsw/HNSWIndex.cpp)
+target_link_libraries(aether_hnsw PUBLIC aether_core aether_storage)
+
 add_library(aether_application STATIC src/application/query_engine.cpp)
 target_link_libraries(aether_application
     PUBLIC aether_core aether_storage
@@ -38,3 +41,4 @@ include(CTest)
 if(BUILD_TESTING)
     add_subdirectory(tests)
 endif()
+
