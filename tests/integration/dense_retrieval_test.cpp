@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "../test_helpers.hpp"
+#include "aether/ann/hnsw/hnsw_index.hpp"
 #include "aether/application/query_engine.hpp"
 
 using namespace aetherindex;
@@ -55,6 +56,27 @@ void checkMetricSelection() {
     requireNear(dense_cosine[0].distance, 0.0f, "Cosine best distance is incorrect.");
     requireNear(dense_squared[0].distance, 1.0f, "Squared best distance is incorrect.");
     requireNear(dense_squared[1].distance, 81.0f, "Squared farthest distance is incorrect.");
+
+    for (VectorStore* store : {&cosine, &squared}) {
+        HnswIndex index(*store);
+        for (VectorId id : store->ids()) index.insert(id);
+        const auto exact = engine.search(*store, query, 2);
+        const auto approximate = engine.search(index, query, 2);
+        require(approximate.size() == exact.size(),
+                "QueryEngine must forward searches to the prepared HNSW index.");
+        for (std::size_t rank = 0; rank < exact.size(); ++rank) {
+            require(approximate[rank].id == exact[rank].id,
+                    "The prepared-index overload must preserve the configured metric ranking.");
+            requireNear(approximate[rank].distance, exact[rank].distance,
+                        "The prepared-index overload must return shared SearchResult distances.");
+        }
+        const std::array<float, 1> wrong_dimension = {1};
+        requireInvalidArgument([&] { engine.search(index, wrong_dimension, 1); },
+                               "QueryEngine must preserve HNSW dimension validation.");
+        requireInvalidArgument([&] { engine.search(index, query, 0); },
+                               "The HNSW overload must preserve its positive-K contract.");
+        require(index.validate_graph().valid(), "Queries must leave the prepared graph valid.");
+    }
 }
 
 int main() {

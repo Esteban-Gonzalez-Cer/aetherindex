@@ -1,0 +1,170 @@
+cmake_minimum_required(VERSION 3.20)
+
+include("${CMAKE_CURRENT_LIST_DIR}/cli_output_checks.cmake")
+
+function(run_cli expected_status)
+    execute_process(
+        COMMAND "${CLI_PATH}" ${ARGN}
+        RESULT_VARIABLE status OUTPUT_VARIABLE output ERROR_VARIABLE errors
+        TIMEOUT 30
+    )
+    if(NOT "${status}" STREQUAL "${expected_status}")
+        message(FATAL_ERROR "CLI status ${status}, expected ${expected_status}: ${ARGN}\n${output}\n${errors}")
+    endif()
+    string(REPLACE "\r\n" "\n" output "${output}")
+    if(expected_status EQUAL 0)
+        if(NOT errors STREQUAL "")
+            message(FATAL_ERROR "Successful CLI wrote to stderr: ${errors}")
+        endif()
+    elseif(NOT output STREQUAL "" OR errors STREQUAL "")
+        message(FATAL_ERROR "Failed CLI must write only to stderr: ${output}\n${errors}")
+    endif()
+    set(cli_output "${output}" PARENT_SCOPE)
+    set(cli_error "${errors}" PARENT_SCOPE)
+endfunction()
+
+function(expect_error status diagnostic)
+    run_cli("${status}" ${ARGN})
+    if(NOT cli_error MATCHES "${diagnostic}")
+        message(FATAL_ERROR "Expected diagnostic '${diagnostic}': ${cli_error}")
+    endif()
+endfunction()
+
+function(check_hnsw_metadata output count)
+    foreach(fragment "Algorithm: HNSW" "Results returned: ${count}\n"
+                     "Search completed successfully."
+                     "Index build time scope: graph construction only \\(excludes CSV loading\\)")
+        if(NOT output MATCHES "${fragment}")
+            message(FATAL_ERROR "HNSW output missing '${fragment}': ${output}")
+        endif()
+    endforeach()
+    if(NOT output MATCHES "Index build time \\(ms\\): [0-9]+\\.[0-9][0-9][0-9][0-9][0-9][0-9]\n")
+        message(FATAL_ERROR "Missing finite nonnegative graph construction duration: ${output}")
+    endif()
+    check_search_output("${output}" "${count}")
+    set(cli_rows "${cli_rows}" PARENT_SCOPE)
+endfunction()
+
+file(MAKE_DIRECTORY "${WORK_DIR}")
+set(small_dataset "${WORK_DIR}/small.csv")
+set(small_query "${WORK_DIR}/small-query.csv")
+file(WRITE "${small_dataset}" "0,10,0\n4294967295,1,1\n")
+file(WRITE "${small_query}" "1,0\n")
+set(small_search search --dataset "${small_dataset}" --query "${small_query}" --algorithm hnsw)
+
+run_cli(0 ${small_search} --k 100 --ef-search 1 --seed 0)
+check_hnsw_metadata("${cli_output}" 2)
+list(GET cli_rows 0 row)
+parse_cli_row("${row}")
+if(NOT cli_id STREQUAL "0" OR NOT cli_distance STREQUAL "0.000000000" OR
+   NOT cli_output MATCHES "HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=1 seed=0")
+    message(FATAL_ERROR "Cosine, K>N, efSearch<K and seed zero must be supported: ${cli_output}")
+endif()
+run_cli(0 ${small_search} --k 2 --metric squared-euclidean --seed 18446744073709551615)
+check_hnsw_metadata("${cli_output}" 2)
+list(GET cli_rows 0 row)
+parse_cli_row("${row}")
+if(NOT cli_id STREQUAL "4294967295" OR NOT cli_distance STREQUAL "1.000000000" OR
+   NOT cli_output MATCHES "seed=18446744073709551615")
+    message(FATAL_ERROR "Squared Euclidean must preserve full IDs, seed range and nine decimals: ${cli_output}")
+endif()
+list(GET cli_rows 1 row)
+parse_cli_row("${row}")
+if(NOT cli_id STREQUAL "0" OR NOT cli_distance STREQUAL "81.000000000")
+    message(FATAL_ERROR "Squared Euclidean must produce the known distance 81: ${row}")
+endif()
+
+foreach(flag --m --m0 --ef-construction --ef-search --seed)
+    expect_error(2 "[Hh][Nn][Ss][Ww]|${flag}" search --dataset "${small_dataset}"
+                 --query "${small_query}" --algorithm brute-force "${flag}" 32)
+    expect_error(2 "Repeated option" ${small_search} "${flag}" 32 "${flag}" 32)
+    expect_error(2 "Missing value" ${small_search} "${flag}")
+    foreach(invalid_value abc -1 +1 1.5 1x 18446744073709551616)
+        expect_error(2 "Invalid value|${flag}" ${small_search} "${flag}" "${invalid_value}")
+    endforeach()
+endforeach()
+foreach(flag --m --m0 --ef-construction --ef-search)
+    expect_error(2 "HNSW|${flag}" ${small_search} "${flag}" 0)
+endforeach()
+# Bad configuration must be diagnosed before nonexistent input files are opened.
+set(missing_search search --dataset "${WORK_DIR}/missing.csv" --query "${WORK_DIR}/missing-query.csv"
+                   --algorithm hnsw)
+expect_error(2 "HNSW m" ${missing_search} --m 1)
+expect_error(2 "m_max_0" ${missing_search} --m0 15)
+expect_error(2 "ef_construction" ${missing_search} --ef-construction 15)
+expect_error(3 "Cannot open" ${missing_search})
+
+# The shared CSV loader preserves data diagnostics and exit codes for HNSW.
+file(WRITE "${small_dataset}" "10,1,0\n10,0,1\n")
+expect_error(3 "duplicate vector ID" ${small_search})
+file(WRITE "${small_dataset}" "10,1,0\n20,nan,0\n")
+expect_error(3 "finite float" ${small_search})
+file(WRITE "${small_dataset}" "10,1,0\n")
+file(WRITE "${small_query}" "1,0,0\n")
+expect_error(3 "query dimension mismatch" ${small_search})
+file(WRITE "${small_query}" "1,0\n0,1\n")
+expect_error(3 "exactly one embedding" ${small_search})
+file(WRITE "${small_query}" "0,0\n")
+expect_error(3 "all-zero query" ${small_search})
+file(WRITE "${small_dataset}" "10,0,0\n")
+run_cli(0 ${small_search} --metric squared-euclidean)
+check_hnsw_metadata("${cli_output}" 1)
+file(WRITE "${small_dataset}" "10,3e38\n")
+file(WRITE "${small_query}" "-3e38\n")
+expect_error(4 "Error during search" ${small_search} --metric squared-euclidean)
+
+execute_process(
+    COMMAND "${GENERATOR_PATH}" "${WORK_DIR}/mvp"
+    RESULT_VARIABLE status OUTPUT_VARIABLE fixture_output ERROR_VARIABLE errors TIMEOUT 10
+)
+if(NOT "${status}" STREQUAL "0" OR NOT errors STREQUAL "")
+    message(FATAL_ERROR "Could not generate the MVP fixture: ${status}\n${errors}")
+endif()
+# These are CLI wiring/stability queries. Independent-query recall is tested separately.
+foreach(metric cosine squared-euclidean)
+    foreach(query_index RANGE 0 4)
+        set(mvp_search search --dataset "${WORK_DIR}/mvp/vectors.csv"
+                       --query "${WORK_DIR}/mvp/query_${query_index}.csv" --algorithm hnsw
+                       --metric "${metric}" --k 10 --m 16 --m0 32 --ef-construction 100
+                       --ef-search 50 --seed 42)
+        run_cli(0 ${mvp_search})
+        check_hnsw_metadata("${cli_output}" 10)
+        if(NOT cli_output MATCHES "Vectors indexed: 1000\n" OR
+           NOT cli_output MATCHES "Dimensions: 128\n" OR
+           NOT cli_output MATCHES "HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42")
+            message(FATAL_ERROR "MVP metadata or HNSW configuration incorrect: ${cli_output}")
+        endif()
+        set(previous_rows "${cli_rows}")
+        math(EXPR expected_first_id "7 * 97 * ${query_index} + 10")
+        set(expected_rank 1)
+        set(previous_distance -1)
+        set(ids "")
+        foreach(row IN LISTS cli_rows)
+            parse_cli_row("${row}")
+            math(EXPR id_remainder "(${cli_id} - 10) % 7")
+            if(NOT cli_rank EQUAL expected_rank OR cli_id LESS 10 OR cli_id GREATER 7003 OR
+               NOT id_remainder EQUAL 0 OR cli_id IN_LIST ids OR cli_distance LESS previous_distance OR
+               cli_distance LESS 0)
+                message(FATAL_ERROR "Invalid rank, ID, uniqueness or distance order: ${row}")
+            endif()
+            if(metric STREQUAL "cosine" AND cli_distance GREATER 2)
+                message(FATAL_ERROR "Cosine distance outside [0,2]: ${row}")
+            endif()
+            if(expected_rank EQUAL 1 AND
+               (NOT cli_id EQUAL expected_first_id OR NOT cli_distance LESS 0.00001))
+                message(FATAL_ERROR "Indexed query must return itself first at distance <1e-5: ${row}")
+            endif()
+            list(APPEND ids "${cli_id}")
+            set(previous_distance "${cli_distance}")
+            math(EXPR expected_rank "${expected_rank} + 1")
+        endforeach()
+        if(query_index EQUAL 0)
+            run_cli(0 ${mvp_search})
+            check_hnsw_metadata("${cli_output}" 10)
+            if(NOT cli_rows STREQUAL previous_rows)
+                message(FATAL_ERROR "Same seed/data/query must reproduce the CLI result table.")
+            endif()
+        endif()
+    endforeach()
+endforeach()
+message(STATUS "HNSW CLI: both metrics, full IDs/seed range, validated flags, separate timing, 1000x128 MVP and repeatable result tables passed.")

@@ -14,8 +14,10 @@ std::vector<SearchResult> bruteForceSearch(
     std::size_t k);
 ```
 
-`QueryEngine::search` expone los mismos argumentos como entrada de la aplicación.
-La CLI depende de `QueryEngine`; la búsqueda no contiene entrada/salida ni datos
+`QueryEngine::search` expone los mismos argumentos como entrada de la aplicación
+y ofrece una sobrecarga separada para un índice HNSW ya construido.
+La CLI llama a `SearchService`, que carga los archivos y consulta `QueryEngine`;
+la búsqueda no contiene entrada/salida ni datos
 de ejemplo. El algoritmo recorre `ids()`, obtiene cada vista con `find()` y llama
 `compute_distance()` con `distance_kind()` del store. No copia embeddings.
 
@@ -33,7 +35,8 @@ La dimensión y la métrica permanecen fijas durante la vida del store.
 | Tipos e identificadores | `include/aether/core/types.hpp`, `search_result.hpp` |
 | API de distancias | `include/aether/distance/distance.hpp` |
 | Kernels escalares | `src/distance/scalar_distance.cpp` |
-| Demostración | `apps/cli/main.cpp` |
+| Coordinación de carga y búsqueda | `include/aether/application/search_service.hpp` |
+| Interfaz de terminal | `apps/cli/main.cpp`, `cli_parser.cpp`, `cli_runner.cpp` |
 
 Las APIs anteriores basadas en `VectorEntry`, IDs `int` y
 `squaredEuclideanDistance(vector, vector)` se reemplazaron, sin wrappers.
@@ -53,11 +56,21 @@ Las APIs anteriores basadas en `VectorEntry`, IDs `int` y
 Para `N` embeddings de dimensión `D`, el coste es `O(ND + N log N)` y el espacio
 adicional es `O(N)`. No se incorpora una optimización top-k.
 
-El store utiliza coseno por defecto. El ejemplo de CLI selecciona explícitamente
-`SquaredEuclidean`, con IDs `1`, `2`, `4` y distancias `4.92`, `5.14`, `9.77`.
-Su salida se comprueba completa mediante CTest. La CLI sigue siendo una
-demostración en memoria, sin comandos de indexación ni lectura de archivos.
+El store y la CLI utilizan coseno por defecto. La CLI admite también
+`--metric squared-euclidean` y carga archivos CSV mediante `search`. El ejemplo
+original de euclidiana al cuadrado, con IDs `1`, `2`, `4` y distancias
+`4.92`, `5.14`, `9.77`, sigue validándose mediante `QueryEngine`.
+La CLI ejecuta carga y búsqueda en memoria en un único comando, sin persistencia.
+Ver [Uso de la CLI](../cli.md).
+
+La implementación [HNSW](hnsw.md) comparte el store, la métrica y `SearchResult`,
+y utiliza fuerza bruta como referencia exacta de Recall@10 en las pruebas. HNSW
+recorre el grafo y puede omitir vecinos; nunca sustituye una consulta aproximada
+por este recorrido exhaustivo. Su desempate por ID es explícito, mientras que
+fuerza bruta mantiene el orden de empates sin especificar. El protocolo de
+Recall evita empates ambiguos en el corte Top-10.
 
 Ver [VectorStore y distancias](vector_store_and_distances.md) para compilación,
-sanitizers, vida útil de las vistas y contrato numérico. `DocumentId`, HNSW,
-BM25, RRF, persistencia y benchmarking permanecen pendientes.
+sanitizers, vida útil de las vistas y contrato numérico, y la
+[validación HNSW](../architecture/hnsw_validation.md) para evidencias.
+`DocumentId`, BM25, RRF, persistencia y un framework de benchmarks permanecen pendientes.

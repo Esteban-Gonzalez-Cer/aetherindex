@@ -25,14 +25,28 @@ target_link_libraries(aether_brute_force
     PRIVATE aether_distance
 )
 
-add_library(aether_application STATIC src/application/query_engine.cpp)
-target_link_libraries(aether_application
+add_library(aether_hnsw STATIC src/ann/hnsw/hnsw_index.cpp)
+target_link_libraries(aether_hnsw
     PUBLIC aether_core aether_storage
-    PRIVATE aether_brute_force
+    PRIVATE aether_distance
 )
 
+add_library(aether_application STATIC
+    src/application/query_engine.cpp
+    src/application/search_service.cpp
+    src/application/csv_loader.cpp
+)
+target_link_libraries(aether_application
+    PUBLIC aether_core aether_storage
+    PRIVATE aether_brute_force aether_hnsw
+)
+
+add_library(aether_cli STATIC apps/cli/cli_parser.cpp apps/cli/cli_runner.cpp)
+target_include_directories(aether_cli PUBLIC "${PROJECT_SOURCE_DIR}/apps/cli")
+target_link_libraries(aether_cli PUBLIC aether_application)
+
 add_executable(aetherindex apps/cli/main.cpp)
-target_link_libraries(aetherindex PRIVATE aether_application)
+target_link_libraries(aetherindex PRIVATE aether_cli)
 
 include(CTest)
 if(BUILD_TESTING)

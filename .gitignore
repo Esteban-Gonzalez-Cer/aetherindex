@@ -5,6 +5,10 @@
 /CMakeUserPresets.json
 /compile_commands.json
 
+# Downloaded real embeddings and generated evaluation artifacts
+/datasets/real/dbpedia/
+__pycache__/
+
 # Archivos locales del sistema
 .DS_Store
 Thumbs.db

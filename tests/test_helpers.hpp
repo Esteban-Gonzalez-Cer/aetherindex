@@ -10,7 +10,9 @@ inline void require(bool condition, const char* message) {
 }
 
 inline void requireNear(float actual, float expected, const char* message) {
-    require(std::isfinite(actual) && std::abs(actual - expected) <= 0.00001f, message);
+    require(std::isfinite(actual) && std::isfinite(expected) &&
+                std::abs(static_cast<double>(actual) - static_cast<double>(expected)) < 1e-5,
+            message);
 }
 
 template <typename Function>

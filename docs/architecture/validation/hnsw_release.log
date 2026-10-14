@@ -1,0 +1,417 @@
+Start testing: Oct 13 00:01 CST
+----------------------------------------------------------
+1/18 Testing: unit.vector_store
+1/18 Test: unit.vector_store
+Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_vector_store_tests"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"unit.vector_store" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+1000/1000 embeddings of dimension 128 recovered exactly (seed 42).
+<end of output>
+Test time =   0.24 sec
+----------------------------------------------------------
+Test Passed.
+"unit.vector_store" end time: Oct 13 00:01 CST
+"unit.vector_store" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/18 Testing: unit.vector_store_allocation
+2/18 Test: unit.vector_store_allocation
+Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_vector_store_allocation_tests"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"unit.vector_store_allocation" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+Rollback verified at 5 allocation points with 0 existing embeddings.
+Rollback verified at 4 allocation points with 1 existing embeddings.
+Rollback verified at 5 allocation points with 2 existing embeddings.
+Rollback verified at 2 allocation points with 13 existing embeddings.
+Rollback verified at 2 allocation points with 29 existing embeddings.
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"unit.vector_store_allocation" end time: Oct 13 00:01 CST
+"unit.vector_store_allocation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/18 Testing: unit.distance
+3/18 Test: unit.distance
+Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_distance_tests"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"unit.distance" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"unit.distance" end time: Oct 13 00:01 CST
+"unit.distance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/18 Testing: unit.brute_force
+4/18 Test: unit.brute_force
+Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_brute_force_tests"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"unit.brute_force" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.20 sec
+----------------------------------------------------------
+Test Passed.
+"unit.brute_force" end time: Oct 13 00:01 CST
+"unit.brute_force" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/18 Testing: integration.storage_distance
+5/18 Test: integration.storage_distance
+Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_storage_distance_tests"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"integration.storage_distance" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"integration.storage_distance" end time: Oct 13 00:01 CST
+"integration.storage_distance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/18 Testing: integration.dense_retrieval
+6/18 Test: integration.dense_retrieval
+Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_query_engine_tests"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"integration.dense_retrieval" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"integration.dense_retrieval" end time: Oct 13 00:01 CST
+"integration.dense_retrieval" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/18 Testing: unit.cli_parser
+7/18 Test: unit.cli_parser
+Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_cli_parser_tests"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"unit.cli_parser" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.23 sec
+----------------------------------------------------------
+Test Passed.
+"unit.cli_parser" end time: Oct 13 00:01 CST
+"unit.cli_parser" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/18 Testing: integration.search_service
+8/18 Test: integration.search_service
+Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_search_service_tests" "/private/tmp/aetherindex-hnsw-release-20261012/tests/service-fixtures/Release"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"integration.search_service" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.17 sec
+----------------------------------------------------------
+Test Passed.
+"integration.search_service" end time: Oct 13 00:01 CST
+"integration.search_service" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/18 Testing: e2e.cli_search
+9/18 Test: e2e.cli_search
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-hnsw-release-20261012/aetherindex" "-DWORK_DIR=/private/tmp/aetherindex-hnsw-release-20261012/tests/cli-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_search_test.cmake"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"e2e.cli_search" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+-- CLI help, exact/HNSW search, both metrics, k, error messages, streams and exit codes passed.
+<end of output>
+Test time =   0.22 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_search" end time: Oct 13 00:01 CST
+"e2e.cli_search" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/18 Testing: e2e.cli_mvp
+10/18 Test: e2e.cli_mvp
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-hnsw-release-20261012/aetherindex" "-DGENERATOR_PATH=/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_cli_fixture_generator" "-DWORK_DIR=/private/tmp/aetherindex-hnsw-release-20261012/tests/mvp-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_mvp_test.cmake"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"e2e.cli_mvp" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+-- 1000 x 128 embeddings; seed 42; 10/10 distinct CLI Top-10 queries passed with valid, unique, sorted IDs.
+<end of output>
+Test time =   0.57 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_mvp" end time: Oct 13 00:01 CST
+"e2e.cli_mvp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/18 Testing: unit.hnsw_node
+11/18 Test: unit.hnsw_node
+Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_hnsw_node_tests"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"unit.hnsw_node" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+Level reproduction: nodes=1000 dimensions=3 dataset_seed=123 graph_seed=42
+Level 0: 954 nodes
+Level 1: 44 nodes
+Level 2: 2 nodes
+<end of output>
+Test time =   0.29 sec
+----------------------------------------------------------
+Test Passed.
+"unit.hnsw_node" end time: Oct 13 00:01 CST
+"unit.hnsw_node" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/18 Testing: unit.hnsw_insert
+12/18 Test: unit.hnsw_insert
+Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_hnsw_insert_tests"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"unit.hnsw_insert" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+Incremental insertion: 100 + 100 nodes; storage reallocation exercised; VALID
+<end of output>
+Test time =   0.21 sec
+----------------------------------------------------------
+Test Passed.
+"unit.hnsw_insert" end time: Oct 13 00:01 CST
+"unit.hnsw_insert" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/18 Testing: unit.hnsw_search
+13/18 Test: unit.hnsw_search
+Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_hnsw_search_tests"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"unit.hnsw_search" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+HNSW search: known cosine 0/0.2/1/2; squared 25; both metrics; edge cases PASS
+<end of output>
+Test time =   0.17 sec
+----------------------------------------------------------
+Test Passed.
+"unit.hnsw_search" end time: Oct 13 00:01 CST
+"unit.hnsw_search" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/18 Testing: unit.hnsw_graph
+14/18 Test: unit.hnsw_graph
+Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_hnsw_graph_tests"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"unit.hnsw_graph" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+Graph validation: nodes=250 edges=2274 M=4 M0=8; all invariants VALID before/after queries
+<end of output>
+Test time =   0.18 sec
+----------------------------------------------------------
+Test Passed.
+"unit.hnsw_graph" end time: Oct 13 00:01 CST
+"unit.hnsw_graph" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/18 Testing: integration.hnsw_recall
+15/18 Test: integration.hnsw_recall
+Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_hnsw_recall_tests" "/private/tmp/aetherindex-hnsw-release-20261012/tests/hnsw-recall-Release.csv"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"integration.hnsw_recall" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+Protocol metric=cosine vectors=1000 dimensions=128 queries=100 k=10 dataset_seed=42 query_seed=424242 graph_seed=42 M=16 M0=32 efConstruction=100 max_level=32 build_ms=258.771042
+Evaluation metric=cosine efSearch=10 mean_recall_at_10=0.676000 mean_query_ms=0.060814 invalid_results=0 crashes=0
+Evaluation metric=cosine efSearch=30 mean_recall_at_10=0.924000 mean_query_ms=0.113452 invalid_results=0 crashes=0
+Evaluation metric=cosine efSearch=50 mean_recall_at_10=0.977000 mean_query_ms=0.142607 invalid_results=0 crashes=0
+Evaluation metric=cosine efSearch=100 mean_recall_at_10=0.998000 mean_query_ms=0.193906 invalid_results=0 crashes=0
+Protocol metric=squared-euclidean vectors=1000 dimensions=128 queries=100 k=10 dataset_seed=42 query_seed=424242 graph_seed=42 M=16 M0=32 efConstruction=100 max_level=32 build_ms=226.580791
+Evaluation metric=squared-euclidean efSearch=10 mean_recall_at_10=0.733000 mean_query_ms=0.048778 invalid_results=0 crashes=0
+Evaluation metric=squared-euclidean efSearch=30 mean_recall_at_10=0.928000 mean_query_ms=0.084779 invalid_results=0 crashes=0
+Evaluation metric=squared-euclidean efSearch=50 mean_recall_at_10=0.972000 mean_query_ms=0.112084 invalid_results=0 crashes=0
+Evaluation metric=squared-euclidean efSearch=100 mean_recall_at_10=0.993000 mean_query_ms=0.155216 invalid_results=0 crashes=0
+Structural validation before/after: VALID; exact cutoff ties=0; 100 independent queries per metric, 400 measured searches per graph
+<end of output>
+Test time =   0.80 sec
+----------------------------------------------------------
+Test Passed.
+"integration.hnsw_recall" end time: Oct 13 00:01 CST
+"integration.hnsw_recall" time elapsed: 00:00:00
+----------------------------------------------------------
+
+16/18 Testing: e2e.cli_hnsw
+16/18 Test: e2e.cli_hnsw
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-hnsw-release-20261012/aetherindex" "-DGENERATOR_PATH=/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_cli_fixture_generator" "-DWORK_DIR=/private/tmp/aetherindex-hnsw-release-20261012/tests/hnsw-cli-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_hnsw_test.cmake"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"e2e.cli_hnsw" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+-- HNSW CLI: both metrics, full IDs/seed range, validated flags, separate timing, 1000x128 MVP and repeatable result tables passed.
+<end of output>
+Test time =   3.34 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_hnsw" end time: Oct 13 00:01 CST
+"e2e.cli_hnsw" time elapsed: 00:00:03
+----------------------------------------------------------
+
+17/18 Testing: e2e.cli_real_dataset
+17/18 Test: e2e.cli_real_dataset
+Command: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13" "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/validate_real_dataset.py" "--cli" "/private/tmp/aetherindex-hnsw-release-20261012/aetherindex" "--data-dir" "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia" "--k" "100" "--report" "/private/tmp/aetherindex-hnsw-release-20261012/tests/real-data-Release.json"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"e2e.cli_real_dataset" start time: Oct 13 00:01 CST
+Output:
+----------------------------------------------------------
+PASS cosine            queries/query_00.csv: Top-100, query 11.712292 ms
+PASS cosine            queries/query_01.csv: Top-100, query 12.790042 ms
+PASS cosine            queries/query_02.csv: Top-100, query 12.829666 ms
+PASS cosine            queries/query_03.csv: Top-100, query 12.392958 ms
+PASS cosine            queries/query_04.csv: Top-100, query 11.345458 ms
+PASS cosine            queries/query_05.csv: Top-100, query 12.927334 ms
+PASS cosine            queries/query_06.csv: Top-100, query 10.874500 ms
+PASS cosine            queries/query_07.csv: Top-100, query 10.364667 ms
+PASS cosine            queries/query_08.csv: Top-100, query 11.037542 ms
+PASS cosine            queries/query_09.csv: Top-100, query 12.444667 ms
+PASS cosine            queries/query_10.csv: Top-100, query 13.172750 ms
+PASS cosine            queries/query_11.csv: Top-100, query 12.889042 ms
+PASS cosine            queries/query_12.csv: Top-100, query 12.040875 ms
+PASS cosine            queries/query_13.csv: Top-100, query 13.157917 ms
+PASS cosine            queries/query_14.csv: Top-100, query 12.749084 ms
+PASS cosine            queries/query_15.csv: Top-100, query 10.879583 ms
+PASS cosine            queries/query_16.csv: Top-100, query 10.251958 ms
+PASS cosine            queries/query_17.csv: Top-100, query 12.614125 ms
+PASS cosine            queries/query_18.csv: Top-100, query 12.516084 ms
+PASS cosine            queries/query_19.csv: Top-100, query 11.762834 ms
+PASS squared-euclidean queries/query_00.csv: Top-100, query 12.866500 ms
+PASS squared-euclidean queries/query_01.csv: Top-100, query 10.164292 ms
+PASS squared-euclidean queries/query_02.csv: Top-100, query 10.091250 ms
+PASS squared-euclidean queries/query_03.csv: Top-100, query 11.061083 ms
+PASS squared-euclidean queries/query_04.csv: Top-100, query 9.638167 ms
+PASS squared-euclidean queries/query_05.csv: Top-100, query 12.129167 ms
+PASS squared-euclidean queries/query_06.csv: Top-100, query 11.938500 ms
+PASS squared-euclidean queries/query_07.csv: Top-100, query 10.804333 ms
+PASS squared-euclidean queries/query_08.csv: Top-100, query 10.627625 ms
+PASS squared-euclidean queries/query_09.csv: Top-100, query 12.308458 ms
+PASS squared-euclidean queries/query_10.csv: Top-100, query 10.008291 ms
+PASS squared-euclidean queries/query_11.csv: Top-100, query 10.001084 ms
+PASS squared-euclidean queries/query_12.csv: Top-100, query 11.479875 ms
+PASS squared-euclidean queries/query_13.csv: Top-100, query 11.318875 ms
+PASS squared-euclidean queries/query_14.csv: Top-100, query 10.352542 ms
+PASS squared-euclidean queries/query_15.csv: Top-100, query 10.869250 ms
+PASS squared-euclidean queries/query_16.csv: Top-100, query 10.500209 ms
+PASS squared-euclidean queries/query_17.csv: Top-100, query 10.753750 ms
+PASS squared-euclidean queries/query_18.csv: Top-100, query 11.220000 ms
+PASS squared-euclidean queries/query_19.csv: Top-100, query 11.220292 ms
+{
+  "passed_queries": 40,
+  "checked_neighbors": 4000,
+  "max_absolute_distance_error": 5.99890916941348e-08,
+  "summary": {
+    "cosine": {
+      "queries": 20,
+      "median_query_ms": 12.418812500000001,
+      "min_query_ms": 10.251958,
+      "max_query_ms": 13.17275
+    },
+    "squared-euclidean": {
+      "queries": 20,
+      "median_query_ms": 10.8367915,
+      "min_query_ms": 9.638167,
+      "max_query_ms": 12.8665
+    }
+  }
+}
+<end of output>
+Test time =  93.79 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_real_dataset" end time: Oct 13 00:02 CST
+"e2e.cli_real_dataset" time elapsed: 00:01:33
+----------------------------------------------------------
+
+18/18 Testing: integration.hnsw_real_dataset
+18/18 Test: integration.hnsw_real_dataset
+Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_hnsw_real_dataset_tests" "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia" "/private/tmp/aetherindex-hnsw-release-20261012/tests/hnsw-real-data-Release.csv"
+Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
+"integration.hnsw_real_dataset" start time: Oct 13 00:02 CST
+Output:
+----------------------------------------------------------
+Loaded real DBpedia embeddings: 10000 x 1024, held-out queries: 20, load time (ms): 2857.476750
+Indexed 1000/10000 vectors
+Indexed 2000/10000 vectors
+Indexed 3000/10000 vectors
+Indexed 4000/10000 vectors
+Indexed 5000/10000 vectors
+Indexed 6000/10000 vectors
+Indexed 7000/10000 vectors
+Indexed 8000/10000 vectors
+Indexed 9000/10000 vectors
+Indexed 10000/10000 vectors
+Graph validation: valid; nodes: 10000; max level: 4; build time (ms): 24735.628416
+Query 0, efSearch 50, Recall@10: 1.000000, query time (ms): 0.943833
+Query 0, efSearch 100, Recall@10: 1.000000, query time (ms): 1.464625
+Query 1, efSearch 50, Recall@10: 1.000000, query time (ms): 1.136166
+Query 1, efSearch 100, Recall@10: 1.000000, query time (ms): 1.739709
+Query 2, efSearch 50, Recall@10: 1.000000, query time (ms): 0.866666
+Query 2, efSearch 100, Recall@10: 1.000000, query time (ms): 1.369292
+Query 3, efSearch 50, Recall@10: 1.000000, query time (ms): 1.105333
+Query 3, efSearch 100, Recall@10: 1.000000, query time (ms): 1.519334
+Query 4, efSearch 50, Recall@10: 1.000000, query time (ms): 1.254958
+Query 4, efSearch 100, Recall@10: 1.000000, query time (ms): 2.233917
+Query 5, efSearch 50, Recall@10: 1.000000, query time (ms): 1.461125
+Query 5, efSearch 100, Recall@10: 1.000000, query time (ms): 2.531000
+Query 6, efSearch 50, Recall@10: 1.000000, query time (ms): 0.731208
+Query 6, efSearch 100, Recall@10: 1.000000, query time (ms): 1.179459
+Query 7, efSearch 50, Recall@10: 0.900000, query time (ms): 0.867875
+Query 7, efSearch 100, Recall@10: 1.000000, query time (ms): 1.529000
+Query 8, efSearch 50, Recall@10: 1.000000, query time (ms): 0.711250
+Query 8, efSearch 100, Recall@10: 1.000000, query time (ms): 0.924292
+Query 9, efSearch 50, Recall@10: 1.000000, query time (ms): 1.159292
+Query 9, efSearch 100, Recall@10: 1.000000, query time (ms): 1.771708
+Query 10, efSearch 50, Recall@10: 1.000000, query time (ms): 1.065958
+Query 10, efSearch 100, Recall@10: 1.000000, query time (ms): 1.744792
+Query 11, efSearch 50, Recall@10: 1.000000, query time (ms): 1.250334
+Query 11, efSearch 100, Recall@10: 1.000000, query time (ms): 2.199750
+Query 12, efSearch 50, Recall@10: 1.000000, query time (ms): 1.243625
+Query 12, efSearch 100, Recall@10: 1.000000, query time (ms): 1.856500
+Query 13, efSearch 50, Recall@10: 0.900000, query time (ms): 1.155334
+Query 13, efSearch 100, Recall@10: 1.000000, query time (ms): 1.874291
+Query 14, efSearch 50, Recall@10: 0.900000, query time (ms): 0.967541
+Query 14, efSearch 100, Recall@10: 0.900000, query time (ms): 1.537709
+Query 15, efSearch 50, Recall@10: 1.000000, query time (ms): 1.193292
+Query 15, efSearch 100, Recall@10: 1.000000, query time (ms): 2.104166
+Query 16, efSearch 50, Recall@10: 1.000000, query time (ms): 0.958041
+Query 16, efSearch 100, Recall@10: 1.000000, query time (ms): 1.723041
+Query 17, efSearch 50, Recall@10: 1.000000, query time (ms): 1.040667
+Query 17, efSearch 100, Recall@10: 1.000000, query time (ms): 1.492417
+Query 18, efSearch 50, Recall@10: 1.000000, query time (ms): 1.509167
+Query 18, efSearch 100, Recall@10: 1.000000, query time (ms): 2.441666
+Query 19, efSearch 50, Recall@10: 1.000000, query time (ms): 1.146833
+Query 19, efSearch 100, Recall@10: 1.000000, query time (ms): 1.981584
+Mean brute-force query time (ms): 10.108467
+efSearch 50: mean Recall@10: 0.985000; mean query time (ms): 1.088425
+efSearch 100: mean Recall@10: 0.995000; mean query time (ms): 1.760913
+<end of output>
+Test time =  28.14 sec
+----------------------------------------------------------
+Test Passed.
+"integration.hnsw_real_dataset" end time: Oct 13 00:03 CST
+"integration.hnsw_real_dataset" time elapsed: 00:00:28
+----------------------------------------------------------
+
+End testing: Oct 13 00:03 CST
+
+real-data = 121.93 sec*proc
+

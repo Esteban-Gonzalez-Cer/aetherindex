@@ -1,0 +1,161 @@
+Start testing: Oct 12 15:34 CST
+----------------------------------------------------------
+1/10 Testing: unit.vector_store
+1/10 Test: unit.vector_store
+Command: "/private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests/aether_vector_store_tests"
+Directory: /private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests
+"unit.vector_store" start time: Oct 12 15:34 CST
+Output:
+----------------------------------------------------------
+1000/1000 embeddings of dimension 128 recovered exactly (seed 42).
+<end of output>
+Test time =   0.80 sec
+----------------------------------------------------------
+Test Passed.
+"unit.vector_store" end time: Oct 12 15:34 CST
+"unit.vector_store" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/10 Testing: unit.vector_store_allocation
+2/10 Test: unit.vector_store_allocation
+Command: "/private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests/aether_vector_store_allocation_tests"
+Directory: /private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests
+"unit.vector_store_allocation" start time: Oct 12 15:34 CST
+Output:
+----------------------------------------------------------
+Rollback verified at 5 allocation points with 0 existing embeddings.
+Rollback verified at 4 allocation points with 1 existing embeddings.
+Rollback verified at 5 allocation points with 2 existing embeddings.
+Rollback verified at 2 allocation points with 13 existing embeddings.
+Rollback verified at 2 allocation points with 29 existing embeddings.
+<end of output>
+Test time =   0.46 sec
+----------------------------------------------------------
+Test Passed.
+"unit.vector_store_allocation" end time: Oct 12 15:34 CST
+"unit.vector_store_allocation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/10 Testing: unit.distance
+3/10 Test: unit.distance
+Command: "/private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests/aether_distance_tests"
+Directory: /private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests
+"unit.distance" start time: Oct 12 15:34 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.54 sec
+----------------------------------------------------------
+Test Passed.
+"unit.distance" end time: Oct 12 15:34 CST
+"unit.distance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/10 Testing: unit.brute_force
+4/10 Test: unit.brute_force
+Command: "/private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests/aether_brute_force_tests"
+Directory: /private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests
+"unit.brute_force" start time: Oct 12 15:34 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.49 sec
+----------------------------------------------------------
+Test Passed.
+"unit.brute_force" end time: Oct 12 15:34 CST
+"unit.brute_force" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/10 Testing: integration.storage_distance
+5/10 Test: integration.storage_distance
+Command: "/private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests/aether_storage_distance_tests"
+Directory: /private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests
+"integration.storage_distance" start time: Oct 12 15:34 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.51 sec
+----------------------------------------------------------
+Test Passed.
+"integration.storage_distance" end time: Oct 12 15:34 CST
+"integration.storage_distance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/10 Testing: integration.dense_retrieval
+6/10 Test: integration.dense_retrieval
+Command: "/private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests/aether_query_engine_tests"
+Directory: /private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests
+"integration.dense_retrieval" start time: Oct 12 15:34 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.37 sec
+----------------------------------------------------------
+Test Passed.
+"integration.dense_retrieval" end time: Oct 12 15:34 CST
+"integration.dense_retrieval" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/10 Testing: unit.cli_parser
+7/10 Test: unit.cli_parser
+Command: "/private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests/aether_cli_parser_tests"
+Directory: /private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests
+"unit.cli_parser" start time: Oct 12 15:34 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.41 sec
+----------------------------------------------------------
+Test Passed.
+"unit.cli_parser" end time: Oct 12 15:34 CST
+"unit.cli_parser" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/10 Testing: integration.search_service
+8/10 Test: integration.search_service
+Command: "/private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests/aether_search_service_tests" "/private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests/service-fixtures/Debug"
+Directory: /private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests
+"integration.search_service" start time: Oct 12 15:34 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.31 sec
+----------------------------------------------------------
+Test Passed.
+"integration.search_service" end time: Oct 12 15:34 CST
+"integration.search_service" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/10 Testing: e2e.cli_search
+9/10 Test: e2e.cli_search
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-cli-sanitizers-01a12e3a/aetherindex" "-DWORK_DIR=/private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests/cli-fixtures/Debug" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_search_test.cmake"
+Directory: /private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests
+"e2e.cli_search" start time: Oct 12 15:34 CST
+Output:
+----------------------------------------------------------
+-- CLI help, exact search, both metrics, k, error messages, streams and exit codes passed.
+<end of output>
+Test time =   2.00 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_search" end time: Oct 12 15:34 CST
+"e2e.cli_search" time elapsed: 00:00:02
+----------------------------------------------------------
+
+10/10 Testing: e2e.cli_mvp
+10/10 Test: e2e.cli_mvp
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-cli-sanitizers-01a12e3a/aetherindex" "-DGENERATOR_PATH=/private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests/aether_cli_fixture_generator" "-DWORK_DIR=/private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests/mvp-fixtures/Debug" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_mvp_test.cmake"
+Directory: /private/tmp/aetherindex-cli-sanitizers-01a12e3a/tests
+"e2e.cli_mvp" start time: Oct 12 15:34 CST
+Output:
+----------------------------------------------------------
+-- 1000 x 128 embeddings; seed 42; 10/10 distinct CLI Top-10 queries passed with valid, unique, sorted IDs.
+<end of output>
+Test time =   2.10 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_mvp" end time: Oct 12 15:34 CST
+"e2e.cli_mvp" time elapsed: 00:00:02
+----------------------------------------------------------
+
+End testing: Oct 12 15:34 CST

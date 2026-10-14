@@ -1,4 +1,3 @@
-# aetherindex
 # AetherIndex
 
 AetherIndex es un motor de búsqueda híbrida desarrollado en C++20 que combina
@@ -22,8 +21,111 @@ para conservarse en Git; todavía no implementan algoritmos ni servicios.
 
 `VectorStore` almacena embeddings contiguos con IDs `uint32_t`, dimensión fija
 por instancia y acceso sin copia. `distance` implementa coseno y euclidiana al
-cuadrado. Fuerza bruta utiliza estos módulos a través de `QueryEngine`; el ejemplo
-de la CLI selecciona euclidiana al cuadrado y devuelve tres vecinos.
+cuadrado. Fuerza bruta utiliza estos módulos a través de `QueryEngine`. La CLI
+carga archivos CSV y coordina fuerza bruta o HNSW mediante `SearchService`, sin
+incorporar lógica de almacenamiento ni algoritmos en la presentación.
+
+## CLI mínima: inicio rápido
+
+Requisitos: CMake 3.20 o superior y un compilador con C++20. Desde la raíz del
+repositorio, en macOS/Linux con un generador de configuración única:
+
+```sh
+cmake -S . -B build-cli -DCMAKE_BUILD_TYPE=Debug
+cmake --build build-cli --parallel 4
+./build-cli/aetherindex --help
+./build-cli/aetherindex search --dataset datasets/examples/vectors.csv --query datasets/examples/query.csv --algorithm brute-force --k 2
+ctest --test-dir build-cli --output-on-failure
+```
+
+En Windows, después de configurar y compilar con Visual Studio como se explica
+más adelante:
+
+```powershell
+.\build\Debug\aetherindex.exe --help
+.\build\Debug\aetherindex.exe search --dataset datasets/examples/vectors.csv --query datasets/examples/query.csv --algorithm brute-force --k 2
+ctest --test-dir build -C Debug --output-on-failure
+```
+
+El ejemplo devuelve **ID 10 a distancia 0**, seguido de **ID 40 a distancia
+aproximada 0.2**. La salida incluye algoritmo, métrica, tamaño, dimensión, K y
+tiempo de consulta en milisegundos, seguido de una tabla con bordes y separadores
+por fila. Los IDs son enteros y las distancias muestran nueve decimales, incluyendo
+`0.000000000`; las distancias menores van primero. El tiempo mide la búsqueda y
+excluye carga de CSV y presentación.
+
+| Argumento | Contrato |
+|---|---|
+| `search` | Carga el dataset, prepara el almacenamiento y consulta en una ejecución |
+| `--dataset FILE` | Obligatorio; CSV sin encabezado: `VectorId,x1,...,xD` |
+| `--query FILE` | Obligatorio; una fila `x1,...,xD`, sin ID |
+| `--algorithm NAME` | Obligatorio; `brute-force` exacto o `hnsw` aproximado |
+| `--k INTEGER` | Entero positivo; por defecto 10; como máximo `min(K,N)` vecinos |
+| `--metric NAME` | `cosine` por defecto, o `squared-euclidean` |
+| `--m`, `--m0` | HNSW: límites de vecinos superiores/base; por defecto 16/32 |
+| `--ef-construction`, `--ef-search` | HNSW: amplitud de construcción/consulta; por defecto 100/50 |
+| `--seed INTEGER` | HNSW: semilla uint64 reproducible; por defecto 42, cero permitido |
+| `--help` | Ayuda; también `search --help` o ejecución sin argumentos |
+
+Los IDs son enteros sin signo de 32 bits únicos, incluyendo 0. Todos los
+embeddings deben tener la misma dimensión y componentes finitos. Se admiten
+decimales, notación científica, espacios/tabulaciones alrededor de los campos,
+líneas vacías y finales de línea LF/CRLF. No se admiten encabezados, comillas ni
+campos vacíos. Coseno rechaza vectores de norma cero; euclidiana al cuadrado
+los permite. Por ejemplo:
+
+```csv
+10,1.0,0.0
+20,0.0,1.0
+30,-1.0,0.0
+40,0.8,0.6
+```
+
+Consulta correspondiente:
+
+```csv
+1.0,0.0
+```
+
+**HNSW está integrado** mediante la capa de aplicación. El siguiente comando
+construye el grafo en memoria y ejecuta la consulta aproximada:
+
+```sh
+./build-cli/aetherindex search --dataset datasets/examples/vectors.csv --query datasets/examples/query.csv --algorithm hnsw --k 10
+```
+
+Para usar los datos reales ya preparados:
+
+```sh
+./build-cli-release/aetherindex search --dataset datasets/real/dbpedia/vectors.csv --query datasets/real/dbpedia/queries/query_00.csv --algorithm hnsw --k 10 --ef-search 100 --seed 42
+```
+
+La construcción se mide por separado y queda fuera de `Query time (ms)`.
+Cada ejecución vuelve a cargar los datos y construir el grafo. HNSW conserva
+IDs y topología; `VectorStore` conserva los embeddings. No se sustituye la
+búsqueda aproximada por fuerza bruta. El resultado depende de la conectividad
+y de los parámetros: configuraciones dispersas pueden recuperar menos de K
+vecinos. Ver [el contrato de HNSW](docs/algorithms/hnsw.md).
+
+Los resultados y la ayuda se escriben en `stdout`; los errores, en `stderr`.
+Códigos: **0** éxito/ayuda, **2** argumentos o configuración inválidos,
+**3** lectura/validación de datos, **4** error de búsqueda/interno, incluyendo
+desbordamiento de una distancia. Una entrada inválida cancela toda la operación.
+Los archivos deben ser archivos regulares legibles; no se admite entrada por
+stdin. No hay persistencia: los datos se vuelven a cargar en cada ejecución.
+
+Consultar [Uso y pruebas de la CLI](docs/cli.md) y
+[Validación de la tarjeta](docs/architecture/cli_validation.md) para el dataset
+reproducible de 1,000 × 128 y las consultas CLI. La
+[auditoría y validación de HNSW](docs/architecture/hnsw_validation.md) registra
+los incumplimientos de la versión recibida, las correcciones y la comparación
+contra fuerza bruta con 100 consultas independientes por métrica.
+
+El [caso real de recomendación de artículos](docs/real_world_validation.md) amplía
+la validación a **10,000 artículos DBpedia × 1,024 dimensiones**, con 20 consultas
+separadas y comparación exhaustiva contra NumPy. Usa embeddings públicos ya
+calculados y el mismo formato CSV; no requiere generar embeddings ni usar una API
+de pago. La descarga y el test de datos reales se activan explícitamente.
 
 Consultar [VectorStore y distancias](docs/algorithms/vector_store_and_distances.md)
 para el contrato y los comandos de pruebas, [Fuerza bruta](docs/algorithms/brute_force.md)

@@ -1,0 +1,238 @@
+Start testing: Oct 12 16:27 CST
+----------------------------------------------------------
+1/11 Testing: unit.vector_store
+1/11 Test: unit.vector_store
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_vector_store_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+"unit.vector_store" start time: Oct 12 16:27 CST
+Output:
+----------------------------------------------------------
+1000/1000 embeddings of dimension 128 recovered exactly (seed 42).
+<end of output>
+Test time =   0.34 sec
+----------------------------------------------------------
+Test Passed.
+"unit.vector_store" end time: Oct 12 16:27 CST
+"unit.vector_store" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/11 Testing: unit.vector_store_allocation
+2/11 Test: unit.vector_store_allocation
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_vector_store_allocation_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+"unit.vector_store_allocation" start time: Oct 12 16:27 CST
+Output:
+----------------------------------------------------------
+Rollback verified at 5 allocation points with 0 existing embeddings.
+Rollback verified at 4 allocation points with 1 existing embeddings.
+Rollback verified at 5 allocation points with 2 existing embeddings.
+Rollback verified at 2 allocation points with 13 existing embeddings.
+Rollback verified at 2 allocation points with 29 existing embeddings.
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"unit.vector_store_allocation" end time: Oct 12 16:27 CST
+"unit.vector_store_allocation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/11 Testing: unit.distance
+3/11 Test: unit.distance
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_distance_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+"unit.distance" start time: Oct 12 16:27 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"unit.distance" end time: Oct 12 16:27 CST
+"unit.distance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/11 Testing: unit.brute_force
+4/11 Test: unit.brute_force
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_brute_force_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+"unit.brute_force" start time: Oct 12 16:27 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.11 sec
+----------------------------------------------------------
+Test Passed.
+"unit.brute_force" end time: Oct 12 16:27 CST
+"unit.brute_force" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/11 Testing: integration.storage_distance
+5/11 Test: integration.storage_distance
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_storage_distance_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+"integration.storage_distance" start time: Oct 12 16:27 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.21 sec
+----------------------------------------------------------
+Test Passed.
+"integration.storage_distance" end time: Oct 12 16:27 CST
+"integration.storage_distance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/11 Testing: integration.dense_retrieval
+6/11 Test: integration.dense_retrieval
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_query_engine_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+"integration.dense_retrieval" start time: Oct 12 16:27 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"integration.dense_retrieval" end time: Oct 12 16:27 CST
+"integration.dense_retrieval" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/11 Testing: unit.cli_parser
+7/11 Test: unit.cli_parser
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_cli_parser_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+"unit.cli_parser" start time: Oct 12 16:27 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"unit.cli_parser" end time: Oct 12 16:27 CST
+"unit.cli_parser" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/11 Testing: integration.search_service
+8/11 Test: integration.search_service
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_search_service_tests" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/service-fixtures/Release"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+"integration.search_service" start time: Oct 12 16:27 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"integration.search_service" end time: Oct 12 16:27 CST
+"integration.search_service" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/11 Testing: e2e.cli_search
+9/11 Test: e2e.cli_search
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/aetherindex" "-DWORK_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/cli-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_search_test.cmake"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+"e2e.cli_search" start time: Oct 12 16:27 CST
+Output:
+----------------------------------------------------------
+-- CLI help, exact search, both metrics, k, error messages, streams and exit codes passed.
+<end of output>
+Test time =   0.27 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_search" end time: Oct 12 16:27 CST
+"e2e.cli_search" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/11 Testing: e2e.cli_mvp
+10/11 Test: e2e.cli_mvp
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/aetherindex" "-DGENERATOR_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_cli_fixture_generator" "-DWORK_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/mvp-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_mvp_test.cmake"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+"e2e.cli_mvp" start time: Oct 12 16:27 CST
+Output:
+----------------------------------------------------------
+-- 1000 x 128 embeddings; seed 42; 10/10 distinct CLI Top-10 queries passed with valid, unique, sorted IDs.
+<end of output>
+Test time =   0.45 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_mvp" end time: Oct 12 16:27 CST
+"e2e.cli_mvp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/11 Testing: e2e.cli_real_dataset
+11/11 Test: e2e.cli_real_dataset
+Command: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13" "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/validate_real_dataset.py" "--cli" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/aetherindex" "--data-dir" "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia" "--k" "100" "--report" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/real-data-Release.json"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+"e2e.cli_real_dataset" start time: Oct 12 16:27 CST
+Output:
+----------------------------------------------------------
+PASS cosine            queries/query_00.csv: Top-100, query 12.005375 ms
+PASS cosine            queries/query_01.csv: Top-100, query 12.073041 ms
+PASS cosine            queries/query_02.csv: Top-100, query 9.312833 ms
+PASS cosine            queries/query_03.csv: Top-100, query 11.897125 ms
+PASS cosine            queries/query_04.csv: Top-100, query 12.064666 ms
+PASS cosine            queries/query_05.csv: Top-100, query 11.440875 ms
+PASS cosine            queries/query_06.csv: Top-100, query 10.728875 ms
+PASS cosine            queries/query_07.csv: Top-100, query 11.264958 ms
+PASS cosine            queries/query_08.csv: Top-100, query 10.444834 ms
+PASS cosine            queries/query_09.csv: Top-100, query 9.713875 ms
+PASS cosine            queries/query_10.csv: Top-100, query 9.576500 ms
+PASS cosine            queries/query_11.csv: Top-100, query 11.352958 ms
+PASS cosine            queries/query_12.csv: Top-100, query 9.619708 ms
+PASS cosine            queries/query_13.csv: Top-100, query 11.404917 ms
+PASS cosine            queries/query_14.csv: Top-100, query 9.242875 ms
+PASS cosine            queries/query_15.csv: Top-100, query 10.096750 ms
+PASS cosine            queries/query_16.csv: Top-100, query 11.168625 ms
+PASS cosine            queries/query_17.csv: Top-100, query 9.451417 ms
+PASS cosine            queries/query_18.csv: Top-100, query 9.995917 ms
+PASS cosine            queries/query_19.csv: Top-100, query 10.204792 ms
+PASS squared-euclidean queries/query_00.csv: Top-100, query 11.178375 ms
+PASS squared-euclidean queries/query_01.csv: Top-100, query 11.034250 ms
+PASS squared-euclidean queries/query_02.csv: Top-100, query 9.792167 ms
+PASS squared-euclidean queries/query_03.csv: Top-100, query 9.931709 ms
+PASS squared-euclidean queries/query_04.csv: Top-100, query 9.896625 ms
+PASS squared-euclidean queries/query_05.csv: Top-100, query 10.489542 ms
+PASS squared-euclidean queries/query_06.csv: Top-100, query 10.651833 ms
+PASS squared-euclidean queries/query_07.csv: Top-100, query 9.016083 ms
+PASS squared-euclidean queries/query_08.csv: Top-100, query 9.683958 ms
+PASS squared-euclidean queries/query_09.csv: Top-100, query 9.936041 ms
+PASS squared-euclidean queries/query_10.csv: Top-100, query 9.674917 ms
+PASS squared-euclidean queries/query_11.csv: Top-100, query 11.140292 ms
+PASS squared-euclidean queries/query_12.csv: Top-100, query 10.432875 ms
+PASS squared-euclidean queries/query_13.csv: Top-100, query 11.293292 ms
+PASS squared-euclidean queries/query_14.csv: Top-100, query 9.894583 ms
+PASS squared-euclidean queries/query_15.csv: Top-100, query 8.798333 ms
+PASS squared-euclidean queries/query_16.csv: Top-100, query 11.180375 ms
+PASS squared-euclidean queries/query_17.csv: Top-100, query 9.064458 ms
+PASS squared-euclidean queries/query_18.csv: Top-100, query 8.995833 ms
+PASS squared-euclidean queries/query_19.csv: Top-100, query 9.199375 ms
+{
+  "passed_queries": 40,
+  "checked_neighbors": 4000,
+  "max_absolute_distance_error": 5.99890916941348e-08,
+  "summary": {
+    "cosine": {
+      "queries": 20,
+      "median_query_ms": 10.586854500000001,
+      "min_query_ms": 9.242875,
+      "max_query_ms": 12.073041
+    },
+    "squared-euclidean": {
+      "queries": 20,
+      "median_query_ms": 9.914166999999999,
+      "min_query_ms": 8.798333,
+      "max_query_ms": 11.293292
+    }
+  }
+}
+<end of output>
+Test time =  87.76 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_real_dataset" end time: Oct 12 16:28 CST
+"e2e.cli_real_dataset" time elapsed: 00:01:27
+----------------------------------------------------------
+
+End testing: Oct 12 16:28 CST
+
+real-data =  87.76 sec*proc
+

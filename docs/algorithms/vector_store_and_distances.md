@@ -76,7 +76,7 @@ no finitos, métricas no soportadas y norma cero con coseno lanzan
 Resultados positivos menores que el rango representable de float pueden
 redondearse a cero. Estas funciones son escalares y no implementan SIMD.
 
-## Integración y futuro HNSW
+## Integración con fuerza bruta y HNSW
 
 ```cpp
 VectorStore store(3);  // Coseno por defecto.
@@ -95,10 +95,19 @@ const float distance = compute_distance(*lhs, *rhs, store.distance_kind()); // 1
 de consulta y `k`. El store determina la métrica; no hay una segunda configuración
 que pueda contradecirla. El llamador controla la vida del store.
 
-Un futuro nodo HNSW puede guardar solo `VectorId`, consultar `find(id)` y enviar
-esa vista a `compute_distance`. No conserva spans durante inserciones ni copia
-embeddings dentro del grafo. La prueba de este patrón valida un contrato público;
-no representa una implementación o prueba funcional de HNSW.
+`HnswIndex` implementa ese mismo patrón: sus nodos guardan `VectorId`, nivel y
+vecinos; obtienen una vista mediante `find(id)` para cada cálculo y la pasan a
+`compute_distance`. No conserva spans entre operaciones ni copia embeddings
+dentro del grafo. El store debe vivir más tiempo que el índice, y solo puede
+modificarse entre operaciones de este. `QueryEngine::search` admite también un
+índice HNSW ya preparado, devolviendo los mismos `SearchResult` que fuerza bruta.
+
+La prueba original del patrón de acceso sigue siendo una validación del contrato
+público. Las pruebas adicionales del índice implementado verifican estructura,
+inserción, búsqueda y Recall contra fuerza bruta. HNSW mantiene la política de
+errores numéricos de distance. Una excepción después de iniciar una inserción
+del grafo exige reconstruir el índice; esa operación no modifica ni elimina
+embeddings del store. Ver [HNSW](hnsw.md) para el contrato completo.
 
 ## Compilar y probar
 
@@ -141,13 +150,19 @@ cmake -S . -B build-app -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=OFF
 cmake --build build-app --config Debug
 ```
 
-CTest cubre siete ejecutables/escenarios sin dependencias externas. Incluye
+CTest registra 16 escenarios sin dependencias externas. Incluye
 recuperación exacta de 1,000 embeddings de dimensión 128 (semilla 42), inyección
 aislada de fallas de asignación, cálculo independiente con long double, ranking
-con ambas métricas y salida completa de la CLI. La tolerancia absoluta inicial
-para las distancias de referencia es `1e-5`; el caso de gran magnitud usa una
-comparación relativa explícita.
+con ambas métricas, parser/carga de CSV, errores del ejecutable y diez consultas
+CLI sobre 1,000 × 128, además de nodos/configuración, inserción, búsqueda,
+validación estructural, Recall y CLI de HNSW. El protocolo de Recall usa 100
+consultas independientes por métrica sobre 1,000 × 128 y exige un promedio
+≥ 0.85 con la configuración predeterminada. Para distancias de referencia, el helper aplica
+estrictamente `abs(double(actual) - double(expected)) < 1e-5`, con valores
+finitos; el caso de gran magnitud usa una comparación relativa explícita.
 
-Ver [Evidencia de validación](../architecture/vector_store_validation.md).
+Ver [Evidencia histórica de VectorStore](../architecture/vector_store_validation.md)
+y [Validación histórica de la CLI](../architecture/cli_validation.md), además de
+la [validación HNSW](../architecture/hnsw_validation.md).
 La aprobación del equipo y la revisión de PR son pasos separados del resultado
 de estas pruebas.
