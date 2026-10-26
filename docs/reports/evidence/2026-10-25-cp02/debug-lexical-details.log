@@ -1,0 +1,86 @@
+UpdateCTestConfiguration  from :/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/DartConfiguration.tcl
+Parse Config file:/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/DartConfiguration.tcl
+Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: unit.tokenizer
+
+1: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests/aether_tokenizer_tests
+1: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests
+1: Test timeout computed to be: 60
+1: T1: ASCII, technical identifiers, UTF-8 validity and ownership passed.
+1/8 Test #1: unit.tokenizer .......................   Passed    0.00 sec
+test 2
+    Start 2: unit.inverted_index
+
+2: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests/aether_inverted_index_tests
+2: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests
+2: Test timeout computed to be: 60
+2: T2: postings, duplicate rejection, read-only views and full ID range passed.
+2/8 Test #2: unit.inverted_index ..................   Passed    0.00 sec
+test 3
+    Start 3: unit.bm25_statistics
+
+3: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests/aether_bm25_statistics_tests
+3: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests
+3: Test timeout computed to be: 60
+3: T3/T10: N, DF, TF, lengths, avgdl and empty documents passed.
+3/8 Test #3: unit.bm25_statistics .................   Passed    0.00 sec
+test 4
+    Start 4: unit.bm25_math
+
+4: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests/aether_bm25_math_tests
+4: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests
+4: Test timeout computed to be: 60
+4: T4/T5/T10: independent numerical references, configuration and limits passed.
+4/8 Test #4: unit.bm25_math .......................   Passed    0.00 sec
+test 5
+    Start 5: unit.bm25_search
+
+5: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests/aether_bm25_search_tests
+5: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests
+5: Test timeout computed to be: 60
+5: T6-T10: accumulation, top-k, states and independent full-scan oracle passed.
+5/8 Test #5: unit.bm25_search .....................   Passed    0.30 sec
+test 6
+    Start 6: unit.bm25_allocation
+
+6: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests/aether_bm25_allocation_tests
+6: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests
+6: Test timeout computed to be: 60
+6: insert allocation failure points=14
+6: build allocation failure points=15
+6: search allocation failure points=6
+6/8 Test #6: unit.bm25_allocation .................   Passed    0.01 sec
+test 7
+    Start 7: integration.bm25_contract
+
+7: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests/aether_bm25_contract_tests
+7: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests
+7: Test timeout computed to be: 60
+7: T11: public RankedResult contract passed; RRF algorithm not executed.
+7/8 Test #7: integration.bm25_contract ............   Passed    0.00 sec
+test 8
+    Start 8: integration.bm25_corpus_regression
+
+8: Test command: /opt/homebrew/bin/cmake "-DEVALUATOR_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests/aether_bm25_evaluate" "-DDATA_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/tests/fixtures/bm25" "-DOUTPUT_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests/bm25-regression/Debug" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/bm25_corpus_test.cmake"
+8: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests
+8: Test timeout computed to be: 120
+8: -- T12 regression: 100 synthetic technical documents, 20 queries; Preliminary BM25: documents=100; vocabulary=325; HitRate@10=20/20; report=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug-final/tests/bm25-regression/Debug. CP-05 certification is separate.
+8: 
+8/8 Test #8: integration.bm25_corpus_regression ...   Passed    0.03 sec
+
+100% tests passed out of 8
+
+Label Time Summary:
+contract      =   0.00 sec*proc (1 test)
+cp02          =   0.35 sec*proc (8 tests)
+lexical       =   0.35 sec*proc (8 tests)
+regression    =   0.03 sec*proc (1 test)
+
+Total Test time (real) =   0.36 sec

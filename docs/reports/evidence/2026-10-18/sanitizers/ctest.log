@@ -1,0 +1,46 @@
+Command: ctest --test-dir /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-sanitizers-20261018 -C Debug --output-on-failure --no-tests=error --parallel 4
+Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-sanitizers-20261018
+      Start 16: integration.sprint1_okr1
+      Start  1: unit.vector_store
+      Start  2: unit.vector_store_allocation
+      Start  3: unit.distance
+ 1/18 Test  #1: unit.vector_store ................   Passed    5.98 sec
+      Start  4: unit.brute_force
+ 2/18 Test  #2: unit.vector_store_allocation .....   Passed    6.05 sec
+      Start  5: integration.storage_distance
+ 3/18 Test  #3: unit.distance ....................   Passed    6.13 sec
+      Start  6: integration.dense_retrieval
+ 4/18 Test  #4: unit.brute_force .................   Passed    0.90 sec
+      Start  7: unit.cli_parser
+ 5/18 Test  #5: integration.storage_distance .....   Passed    0.92 sec
+      Start  8: integration.search_service
+ 6/18 Test  #6: integration.dense_retrieval ......   Passed    0.93 sec
+      Start  9: e2e.cli_search
+ 7/18 Test  #7: unit.cli_parser ..................   Passed    0.85 sec
+      Start 10: e2e.cli_mvp
+ 8/18 Test  #8: integration.search_service .......   Passed    0.87 sec
+      Start 11: unit.hnsw_node
+ 9/18 Test  #9: e2e.cli_search ...................   Passed    2.82 sec
+      Start 12: unit.hnsw_insert
+10/18 Test #10: e2e.cli_mvp ......................   Passed    3.00 sec
+      Start 13: unit.hnsw_search
+11/18 Test #13: unit.hnsw_search .................   Passed    0.18 sec
+      Start 14: unit.hnsw_graph
+12/18 Test #12: unit.hnsw_insert .................   Passed    1.37 sec
+      Start 15: integration.hnsw_recall
+13/18 Test #14: unit.hnsw_graph ..................   Passed    0.76 sec
+      Start 18: e2e.cli_hnsw
+14/18 Test #11: unit.hnsw_node ...................   Passed    5.23 sec
+15/18 Test #16: integration.sprint1_okr1 .........   Passed   14.26 sec
+      Start 17: e2e.sprint1_okr1
+16/18 Test #17: e2e.sprint1_okr1 .................   Passed    7.38 sec
+17/18 Test #15: integration.hnsw_recall ..........   Passed   17.47 sec
+18/18 Test #18: e2e.cli_hnsw .....................   Passed   83.37 sec
+
+100% tests passed out of 18
+
+Label Time Summary:
+okr1       =  21.64 sec*proc (2 tests)
+sprint1    =  21.64 sec*proc (2 tests)
+
+Total Test time (real) =  95.05 sec

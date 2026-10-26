@@ -1,0 +1,310 @@
+Start testing: Oct 14 16:59 CST
+----------------------------------------------------------
+1/18 Testing: unit.vector_store
+1/18 Test: unit.vector_store
+Command: "/private/tmp/aetherindex-okr1-release-20261014/tests/aether_vector_store_tests"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"unit.vector_store" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+1000/1000 embeddings of dimension 128 recovered exactly (seed 42).
+<end of output>
+Test time =   0.62 sec
+----------------------------------------------------------
+Test Passed.
+"unit.vector_store" end time: Oct 14 16:59 CST
+"unit.vector_store" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/18 Testing: unit.vector_store_allocation
+2/18 Test: unit.vector_store_allocation
+Command: "/private/tmp/aetherindex-okr1-release-20261014/tests/aether_vector_store_allocation_tests"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"unit.vector_store_allocation" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+Rollback verified at 5 allocation points with 0 existing embeddings.
+Rollback verified at 4 allocation points with 1 existing embeddings.
+Rollback verified at 5 allocation points with 2 existing embeddings.
+Rollback verified at 2 allocation points with 13 existing embeddings.
+Rollback verified at 2 allocation points with 29 existing embeddings.
+<end of output>
+Test time =   0.79 sec
+----------------------------------------------------------
+Test Passed.
+"unit.vector_store_allocation" end time: Oct 14 16:59 CST
+"unit.vector_store_allocation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+16/18 Testing: integration.sprint1_okr1
+16/18 Test: integration.sprint1_okr1
+Command: "/private/tmp/aetherindex-okr1-release-20261014/tests/aether_sprint1_okr1_tests" "/private/tmp/aetherindex-okr1-release-20261014/tests/okr1-Release"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"integration.sprint1_okr1" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+OKR1 protocol v1: cosine, N=1000, D=128, Q=100, k=10; seeds=42/20261014/42
+KR1.1: inserted=1000 retrieved=1000 altered=0 compared_components=128000; recovery=100%
+KR1.2: incremental=500+500 retained=500 successful_queries=100/100 invalid_queries=0 execution_errors=0 graph_violations=0
+KR1.6: matches=990/1000 meanRecall@10=0.99 threshold=0.85 cutoff_ties=0
+<end of output>
+Test time =   0.82 sec
+----------------------------------------------------------
+Test Passed.
+"integration.sprint1_okr1" end time: Oct 14 16:59 CST
+"integration.sprint1_okr1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/18 Testing: unit.distance
+3/18 Test: unit.distance
+Command: "/private/tmp/aetherindex-okr1-release-20261014/tests/aether_distance_tests"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"unit.distance" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.95 sec
+----------------------------------------------------------
+Test Passed.
+"unit.distance" end time: Oct 14 16:59 CST
+"unit.distance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/18 Testing: unit.brute_force
+4/18 Test: unit.brute_force
+Command: "/private/tmp/aetherindex-okr1-release-20261014/tests/aether_brute_force_tests"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"unit.brute_force" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.97 sec
+----------------------------------------------------------
+Test Passed.
+"unit.brute_force" end time: Oct 14 16:59 CST
+"unit.brute_force" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/18 Testing: integration.storage_distance
+5/18 Test: integration.storage_distance
+Command: "/private/tmp/aetherindex-okr1-release-20261014/tests/aether_storage_distance_tests"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"integration.storage_distance" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.95 sec
+----------------------------------------------------------
+Test Passed.
+"integration.storage_distance" end time: Oct 14 16:59 CST
+"integration.storage_distance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/18 Testing: integration.dense_retrieval
+6/18 Test: integration.dense_retrieval
+Command: "/private/tmp/aetherindex-okr1-release-20261014/tests/aether_query_engine_tests"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"integration.dense_retrieval" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   1.07 sec
+----------------------------------------------------------
+Test Passed.
+"integration.dense_retrieval" end time: Oct 14 16:59 CST
+"integration.dense_retrieval" time elapsed: 00:00:01
+----------------------------------------------------------
+
+7/18 Testing: unit.cli_parser
+7/18 Test: unit.cli_parser
+Command: "/private/tmp/aetherindex-okr1-release-20261014/tests/aether_cli_parser_tests"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"unit.cli_parser" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   1.16 sec
+----------------------------------------------------------
+Test Passed.
+"unit.cli_parser" end time: Oct 14 16:59 CST
+"unit.cli_parser" time elapsed: 00:00:01
+----------------------------------------------------------
+
+8/18 Testing: integration.search_service
+8/18 Test: integration.search_service
+Command: "/private/tmp/aetherindex-okr1-release-20261014/tests/aether_search_service_tests" "/private/tmp/aetherindex-okr1-release-20261014/tests/service-fixtures/Release"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"integration.search_service" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.97 sec
+----------------------------------------------------------
+Test Passed.
+"integration.search_service" end time: Oct 14 16:59 CST
+"integration.search_service" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/18 Testing: e2e.cli_search
+9/18 Test: e2e.cli_search
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-okr1-release-20261014/aetherindex" "-DWORK_DIR=/private/tmp/aetherindex-okr1-release-20261014/tests/cli-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_search_test.cmake"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"e2e.cli_search" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+-- CLI help, exact/HNSW search, both metrics, k, error messages, streams and exit codes passed.
+<end of output>
+Test time =   1.04 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_search" end time: Oct 14 16:59 CST
+"e2e.cli_search" time elapsed: 00:00:01
+----------------------------------------------------------
+
+11/18 Testing: unit.hnsw_node
+11/18 Test: unit.hnsw_node
+Command: "/private/tmp/aetherindex-okr1-release-20261014/tests/aether_hnsw_node_tests"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"unit.hnsw_node" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+Level reproduction: nodes=1000 dimensions=3 dataset_seed=123 graph_seed=42
+Level 0: 954 nodes
+Level 1: 44 nodes
+Level 2: 2 nodes
+<end of output>
+Test time =   1.00 sec
+----------------------------------------------------------
+Test Passed.
+"unit.hnsw_node" end time: Oct 14 16:59 CST
+"unit.hnsw_node" time elapsed: 00:00:01
+----------------------------------------------------------
+
+10/18 Testing: e2e.cli_mvp
+10/18 Test: e2e.cli_mvp
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-okr1-release-20261014/aetherindex" "-DGENERATOR_PATH=/private/tmp/aetherindex-okr1-release-20261014/tests/aether_cli_fixture_generator" "-DWORK_DIR=/private/tmp/aetherindex-okr1-release-20261014/tests/mvp-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_mvp_test.cmake"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"e2e.cli_mvp" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+-- 1000 x 128 embeddings; seed 42; 10/10 distinct CLI Top-10 queries passed with valid, unique, sorted IDs.
+<end of output>
+Test time =   1.33 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_mvp" end time: Oct 14 16:59 CST
+"e2e.cli_mvp" time elapsed: 00:00:01
+----------------------------------------------------------
+
+12/18 Testing: unit.hnsw_insert
+12/18 Test: unit.hnsw_insert
+Command: "/private/tmp/aetherindex-okr1-release-20261014/tests/aether_hnsw_insert_tests"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"unit.hnsw_insert" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+Incremental insertion: 100 + 100 nodes; storage reallocation exercised; VALID
+<end of output>
+Test time =   0.68 sec
+----------------------------------------------------------
+Test Passed.
+"unit.hnsw_insert" end time: Oct 14 16:59 CST
+"unit.hnsw_insert" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/18 Testing: unit.hnsw_search
+13/18 Test: unit.hnsw_search
+Command: "/private/tmp/aetherindex-okr1-release-20261014/tests/aether_hnsw_search_tests"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"unit.hnsw_search" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+HNSW search: known cosine 0/0.2/1/2; squared 25; both metrics; edge cases PASS
+<end of output>
+Test time =   0.58 sec
+----------------------------------------------------------
+Test Passed.
+"unit.hnsw_search" end time: Oct 14 16:59 CST
+"unit.hnsw_search" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/18 Testing: unit.hnsw_graph
+14/18 Test: unit.hnsw_graph
+Command: "/private/tmp/aetherindex-okr1-release-20261014/tests/aether_hnsw_graph_tests"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"unit.hnsw_graph" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+Graph validation: nodes=250 edges=2274 M=4 M0=8; all invariants VALID before/after queries
+<end of output>
+Test time =   0.45 sec
+----------------------------------------------------------
+Test Passed.
+"unit.hnsw_graph" end time: Oct 14 16:59 CST
+"unit.hnsw_graph" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/18 Testing: e2e.sprint1_okr1
+17/18 Test: e2e.sprint1_okr1
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-okr1-release-20261014/aetherindex" "-DEVIDENCE_DIR=/private/tmp/aetherindex-okr1-release-20261014/tests/okr1-Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/sprint1_okr1_test.cmake"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"e2e.sprint1_okr1" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+-- OKR1 integrated CLI demonstration: both algorithms match the official query-0 rankings/distances; tables, timing and metadata valid.
+<end of output>
+Test time =   0.34 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.sprint1_okr1" end time: Oct 14 16:59 CST
+"e2e.sprint1_okr1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/18 Testing: integration.hnsw_recall
+15/18 Test: integration.hnsw_recall
+Command: "/private/tmp/aetherindex-okr1-release-20261014/tests/aether_hnsw_recall_tests" "/private/tmp/aetherindex-okr1-release-20261014/tests/hnsw-recall-Release.csv"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"integration.hnsw_recall" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+Protocol metric=cosine vectors=1000 dimensions=128 queries=100 k=10 dataset_seed=42 query_seed=424242 graph_seed=42 M=16 M0=32 efConstruction=100 max_level=32 build_ms=257.632458
+Evaluation metric=cosine efSearch=10 mean_recall_at_10=0.676000 mean_query_ms=0.059575 invalid_results=0 crashes=0
+Evaluation metric=cosine efSearch=30 mean_recall_at_10=0.924000 mean_query_ms=0.110742 invalid_results=0 crashes=0
+Evaluation metric=cosine efSearch=50 mean_recall_at_10=0.977000 mean_query_ms=0.144888 invalid_results=0 crashes=0
+Evaluation metric=cosine efSearch=100 mean_recall_at_10=0.998000 mean_query_ms=0.191232 invalid_results=0 crashes=0
+Protocol metric=squared-euclidean vectors=1000 dimensions=128 queries=100 k=10 dataset_seed=42 query_seed=424242 graph_seed=42 M=16 M0=32 efConstruction=100 max_level=32 build_ms=223.700958
+Evaluation metric=squared-euclidean efSearch=10 mean_recall_at_10=0.733000 mean_query_ms=0.046566 invalid_results=0 crashes=0
+Evaluation metric=squared-euclidean efSearch=30 mean_recall_at_10=0.928000 mean_query_ms=0.085059 invalid_results=0 crashes=0
+Evaluation metric=squared-euclidean efSearch=50 mean_recall_at_10=0.972000 mean_query_ms=0.108445 invalid_results=0 crashes=0
+Evaluation metric=squared-euclidean efSearch=100 mean_recall_at_10=0.993000 mean_query_ms=0.147106 invalid_results=0 crashes=0
+Structural validation before/after: VALID; exact cutoff ties=0; 100 independent queries per metric, 400 measured searches per graph
+<end of output>
+Test time =   1.12 sec
+----------------------------------------------------------
+Test Passed.
+"integration.hnsw_recall" end time: Oct 14 16:59 CST
+"integration.hnsw_recall" time elapsed: 00:00:01
+----------------------------------------------------------
+
+18/18 Testing: e2e.cli_hnsw
+18/18 Test: e2e.cli_hnsw
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-okr1-release-20261014/aetherindex" "-DGENERATOR_PATH=/private/tmp/aetherindex-okr1-release-20261014/tests/aether_cli_fixture_generator" "-DWORK_DIR=/private/tmp/aetherindex-okr1-release-20261014/tests/hnsw-cli-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_hnsw_test.cmake"
+Directory: /private/tmp/aetherindex-okr1-release-20261014/tests
+"e2e.cli_hnsw" start time: Oct 14 16:59 CST
+Output:
+----------------------------------------------------------
+-- HNSW CLI: both metrics, full IDs/seed range, validated flags, separate timing, 1000x128 MVP and repeatable result tables passed.
+<end of output>
+Test time =   3.39 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_hnsw" end time: Oct 14 16:59 CST
+"e2e.cli_hnsw" time elapsed: 00:00:03
+----------------------------------------------------------
+
+End testing: Oct 14 16:59 CST
+
+okr1 =   1.16 sec*proc
+
+sprint1 =   1.16 sec*proc
+

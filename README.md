@@ -21,9 +21,23 @@ para conservarse en Git; todavía no implementan algoritmos ni servicios.
 
 `VectorStore` almacena embeddings contiguos con IDs `uint32_t`, dimensión fija
 por instancia y acceso sin copia. `distance` implementa coseno y euclidiana al
-cuadrado. Fuerza bruta utiliza estos módulos a través de `QueryEngine`. La CLI
+cuadrado con kernels FP32/SIMD. Cosine normaliza al insertar; las filas están
+alineadas a 64 bytes. BruteForce usa un heap Top-K y HNSW usa FlatGraph con
+selección diversificada (Algoritmo 4). Fuerza bruta utiliza estos módulos a través de `QueryEngine`. La CLI
 carga archivos CSV y coordina fuerza bruta o HNSW mediante `SearchService`, sin
 incorporar lógica de almacenamiento ni algoritmos en la presentación.
+
+Sprint 2 incorpora la biblioteca independiente `aether_lexical`: tokenizer,
+índice invertido, estadísticas y BM25 con rankings de `DocumentId` y score double.
+Su uso, contratos y pruebas están en [BM25 — CP-02](docs/algorithms/bm25.md).
+La CLI conserva la búsqueda vectorial actual; RRF y la composición híbrida
+corresponden a las siguientes tarjetas. El corpus CP-01 sigue pendiente y las
+pruebas léxicas usan un fixture de regresión identificado por separado.
+
+La [validación de optimizaciones](docs/benchmarks/OPTIMIZATION_VALIDATION.md)
+documenta los cambios de contrato, el presupuesto de memoria de 14.50 MB y
+benchmarks optativos de Top-K, Recall y p99. Las evidencias anteriores del
+Sprint 1 se conservan como baseline histórico.
 
 ## CLI mínima: inicio rápido
 
@@ -65,14 +79,16 @@ excluye carga de CSV y presentación.
 | `--m`, `--m0` | HNSW: límites de vecinos superiores/base; por defecto 16/32 |
 | `--ef-construction`, `--ef-search` | HNSW: amplitud de construcción/consulta; por defecto 100/50 |
 | `--seed INTEGER` | HNSW: semilla uint64 reproducible; por defecto 42, cero permitido |
+| `--neighbor-selection NAME` | HNSW: `heuristic` (predeterminado, Algoritmo 4) o `simple` (Algoritmo 3) |
 | `--help` | Ayuda; también `search --help` o ejecución sin argumentos |
 
 Los IDs son enteros sin signo de 32 bits únicos, incluyendo 0. Todos los
 embeddings deben tener la misma dimensión y componentes finitos. Se admiten
 decimales, notación científica, espacios/tabulaciones alrededor de los campos,
 líneas vacías y finales de línea LF/CRLF. No se admiten encabezados, comillas ni
-campos vacíos. Coseno rechaza vectores de norma cero; euclidiana al cuadrado
-los permite. Por ejemplo:
+campos vacíos. Coseno rechaza embeddings con norma L2 menor que 1e-7 y almacena su dirección
+normalizada; la consulta debe ser no nula. Euclidiana al cuadrado conserva
+magnitudes y permite ceros. Por ejemplo:
 
 ```csv
 10,1.0,0.0
@@ -120,6 +136,20 @@ reproducible de 1,000 × 128 y las consultas CLI. La
 [auditoría y validación de HNSW](docs/architecture/hnsw_validation.md) registra
 los incumplimientos de la versión recibida, las correcciones y la comparación
 contra fuerza bruta con 100 consultas independientes por métrica.
+
+El [informe de validación del Sprint 1 / OKR 1](docs/architecture/SPRINT_1_OKR1_VALIDATION.md)
+reúne los indicadores KR1.1, KR1.2 y KR1.6, los tres reportes CSV y los pasos para
+repetir la aceptación con 1,000 × 128 embeddings y 100 consultas independientes.
+
+Para presentar esta versión, consultar el
+[guion del showcase en español](docs/showcase/SPRINT_1_SHOWCASE.md) y la
+[hoja de comandos para macOS](docs/showcase/COMANDOS_MACOS.md). Incluyen una
+introducción a embeddings/LLMs, artículos reales, comparación exacta/HNSW y
+salidas del ensayo para respaldo.
+
+El [informe técnico del Sprint 1 para evaluación externa](docs/reports/INFORME_TECNICO_AETHERINDEX_SPRINT_1.md)
+describe algoritmos, variantes de HNSW, complejidad, resultados comprobados,
+limitaciones y mejoras prioritarias, con las evidencias reproducibles enlazadas.
 
 El [caso real de recomendación de artículos](docs/real_world_validation.md) amplía
 la validación a **10,000 artículos DBpedia × 1,024 dimensiones**, con 20 consultas

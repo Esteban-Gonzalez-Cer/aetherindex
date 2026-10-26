@@ -1,0 +1,1113 @@
+{
+  "dataset": "Qdrant/dbpedia-entities-openai3-text-embedding-3-small-1024-100K",
+  "revision": "d49822cb2465295366349d414679b476997e88f5",
+  "vectors": 10000,
+  "dimension": 1024,
+  "requested_k": 100,
+  "passed_queries": 40,
+  "checked_neighbors": 4000,
+  "max_absolute_distance_error": 2.234648108778714e-07,
+  "tolerance": "abs(actual - reference) < 1e-5",
+  "oracle": "Independent NumPy float64 exhaustive distances; float32 ranking, ties unordered",
+  "timing_scope": "QueryEngine search only; excludes CSV load, parsing and output",
+  "timing_limit": "One observation per query/metric; local validation, not a production benchmark",
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "cli": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/aetherindex",
+  "summary": {
+    "cosine": {
+      "queries": 20,
+      "median_query_ms": 2.8135000000000003,
+      "min_query_ms": 0.634791,
+      "max_query_ms": 76.903
+    },
+    "squared-euclidean": {
+      "queries": 20,
+      "median_query_ms": 2.800771,
+      "min_query_ms": 0.873292,
+      "max_query_ms": 4.374209
+    }
+  },
+  "observations": [
+    {
+      "metric": "cosine",
+      "query": "queries/query_00.csv",
+      "query_title": "40th Flight Test Squadron",
+      "query_ms": 2.683041,
+      "whole_process_ms": 2264.160375110805,
+      "first_three_results": [
+        {
+          "vector_id": 33743,
+          "title": "No. 40 Squadron RAAF",
+          "source_id": "<dbpedia:No._40_Squadron_RAAF>",
+          "distance": 0.51146102
+        },
+        {
+          "vector_id": 48471,
+          "title": "453d Electronic Warfare Squadron",
+          "source_id": "<dbpedia:453d_Electronic_Warfare_Squadron>",
+          "distance": 0.539448142
+        },
+        {
+          "vector_id": 18175,
+          "title": "380th Air Expeditionary Wing",
+          "source_id": "<dbpedia:380th_Air_Expeditionary_Wing>",
+          "distance": 0.552062035
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_01.csv",
+      "query_title": "AllianceBernstein",
+      "query_ms": 2.644125,
+      "whole_process_ms": 2261.122291907668,
+      "first_three_results": [
+        {
+          "vector_id": 45692,
+          "title": "Acadian Asset Management",
+          "source_id": "<dbpedia:Acadian_Asset_Management>",
+          "distance": 0.447660446
+        },
+        {
+          "vector_id": 6184,
+          "title": "Morgan Stanley",
+          "source_id": "<dbpedia:Morgan_Stanley>",
+          "distance": 0.522475302
+        },
+        {
+          "vector_id": 48968,
+          "title": "A. M. Best",
+          "source_id": "<dbpedia:A._M._Best>",
+          "distance": 0.532262146
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_02.csv",
+      "query_title": "Jonas Valley",
+      "query_ms": 2.693459,
+      "whole_process_ms": 2276.4017910230905,
+      "first_three_results": [
+        {
+          "vector_id": 39777,
+          "title": "Föhrenwald",
+          "source_id": "<dbpedia:Föhrenwald>",
+          "distance": 0.471902251
+        },
+        {
+          "vector_id": 63969,
+          "title": "Birkenau (Odenwald)",
+          "source_id": "<dbpedia:Birkenau_(Odenwald)>",
+          "distance": 0.518939734
+        },
+        {
+          "vector_id": 13100,
+          "title": "Schloss Hartheim",
+          "source_id": "<dbpedia:Schloss_Hartheim>",
+          "distance": 0.561079085
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_03.csv",
+      "query_title": "Wilson (film)",
+      "query_ms": 1.84575,
+      "whole_process_ms": 2205.4520829115063,
+      "first_three_results": [
+        {
+          "vector_id": 68106,
+          "title": "Richard Edward Wilson",
+          "source_id": "<dbpedia:Richard_Edward_Wilson>",
+          "distance": 0.470029056
+        },
+        {
+          "vector_id": 780,
+          "title": "Edwin P. Wilson",
+          "source_id": "<dbpedia:Edwin_P._Wilson>",
+          "distance": 0.499253392
+        },
+        {
+          "vector_id": 689,
+          "title": "Bob Wilson (footballer, born 1941)",
+          "source_id": "<dbpedia:Bob_Wilson_(footballer,_born_1941)>",
+          "distance": 0.526588559
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_04.csv",
+      "query_title": "Central Bank of Kuwait",
+      "query_ms": 2.6905,
+      "whole_process_ms": 2218.32266706042,
+      "first_three_results": [
+        {
+          "vector_id": 69149,
+          "title": "Pakistani rupee",
+          "source_id": "<dbpedia:Pakistani_rupee>",
+          "distance": 0.61434263
+        },
+        {
+          "vector_id": 56549,
+          "title": "United Bank (Pakistan)",
+          "source_id": "<dbpedia:United_Bank_(Pakistan)>",
+          "distance": 0.64179039
+        },
+        {
+          "vector_id": 42990,
+          "title": "IKB Deutsche Industriebank",
+          "source_id": "<dbpedia:IKB_Deutsche_Industriebank>",
+          "distance": 0.647994161
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_05.csv",
+      "query_title": "Baize",
+      "query_ms": 3.327291,
+      "whole_process_ms": 2234.705167124048,
+      "first_three_results": [
+        {
+          "vector_id": 64648,
+          "title": "Glass cloth",
+          "source_id": "<dbpedia:Glass_cloth>",
+          "distance": 0.592317939
+        },
+        {
+          "vector_id": 11042,
+          "title": "Dibenzylideneacetone",
+          "source_id": "<dbpedia:Dibenzylideneacetone>",
+          "distance": 0.6205616
+        },
+        {
+          "vector_id": 56080,
+          "title": "Denim",
+          "source_id": "<dbpedia:Denim>",
+          "distance": 0.62287879
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_06.csv",
+      "query_title": "Zwierzyn, Lubusz Voivodeship",
+      "query_ms": 2.730667,
+      "whole_process_ms": 2219.963875133544,
+      "first_three_results": [
+        {
+          "vector_id": 43599,
+          "title": "Jawor",
+          "source_id": "<dbpedia:Jawor>",
+          "distance": 0.488550127
+        },
+        {
+          "vector_id": 64508,
+          "title": "Ostróda",
+          "source_id": "<dbpedia:Ostróda>",
+          "distance": 0.489150763
+        },
+        {
+          "vector_id": 69310,
+          "title": "Wisła Mała",
+          "source_id": "<dbpedia:Wisła_Mała>",
+          "distance": 0.501192927
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_07.csv",
+      "query_title": "A. M. Azahari",
+      "query_ms": 3.18975,
+      "whole_process_ms": 2216.507124947384,
+      "first_three_results": [
+        {
+          "vector_id": 8501,
+          "title": "Ahmad Adaya",
+          "source_id": "<dbpedia:Ahmad_Adaya>",
+          "distance": 0.529506862
+        },
+        {
+          "vector_id": 48702,
+          "title": "Kiyohiko Azuma",
+          "source_id": "<dbpedia:Kiyohiko_Azuma>",
+          "distance": 0.552065313
+        },
+        {
+          "vector_id": 68960,
+          "title": "Salamah ibn Dinar",
+          "source_id": "<dbpedia:Salamah_ibn_Dinar>",
+          "distance": 0.584499061
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_08.csv",
+      "query_title": "Dad Loves His Work",
+      "query_ms": 3.589042,
+      "whole_process_ms": 2341.1067919805646,
+      "first_three_results": [
+        {
+          "vector_id": 28409,
+          "title": "That's Why I'm Here",
+          "source_id": "<dbpedia:That's_Why_I'm_Here>",
+          "distance": 0.285233259
+        },
+        {
+          "vector_id": 44824,
+          "title": "29 (album)",
+          "source_id": "<dbpedia:29_(album)>",
+          "distance": 0.573471129
+        },
+        {
+          "vector_id": 23089,
+          "title": "Dreamtime (Tom Verlaine album)",
+          "source_id": "<dbpedia:Dreamtime_(Tom_Verlaine_album)>",
+          "distance": 0.577742696
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_09.csv",
+      "query_title": "Ferry Hall School",
+      "query_ms": 76.903,
+      "whole_process_ms": 2771.616500103846,
+      "first_three_results": [
+        {
+          "vector_id": 68442,
+          "title": "Harlaw Academy",
+          "source_id": "<dbpedia:Harlaw_Academy>",
+          "distance": 0.481114209
+        },
+        {
+          "vector_id": 7087,
+          "title": "North Forest Independent School District",
+          "source_id": "<dbpedia:North_Forest_Independent_School_District>",
+          "distance": 0.563184977
+        },
+        {
+          "vector_id": 29473,
+          "title": "Ascham School",
+          "source_id": "<dbpedia:Ascham_School>",
+          "distance": 0.582632899
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_10.csv",
+      "query_title": "Bus mouse",
+      "query_ms": 3.038958,
+      "whole_process_ms": 2371.175125008449,
+      "first_three_results": [
+        {
+          "vector_id": 34597,
+          "title": "D-Bus",
+          "source_id": "<dbpedia:D-Bus>",
+          "distance": 0.484189451
+        },
+        {
+          "vector_id": 45125,
+          "title": "Enhanced Cartridge Interface",
+          "source_id": "<dbpedia:Enhanced_Cartridge_Interface>",
+          "distance": 0.592676044
+        },
+        {
+          "vector_id": 12974,
+          "title": "Multilingual User Interface",
+          "source_id": "<dbpedia:Multilingual_User_Interface>",
+          "distance": 0.60033679
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_11.csv",
+      "query_title": "United Mine Workers of America v. Bagwell",
+      "query_ms": 2.797667,
+      "whole_process_ms": 2258.4835418965667,
+      "first_three_results": [
+        {
+          "vector_id": 60567,
+          "title": "United States v. Darby Lumber Co.",
+          "source_id": "<dbpedia:United_States_v._Darby_Lumber_Co.>",
+          "distance": 0.506150186
+        },
+        {
+          "vector_id": 33946,
+          "title": "Regents of the University of California v. Bakke",
+          "source_id": "<dbpedia:Regents_of_the_University_of_California_v._Bakke>",
+          "distance": 0.596076906
+        },
+        {
+          "vector_id": 41093,
+          "title": "Minor v. Happersett",
+          "source_id": "<dbpedia:Minor_v._Happersett>",
+          "distance": 0.601667523
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_12.csv",
+      "query_title": "Tintin – Le Temple du Soleil – Le Spectacle Musical",
+      "query_ms": 0.634791,
+      "whole_process_ms": 2229.304000036791,
+      "first_three_results": [
+        {
+          "vector_id": 4665,
+          "title": "The Second Stage Turbine Blade (comics)",
+          "source_id": "<dbpedia:The_Second_Stage_Turbine_Blade_(comics)>",
+          "distance": 0.639719844
+        },
+        {
+          "vector_id": 10902,
+          "title": "Baba Yetu",
+          "source_id": "<dbpedia:Baba_Yetu>",
+          "distance": 0.642772913
+        },
+        {
+          "vector_id": 23964,
+          "title": "Tikki Tikki Tembo",
+          "source_id": "<dbpedia:Tikki_Tikki_Tembo>",
+          "distance": 0.645812154
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_13.csv",
+      "query_title": "MacRobertson's",
+      "query_ms": 3.228292,
+      "whole_process_ms": 2223.6476249527186,
+      "first_three_results": [
+        {
+          "vector_id": 65635,
+          "title": "John Robertson (Scottish Labour Party founder)",
+          "source_id": "<dbpedia:John_Robertson_(Scottish_Labour_Party_founder)>",
+          "distance": 0.46326685
+        },
+        {
+          "vector_id": 19498,
+          "title": "Rod MacDonald",
+          "source_id": "<dbpedia:Rod_MacDonald>",
+          "distance": 0.553108931
+        },
+        {
+          "vector_id": 40946,
+          "title": "James Forbes-Robertson",
+          "source_id": "<dbpedia:James_Forbes-Robertson>",
+          "distance": 0.553993762
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_14.csv",
+      "query_title": "William de la Barre",
+      "query_ms": 2.829333,
+      "whole_process_ms": 2269.2841251846403,
+      "first_three_results": [
+        {
+          "vector_id": 28045,
+          "title": "Paul Moody (inventor)",
+          "source_id": "<dbpedia:Paul_Moody_(inventor)>",
+          "distance": 0.583218217
+        },
+        {
+          "vector_id": 56787,
+          "title": "DeJuan Wheat",
+          "source_id": "<dbpedia:DeJuan_Wheat>",
+          "distance": 0.586229265
+        },
+        {
+          "vector_id": 11119,
+          "title": "Frederick Bramwell",
+          "source_id": "<dbpedia:Frederick_Bramwell>",
+          "distance": 0.593832314
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_15.csv",
+      "query_title": "SAPS II",
+      "query_ms": 3.38475,
+      "whole_process_ms": 2228.9631250314415,
+      "first_three_results": [
+        {
+          "vector_id": 58768,
+          "title": "SIDPERS",
+          "source_id": "<dbpedia:SIDPERS>",
+          "distance": 0.56332171
+        },
+        {
+          "vector_id": 60399,
+          "title": "ISA-88",
+          "source_id": "<dbpedia:ISA-88>",
+          "distance": 0.564248919
+        },
+        {
+          "vector_id": 58481,
+          "title": "Systems biomedicine",
+          "source_id": "<dbpedia:Systems_biomedicine>",
+          "distance": 0.627674222
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_16.csv",
+      "query_title": "The Power of One (novel)",
+      "query_ms": 3.005167,
+      "whole_process_ms": 2321.7275831848383,
+      "first_three_results": [
+        {
+          "vector_id": 55268,
+          "title": "Seize the Day (novel)",
+          "source_id": "<dbpedia:Seize_the_Day_(novel)>",
+          "distance": 0.596670091
+        },
+        {
+          "vector_id": 36809,
+          "title": "Season of the Jew",
+          "source_id": "<dbpedia:Season_of_the_Jew>",
+          "distance": 0.626918674
+        },
+        {
+          "vector_id": 21920,
+          "title": "The White Peacock",
+          "source_id": "<dbpedia:The_White_Peacock>",
+          "distance": 0.634755194
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_17.csv",
+      "query_title": "Religion in Nazi Germany",
+      "query_ms": 2.885833,
+      "whole_process_ms": 2257.4734159279615,
+      "first_three_results": [
+        {
+          "vector_id": 42045,
+          "title": "Hinduism in Austria",
+          "source_id": "<dbpedia:Hinduism_in_Austria>",
+          "distance": 0.5644719
+        },
+        {
+          "vector_id": 14773,
+          "title": "Religion in ancient Rome",
+          "source_id": "<dbpedia:Religion_in_ancient_Rome>",
+          "distance": 0.584514976
+        },
+        {
+          "vector_id": 54393,
+          "title": "Demographics of Austria",
+          "source_id": "<dbpedia:Demographics_of_Austria>",
+          "distance": 0.609425366
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_18.csv",
+      "query_title": "Aluminium arsenide",
+      "query_ms": 1.288458,
+      "whole_process_ms": 2220.9217089693993,
+      "first_three_results": [
+        {
+          "vector_id": 23040,
+          "title": "Aluminium gallium indium phosphide",
+          "source_id": "<dbpedia:Aluminium_gallium_indium_phosphide>",
+          "distance": 0.373408675
+        },
+        {
+          "vector_id": 10083,
+          "title": "Double heterostructure",
+          "source_id": "<dbpedia:Double_heterostructure>",
+          "distance": 0.448752284
+        },
+        {
+          "vector_id": 53588,
+          "title": "Arsine (data page)",
+          "source_id": "<dbpedia:Arsine_(data_page)>",
+          "distance": 0.559184909
+        }
+      ]
+    },
+    {
+      "metric": "cosine",
+      "query": "queries/query_19.csv",
+      "query_title": "Kongnamul",
+      "query_ms": 2.549708,
+      "whole_process_ms": 2232.047999976203,
+      "first_three_results": [
+        {
+          "vector_id": 57662,
+          "title": "Bulgogi",
+          "source_id": "<dbpedia:Bulgogi>",
+          "distance": 0.504381716
+        },
+        {
+          "vector_id": 67896,
+          "title": "Japanese noodles",
+          "source_id": "<dbpedia:Japanese_noodles>",
+          "distance": 0.581312656
+        },
+        {
+          "vector_id": 9929,
+          "title": "Pamonha",
+          "source_id": "<dbpedia:Pamonha>",
+          "distance": 0.589357138
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_00.csv",
+      "query_title": "40th Flight Test Squadron",
+      "query_ms": 3.342875,
+      "whole_process_ms": 2248.2642501126975,
+      "first_three_results": [
+        {
+          "vector_id": 33743,
+          "title": "No. 40 Squadron RAAF",
+          "source_id": "<dbpedia:No._40_Squadron_RAAF>",
+          "distance": 1.022922039
+        },
+        {
+          "vector_id": 48471,
+          "title": "453d Electronic Warfare Squadron",
+          "source_id": "<dbpedia:453d_Electronic_Warfare_Squadron>",
+          "distance": 1.078896284
+        },
+        {
+          "vector_id": 18175,
+          "title": "380th Air Expeditionary Wing",
+          "source_id": "<dbpedia:380th_Air_Expeditionary_Wing>",
+          "distance": 1.104124308
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_01.csv",
+      "query_title": "AllianceBernstein",
+      "query_ms": 3.150208,
+      "whole_process_ms": 2288.59074995853,
+      "first_three_results": [
+        {
+          "vector_id": 45692,
+          "title": "Acadian Asset Management",
+          "source_id": "<dbpedia:Acadian_Asset_Management>",
+          "distance": 0.895320714
+        },
+        {
+          "vector_id": 6184,
+          "title": "Morgan Stanley",
+          "source_id": "<dbpedia:Morgan_Stanley>",
+          "distance": 1.044950485
+        },
+        {
+          "vector_id": 48968,
+          "title": "A. M. Best",
+          "source_id": "<dbpedia:A._M._Best>",
+          "distance": 1.064524293
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_02.csv",
+      "query_title": "Jonas Valley",
+      "query_ms": 2.133292,
+      "whole_process_ms": 2220.999540993944,
+      "first_three_results": [
+        {
+          "vector_id": 39777,
+          "title": "Föhrenwald",
+          "source_id": "<dbpedia:Föhrenwald>",
+          "distance": 0.943804502
+        },
+        {
+          "vector_id": 63969,
+          "title": "Birkenau (Odenwald)",
+          "source_id": "<dbpedia:Birkenau_(Odenwald)>",
+          "distance": 1.037879705
+        },
+        {
+          "vector_id": 13100,
+          "title": "Schloss Hartheim",
+          "source_id": "<dbpedia:Schloss_Hartheim>",
+          "distance": 1.122158051
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_03.csv",
+      "query_title": "Wilson (film)",
+      "query_ms": 3.028625,
+      "whole_process_ms": 2309.5659161917865,
+      "first_three_results": [
+        {
+          "vector_id": 68106,
+          "title": "Richard Edward Wilson",
+          "source_id": "<dbpedia:Richard_Edward_Wilson>",
+          "distance": 0.940058053
+        },
+        {
+          "vector_id": 780,
+          "title": "Edwin P. Wilson",
+          "source_id": "<dbpedia:Edwin_P._Wilson>",
+          "distance": 0.998506725
+        },
+        {
+          "vector_id": 689,
+          "title": "Bob Wilson (footballer, born 1941)",
+          "source_id": "<dbpedia:Bob_Wilson_(footballer,_born_1941)>",
+          "distance": 1.053177118
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_04.csv",
+      "query_title": "Central Bank of Kuwait",
+      "query_ms": 0.886875,
+      "whole_process_ms": 2198.1640001758933,
+      "first_three_results": [
+        {
+          "vector_id": 69149,
+          "title": "Pakistani rupee",
+          "source_id": "<dbpedia:Pakistani_rupee>",
+          "distance": 1.228685141
+        },
+        {
+          "vector_id": 56549,
+          "title": "United Bank (Pakistan)",
+          "source_id": "<dbpedia:United_Bank_(Pakistan)>",
+          "distance": 1.28358078
+        },
+        {
+          "vector_id": 42990,
+          "title": "IKB Deutsche Industriebank",
+          "source_id": "<dbpedia:IKB_Deutsche_Industriebank>",
+          "distance": 1.295988202
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_05.csv",
+      "query_title": "Baize",
+      "query_ms": 0.873292,
+      "whole_process_ms": 2215.660917107016,
+      "first_three_results": [
+        {
+          "vector_id": 64648,
+          "title": "Glass cloth",
+          "source_id": "<dbpedia:Glass_cloth>",
+          "distance": 1.184635878
+        },
+        {
+          "vector_id": 11042,
+          "title": "Dibenzylideneacetone",
+          "source_id": "<dbpedia:Dibenzylideneacetone>",
+          "distance": 1.241123319
+        },
+        {
+          "vector_id": 56080,
+          "title": "Denim",
+          "source_id": "<dbpedia:Denim>",
+          "distance": 1.245757699
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_06.csv",
+      "query_title": "Zwierzyn, Lubusz Voivodeship",
+      "query_ms": 3.042,
+      "whole_process_ms": 2246.703709010035,
+      "first_three_results": [
+        {
+          "vector_id": 43599,
+          "title": "Jawor",
+          "source_id": "<dbpedia:Jawor>",
+          "distance": 0.977100134
+        },
+        {
+          "vector_id": 64508,
+          "title": "Ostróda",
+          "source_id": "<dbpedia:Ostróda>",
+          "distance": 0.978301525
+        },
+        {
+          "vector_id": 69310,
+          "title": "Wisła Mała",
+          "source_id": "<dbpedia:Wisła_Mała>",
+          "distance": 1.002385974
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_07.csv",
+      "query_title": "A. M. Azahari",
+      "query_ms": 1.176125,
+      "whole_process_ms": 2238.133291946724,
+      "first_three_results": [
+        {
+          "vector_id": 8501,
+          "title": "Ahmad Adaya",
+          "source_id": "<dbpedia:Ahmad_Adaya>",
+          "distance": 1.059013844
+        },
+        {
+          "vector_id": 48702,
+          "title": "Kiyohiko Azuma",
+          "source_id": "<dbpedia:Kiyohiko_Azuma>",
+          "distance": 1.104130745
+        },
+        {
+          "vector_id": 68960,
+          "title": "Salamah ibn Dinar",
+          "source_id": "<dbpedia:Salamah_ibn_Dinar>",
+          "distance": 1.168998241
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_08.csv",
+      "query_title": "Dad Loves His Work",
+      "query_ms": 2.7625,
+      "whole_process_ms": 2273.084083106369,
+      "first_three_results": [
+        {
+          "vector_id": 28409,
+          "title": "That's Why I'm Here",
+          "source_id": "<dbpedia:That's_Why_I'm_Here>",
+          "distance": 0.570466876
+        },
+        {
+          "vector_id": 44824,
+          "title": "29 (album)",
+          "source_id": "<dbpedia:29_(album)>",
+          "distance": 1.146942377
+        },
+        {
+          "vector_id": 23089,
+          "title": "Dreamtime (Tom Verlaine album)",
+          "source_id": "<dbpedia:Dreamtime_(Tom_Verlaine_album)>",
+          "distance": 1.155485511
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_09.csv",
+      "query_title": "Ferry Hall School",
+      "query_ms": 3.219792,
+      "whole_process_ms": 2327.065165853128,
+      "first_three_results": [
+        {
+          "vector_id": 68442,
+          "title": "Harlaw Academy",
+          "source_id": "<dbpedia:Harlaw_Academy>",
+          "distance": 0.962228417
+        },
+        {
+          "vector_id": 7087,
+          "title": "North Forest Independent School District",
+          "source_id": "<dbpedia:North_Forest_Independent_School_District>",
+          "distance": 1.126369953
+        },
+        {
+          "vector_id": 29473,
+          "title": "Ascham School",
+          "source_id": "<dbpedia:Ascham_School>",
+          "distance": 1.165265799
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_10.csv",
+      "query_title": "Bus mouse",
+      "query_ms": 3.479709,
+      "whole_process_ms": 2269.7415410075337,
+      "first_three_results": [
+        {
+          "vector_id": 34597,
+          "title": "D-Bus",
+          "source_id": "<dbpedia:D-Bus>",
+          "distance": 0.968378663
+        },
+        {
+          "vector_id": 45125,
+          "title": "Enhanced Cartridge Interface",
+          "source_id": "<dbpedia:Enhanced_Cartridge_Interface>",
+          "distance": 1.185352087
+        },
+        {
+          "vector_id": 12974,
+          "title": "Multilingual User Interface",
+          "source_id": "<dbpedia:Multilingual_User_Interface>",
+          "distance": 1.200673342
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_11.csv",
+      "query_title": "United Mine Workers of America v. Bagwell",
+      "query_ms": 1.617209,
+      "whole_process_ms": 2256.929124938324,
+      "first_three_results": [
+        {
+          "vector_id": 60567,
+          "title": "United States v. Darby Lumber Co.",
+          "source_id": "<dbpedia:United_States_v._Darby_Lumber_Co.>",
+          "distance": 1.012300253
+        },
+        {
+          "vector_id": 33946,
+          "title": "Regents of the University of California v. Bakke",
+          "source_id": "<dbpedia:Regents_of_the_University_of_California_v._Bakke>",
+          "distance": 1.192153931
+        },
+        {
+          "vector_id": 41093,
+          "title": "Minor v. Happersett",
+          "source_id": "<dbpedia:Minor_v._Happersett>",
+          "distance": 1.203335047
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_12.csv",
+      "query_title": "Tintin – Le Temple du Soleil – Le Spectacle Musical",
+      "query_ms": 4.374209,
+      "whole_process_ms": 2250.237457919866,
+      "first_three_results": [
+        {
+          "vector_id": 4665,
+          "title": "The Second Stage Turbine Blade (comics)",
+          "source_id": "<dbpedia:The_Second_Stage_Turbine_Blade_(comics)>",
+          "distance": 1.279439688
+        },
+        {
+          "vector_id": 10902,
+          "title": "Baba Yetu",
+          "source_id": "<dbpedia:Baba_Yetu>",
+          "distance": 1.285545826
+        },
+        {
+          "vector_id": 23964,
+          "title": "Tikki Tikki Tembo",
+          "source_id": "<dbpedia:Tikki_Tikki_Tembo>",
+          "distance": 1.291624308
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_13.csv",
+      "query_title": "MacRobertson's",
+      "query_ms": 1.890875,
+      "whole_process_ms": 2210.556084057316,
+      "first_three_results": [
+        {
+          "vector_id": 65635,
+          "title": "John Robertson (Scottish Labour Party founder)",
+          "source_id": "<dbpedia:John_Robertson_(Scottish_Labour_Party_founder)>",
+          "distance": 0.92653358
+        },
+        {
+          "vector_id": 19498,
+          "title": "Rod MacDonald",
+          "source_id": "<dbpedia:Rod_MacDonald>",
+          "distance": 1.106217742
+        },
+        {
+          "vector_id": 40946,
+          "title": "James Forbes-Robertson",
+          "source_id": "<dbpedia:James_Forbes-Robertson>",
+          "distance": 1.107987165
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_14.csv",
+      "query_title": "William de la Barre",
+      "query_ms": 2.905333,
+      "whole_process_ms": 2298.9723330829293,
+      "first_three_results": [
+        {
+          "vector_id": 28045,
+          "title": "Paul Moody (inventor)",
+          "source_id": "<dbpedia:Paul_Moody_(inventor)>",
+          "distance": 1.166436434
+        },
+        {
+          "vector_id": 56787,
+          "title": "DeJuan Wheat",
+          "source_id": "<dbpedia:DeJuan_Wheat>",
+          "distance": 1.172458649
+        },
+        {
+          "vector_id": 11119,
+          "title": "Frederick Bramwell",
+          "source_id": "<dbpedia:Frederick_Bramwell>",
+          "distance": 1.187664628
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_15.csv",
+      "query_title": "SAPS II",
+      "query_ms": 2.634208,
+      "whole_process_ms": 2228.315166896209,
+      "first_three_results": [
+        {
+          "vector_id": 58768,
+          "title": "SIDPERS",
+          "source_id": "<dbpedia:SIDPERS>",
+          "distance": 1.126643538
+        },
+        {
+          "vector_id": 60399,
+          "title": "ISA-88",
+          "source_id": "<dbpedia:ISA-88>",
+          "distance": 1.128497839
+        },
+        {
+          "vector_id": 58481,
+          "title": "Systems biomedicine",
+          "source_id": "<dbpedia:Systems_biomedicine>",
+          "distance": 1.255348444
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_16.csv",
+      "query_title": "The Power of One (novel)",
+      "query_ms": 2.474583,
+      "whole_process_ms": 2265.104459132999,
+      "first_three_results": [
+        {
+          "vector_id": 55268,
+          "title": "Seize the Day (novel)",
+          "source_id": "<dbpedia:Seize_the_Day_(novel)>",
+          "distance": 1.193340302
+        },
+        {
+          "vector_id": 36809,
+          "title": "Season of the Jew",
+          "source_id": "<dbpedia:Season_of_the_Jew>",
+          "distance": 1.253837347
+        },
+        {
+          "vector_id": 21920,
+          "title": "The White Peacock",
+          "source_id": "<dbpedia:The_White_Peacock>",
+          "distance": 1.269510508
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_17.csv",
+      "query_title": "Religion in Nazi Germany",
+      "query_ms": 3.199458,
+      "whole_process_ms": 2223.110750084743,
+      "first_three_results": [
+        {
+          "vector_id": 42045,
+          "title": "Hinduism in Austria",
+          "source_id": "<dbpedia:Hinduism_in_Austria>",
+          "distance": 1.128943801
+        },
+        {
+          "vector_id": 14773,
+          "title": "Religion in ancient Rome",
+          "source_id": "<dbpedia:Religion_in_ancient_Rome>",
+          "distance": 1.16903019
+        },
+        {
+          "vector_id": 54393,
+          "title": "Demographics of Austria",
+          "source_id": "<dbpedia:Demographics_of_Austria>",
+          "distance": 1.21885097
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_18.csv",
+      "query_title": "Aluminium arsenide",
+      "query_ms": 2.104834,
+      "whole_process_ms": 2268.8552499748766,
+      "first_three_results": [
+        {
+          "vector_id": 23040,
+          "title": "Aluminium gallium indium phosphide",
+          "source_id": "<dbpedia:Aluminium_gallium_indium_phosphide>",
+          "distance": 0.74681741
+        },
+        {
+          "vector_id": 10083,
+          "title": "Double heterostructure",
+          "source_id": "<dbpedia:Double_heterostructure>",
+          "distance": 0.897504807
+        },
+        {
+          "vector_id": 53588,
+          "title": "Arsine (data page)",
+          "source_id": "<dbpedia:Arsine_(data_page)>",
+          "distance": 1.118369937
+        }
+      ]
+    },
+    {
+      "metric": "squared-euclidean",
+      "query": "queries/query_19.csv",
+      "query_title": "Kongnamul",
+      "query_ms": 2.839042,
+      "whole_process_ms": 2212.686625076458,
+      "first_three_results": [
+        {
+          "vector_id": 57662,
+          "title": "Bulgogi",
+          "source_id": "<dbpedia:Bulgogi>",
+          "distance": 1.00876379
+        },
+        {
+          "vector_id": 67896,
+          "title": "Japanese noodles",
+          "source_id": "<dbpedia:Japanese_noodles>",
+          "distance": 1.162625313
+        },
+        {
+          "vector_id": 9929,
+          "title": "Pamonha",
+          "source_id": "<dbpedia:Pamonha>",
+          "distance": 1.178714275
+        }
+      ]
+    }
+  ]
+}

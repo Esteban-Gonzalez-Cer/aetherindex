@@ -1,168 +1,122 @@
-# VectorStore y distancias escalares
+# VectorStore, preparación y kernels FP32
 
-## Tipos y propiedad
+## Propiedad y contrato
 
-`VectorId` es `std::uint32_t`; `EmbeddingValue` es `float` de 32 bits.
-`DistanceKind` contiene `Cosine` y `SquaredEuclidean`. Estos conceptos viven en
-core, evitando dependencias entre storage y distance.
+`VectorStore(dimension, metric=Cosine)` exige dimensión positiva y métrica
+soportada. No se copia ni se mueve. Es propietario de un `AlignedVector<float>`,
+un vector de IDs en orden de inserción y un mapa ID → posición densa.
+Storage y distance dependen únicamente de core y de la biblioteca estándar.
 
-`VectorStore(dimension, metric = DistanceKind::Cosine)` exige dimensión positiva
-y una métrica soportada, o lanza `std::invalid_argument`. Ambas propiedades son
-constantes durante la vida de la instancia. El store no se copia ni se mueve.
+`insert(id, span)` devuelve `Success`, `DuplicateId`, `DimensionMismatch` o
+`InvalidEmbedding`. Admite cero y todo el rango uint32 de IDs externos.
+Rechaza componentes no finitos. **Cosine normaliza L2 antes de almacenar y
+rechaza norma < 1e-7**; SquaredEuclidean conserva exactamente las componentes
+FP32 originales y permite ceros. Esta normalización sustituye deliberadamente
+el contrato inicial de conservación de magnitud en stores Cosine.
 
-Es propietario de un arreglo contiguo `std::vector<float>`, un vector de IDs en
-orden de inserción y un mapa ID → posición. Acepta todo el rango de `VectorId`.
-`size()`, `dimension()`, `distance_kind()` e `ids()` son consultas `noexcept`.
-`contains(id)` consulta existencia y `find(id)` devuelve
-`std::optional<std::span<const float>>`: un ID inexistente produce `nullopt`.
+Se valida antes de asignar. Se preparan los componentes en un buffer temporal
+antes de cualquier reasignación del store, permitiendo insertar una vista del
+mismo almacén. Si una asignación falla, se restauran las longitudes de datos
+e IDs; el mapa se confirma al final. Se propaga la excepción con el contenido
+lógico anterior, aunque las capacidades y direcciones pueden haber cambiado.
+El span recibido nunca se modifica.
 
-`ids()` devuelve `std::span<const VectorId>`. Un consumidor puede recorrerlo y
-obtener cada embedding con `find()`, sin acceder a estructuras privadas.
+## Alineación y acceso público
 
-## Inserción y errores
+La asignación usa `operator new(..., align_val_t{64})` y su delete correspondiente.
+El stride físico es `(D+15)&~size_t(15)`, en floats. Cada fila empieza en un
+múltiplo de 64 bytes y su padding contiene ceros. Por ejemplo, D=17 usa stride=32,
+pero `dimension()` y los spans de `find()` siguen mostrando 17 componentes.
 
-`insert(id, embedding)` recibe una vista de solo lectura y devuelve:
-
-| Estado | Significado |
+| API | Uso |
 |---|---|
-| `Success` | El embedding y su ID se incorporaron |
-| `DimensionMismatch` | La dimensión no coincide |
-| `DuplicateId` | El ID ya existe; su embedding se conserva |
-| `InvalidEmbedding` | Hay NaN/infinito, o un vector de norma cero en un store coseno |
+| `size()`, `dimension()`, `distance_kind()` | Configuración y cantidad lógica |
+| `find(id)` | `optional<span<const float>>` de dimensión lógica; nullopt si no existe |
+| `ids()` | IDs externos en orden de inserción, sin copia |
+| `position_of(id)` | Traducción a posición densa; nullopt si no existe |
+| `data_by_position(position)` | Puntero de lectura a una fila; exige position < size() |
+| `padded_dimension()` | Longitud física que los kernels pueden leer, incluido padding |
+| `reserve(count)` | Reserva para una carga cuyo tamaño se conoce |
 
-La validación comprueba dimensión, ID duplicado y contenido, en ese orden.
-Los stores euclidianos permiten vectores de ceros; ambos rechazan NaN, +∞ y −∞.
-La comprobación de norma cero no usa epsilon: un componente finito subnormal
-no nulo basta para que un embedding sea admisible para coseno.
+HNSW usa posiciones densas en sus aristas y convierte a IDs externos al entregar
+resultados. Nunca convierte directamente un ID externo en un offset. Los
+punteros se obtienen de nuevo durante cada operación: no se guardan a través
+de inserciones. El store debe vivir más tiempo que el índice.
 
-Antes de ampliar el almacenamiento se crea una copia temporal del embedding.
-Esto permite insertar directamente una vista obtenida del mismo store. Después
-se añaden componentes e ID; el mapa se confirma al final. Si una asignación
-falla, se restauran las longitudes anteriores y se propaga la excepción
-(`std::bad_alloc` o errores de longitud), conservando todos los registros.
-La copia temporal desaparece al terminar; no existe una segunda colección
-permanente de embeddings.
+Descartar todas las vistas y punteros antes de `insert()` o `reserve()`, incluso
+si fallan. Destrucción también los invalida. Lecturas y escrituras no pueden
+solaparse; esta versión no ofrece concurrencia.
 
-## Vida útil de las vistas
+## Normalización estable
 
-Las vistas no poseen memoria. Descartar cualquier vista devuelta por `find()` o
-`ids()` antes de insertar, aunque la inserción falle: una ampliación seguida de
-rollback puede cambiar la dirección de los datos. Pasar una vista directamente
-a `insert()` está permitido, pero no utilizarla después de esa llamada.
+La preparación encuentra la mayor componente absoluta y divide por ella antes
+de acumular cuadrados. Ocho sumas parciales FP32/FMA evitan formar una norma
+que desborde con componentes grandes o se anule con subnormales. Se calcula
+una raíz durante preparación. La comparación del umbral evita multiplicar
+una escala enorme por la norma escalada. No hay acumuladores double en
+normalización ni en distancias de producción.
 
-Destruir el store invalida todas sus vistas. Las lecturas requieren ausencia de
-modificaciones simultáneas; esta versión es secuencial, sin garantías de
-concurrencia. Los consumidores conservan IDs y adquieren vistas nuevas cuando
-las necesitan.
+`PreparedQuery` posee un buffer alineado e inmutable; no se copia, asigna ni mueve. `QueryEngine` lo construye
+una vez por consulta y llama a las entradas preparadas de los algoritmos.
+Cosine requiere una consulta finita y no nula; el umbral 1e-7 se aplica a
+**inserciones**, no a consultas ni al API general de distancia.
 
-## Distancias
+## Dos niveles de API de distancia
 
-```cpp
-float compute_distance(std::span<const EmbeddingValue> a,
-                       std::span<const EmbeddingValue> b,
-                       DistanceKind metric);
-```
+`compute_distance(span a, span b, metric)` acepta componentes crudas: valida,
+prepara ambas entradas y llama al kernel. No altera los spans del llamador.
+Se conserva para consumidores generales; no se llama por candidato en búsquedas.
 
-- **Coseno:** `1 - dot(a,b)/(norm(a)*norm(b))`, en `[0, 2]`. Misma dirección da
-  `0`, ortogonalidad `1`, dirección opuesta `2`. No normaliza ni modifica datos.
-- **Euclidiana al cuadrado:** suma de diferencias al cuadrado, sin raíz cuadrada.
-  Menores valores representan mayor proximidad en ambas opciones.
+Los kernels internos requieren iguales longitudes válidas, componentes finitas,
+padding cero y, para Cosine, entradas unitarias:
 
-Se acumula con `double` y se devuelve `float`. La similitud coseno se limita a
-`[-1, 1]` para compensar redondeo. Dimensiones vacías o diferentes, componentes
-no finitos, métricas no soportadas y norma cero con coseno lanzan
-`std::invalid_argument`. Un resultado euclidiano mayor que `float::max()` lanza
-`std::overflow_error`; nunca se devuelve infinito por ese desbordamiento.
-Resultados positivos menores que el rango representable de float pueden
-redondearse a cero. Estas funciones son escalares y no implementan SIMD.
+- Cosine: `1.0f - clamp(dot(a,b), -1.0f, 1.0f)`, dentro de [0,2].
+- SquaredEuclidean: suma de diferencias al cuadrado, sin raíz; un resultado
+  no finito por desbordamiento de FP32 lanza `overflow_error`.
 
-## Integración con fuerza bruta y HNSW
+Las sumas son FP32/FMA con varias cadenas independientes. AVX2/FMA usa registros
+de ocho floats, NEON/AArch64 de cuatro; otras plataformas usan fallback escalar
+con `std::fma`. Las colas no leen fuera de los arrays. El archivo
+`scalar_distance.cpp` contiene los kernels; `distance.cpp`, el API validado.
+No hay raíces, divisiones ni conversiones float→double en el bucle de comparación.
+La similitud se limita antes de restar para compensar redondeo.
 
-```cpp
-VectorStore store(3);  // Coseno por defecto.
-const std::array<float, 3> a = {1.0f, 0.0f, 0.0f};
-const std::array<float, 3> b = {0.0f, 1.0f, 0.0f};
-// Comprobar los estados de inserción antes de continuar.
-store.insert(10, a);
-store.insert(20, b);
-const auto lhs = store.find(10);
-const auto rhs = store.find(20);
-// Tras confirmar que ambas vistas existen:
-const float distance = compute_distance(*lhs, *rhs, store.distance_kind()); // 1
-```
+Errores del API general: dimensiones diferentes o vacías, no finitos, métrica
+inválida o norma cero Cosine → `invalid_argument`. Se aceptan normas no nulas
+muy pequeñas en este API. La acumulación FP32 cambia los últimos bits frente
+al baseline double: el ejemplo 0.2 se imprime `0.199999988`; nueve decimales
+son presentación, no nueve decimales de precisión garantizada.
 
-`bruteForceSearch` y `QueryEngine::search` reciben `const VectorStore&`, una vista
-de consulta y `k`. El store determina la métrica; no hay una segunda configuración
-que pueda contradecirla. El llamador controla la vida del store.
-
-`HnswIndex` implementa ese mismo patrón: sus nodos guardan `VectorId`, nivel y
-vecinos; obtienen una vista mediante `find(id)` para cada cálculo y la pasan a
-`compute_distance`. No conserva spans entre operaciones ni copia embeddings
-dentro del grafo. El store debe vivir más tiempo que el índice, y solo puede
-modificarse entre operaciones de este. `QueryEngine::search` admite también un
-índice HNSW ya preparado, devolviendo los mismos `SearchResult` que fuerza bruta.
-
-La prueba original del patrón de acceso sigue siendo una validación del contrato
-público. Las pruebas adicionales del índice implementado verifican estructura,
-inserción, búsqueda y Recall contra fuerza bruta. HNSW mantiene la política de
-errores numéricos de distance. Una excepción después de iniciar una inserción
-del grafo exige reconstruir el índice; esa operación no modifica ni elimina
-embeddings del store. Ver [HNSW](hnsw.md) para el contrato completo.
-
-## Compilar y probar
-
-Desde la raíz, con un compilador C++20:
+## Compilación y comprobación
 
 ```sh
-cmake -S . -B build-local -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
-cmake --build build-local --config Debug
-ctest --test-dir build-local -C Debug --output-on-failure
+cmake -S . -B build-debug -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
+cmake --build build-debug --parallel 4
+ctest --test-dir build-debug --output-on-failure
 ```
 
-En macOS/Linux con generador de configuración única: `./build-local/aetherindex`.
-Con Visual Studio: `.\build-local\Debug\aetherindex.exe`.
-Usar una carpeta nueva si cambia el compilador, generador o ubicación del proyecto.
+`AETHER_NATIVE_SIMD=ON` permite compilar los kernels para la CPU de construcción
+(`-march=native` en GCC/Clang, `/arch:AVX2` en MSVC x64). Es optativo: ese binario
+puede no ejecutarse en otras CPUs. AArch64 tiene el kernel NEON sin esta opción.
+No hay dispatch de instrucciones en tiempo de ejecución.
 
-Para activar AddressSanitizer y UndefinedBehaviorSanitizer con GCC/Clang compatibles:
+Los sanitizadores son optativos mediante `AETHER_ENABLE_SANITIZERS=ON`.
+En el Mac validado se usa el Clang 23 instalado porque el runtime AppleClang 17
+presentó previamente un bloqueo antes de main:
 
 ```sh
-cmake -S . -B build-sanitizers -DCMAKE_BUILD_TYPE=Debug -DAETHER_ENABLE_SANITIZERS=ON
-cmake --build build-sanitizers --config Debug
-ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir build-sanitizers --output-on-failure
+cmake -S . -B build-asan -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON \
+  -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DAETHER_ENABLE_SANITIZERS=ON
+cmake --build build-asan --parallel 4
+ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir build-asan --output-on-failure
 ```
 
-La opción vale `OFF` por defecto. Un compilador no soportado produce un error de
-configuración al solicitarla. En el entorno validado, el runtime de AppleClang 17
-se bloqueó antes de `main`, incluso con un programa mínimo; la ejecución completa
-con ASan/UBSan funcionó usando el Clang 23 ya instalado. Para reproducirla en este
-Mac, utilizar una carpeta nueva y seleccionar explícitamente ese compilador:
-
-```sh
-cmake -S . -B build-llvm-sanitizers -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_BUILD_TYPE=Debug -DAETHER_ENABLE_SANITIZERS=ON
-cmake --build build-llvm-sanitizers
-ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir build-llvm-sanitizers --output-on-failure
-```
-
-No se cambia el compilador predeterminado del proyecto. Para compilar solo la aplicación:
-
-```sh
-cmake -S . -B build-app -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=OFF
-cmake --build build-app --config Debug
-```
-
-CTest registra 16 escenarios sin dependencias externas. Incluye
-recuperación exacta de 1,000 embeddings de dimensión 128 (semilla 42), inyección
-aislada de fallas de asignación, cálculo independiente con long double, ranking
-con ambas métricas, parser/carga de CSV, errores del ejecutable y diez consultas
-CLI sobre 1,000 × 128, además de nodos/configuración, inserción, búsqueda,
-validación estructural, Recall y CLI de HNSW. El protocolo de Recall usa 100
-consultas independientes por métrica sobre 1,000 × 128 y exige un promedio
-≥ 0.85 con la configuración predeterminada. Para distancias de referencia, el helper aplica
-estrictamente `abs(double(actual) - double(expected)) < 1e-5`, con valores
-finitos; el caso de gran magnitud usa una comparación relativa explícita.
-
-Ver [Evidencia histórica de VectorStore](../architecture/vector_store_validation.md)
-y [Validación histórica de la CLI](../architecture/cli_validation.md), además de
-la [validación HNSW](../architecture/hnsw_validation.md).
-La aprobación del equipo y la revisión de PR son pasos separados del resultado
-de estas pruebas.
+La suite normal contiene 19 pruebas sin dependencias externas. Dos pruebas
+reales opcionales usan los datos DBpedia preparados y Python/NumPy. Se cubren
+padding y alineación, normalización contra una referencia independiente,
+umbral de norma, entradas extremas, alias, rollback en asignaciones normales
+y alineadas, y recuperación exacta de 1,000×128 en SquaredEuclidean. El protocolo
+OKR v2 verifica las 128,000 componentes de la representación normalizada Cosine.
+`unit.optimization_contracts` exige error absoluto coseno **estrictamente <1e-6**
+frente a una referencia tradicional long double. Los casos iniciales T2.5
+mantienen su tolerancia absoluta estricta <1e-5; no se deduce rendimiento de CTest.

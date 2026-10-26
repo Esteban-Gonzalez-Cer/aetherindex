@@ -1,0 +1,93 @@
+{
+  "captured_utc": "2026-10-25T22:22:47.570910+00:00",
+  "runs": [
+    {
+      "name": "external-adapter-configure",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "build-cp02-debug",
+        "-DAETHER_BM25_CORPUS_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/tests/fixtures/bm25"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "external-adapter-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build-cp02-debug",
+        "--target",
+        "aether_bm25_evaluate",
+        "--parallel",
+        "4"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "external-adapter-test",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build-cp02-debug",
+        "-R",
+        "^integration.bm25_corpus_external$",
+        "-V"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "missing-corpus-rejected",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "build-cp02-missing-corpus",
+        "-G",
+        "Ninja",
+        "-DCMAKE_OSX_SYSROOT=macosx",
+        "-DCMAKE_CXX_COMPILER=/Library/Developer/CommandLineTools/usr/bin/clang++",
+        "-DBUILD_TESTING=ON",
+        "-DAETHER_BM25_CORPUS_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-missing-corpus/absent"
+      ],
+      "returncode": 1
+    },
+    {
+      "name": "standalone-consumer-build",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/clang++",
+        "-std=c++20",
+        "-isysroot",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+        "-I",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/include",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-no-tests-final/consumer.cpp",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-no-tests-final/libaether_lexical.a",
+        "-o",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-no-tests-final/bm25_consumer"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "standalone-consumer-run",
+      "command": [
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-no-tests-final/bm25_consumer"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "numerical-reference-search",
+      "command": [
+        "build-cp02-release-final/tests/aether_bm25_evaluate",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/math-fixture/documents.tsv",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/math-fixture/queries.tsv",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/math-fixture/output"
+      ],
+      "returncode": 0
+    }
+  ],
+  "external_adapter_data": "synthetic regression fixture, not CP-01"
+}

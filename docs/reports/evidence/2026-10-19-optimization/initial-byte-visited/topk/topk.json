@@ -1,0 +1,7 @@
+{
+"vectors":100000,"dimension":128,"k":10,"samples_per_algorithm":50,
+"kernel":"NEON/FMA FP32",
+"full_sort_mean_ms":5.4298341199999989,"heap_mean_ms":0.71703081999999996,
+"full_sort_median_ms":5.3952920000000004,"heap_median_ms":0.71129200000000004,
+"relative_time_reduction":0.86794609114136256,"ca_1_3_pass":true,"checksum":166480222
+}

@@ -1,0 +1,52 @@
+Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-sanitizers
+      Start 17: integration.sprint1_okr1
+      Start 20: e2e.cli_real_dataset
+ 1/21 Test #17: integration.sprint1_okr1 .........   Passed    8.20 sec
+      Start 21: integration.hnsw_real_dataset
+ 2/21 Test #21: integration.hnsw_real_dataset ....   Passed  289.93 sec
+      Start 19: e2e.cli_hnsw
+ 3/21 Test #19: e2e.cli_hnsw .....................   Passed   68.47 sec
+      Start 16: integration.hnsw_recall
+ 4/21 Test #16: integration.hnsw_recall ..........   Passed   12.15 sec
+      Start 18: e2e.sprint1_okr1
+ 5/21 Test #18: e2e.sprint1_okr1 .................   Passed    5.50 sec
+      Start 10: e2e.cli_search
+ 6/21 Test #10: e2e.cli_search ...................   Passed    2.19 sec
+      Start 11: e2e.cli_mvp
+ 7/21 Test #11: e2e.cli_mvp ......................   Passed    2.05 sec
+      Start 12: unit.hnsw_node
+ 8/21 Test #12: unit.hnsw_node ...................   Passed    3.31 sec
+      Start  1: unit.vector_store
+ 9/21 Test  #1: unit.vector_store ................   Passed    0.25 sec
+      Start  2: unit.vector_store_allocation
+10/21 Test  #2: unit.vector_store_allocation .....   Passed    1.65 sec
+      Start 13: unit.hnsw_insert
+11/21 Test #13: unit.hnsw_insert .................   Passed    1.24 sec
+      Start 15: unit.hnsw_graph
+12/21 Test #15: unit.hnsw_graph ..................   Passed    0.81 sec
+      Start  5: unit.optimization_contracts
+13/21 Test  #5: unit.optimization_contracts ......   Passed    0.34 sec
+      Start  4: unit.brute_force
+14/21 Test  #4: unit.brute_force .................   Passed    0.27 sec
+      Start  3: unit.distance
+15/21 Test  #3: unit.distance ....................   Passed    0.20 sec
+      Start  6: integration.storage_distance
+16/21 Test  #6: integration.storage_distance .....   Passed    0.20 sec
+      Start  8: unit.cli_parser
+17/21 Test  #8: unit.cli_parser ..................   Passed    0.22 sec
+      Start  7: integration.dense_retrieval
+18/21 Test  #7: integration.dense_retrieval ......   Passed    0.06 sec
+      Start 14: unit.hnsw_search
+19/21 Test #14: unit.hnsw_search .................   Passed    0.23 sec
+      Start  9: integration.search_service
+20/21 Test  #9: integration.search_service .......   Passed    0.24 sec
+21/21 Test #20: e2e.cli_real_dataset .............   Passed  417.81 sec
+
+100% tests passed out of 21
+
+Label Time Summary:
+okr1         =  13.70 sec*proc (2 tests)
+real-data    = 707.73 sec*proc (2 tests)
+sprint1      =  13.70 sec*proc (2 tests)
+
+Total Test time (real) = 417.81 sec

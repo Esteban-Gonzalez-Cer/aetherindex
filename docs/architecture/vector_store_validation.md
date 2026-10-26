@@ -1,5 +1,9 @@
 # Evidencia de validación: VectorStore y distancias
 
+> Evidencia histórica del baseline anterior al 19-10-2026. La normalización,
+> los kernels y el grafo actuales se validan en
+> [optimización vectorial y FlatGraph](../benchmarks/OPTIMIZATION_VALIDATION.md).
+
 Fecha de la sesión: **11 de octubre de 2026**, zona America/Mexico_City.
 Entorno: macOS 26.5.2, ARM64; CMake; AppleClang 17.0.0 para el build normal y
 Clang 23.1.3 instalado en Homebrew para ASan/UBSan.

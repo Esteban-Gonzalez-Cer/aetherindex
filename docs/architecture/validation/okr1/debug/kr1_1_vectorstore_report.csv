@@ -1,0 +1,2 @@
+expected_vectors,inserted_vectors,failed_insertions,stored_vectors,retrieved_vectors,retrieval_errors,altered_vectors,compared_components,dimension,recovery_percent,invalid_input_checks,metric,dataset_seed,status
+1000,1000,0,1000,1000,0,0,128000,128,100,8,cosine,42,Cumplido

@@ -1,0 +1,33 @@
+Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-sanitizers
+      Start  2: unit.vector_store_allocation
+ 1/12 Test  #2: unit.vector_store_allocation .....   Passed    1.65 sec
+      Start  5: unit.optimization_contracts
+ 2/12 Test  #5: unit.optimization_contracts ......   Passed    0.46 sec
+      Start  7: integration.dense_retrieval
+ 3/12 Test  #7: integration.dense_retrieval ......   Passed    0.21 sec
+      Start  9: integration.search_service
+ 4/12 Test  #9: integration.search_service .......   Passed    0.22 sec
+      Start 12: unit.hnsw_node
+ 5/12 Test #12: unit.hnsw_node ...................   Passed    3.19 sec
+      Start 13: unit.hnsw_insert
+ 6/12 Test #13: unit.hnsw_insert .................   Passed    1.15 sec
+      Start 14: unit.hnsw_search
+ 7/12 Test #14: unit.hnsw_search .................   Passed    0.23 sec
+      Start 15: unit.hnsw_graph
+ 8/12 Test #15: unit.hnsw_graph ..................   Passed    0.74 sec
+      Start 16: integration.hnsw_recall
+ 9/12 Test #16: integration.hnsw_recall ..........   Passed   11.84 sec
+      Start 17: integration.sprint1_okr1
+10/12 Test #17: integration.sprint1_okr1 .........   Passed    8.07 sec
+      Start 18: e2e.sprint1_okr1
+11/12 Test #18: e2e.sprint1_okr1 .................   Passed    5.60 sec
+      Start 19: e2e.cli_hnsw
+12/12 Test #19: e2e.cli_hnsw .....................   Passed   66.96 sec
+
+100% tests passed out of 12
+
+Label Time Summary:
+okr1       =  13.67 sec*proc (2 tests)
+sprint1    =  13.67 sec*proc (2 tests)
+
+Total Test time (real) = 100.34 sec

@@ -1,0 +1,18 @@
+[1/18] Building CXX object CMakeFiles/aether_distance.dir/src/distance/scalar_distance.cpp.o
+[2/18] Building CXX object CMakeFiles/aether_distance.dir/src/distance/distance.cpp.o
+[3/18] Linking CXX static library libaether_distance.a
+[4/18] Building CXX object CMakeFiles/aether_brute_force.dir/src/ann/brute_force/brute_force_index.cpp.o
+[5/18] Building CXX object CMakeFiles/aether_storage.dir/src/storage/vector_store.cpp.o
+[6/18] Linking CXX static library libaether_storage.a
+[7/18] Linking CXX static library libaether_brute_force.a
+[8/18] Building CXX object CMakeFiles/aether_application.dir/src/application/query_engine.cpp.o
+[9/18] Building CXX object CMakeFiles/aether_application.dir/src/application/search_service.cpp.o
+[10/18] Building CXX object CMakeFiles/aether_hnsw.dir/src/ann/hnsw/hnsw_index.cpp.o
+[11/18] Linking CXX static library libaether_hnsw.a
+[12/18] Building CXX object CMakeFiles/aether_application.dir/src/application/csv_loader.cpp.o
+[13/18] Linking CXX static library libaether_application.a
+[14/18] Building CXX object CMakeFiles/aether_cli.dir/apps/cli/cli_parser.cpp.o
+[15/18] Building CXX object CMakeFiles/aetherindex.dir/apps/cli/main.cpp.o
+[16/18] Building CXX object CMakeFiles/aether_cli.dir/apps/cli/cli_runner.cpp.o
+[17/18] Linking CXX static library libaether_cli.a
+[18/18] Linking CXX executable aetherindex

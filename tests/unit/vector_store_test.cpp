@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "../test_helpers.hpp"
+#include "aether/core/prepared_query.hpp"
 
 using namespace aetherindex;
 
@@ -50,9 +51,9 @@ void checkBasicStorage() {
     const auto third_view = *store.find(maximum);
     require(first_view.size() == 3 && second_view.size() == 3 && third_view.size() == 3,
             "Views must have the fixed dimension.");
-    require(
-        second_view.data() == first_view.data() + 3 && third_view.data() == second_view.data() + 3,
-        "Embedding storage must be contiguous.");
+    require(second_view.data() == first_view.data() + store.padded_dimension() &&
+                third_view.data() == second_view.data() + store.padded_dimension(),
+            "Embedding storage must be contiguous with its declared padded stride.");
     require(store.find(20)->data() == second_view.data(), "Reading must not allocate a copy.");
     require(second_view[0] == 0.0f && second_view[1] == 1.0f && second_view[2] == 0.0f,
             "Stored components must be preserved.");
@@ -63,6 +64,7 @@ void checkRejections() {
     const std::array<float, 3> valid = {1.0f, 2.0f, 3.0f};
     const std::array<float, 3> replacement = {4.0f, 5.0f, 6.0f};
     require(store.insert(10, valid) == InsertStatus::Success, "Setup insertion failed.");
+    const std::vector<float> snapshot(store.find(10)->begin(), store.find(10)->end());
     require(store.insert(10, replacement) == InsertStatus::DuplicateId, "Duplicate ID accepted.");
     const std::array<float, 2> wrong_dimension = {1.0f, 2.0f};
     require(store.insert(40, wrong_dimension) == InsertStatus::DimensionMismatch,
@@ -81,7 +83,7 @@ void checkRejections() {
     }
     require(store.size() == 1 && !store.contains(40) && !store.contains(41) && !store.contains(42),
             "Rejected IDs must never enter the position map.");
-    require((*store.find(10))[0] == 1.0f && (*store.find(10))[2] == 3.0f,
+    require(std::equal(store.find(10)->begin(), store.find(10)->end(), snapshot.begin()),
             "Rejected insertion must preserve the original embedding.");
     require(store.insert(50, valid) == InsertStatus::Success, "Store must remain usable.");
 
@@ -91,21 +93,24 @@ void checkRejections() {
     require(squared.insert(1, invalid) == InsertStatus::InvalidEmbedding,
             "Squared Euclidean stores must also reject nonfinite values.");
     const std::array<float, 3> tiny = {std::numeric_limits<float>::denorm_min(), 0.0f, 0.0f};
-    require(store.insert(60, tiny) == InsertStatus::Success,
-            "Nonzero subnormal coordinates must not be classified as zero norm.");
+    require(store.insert(60, tiny) == InsertStatus::InvalidEmbedding,
+            "Cosine inserts with norm below 1e-7 must be rejected.");
 }
 
 void checkAliasedInsertion() {
     VectorStore store(3);
     const std::array<float, 3> values = {0.25f, -2.0f, 4.0f};
     require(store.insert(0, values) == InsertStatus::Success, "Setup insertion failed.");
+    const PreparedQuery expected(values, 3, DistanceKind::Cosine);
     for (VectorId id = 1; id <= 128; ++id) {
         // Acquire a fresh view for every call; never use it after insertion.
         require(store.insert(id, *store.find(0)) == InsertStatus::Success,
                 "Insertion from an existing store view must survive reallocation.");
         const auto copied = *store.find(id);
-        require(copied[0] == values[0] && copied[1] == values[1] && copied[2] == values[2],
-                "Aliased insertion corrupted an embedding.");
+        for (std::size_t i = 0; i < copied.size(); ++i) {
+            require(std::abs(copied[i] - expected.values()[i]) < 1e-6f,
+                    "Aliased insertion corrupted a normalized embedding.");
+        }
     }
     require(store.size() == 129, "Aliased insertions lost IDs.");
 }
@@ -115,7 +120,7 @@ void checkThousandEmbeddings() {
     constexpr std::size_t dimension = 128;
     std::mt19937 random(42);
     std::vector<std::array<float, dimension>> expected(count);
-    VectorStore store(dimension);
+    VectorStore store(dimension, DistanceKind::SquaredEuclidean);
     for (std::size_t i = 0; i < count; ++i) {
         for (float& value : expected[i]) {
             value = static_cast<float>(static_cast<int>(random() % 2001) - 1000) / 1000.0f;

@@ -1,0 +1,9 @@
+hw.model: Mac16,7
+hw.memsize: 25769803776
+hw.physicalcpu: 14
+hw.logicalcpu: 14
+hw.machine: arm64
+hw.pagesize: 16384
+hw.cachelinesize: 128
+hw.optional.neon: 1
+vm.swapusage: total = 8192.00M  used = 7367.06M  free = 824.94M  (encrypted)

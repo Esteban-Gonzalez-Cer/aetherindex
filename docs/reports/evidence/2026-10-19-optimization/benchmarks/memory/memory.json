@@ -1,0 +1,8 @@
+{
+"vectors":100000,"dimension":8,"m":16,"m0":32,"seed":42,
+"layer0_allocated_bytes":13200000,"upper_allocated_bytes":546176,"upper_occupied_slots":6615,
+"metadata_allocated_bytes":500000,"object_bytes":2736,"graph_allocated_bytes":14248912,"global_buffer_blocks":4,
+"rss_before_graph_bytes":12386304,"rss_after_graph_bytes":23691264,"rss_delta_bytes":11304960,
+"rss_scope":"process delta; includes allocator and temporary-workspace retention, not equivalent to owned graph bytes",
+"build_ms":7416.178167,"ca_2_2_owned_capacity_pass":true
+}

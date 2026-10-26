@@ -1,0 +1,1 @@
+/opt/homebrew/opt/llvm/bin/clang++ -g -Wl,-search_paths_first -Wl,-headerpad_max_install_names -fsanitize=address,undefined CMakeFiles/aetherindex.dir/apps/cli/main.cpp.o -o aetherindex  libaether_cli.a libaether_application.a libaether_brute_force.a libaether_hnsw.a libaether_storage.a libaether_distance.a

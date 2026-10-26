@@ -1,0 +1,4 @@
+phase,nodes,invalid_references,missing_embeddings,invalid_levels,layer_violations,self_references,duplicate_edges,degree_violations,entry_point_violations,max_level_violations,insertion_count_violations,usable,total_violations
+after_500,500,0,0,0,0,0,0,0,0,0,0,1,0
+after_1000,1000,0,0,0,0,0,0,0,0,0,0,1,0
+after_queries,1000,0,0,0,0,0,0,0,0,0,0,1,0

@@ -1,0 +1,25 @@
+Command: cmake --build /private/tmp/aetherindex-okr1-debug-20261014 --config Debug --parallel 4
+[  8%] Built target aether_storage
+[ 12%] Built target aether_distance
+[ 12%] Built target aether_cli_fixture_generator
+[ 21%] Built target aether_vector_store_allocation_tests
+[ 29%] Built target aether_hnsw
+[ 29%] Built target aether_brute_force
+[ 29%] Built target aether_vector_store_tests
+[ 42%] Built target aether_storage_distance_tests
+[ 42%] Built target aether_brute_force_tests
+[ 42%] Built target aether_distance_tests
+[ 51%] Built target aether_application
+[ 63%] Built target aether_hnsw_insert_tests
+[ 63%] Built target aether_hnsw_search_tests
+[ 63%] Built target aether_hnsw_node_tests
+[ 68%] Built target aether_hnsw_graph_tests
+[ 70%] Building CXX object tests/CMakeFiles/aether_sprint1_okr1_tests.dir/integration/sprint1_okr1_test.cpp.o
+[ 74%] Built target aether_query_engine_tests
+[ 80%] Built target aether_hnsw_recall_tests
+[ 85%] Built target aether_cli
+[ 89%] Built target aetherindex
+[ 93%] Built target aether_cli_parser_tests
+[ 97%] Built target aether_search_service_tests
+[100%] Linking CXX executable aether_sprint1_okr1_tests
+[100%] Built target aether_sprint1_okr1_tests

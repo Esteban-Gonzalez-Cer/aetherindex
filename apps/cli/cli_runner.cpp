@@ -95,6 +95,10 @@ int run(std::span<const std::string_view> arguments, std::ostream& output, std::
             formatted << "\nHNSW configuration: M=" << config.m << " M0=" << config.m_max_0
                       << " efConstruction=" << config.ef_construction
                       << " efSearch=" << config.ef_search << " seed=" << config.random_seed
+                      << "\nHNSW neighbor selection: "
+                      << (config.neighbor_selection == NeighborSelection::Heuristic
+                              ? "Heuristic (Algorithm 4)"
+                              : "Simple (Algorithm 3)")
                       << "\nIndex build time (ms): " << std::fixed << std::setprecision(6)
                       << response.index_build_time.count()
                       << "\nIndex build time scope: graph construction only (excludes CSV loading)";

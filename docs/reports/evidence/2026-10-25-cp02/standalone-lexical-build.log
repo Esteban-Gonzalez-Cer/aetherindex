@@ -1,0 +1,4 @@
+[1/4] Building CXX object CMakeFiles/aether_lexical.dir/src/lexical/tokenizer.cpp.o
+[2/4] Building CXX object CMakeFiles/aether_lexical.dir/src/lexical/bm25.cpp.o
+[3/4] Building CXX object CMakeFiles/aether_lexical.dir/src/lexical/inverted_index.cpp.o
+[4/4] Linking CXX static library libaether_lexical.a

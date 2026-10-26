@@ -1,0 +1,55 @@
+{
+  "reference": "Independent Python Decimal arithmetic at precision 60; does not call production scorer",
+  "results": [
+    {
+      "query_id": "e47",
+      "rank": "1",
+      "document_id": "101",
+      "bm25_score": "0.81427334212294267",
+      "independent_decimal_expected": "0.814273342122942536258185841658267471348611947006655050332136",
+      "absolute_error": "1.33741814158341732528651388052993344949667864E-16",
+      "strict_tolerance": "1e-6",
+      "pass": true
+    },
+    {
+      "query_id": "motor",
+      "rank": "1",
+      "document_id": "101",
+      "bm25_score": "0.56657971744691404",
+      "independent_decimal_expected": "0.566579717446914092072362448507590434159987894458600377528033",
+      "absolute_error": "5.2072362448507590434159987894458600377528033E-17",
+      "strict_tolerance": "1e-6",
+      "pass": true
+    },
+    {
+      "query_id": "motor",
+      "rank": "2",
+      "document_id": "102",
+      "bm25_score": "0.47000362924573552",
+      "independent_decimal_expected": "0.470003629245735553650937031148342064700899048812248040449392",
+      "absolute_error": "3.3650937031148342064700899048812248040449392E-17",
+      "strict_tolerance": "1e-6",
+      "pass": true
+    },
+    {
+      "query_id": "both",
+      "rank": "1",
+      "document_id": "101",
+      "bm25_score": "1.3808530595698567",
+      "independent_decimal_expected": "1.38085305956985662833054829016585790550859984146525542786017",
+      "absolute_error": "7.166945170983414209449140015853474457213983E-17",
+      "strict_tolerance": "1e-6",
+      "pass": true
+    },
+    {
+      "query_id": "both",
+      "rank": "2",
+      "document_id": "102",
+      "bm25_score": "0.47000362924573552",
+      "independent_decimal_expected": "0.470003629245735553650937031148342064700899048812248040449392",
+      "absolute_error": "3.3650937031148342064700899048812248040449392E-17",
+      "strict_tolerance": "1e-6",
+      "pass": true
+    }
+  ]
+}

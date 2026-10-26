@@ -1,0 +1,20 @@
+{
+  "captured_utc": "2026-10-22T03:27:15.237733+00:00",
+  "command": [
+    "/Library/Developer/CommandLineTools/usr/bin/clang++",
+    "-std=c++20",
+    "-O2",
+    "-isysroot",
+    "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+    "-framework",
+    "Foundation",
+    "/Users/estebangonzalezcervantes/Documents/aetherindex/docs/benchmarks/hardware-reference/2026-10-21/thermal_probe.mm",
+    "-o",
+    "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-probes-20261021/thermal_probe"
+  ],
+  "state": {
+    "thermal_state": 0,
+    "low_power_mode": false
+  },
+  "scope": "ProcessInfo snapshot; not a continuous temperature/frequency trace"
+}

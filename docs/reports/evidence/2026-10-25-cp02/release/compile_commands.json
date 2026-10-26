@@ -1,0 +1,230 @@
+[
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_storage.dir/src/storage/vector_store.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/storage/vector_store.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/src/storage/vector_store.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/CMakeFiles/aether_storage.dir/src/storage/vector_store.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_lexical.dir/src/lexical/tokenizer.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/lexical/tokenizer.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/src/lexical/tokenizer.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/CMakeFiles/aether_lexical.dir/src/lexical/tokenizer.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_lexical.dir/src/lexical/inverted_index.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/lexical/inverted_index.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/src/lexical/inverted_index.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/CMakeFiles/aether_lexical.dir/src/lexical/inverted_index.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_lexical.dir/src/lexical/bm25.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/lexical/bm25.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/src/lexical/bm25.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/CMakeFiles/aether_lexical.dir/src/lexical/bm25.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_distance.dir/src/distance/scalar_distance.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/scalar_distance.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/scalar_distance.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/CMakeFiles/aether_distance.dir/src/distance/scalar_distance.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_distance.dir/src/distance/distance.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/distance.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/distance.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/CMakeFiles/aether_distance.dir/src/distance/distance.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_brute_force.dir/src/ann/brute_force/brute_force_index.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/ann/brute_force/brute_force_index.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/src/ann/brute_force/brute_force_index.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/CMakeFiles/aether_brute_force.dir/src/ann/brute_force/brute_force_index.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_hnsw.dir/src/ann/hnsw/hnsw_index.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/ann/hnsw/hnsw_index.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/src/ann/hnsw/hnsw_index.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/CMakeFiles/aether_hnsw.dir/src/ann/hnsw/hnsw_index.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_application.dir/src/application/query_engine.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/application/query_engine.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/src/application/query_engine.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/CMakeFiles/aether_application.dir/src/application/query_engine.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_application.dir/src/application/search_service.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/application/search_service.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/src/application/search_service.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/CMakeFiles/aether_application.dir/src/application/search_service.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_application.dir/src/application/csv_loader.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/application/csv_loader.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/src/application/csv_loader.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/CMakeFiles/aether_application.dir/src/application/csv_loader.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/apps/cli -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_cli.dir/apps/cli/cli_parser.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/apps/cli/cli_parser.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/apps/cli/cli_parser.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/CMakeFiles/aether_cli.dir/apps/cli/cli_parser.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/apps/cli -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_cli.dir/apps/cli/cli_runner.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/apps/cli/cli_runner.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/apps/cli/cli_runner.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/CMakeFiles/aether_cli.dir/apps/cli/cli_runner.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/apps/cli -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aetherindex.dir/apps/cli/main.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/apps/cli/main.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/apps/cli/main.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/CMakeFiles/aetherindex.dir/apps/cli/main.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_tokenizer_tests.dir/unit/tokenizer_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/tokenizer_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/tokenizer_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_tokenizer_tests.dir/unit/tokenizer_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_inverted_index_tests.dir/unit/inverted_index_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/inverted_index_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/inverted_index_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_inverted_index_tests.dir/unit/inverted_index_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_bm25_statistics_tests.dir/unit/bm25_statistics_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/bm25_statistics_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/bm25_statistics_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_bm25_statistics_tests.dir/unit/bm25_statistics_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_bm25_math_tests.dir/unit/bm25_math_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/bm25_math_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/bm25_math_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_bm25_math_tests.dir/unit/bm25_math_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_bm25_search_tests.dir/unit/bm25_search_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/bm25_search_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/bm25_search_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_bm25_search_tests.dir/unit/bm25_search_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_bm25_allocation_tests.dir/unit/bm25_allocation_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/bm25_allocation_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/bm25_allocation_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_bm25_allocation_tests.dir/unit/bm25_allocation_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_bm25_contract_tests.dir/integration/bm25_contract_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/integration/bm25_contract_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/integration/bm25_contract_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_bm25_contract_tests.dir/integration/bm25_contract_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_bm25_evaluate.dir/integration/bm25_corpus_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/integration/bm25_corpus_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/integration/bm25_corpus_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_bm25_evaluate.dir/integration/bm25_corpus_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_vector_store_tests.dir/unit/vector_store_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/vector_store_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/vector_store_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_vector_store_tests.dir/unit/vector_store_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_vector_store_allocation_tests.dir/unit/vector_store_allocation_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/vector_store_allocation_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/vector_store_allocation_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_vector_store_allocation_tests.dir/unit/vector_store_allocation_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_distance_tests.dir/unit/distance_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/distance_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/distance_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_distance_tests.dir/unit/distance_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_brute_force_tests.dir/unit/brute_force_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/brute_force_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/brute_force_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_brute_force_tests.dir/unit/brute_force_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_optimization_contract_tests.dir/unit/optimization_contracts_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/optimization_contracts_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/optimization_contracts_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_optimization_contract_tests.dir/unit/optimization_contracts_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_storage_distance_tests.dir/integration/vector_store_distance_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/integration/vector_store_distance_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/integration/vector_store_distance_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_storage_distance_tests.dir/integration/vector_store_distance_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_query_engine_tests.dir/integration/dense_retrieval_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/integration/dense_retrieval_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/integration/dense_retrieval_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_query_engine_tests.dir/integration/dense_retrieval_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/apps/cli -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_cli_parser_tests.dir/unit/cli_parser_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/cli_parser_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/cli_parser_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_cli_parser_tests.dir/unit/cli_parser_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_search_service_tests.dir/integration/search_service_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/integration/search_service_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/integration/search_service_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_search_service_tests.dir/integration/search_service_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_cli_fixture_generator.dir/fixtures/generate_cli_dataset.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/fixtures/generate_cli_dataset.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/fixtures/generate_cli_dataset.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_cli_fixture_generator.dir/fixtures/generate_cli_dataset.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_hnsw_node_tests.dir/unit/hnsw_node_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/hnsw_node_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/hnsw_node_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_hnsw_node_tests.dir/unit/hnsw_node_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_hnsw_insert_tests.dir/unit/hnsw_insert_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/hnsw_insert_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/hnsw_insert_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_hnsw_insert_tests.dir/unit/hnsw_insert_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_hnsw_search_tests.dir/unit/hnsw_search_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/hnsw_search_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/hnsw_search_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_hnsw_search_tests.dir/unit/hnsw_search_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_hnsw_graph_tests.dir/unit/hnsw_graph_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/hnsw_graph_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/unit/hnsw_graph_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_hnsw_graph_tests.dir/unit/hnsw_graph_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_hnsw_recall_tests.dir/integration/hnsw_recall_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/integration/hnsw_recall_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/integration/hnsw_recall_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_hnsw_recall_tests.dir/integration/hnsw_recall_test.cpp.o"
+},
+{
+  "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o tests/CMakeFiles/aether_sprint1_okr1_tests.dir/integration/sprint1_okr1_test.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/tests/integration/sprint1_okr1_test.cpp",
+  "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/integration/sprint1_okr1_test.cpp",
+  "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/tests/CMakeFiles/aether_sprint1_okr1_tests.dir/integration/sprint1_okr1_test.cpp.o"
+}
+]

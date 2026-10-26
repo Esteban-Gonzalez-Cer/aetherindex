@@ -1,0 +1,32 @@
+UpdateCTestConfiguration  from :/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/DartConfiguration.tcl
+Parse Config file:/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/DartConfiguration.tcl
+Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 5
+    Start 5: unit.optimization_contracts
+
+5: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_optimization_contract_tests
+5: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+5: Test timeout computed to be: 120
+5: CA-1.2: 2016 comparisons; max absolute error=3.57628e-07 (<1e-6); backend=NEON/FMA FP32
+1/2 Test #5: unit.optimization_contracts ......   Passed    0.48 sec
+test 7
+    Start 7: integration.dense_retrieval
+
+7: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_query_engine_tests
+7: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+7: Test timeout computed to be: 30
+2/2 Test #7: integration.dense_retrieval ......   Passed    0.74 sec
+
+The following tests passed:
+	unit.optimization_contracts
+	integration.dense_retrieval
+
+100% tests passed out of 2
+
+Total Test time (real) =   1.23 sec

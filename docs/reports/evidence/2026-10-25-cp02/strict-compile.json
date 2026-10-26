@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/Library/Developer/CommandLineTools/usr/bin/clang++",
+    "-std=c++20",
+    "-isysroot",
+    "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-fsyntax-only",
+    "-I",
+    "/Users/estebangonzalezcervantes/Documents/aetherindex/include",
+    "/Users/estebangonzalezcervantes/Documents/aetherindex/src/lexical/bm25.cpp",
+    "/Users/estebangonzalezcervantes/Documents/aetherindex/src/lexical/tokenizer.cpp",
+    "/Users/estebangonzalezcervantes/Documents/aetherindex/src/lexical/inverted_index.cpp"
+  ],
+  "returncode": 0
+}

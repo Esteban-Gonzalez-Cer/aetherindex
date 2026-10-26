@@ -1,0 +1,7 @@
+[ 27%] Built target aether_distance
+[ 27%] Built target aether_storage
+[ 38%] Built target aether_brute_force
+[ 50%] Built target aether_hnsw
+[ 72%] Built target aether_application
+[ 88%] Built target aether_cli
+[100%] Built target aetherindex

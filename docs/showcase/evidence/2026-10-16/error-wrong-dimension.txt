@@ -1,0 +1,2 @@
+Exit code: 3
+Error: build-showcase/query-wrong-dimension.csv:line 1: query dimension mismatch: expected 2, found 3.

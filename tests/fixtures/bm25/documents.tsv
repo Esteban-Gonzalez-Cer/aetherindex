@@ -1,0 +1,100 @@
+1000	El controlador del motor industrial registra error E47 por temperatura elevada durante el arranque. Revisar el sensor de la fase térmica.
+1037	motor controlador: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 1-1.
+1074	motor controlador: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 1-2.
+1111	motor controlador: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 1-3.
+1148	motor controlador: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 1-4.
+1185	El servidor nginx devuelve HTTP_404 cuando la ruta del recurso solicitado no existe en la configuración del portal.
+1222	servidor web: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 2-1.
+1259	servidor web: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 2-2.
+1296	servidor web: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 2-3.
+1333	servidor web: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 2-4.
+1370	La estación de trabajo reconoce la GPU RTX-5090 pero el controlador de vídeo registra reinicios al cargar la escena.
+1407	gpu estación: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 3-1.
+1444	gpu estación: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 3-2.
+1481	gpu estación: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 3-3.
+1518	gpu estación: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 3-4.
+1555	La guía de C++ explica la propiedad de memoria mediante RAII y la liberación de recursos en el destructor.
+1592	software memoria: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 4-1.
+1629	software memoria: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 4-2.
+1666	software memoria: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 4-3.
+1703	software memoria: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 4-4.
+1740	La bomba hidráulica presenta alarma P-214 cuando disminuye la presión de aspiración y aparece cavitación en la tubería.
+1777	bomba hidráulica: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 5-1.
+1814	bomba hidráulica: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 5-2.
+1851	bomba hidráulica: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 5-3.
+1888	bomba hidráulica: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 5-4.
+1925	El enlace ethernet del switch registra VLAN_37 como destino de la interfaz de control industrial segmentada.
+1962	red ethernet: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 6-1.
+1999	red ethernet: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 6-2.
+2036	red ethernet: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 6-3.
+2073	red ethernet: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 6-4.
+2110	El diagnóstico DB-812 identifica bloqueo de transacciones en la base de datos durante escrituras concurrentes.
+2147	base datos: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 7-1.
+2184	base datos: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 7-2.
+2221	base datos: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 7-3.
+2258	base datos: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 7-4.
+2295	La unidad de almacenamiento reporta NVME_512 por agotamiento de la cola de solicitudes del dispositivo.
+2332	disco almacenamiento: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 8-1.
+2369	disco almacenamiento: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 8-2.
+2406	disco almacenamiento: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 8-3.
+2443	disco almacenamiento: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 8-4.
+2480	El servicio registra TLS-902 cuando el certificado del servidor vence y el cliente rechaza el canal cifrado.
+2517	certificado tls: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 9-1.
+2554	certificado tls: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 9-2.
+2591	certificado tls: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 9-3.
+2628	certificado tls: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 9-4.
+2665	La autenticación falla con AUTH_321 cuando la cuenta supera el límite de intentos y queda bloqueada.
+2702	autenticación acceso: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 10-1.
+2739	autenticación acceso: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 10-2.
+2776	autenticación acceso: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 10-3.
+2813	autenticación acceso: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 10-4.
+2850	El sensor de presión utiliza CAL-673 para indicar una desviación de calibración respecto al patrón de referencia.
+2887	sensor calibración: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 11-1.
+2924	sensor calibración: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 11-2.
+2961	sensor calibración: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 11-3.
+2998	sensor calibración: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 11-4.
+3035	La alarma FAN_208 indica que el ventilador de refrigeración gira por debajo del umbral de velocidad configurado.
+3072	ventilador refrigeración: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 12-1.
+3109	ventilador refrigeración: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 12-2.
+3146	ventilador refrigeración: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 12-3.
+3183	ventilador refrigeración: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 12-4.
+3220	El compilador emite BUILD-731 al resolver una referencia duplicada durante el enlace de la biblioteca estática.
+3257	proceso compilación: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 13-1.
+3294	proceso compilación: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 13-2.
+3331	proceso compilación: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 13-3.
+3368	proceso compilación: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 13-4.
+3405	La cola de mensajes registra QUEUE_619 cuando la confirmación del consumidor supera el tiempo permitido.
+3442	mensajería cola: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 14-1.
+3479	mensajería cola: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 14-2.
+3516	mensajería cola: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 14-3.
+3553	mensajería cola: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 14-4.
+3590	El procedimiento BACKUP-442 verifica la integridad del archivo antes de restaurar el respaldo de la aplicación.
+3627	respaldo restauración: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 15-1.
+3664	respaldo restauración: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 15-2.
+3701	respaldo restauración: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 15-3.
+3738	respaldo restauración: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 15-4.
+3775	El actuador del robot señala SERVO_184 cuando la posición medida difiere del objetivo y se activa la protección.
+3812	robot actuador: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 16-1.
+3849	robot actuador: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 16-2.
+3886	robot actuador: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 16-3.
+3923	robot actuador: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 16-4.
+3960	La fuente de alimentación registra POWER-563 cuando cae la tensión de salida durante el arranque del equipo.
+3997	energía suministro: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 17-1.
+4034	energía suministro: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 17-2.
+4071	energía suministro: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 17-3.
+4108	energía suministro: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 17-4.
+4145	El servicio de reloj indica NTP_297 cuando la deriva temporal impide sincronizar los eventos de la planta.
+4182	sincronización reloj: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 18-1.
+4219	sincronización reloj: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 18-2.
+4256	sincronización reloj: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 18-3.
+4293	sincronización reloj: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 18-4.
+4330	El subsistema de archivos notifica FILE-486 cuando el proceso intenta escribir sin permiso en el directorio de destino.
+4367	archivo permisos: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 19-1.
+4404	archivo permisos: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 19-2.
+4441	archivo permisos: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 19-3.
+4478	archivo permisos: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 19-4.
+4515	El control del horno genera HEAT_845 cuando la temperatura supera el límite durante el ciclo de secado.
+4552	temperatura horno: La inspección periódica revisa el estado físico y documenta la limpieza general del equipo. No se registra una alarma activa. Referencia alternativa 20-1.
+4589	temperatura horno: El plan de mantenimiento contempla una sustitución preventiva y una revisión visual de conexiones antes de iniciar el turno. Referencia alternativa 20-2.
+4626	temperatura horno: El registro histórico describe una parada programada para actualizar la documentación del inventario y sus responsables. Referencia alternativa 20-3.
+4663	temperatura horno: La consulta del operador solicita el manual de instalación y las precauciones generales de transporte del conjunto. Referencia alternativa 20-4.

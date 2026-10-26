@@ -16,8 +16,28 @@ target_link_libraries(aether_core INTERFACE aether_sanitizers)
 add_library(aether_storage STATIC src/storage/vector_store.cpp)
 target_link_libraries(aether_storage PUBLIC aether_core)
 
-add_library(aether_distance STATIC src/distance/scalar_distance.cpp)
+add_library(aether_lexical STATIC
+    src/lexical/tokenizer.cpp
+    src/lexical/inverted_index.cpp
+    src/lexical/bm25.cpp
+)
+target_link_libraries(aether_lexical PUBLIC aether_core)
+if(MSVC)
+    target_compile_options(aether_lexical PUBLIC /utf-8)
+endif()
+
+option(AETHER_NATIVE_SIMD "Compile distance kernels for the build host (binary may not be portable)" OFF)
+add_library(aether_distance STATIC src/distance/scalar_distance.cpp src/distance/distance.cpp)
 target_link_libraries(aether_distance PUBLIC aether_core)
+if(AETHER_NATIVE_SIMD)
+    if(MSVC AND CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64|amd64|x86_64")
+        target_compile_options(aether_distance PRIVATE /arch:AVX2)
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+        target_compile_options(aether_distance PRIVATE -march=native)
+    else()
+        message(FATAL_ERROR "AETHER_NATIVE_SIMD is unsupported by this compiler/architecture")
+    endif()
+endif()
 
 add_library(aether_brute_force STATIC src/ann/brute_force/brute_force_index.cpp)
 target_link_libraries(aether_brute_force
@@ -51,4 +71,9 @@ target_link_libraries(aetherindex PRIVATE aether_cli)
 include(CTest)
 if(BUILD_TESTING)
     add_subdirectory(tests)
+endif()
+
+option(AETHER_BUILD_BENCHMARKS "Build optional optimization/performance drivers" OFF)
+if(AETHER_BUILD_BENCHMARKS)
+    add_subdirectory(benchmarks)
 endif()

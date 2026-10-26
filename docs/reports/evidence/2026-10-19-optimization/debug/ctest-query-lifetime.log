@@ -1,0 +1,9 @@
+Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-debug
+    Start 5: unit.optimization_contracts
+1/2 Test #5: unit.optimization_contracts ......   Passed    0.41 sec
+    Start 7: integration.dense_retrieval
+2/2 Test #7: integration.dense_retrieval ......   Passed    0.63 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   1.04 sec

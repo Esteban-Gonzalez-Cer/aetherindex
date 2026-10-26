@@ -1,0 +1,9 @@
+case,vector_id,actual_status,expected_status,store_size
+duplicate_id,10,DuplicateId,DuplicateId,1000
+short_dimension,0,DimensionMismatch,DimensionMismatch,1000
+long_dimension,0,DimensionMismatch,DimensionMismatch,1000
+nan,0,InvalidEmbedding,InvalidEmbedding,1000
+positive_infinity,0,InvalidEmbedding,InvalidEmbedding,1000
+negative_infinity,0,InvalidEmbedding,InvalidEmbedding,1000
+cosine_zero,0,InvalidEmbedding,InvalidEmbedding,1000
+missing_id,0,Missing,Missing,1000

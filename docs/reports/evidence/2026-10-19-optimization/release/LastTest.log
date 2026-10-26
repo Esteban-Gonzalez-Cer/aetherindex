@@ -1,0 +1,661 @@
+Start testing: Oct 19 01:25 CST
+----------------------------------------------------------
+1/26 Testing: unit.vector_store
+1/26 Test: unit.vector_store
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_vector_store_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"unit.vector_store" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+1000/1000 embeddings of dimension 128 recovered exactly (seed 42).
+<end of output>
+Test time =   0.26 sec
+----------------------------------------------------------
+Test Passed.
+"unit.vector_store" end time: Oct 19 01:25 CST
+"unit.vector_store" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/26 Testing: unit.vector_store_allocation
+2/26 Test: unit.vector_store_allocation
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_vector_store_allocation_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"unit.vector_store_allocation" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+Rollback verified at 5 allocation points with 0 existing embeddings, metric=0.
+Rollback verified at 4 allocation points with 1 existing embeddings, metric=0.
+Rollback verified at 5 allocation points with 2 existing embeddings, metric=0.
+Rollback verified at 2 allocation points with 13 existing embeddings, metric=0.
+Rollback verified at 2 allocation points with 29 existing embeddings, metric=0.
+Rollback verified at 5 allocation points with 0 existing embeddings, metric=1.
+Rollback verified at 4 allocation points with 1 existing embeddings, metric=1.
+Rollback verified at 5 allocation points with 2 existing embeddings, metric=1.
+Rollback verified at 2 allocation points with 13 existing embeddings, metric=1.
+Rollback verified at 2 allocation points with 29 existing embeddings, metric=1.
+CA-2.1 dynamic allocation audit: N=1000, persistent blocks=4, bytes=144616
+<end of output>
+Test time =   0.18 sec
+----------------------------------------------------------
+Test Passed.
+"unit.vector_store_allocation" end time: Oct 19 01:25 CST
+"unit.vector_store_allocation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/26 Testing: unit.distance
+3/26 Test: unit.distance
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_distance_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"unit.distance" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"unit.distance" end time: Oct 19 01:25 CST
+"unit.distance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/26 Testing: unit.brute_force
+4/26 Test: unit.brute_force
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_brute_force_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"unit.brute_force" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"unit.brute_force" end time: Oct 19 01:25 CST
+"unit.brute_force" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/26 Testing: unit.optimization_contracts
+5/26 Test: unit.optimization_contracts
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_optimization_contract_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"unit.optimization_contracts" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+CA-1.2: 2016 comparisons; max absolute error=3.57628e-07 (<1e-6); backend=NEON/FMA FP32
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"unit.optimization_contracts" end time: Oct 19 01:25 CST
+"unit.optimization_contracts" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/26 Testing: integration.storage_distance
+6/26 Test: integration.storage_distance
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_storage_distance_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"integration.storage_distance" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"integration.storage_distance" end time: Oct 19 01:25 CST
+"integration.storage_distance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/26 Testing: integration.dense_retrieval
+7/26 Test: integration.dense_retrieval
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_query_engine_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"integration.dense_retrieval" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"integration.dense_retrieval" end time: Oct 19 01:25 CST
+"integration.dense_retrieval" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/26 Testing: unit.cli_parser
+8/26 Test: unit.cli_parser
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_cli_parser_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"unit.cli_parser" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.16 sec
+----------------------------------------------------------
+Test Passed.
+"unit.cli_parser" end time: Oct 19 01:25 CST
+"unit.cli_parser" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/26 Testing: integration.search_service
+9/26 Test: integration.search_service
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_search_service_tests" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/service-fixtures/Release"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"integration.search_service" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"integration.search_service" end time: Oct 19 01:25 CST
+"integration.search_service" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/26 Testing: e2e.cli_search
+10/26 Test: e2e.cli_search
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/aetherindex" "-DWORK_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/cli-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_search_test.cmake"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"e2e.cli_search" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+-- CLI help, exact/HNSW search, both metrics, k, error messages, streams and exit codes passed.
+<end of output>
+Test time =   0.19 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_search" end time: Oct 19 01:25 CST
+"e2e.cli_search" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/26 Testing: e2e.cli_mvp
+11/26 Test: e2e.cli_mvp
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/aetherindex" "-DGENERATOR_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_cli_fixture_generator" "-DWORK_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/mvp-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_mvp_test.cmake"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"e2e.cli_mvp" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+-- 1000 x 128 embeddings; seed 42; 10/10 distinct CLI Top-10 queries passed with valid, unique, sorted IDs.
+<end of output>
+Test time =   0.35 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_mvp" end time: Oct 19 01:25 CST
+"e2e.cli_mvp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/26 Testing: unit.hnsw_node
+12/26 Test: unit.hnsw_node
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_hnsw_node_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"unit.hnsw_node" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+Level reproduction: nodes=1000 dimensions=3 dataset_seed=123 graph_seed=42
+Level 0: 954 nodes
+Level 1: 44 nodes
+Level 2: 2 nodes
+<end of output>
+Test time =   0.24 sec
+----------------------------------------------------------
+Test Passed.
+"unit.hnsw_node" end time: Oct 19 01:25 CST
+"unit.hnsw_node" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/26 Testing: unit.hnsw_insert
+13/26 Test: unit.hnsw_insert
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_hnsw_insert_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"unit.hnsw_insert" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+Incremental insertion: 100 + 100 nodes; storage reallocation exercised; VALID
+<end of output>
+Test time =   0.18 sec
+----------------------------------------------------------
+Test Passed.
+"unit.hnsw_insert" end time: Oct 19 01:25 CST
+"unit.hnsw_insert" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/26 Testing: unit.hnsw_search
+14/26 Test: unit.hnsw_search
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_hnsw_search_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"unit.hnsw_search" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+HNSW search: known cosine 0/0.2/1/2; squared 25; both metrics; edge cases PASS
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"unit.hnsw_search" end time: Oct 19 01:25 CST
+"unit.hnsw_search" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/26 Testing: unit.hnsw_graph
+15/26 Test: unit.hnsw_graph
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_hnsw_graph_tests"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"unit.hnsw_graph" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+Graph validation: nodes=250 edges=2274 M=4 M0=8; all invariants VALID before/after queries
+<end of output>
+Test time =   0.16 sec
+----------------------------------------------------------
+Test Passed.
+"unit.hnsw_graph" end time: Oct 19 01:25 CST
+"unit.hnsw_graph" time elapsed: 00:00:00
+----------------------------------------------------------
+
+16/26 Testing: integration.hnsw_recall
+16/26 Test: integration.hnsw_recall
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_hnsw_recall_tests" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/hnsw-recall-Release.csv"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"integration.hnsw_recall" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+Protocol metric=cosine vectors=1000 dimensions=128 queries=100 k=10 dataset_seed=42 query_seed=424242 graph_seed=42 M=16 M0=32 efConstruction=100 max_level=32 build_ms=114.408041
+Evaluation metric=cosine efSearch=10 mean_recall_at_10=0.687000 mean_query_ms=0.007705 invalid_results=0 crashes=0
+Evaluation metric=cosine efSearch=30 mean_recall_at_10=0.923000 mean_query_ms=0.017263 invalid_results=0 crashes=0
+Evaluation metric=cosine efSearch=50 mean_recall_at_10=0.983000 mean_query_ms=0.025630 invalid_results=0 crashes=0
+Evaluation metric=cosine efSearch=100 mean_recall_at_10=0.999000 mean_query_ms=0.038401 invalid_results=0 crashes=0
+Protocol metric=squared-euclidean vectors=1000 dimensions=128 queries=100 k=10 dataset_seed=42 query_seed=424242 graph_seed=42 M=16 M0=32 efConstruction=100 max_level=32 build_ms=113.552250
+Evaluation metric=squared-euclidean efSearch=10 mean_recall_at_10=0.717000 mean_query_ms=0.007425 invalid_results=0 crashes=0
+Evaluation metric=squared-euclidean efSearch=30 mean_recall_at_10=0.938000 mean_query_ms=0.017550 invalid_results=0 crashes=0
+Evaluation metric=squared-euclidean efSearch=50 mean_recall_at_10=0.985000 mean_query_ms=0.024625 invalid_results=0 crashes=0
+Evaluation metric=squared-euclidean efSearch=100 mean_recall_at_10=1.000000 mean_query_ms=0.035638 invalid_results=0 crashes=0
+Structural validation before/after: VALID; exact cutoff ties=0; 100 independent queries per metric, 400 measured searches per graph
+<end of output>
+Test time =   0.42 sec
+----------------------------------------------------------
+Test Passed.
+"integration.hnsw_recall" end time: Oct 19 01:25 CST
+"integration.hnsw_recall" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/26 Testing: integration.sprint1_okr1
+17/26 Test: integration.sprint1_okr1
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_sprint1_okr1_tests" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/okr1-Release"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"integration.sprint1_okr1" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+OKR1 protocol v2: normalized cosine, N=1000, D=128, Q=100, k=10; seeds=42/20261014/42
+KR1.1: inserted=1000 retrieved=1000 altered=0 compared_components=128000; recovery=100%
+KR1.2: incremental=500+500 retained=500 successful_queries=100/100 invalid_queries=0 execution_errors=0 graph_violations=0
+KR1.6: matches=987/1000 meanRecall@10=0.987 threshold=0.85 cutoff_ties=0
+<end of output>
+Test time =   0.36 sec
+----------------------------------------------------------
+Test Passed.
+"integration.sprint1_okr1" end time: Oct 19 01:25 CST
+"integration.sprint1_okr1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+18/26 Testing: e2e.sprint1_okr1
+18/26 Test: e2e.sprint1_okr1
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/aetherindex" "-DEVIDENCE_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/okr1-Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/sprint1_okr1_test.cmake"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"e2e.sprint1_okr1" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+-- OKR1 integrated CLI demonstration: both algorithms match the official query-0 rankings/distances; tables, timing and metadata valid.
+<end of output>
+Test time =   0.20 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.sprint1_okr1" end time: Oct 19 01:25 CST
+"e2e.sprint1_okr1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+19/26 Testing: e2e.cli_hnsw
+19/26 Test: e2e.cli_hnsw
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/aetherindex" "-DGENERATOR_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_cli_fixture_generator" "-DWORK_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/hnsw-cli-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_hnsw_test.cmake"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"e2e.cli_hnsw" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+-- HNSW CLI: both metrics, full IDs/seed range, validated flags, separate timing, 1000x128 MVP and repeatable result tables passed.
+<end of output>
+Test time =   1.90 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_hnsw" end time: Oct 19 01:25 CST
+"e2e.cli_hnsw" time elapsed: 00:00:01
+----------------------------------------------------------
+
+20/26 Testing: e2e.cli_real_dataset
+20/26 Test: e2e.cli_real_dataset
+Command: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13" "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/validate_real_dataset.py" "--cli" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/aetherindex" "--data-dir" "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia" "--k" "100" "--report" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/real-data-Release.json"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"e2e.cli_real_dataset" start time: Oct 19 01:25 CST
+Output:
+----------------------------------------------------------
+PASS cosine            queries/query_00.csv: Top-100, query 2.683041 ms
+PASS cosine            queries/query_01.csv: Top-100, query 2.644125 ms
+PASS cosine            queries/query_02.csv: Top-100, query 2.693459 ms
+PASS cosine            queries/query_03.csv: Top-100, query 1.845750 ms
+PASS cosine            queries/query_04.csv: Top-100, query 2.690500 ms
+PASS cosine            queries/query_05.csv: Top-100, query 3.327291 ms
+PASS cosine            queries/query_06.csv: Top-100, query 2.730667 ms
+PASS cosine            queries/query_07.csv: Top-100, query 3.189750 ms
+PASS cosine            queries/query_08.csv: Top-100, query 3.589042 ms
+PASS cosine            queries/query_09.csv: Top-100, query 76.903000 ms
+PASS cosine            queries/query_10.csv: Top-100, query 3.038958 ms
+PASS cosine            queries/query_11.csv: Top-100, query 2.797667 ms
+PASS cosine            queries/query_12.csv: Top-100, query 0.634791 ms
+PASS cosine            queries/query_13.csv: Top-100, query 3.228292 ms
+PASS cosine            queries/query_14.csv: Top-100, query 2.829333 ms
+PASS cosine            queries/query_15.csv: Top-100, query 3.384750 ms
+PASS cosine            queries/query_16.csv: Top-100, query 3.005167 ms
+PASS cosine            queries/query_17.csv: Top-100, query 2.885833 ms
+PASS cosine            queries/query_18.csv: Top-100, query 1.288458 ms
+PASS cosine            queries/query_19.csv: Top-100, query 2.549708 ms
+PASS squared-euclidean queries/query_00.csv: Top-100, query 3.342875 ms
+PASS squared-euclidean queries/query_01.csv: Top-100, query 3.150208 ms
+PASS squared-euclidean queries/query_02.csv: Top-100, query 2.133292 ms
+PASS squared-euclidean queries/query_03.csv: Top-100, query 3.028625 ms
+PASS squared-euclidean queries/query_04.csv: Top-100, query 0.886875 ms
+PASS squared-euclidean queries/query_05.csv: Top-100, query 0.873292 ms
+PASS squared-euclidean queries/query_06.csv: Top-100, query 3.042000 ms
+PASS squared-euclidean queries/query_07.csv: Top-100, query 1.176125 ms
+PASS squared-euclidean queries/query_08.csv: Top-100, query 2.762500 ms
+PASS squared-euclidean queries/query_09.csv: Top-100, query 3.219792 ms
+PASS squared-euclidean queries/query_10.csv: Top-100, query 3.479709 ms
+PASS squared-euclidean queries/query_11.csv: Top-100, query 1.617209 ms
+PASS squared-euclidean queries/query_12.csv: Top-100, query 4.374209 ms
+PASS squared-euclidean queries/query_13.csv: Top-100, query 1.890875 ms
+PASS squared-euclidean queries/query_14.csv: Top-100, query 2.905333 ms
+PASS squared-euclidean queries/query_15.csv: Top-100, query 2.634208 ms
+PASS squared-euclidean queries/query_16.csv: Top-100, query 2.474583 ms
+PASS squared-euclidean queries/query_17.csv: Top-100, query 3.199458 ms
+PASS squared-euclidean queries/query_18.csv: Top-100, query 2.104834 ms
+PASS squared-euclidean queries/query_19.csv: Top-100, query 2.839042 ms
+{
+  "passed_queries": 40,
+  "checked_neighbors": 4000,
+  "max_absolute_distance_error": 2.234648108778714e-07,
+  "summary": {
+    "cosine": {
+      "queries": 20,
+      "median_query_ms": 2.8135000000000003,
+      "min_query_ms": 0.634791,
+      "max_query_ms": 76.903
+    },
+    "squared-euclidean": {
+      "queries": 20,
+      "median_query_ms": 2.800771,
+      "min_query_ms": 0.873292,
+      "max_query_ms": 4.374209
+    }
+  }
+}
+<end of output>
+Test time =  92.43 sec
+----------------------------------------------------------
+Test Passed.
+"e2e.cli_real_dataset" end time: Oct 19 01:27 CST
+"e2e.cli_real_dataset" time elapsed: 00:01:32
+----------------------------------------------------------
+
+21/26 Testing: integration.hnsw_real_dataset
+21/26 Test: integration.hnsw_real_dataset
+Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/aether_hnsw_real_dataset_tests" "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests/hnsw-real-data-Release.csv"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/tests
+"integration.hnsw_real_dataset" start time: Oct 19 01:27 CST
+Output:
+----------------------------------------------------------
+Loaded real DBpedia embeddings: 10000 x 1024, held-out queries: 20, load time (ms): 2862.673000
+Indexed 1000/10000 vectors
+Indexed 2000/10000 vectors
+Indexed 3000/10000 vectors
+Indexed 4000/10000 vectors
+Indexed 5000/10000 vectors
+Indexed 6000/10000 vectors
+Indexed 7000/10000 vectors
+Indexed 8000/10000 vectors
+Indexed 9000/10000 vectors
+Indexed 10000/10000 vectors
+Graph validation: valid; nodes: 10000; max level: 4; build time (ms): 7795.887250
+Query 0, efSearch 50, Recall@10: 1.000000, query time (ms): 0.243958
+Query 0, efSearch 100, Recall@10: 1.000000, query time (ms): 0.325250
+Query 1, efSearch 50, Recall@10: 1.000000, query time (ms): 0.265125
+Query 1, efSearch 100, Recall@10: 1.000000, query time (ms): 0.382708
+Query 2, efSearch 50, Recall@10: 1.000000, query time (ms): 0.208541
+Query 2, efSearch 100, Recall@10: 1.000000, query time (ms): 0.246917
+Query 3, efSearch 50, Recall@10: 1.000000, query time (ms): 0.213500
+Query 3, efSearch 100, Recall@10: 1.000000, query time (ms): 0.254666
+Query 4, efSearch 50, Recall@10: 0.900000, query time (ms): 0.275041
+Query 4, efSearch 100, Recall@10: 1.000000, query time (ms): 0.341334
+Query 5, efSearch 50, Recall@10: 1.000000, query time (ms): 0.260333
+Query 5, efSearch 100, Recall@10: 1.000000, query time (ms): 0.338250
+Query 6, efSearch 50, Recall@10: 1.000000, query time (ms): 0.176459
+Query 6, efSearch 100, Recall@10: 1.000000, query time (ms): 0.252500
+Query 7, efSearch 50, Recall@10: 0.900000, query time (ms): 0.188459
+Query 7, efSearch 100, Recall@10: 1.000000, query time (ms): 0.241917
+Query 8, efSearch 50, Recall@10: 1.000000, query time (ms): 0.155625
+Query 8, efSearch 100, Recall@10: 1.000000, query time (ms): 0.161750
+Query 9, efSearch 50, Recall@10: 1.000000, query time (ms): 0.214708
+Query 9, efSearch 100, Recall@10: 1.000000, query time (ms): 0.289708
+Query 10, efSearch 50, Recall@10: 1.000000, query time (ms): 0.226583
+Query 10, efSearch 100, Recall@10: 1.000000, query time (ms): 0.260666
+Query 11, efSearch 50, Recall@10: 1.000000, query time (ms): 0.227208
+Query 11, efSearch 100, Recall@10: 1.000000, query time (ms): 0.300167
+Query 12, efSearch 50, Recall@10: 1.000000, query time (ms): 0.260875
+Query 12, efSearch 100, Recall@10: 1.000000, query time (ms): 0.297667
+Query 13, efSearch 50, Recall@10: 1.000000, query time (ms): 0.263625
+Query 13, efSearch 100, Recall@10: 1.000000, query time (ms): 0.280167
+Query 14, efSearch 50, Recall@10: 1.000000, query time (ms): 0.219416
+Query 14, efSearch 100, Recall@10: 1.000000, query time (ms): 0.259959
+Query 15, efSearch 50, Recall@10: 1.000000, query time (ms): 0.300542
+Query 15, efSearch 100, Recall@10: 1.000000, query time (ms): 0.397125
+Query 16, efSearch 50, Recall@10: 0.900000, query time (ms): 0.301500
+Query 16, efSearch 100, Recall@10: 1.000000, query time (ms): 0.305708
+Query 17, efSearch 50, Recall@10: 1.000000, query time (ms): 0.214875
+Query 17, efSearch 100, Recall@10: 1.000000, query time (ms): 0.267208
+Query 18, efSearch 50, Recall@10: 1.000000, query time (ms): 0.257041
+Query 18, efSearch 100, Recall@10: 1.000000, query time (ms): 0.316000
+Query 19, efSearch 50, Recall@10: 1.000000, query time (ms): 0.219666
+Query 19, efSearch 100, Recall@10: 1.000000, query time (ms): 0.304292
+Mean brute-force query time (ms): 0.673042
+efSearch 50: mean Recall@10: 0.985000; mean query time (ms): 0.234654
+efSearch 100: mean Recall@10: 1.000000; mean query time (ms): 0.291198
+<end of output>
+Test time =  10.95 sec
+----------------------------------------------------------
+Test Passed.
+"integration.hnsw_real_dataset" end time: Oct 19 01:27 CST
+"integration.hnsw_real_dataset" time elapsed: 00:00:10
+----------------------------------------------------------
+
+22/26 Testing: performance.topk
+22/26 Test: performance.topk
+Command: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13" "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/check_optimization_benchmark.py" "--benchmark" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/aether_optimization_benchmark" "--workload" "topk" "--output" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/topk"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks
+"performance.topk" start time: Oct 19 01:27 CST
+Output:
+----------------------------------------------------------
+TopK reduction=0.86345 sort_ms=6.38686 heap_ms=0.872127
+{
+  "vectors": 100000,
+  "dimension": 128,
+  "k": 10,
+  "samples_per_algorithm": 50,
+  "kernel": "NEON/FMA FP32",
+  "full_sort_mean_ms": 6.3868649400000015,
+  "heap_mean_ms": 0.8721267399999999,
+  "full_sort_median_ms": 5.892542,
+  "heap_median_ms": 0.857958,
+  "relative_time_reduction": 0.8634499479489541,
+  "ca_1_3_pass": true,
+  "checksum": 166480222
+}
+<end of output>
+Test time =   0.73 sec
+----------------------------------------------------------
+Test Passed.
+"performance.topk" end time: Oct 19 01:27 CST
+"performance.topk" time elapsed: 00:00:00
+----------------------------------------------------------
+
+23/26 Testing: performance.memory
+23/26 Test: performance.memory
+Command: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13" "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/check_optimization_benchmark.py" "--benchmark" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/aether_optimization_benchmark" "--workload" "memory" "--output" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/memory"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks
+"performance.memory" start time: Oct 19 01:27 CST
+Output:
+----------------------------------------------------------
+Graph bytes=14248912 blocks=4 RSS delta=11304960
+{
+  "vectors": 100000,
+  "dimension": 8,
+  "m": 16,
+  "m0": 32,
+  "seed": 42,
+  "layer0_allocated_bytes": 13200000,
+  "upper_allocated_bytes": 546176,
+  "upper_occupied_slots": 6615,
+  "metadata_allocated_bytes": 500000,
+  "object_bytes": 2736,
+  "graph_allocated_bytes": 14248912,
+  "global_buffer_blocks": 4,
+  "rss_before_graph_bytes": 12386304,
+  "rss_after_graph_bytes": 23691264,
+  "rss_delta_bytes": 11304960,
+  "rss_scope": "process delta; includes allocator and temporary-workspace retention, not equivalent to owned graph bytes",
+  "build_ms": 7416.178167,
+  "ca_2_2_owned_capacity_pass": true
+}
+<end of output>
+Test time =   7.49 sec
+----------------------------------------------------------
+Test Passed.
+"performance.memory" end time: Oct 19 01:27 CST
+"performance.memory" time elapsed: 00:00:07
+----------------------------------------------------------
+
+24/26 Testing: performance.clustered
+24/26 Test: performance.clustered
+Command: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13" "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/check_optimization_benchmark.py" "--benchmark" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/aether_optimization_benchmark" "--workload" "clustered" "--output" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/clustered"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks
+"performance.clustered" start time: Oct 19 01:27 CST
+Output:
+----------------------------------------------------------
+Clustered recall simple=0.3909 heuristic=0.9191 absolute_gain=0.5282
+{
+  "vectors": 10000,
+  "dimension": 128,
+  "queries": 1000,
+  "ef_search": 30,
+  "k": 10,
+  "simple_mean_recall": 0.39089999999999964,
+  "heuristic_mean_recall": 0.9190999999999989,
+  "absolute_recall_gain": 0.5281999999999992,
+  "required_absolute_gain": 0.05,
+  "simple_build_ms": 259.259833,
+  "heuristic_build_ms": 646.077166,
+  "ca_2_4_pass": true
+}
+<end of output>
+Test time =   1.07 sec
+----------------------------------------------------------
+Test Passed.
+"performance.clustered" end time: Oct 19 01:27 CST
+"performance.clustered" time elapsed: 00:00:01
+----------------------------------------------------------
+
+25/26 Testing: performance.dbpedia
+25/26 Test: performance.dbpedia
+Command: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13" "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/check_optimization_benchmark.py" "--benchmark" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/aether_dbpedia_benchmark" "--workload" "dbpedia" "--data-dir" "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia" "--output" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/dbpedia"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks
+"performance.dbpedia" start time: Oct 19 01:27 CST
+Output:
+----------------------------------------------------------
+DBpedia heuristic: p99=0.340083 ms; mean_recall=0.985; build=7404.48 ms
+{
+  "vectors": 10000,
+  "dimension": 1024,
+  "distinct_queries": 20,
+  "measured_searches": 1000,
+  "warmup_searches": 100,
+  "threads": 1,
+  "ef_search": 50,
+  "k": 10,
+  "selection": "heuristic",
+  "build_ms": 7404.481875,
+  "mean_query_ms": 0.22614317999999997,
+  "p50_query_ms": 0.222291,
+  "p95_query_ms": 0.298333,
+  "p99_query_ms": 0.340083,
+  "max_query_ms": 0.369958,
+  "mean_recall_at_10": 0.9849999999999977,
+  "ca_2_5_pass": true,
+  "checksum": 360093290,
+  "timing_scope": "QueryEngine including query preparation; graph construction and CSV I/O excluded",
+  "sample_limit": "20 distinct held-out queries repeated 50 times; local warm-cache observation"
+}
+<end of output>
+Test time =   9.97 sec
+----------------------------------------------------------
+Test Passed.
+"performance.dbpedia" end time: Oct 19 01:27 CST
+"performance.dbpedia" time elapsed: 00:00:09
+----------------------------------------------------------
+
+26/26 Testing: performance.assembly
+26/26 Test: performance.assembly
+Command: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13" "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/verify_distance_assembly.py" "--compiler" "/usr/bin/c++" "--source-root" "/Users/estebangonzalezcervantes/Documents/aetherindex" "--output" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/assembly" "--native"
+Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks
+"performance.assembly" start time: Oct 19 01:27 CST
+Output:
+----------------------------------------------------------
+{
+  "compiler_command": [
+    "/usr/bin/c++",
+    "-std=c++20",
+    "-O3",
+    "-S",
+    "-I",
+    "/Users/estebangonzalezcervantes/Documents/aetherindex/include",
+    "/Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/scalar_distance.cpp",
+    "-o",
+    "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/assembly/distance-kernels.s",
+    "-march=native"
+  ],
+  "machine": "arm64",
+  "packed_fp32_fma_count": 8,
+  "fma_examples": [
+    "fmla.4s\tv0, v16, v4",
+    "fmla.4s\tv1, v17, v5",
+    "fmla.4s\tv2, v18, v6",
+    "fmla.4s\tv3, v19, v7",
+    "fmla.4s\tv0, v4, v4",
+    "fmla.4s\tv1, v5, v5",
+    "fmla.4s\tv2, v6, v6",
+    "fmla.4s\tv3, v7, v7"
+  ],
+  "float_to_double_instructions": [],
+  "sqrt_divide_instructions": [],
+  "ca_1_1_pass": true,
+  "ca_1_4_pass": true
+}
+<end of output>
+Test time =   0.47 sec
+----------------------------------------------------------
+Test Passed.
+"performance.assembly" end time: Oct 19 01:27 CST
+"performance.assembly" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 19 01:27 CST
+
+assembly =   0.47 sec*proc
+
+okr1 =   0.56 sec*proc
+
+performance =  19.26 sec*proc
+
+real-data = 113.34 sec*proc
+
+sprint1 =   0.56 sec*proc
+

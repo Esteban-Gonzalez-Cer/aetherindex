@@ -81,7 +81,7 @@ if(NOT cli_output MATCHES "Index build time \\(ms\\): [0-9]+\\.[0-9][0-9][0-9][0
 endif()
 check_search_output("${cli_output}" 4)
 set(expected_ids 10 40 20 30)
-set(expected_distances 0.000000000 0.200000003 1.000000000 2.000000000)
+set(expected_distances 0.000000000 0.199999988 1.000000000 2.000000000)
 foreach(rank_index RANGE 0 3)
     list(GET cli_rows ${rank_index} row)
     parse_cli_row("${row}")

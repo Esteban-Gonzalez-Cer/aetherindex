@@ -1,0 +1,30 @@
+{
+  "compiler_command": [
+    "/Library/Developer/CommandLineTools/usr/bin/clang++",
+    "-std=c++20",
+    "-O3",
+    "-S",
+    "-I",
+    "/Users/estebangonzalezcervantes/Documents/aetherindex/include",
+    "/Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/scalar_distance.cpp",
+    "-o",
+    "/Users/estebangonzalezcervantes/Documents/aetherindex/docs/benchmarks/hardware-reference/2026-10-21/appleclang-native/distance-kernels.s",
+    "-march=native"
+  ],
+  "machine": "arm64",
+  "packed_fp32_fma_count": 8,
+  "fma_examples": [
+    "fmla.4s\tv0, v16, v4",
+    "fmla.4s\tv1, v17, v5",
+    "fmla.4s\tv2, v18, v6",
+    "fmla.4s\tv3, v19, v7",
+    "fmla.4s\tv0, v4, v4",
+    "fmla.4s\tv1, v5, v5",
+    "fmla.4s\tv2, v6, v6",
+    "fmla.4s\tv3, v7, v7"
+  ],
+  "float_to_double_instructions": [],
+  "sqrt_divide_instructions": [],
+  "ca_1_1_pass": true,
+  "ca_1_4_pass": true
+}

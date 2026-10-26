@@ -1,0 +1,12 @@
+{
+  "command": [
+    "otool",
+    "-tvV",
+    "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-reference-20261021/CMakeFiles/aether_distance.dir/src/distance/scalar_distance.cpp.o"
+  ],
+  "object_sha256": "9015eb4f583b88171f22ed2fec4aacf17f084cab8d6c060ed5ee8e3c5413617b",
+  "packed_fp32_fma_count": 8,
+  "scope": "Disassembly of actual CMake Release object; instruction presence is not a speedup measurement",
+  "scalar_fma_count": 2,
+  "parser_note": "Handles both Apple fmla.4s v0 and GNU fmla v0.4s assembly notation."
+}

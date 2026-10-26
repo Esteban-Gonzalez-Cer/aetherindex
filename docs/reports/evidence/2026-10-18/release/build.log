@@ -1,0 +1,73 @@
+Command: cmake --build /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018 --config Release --parallel 4
+[  2%] Building CXX object CMakeFiles/aether_distance.dir/src/distance/scalar_distance.cpp.o
+[  4%] Building CXX object tests/CMakeFiles/aether_cli_fixture_generator.dir/fixtures/generate_cli_dataset.cpp.o
+[  6%] Building CXX object CMakeFiles/aether_storage.dir/src/storage/vector_store.cpp.o
+[  8%] Linking CXX static library libaether_distance.a
+[  8%] Built target aether_distance
+[ 10%] Linking CXX static library libaether_storage.a
+[ 12%] Building CXX object tests/CMakeFiles/aether_distance_tests.dir/unit/distance_test.cpp.o
+[ 12%] Built target aether_storage
+[ 14%] Building CXX object CMakeFiles/aether_hnsw.dir/src/ann/hnsw/hnsw_index.cpp.o
+[ 16%] Building CXX object CMakeFiles/aether_brute_force.dir/src/ann/brute_force/brute_force_index.cpp.o
+[ 18%] Linking CXX executable aether_cli_fixture_generator
+[ 18%] Built target aether_cli_fixture_generator
+[ 20%] Building CXX object tests/CMakeFiles/aether_vector_store_tests.dir/unit/vector_store_test.cpp.o
+[ 22%] Linking CXX executable aether_distance_tests
+[ 24%] Linking CXX static library libaether_brute_force.a
+[ 24%] Built target aether_distance_tests
+[ 24%] Built target aether_brute_force
+[ 26%] Building CXX object tests/CMakeFiles/aether_vector_store_allocation_tests.dir/unit/vector_store_allocation_test.cpp.o
+[ 28%] Building CXX object tests/CMakeFiles/aether_storage_distance_tests.dir/integration/vector_store_distance_test.cpp.o
+[ 30%] Linking CXX executable aether_vector_store_tests
+[ 30%] Built target aether_vector_store_tests
+[ 32%] Linking CXX static library libaether_hnsw.a
+[ 34%] Building CXX object tests/CMakeFiles/aether_brute_force_tests.dir/unit/brute_force_test.cpp.o
+[ 34%] Built target aether_hnsw
+[ 36%] Building CXX object CMakeFiles/aether_application.dir/src/application/query_engine.cpp.o
+[ 38%] Linking CXX executable aether_vector_store_allocation_tests
+[ 40%] Linking CXX executable aether_storage_distance_tests
+[ 40%] Built target aether_vector_store_allocation_tests
+[ 40%] Built target aether_storage_distance_tests
+[ 42%] Building CXX object tests/CMakeFiles/aether_hnsw_node_tests.dir/unit/hnsw_node_test.cpp.o
+[ 44%] Building CXX object tests/CMakeFiles/aether_hnsw_insert_tests.dir/unit/hnsw_insert_test.cpp.o
+[ 46%] Linking CXX executable aether_brute_force_tests
+[ 48%] Building CXX object CMakeFiles/aether_application.dir/src/application/search_service.cpp.o
+[ 48%] Built target aether_brute_force_tests
+[ 51%] Building CXX object tests/CMakeFiles/aether_hnsw_search_tests.dir/unit/hnsw_search_test.cpp.o
+[ 53%] Linking CXX executable aether_hnsw_node_tests
+[ 53%] Built target aether_hnsw_node_tests
+[ 55%] Linking CXX executable aether_hnsw_insert_tests
+[ 57%] Building CXX object tests/CMakeFiles/aether_hnsw_graph_tests.dir/unit/hnsw_graph_test.cpp.o
+[ 57%] Built target aether_hnsw_insert_tests
+[ 59%] Building CXX object tests/CMakeFiles/aether_hnsw_recall_tests.dir/integration/hnsw_recall_test.cpp.o
+[ 61%] Building CXX object CMakeFiles/aether_application.dir/src/application/csv_loader.cpp.o
+[ 63%] Linking CXX executable aether_hnsw_search_tests
+[ 63%] Built target aether_hnsw_search_tests
+[ 65%] Building CXX object tests/CMakeFiles/aether_hnsw_real_dataset_tests.dir/integration/hnsw_real_dataset_test.cpp.o
+[ 67%] Linking CXX executable aether_hnsw_graph_tests
+[ 67%] Built target aether_hnsw_graph_tests
+[ 69%] Linking CXX static library libaether_application.a
+[ 69%] Built target aether_application
+[ 71%] Building CXX object tests/CMakeFiles/aether_query_engine_tests.dir/integration/dense_retrieval_test.cpp.o
+[ 73%] Building CXX object CMakeFiles/aether_cli.dir/apps/cli/cli_parser.cpp.o
+[ 75%] Linking CXX executable aether_hnsw_recall_tests
+[ 75%] Built target aether_hnsw_recall_tests
+[ 77%] Building CXX object tests/CMakeFiles/aether_search_service_tests.dir/integration/search_service_test.cpp.o
+[ 79%] Linking CXX executable aether_hnsw_real_dataset_tests
+[ 79%] Built target aether_hnsw_real_dataset_tests
+[ 81%] Building CXX object tests/CMakeFiles/aether_sprint1_okr1_tests.dir/integration/sprint1_okr1_test.cpp.o
+[ 83%] Linking CXX executable aether_query_engine_tests
+[ 85%] Building CXX object CMakeFiles/aether_cli.dir/apps/cli/cli_runner.cpp.o
+[ 85%] Built target aether_query_engine_tests
+[ 87%] Linking CXX executable aether_search_service_tests
+[ 87%] Built target aether_search_service_tests
+[ 89%] Linking CXX static library libaether_cli.a
+[ 89%] Built target aether_cli
+[ 93%] Building CXX object CMakeFiles/aetherindex.dir/apps/cli/main.cpp.o
+[ 93%] Building CXX object tests/CMakeFiles/aether_cli_parser_tests.dir/unit/cli_parser_test.cpp.o
+[ 95%] Linking CXX executable aether_sprint1_okr1_tests
+[ 95%] Built target aether_sprint1_okr1_tests
+[ 97%] Linking CXX executable aetherindex
+[ 97%] Built target aetherindex
+[100%] Linking CXX executable aether_cli_parser_tests
+[100%] Built target aether_cli_parser_tests

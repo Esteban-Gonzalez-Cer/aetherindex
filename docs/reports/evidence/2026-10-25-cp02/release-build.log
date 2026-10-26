@@ -1,0 +1,70 @@
+[1/70] Building CXX object CMakeFiles/aether_distance.dir/src/distance/scalar_distance.cpp.o
+[2/70] Building CXX object CMakeFiles/aether_distance.dir/src/distance/distance.cpp.o
+[3/70] Linking CXX static library libaether_distance.a
+[4/70] Building CXX object CMakeFiles/aether_brute_force.dir/src/ann/brute_force/brute_force_index.cpp.o
+[5/70] Building CXX object CMakeFiles/aether_storage.dir/src/storage/vector_store.cpp.o
+[6/70] Linking CXX static library libaether_storage.a
+[7/70] Linking CXX static library libaether_brute_force.a
+[8/70] Building CXX object CMakeFiles/aether_application.dir/src/application/query_engine.cpp.o
+[9/70] Building CXX object CMakeFiles/aether_application.dir/src/application/search_service.cpp.o
+[10/70] Building CXX object CMakeFiles/aether_hnsw.dir/src/ann/hnsw/hnsw_index.cpp.o
+[11/70] Linking CXX static library libaether_hnsw.a
+[12/70] Building CXX object CMakeFiles/aether_application.dir/src/application/csv_loader.cpp.o
+[13/70] Building CXX object CMakeFiles/aether_lexical.dir/src/lexical/tokenizer.cpp.o
+[14/70] Linking CXX static library libaether_application.a
+[15/70] Building CXX object CMakeFiles/aether_lexical.dir/src/lexical/inverted_index.cpp.o
+[16/70] Building CXX object CMakeFiles/aether_lexical.dir/src/lexical/bm25.cpp.o
+[17/70] Linking CXX static library libaether_lexical.a
+[18/70] Building CXX object CMakeFiles/aether_cli.dir/apps/cli/cli_parser.cpp.o
+[19/70] Building CXX object CMakeFiles/aether_cli.dir/apps/cli/cli_runner.cpp.o
+[20/70] Linking CXX static library libaether_cli.a
+[21/70] Building CXX object CMakeFiles/aetherindex.dir/apps/cli/main.cpp.o
+[22/70] Building CXX object tests/CMakeFiles/aether_inverted_index_tests.dir/unit/inverted_index_test.cpp.o
+[23/70] Building CXX object tests/CMakeFiles/aether_tokenizer_tests.dir/unit/tokenizer_test.cpp.o
+[24/70] Building CXX object tests/CMakeFiles/aether_bm25_statistics_tests.dir/unit/bm25_statistics_test.cpp.o
+[25/70] Building CXX object tests/CMakeFiles/aether_bm25_math_tests.dir/unit/bm25_math_test.cpp.o
+[26/70] Building CXX object tests/CMakeFiles/aether_bm25_allocation_tests.dir/unit/bm25_allocation_test.cpp.o
+[27/70] Building CXX object tests/CMakeFiles/aether_bm25_contract_tests.dir/integration/bm25_contract_test.cpp.o
+[28/70] Building CXX object tests/CMakeFiles/aether_bm25_search_tests.dir/unit/bm25_search_test.cpp.o
+[29/70] Building CXX object tests/CMakeFiles/aether_bm25_evaluate.dir/integration/bm25_corpus_test.cpp.o
+[30/70] Building CXX object tests/CMakeFiles/aether_vector_store_tests.dir/unit/vector_store_test.cpp.o
+[31/70] Building CXX object tests/CMakeFiles/aether_vector_store_allocation_tests.dir/unit/vector_store_allocation_test.cpp.o
+[32/70] Building CXX object tests/CMakeFiles/aether_distance_tests.dir/unit/distance_test.cpp.o
+[33/70] Building CXX object tests/CMakeFiles/aether_brute_force_tests.dir/unit/brute_force_test.cpp.o
+[34/70] Building CXX object tests/CMakeFiles/aether_storage_distance_tests.dir/integration/vector_store_distance_test.cpp.o
+[35/70] Building CXX object tests/CMakeFiles/aether_query_engine_tests.dir/integration/dense_retrieval_test.cpp.o
+[36/70] Building CXX object tests/CMakeFiles/aether_optimization_contract_tests.dir/unit/optimization_contracts_test.cpp.o
+[37/70] Building CXX object tests/CMakeFiles/aether_cli_parser_tests.dir/unit/cli_parser_test.cpp.o
+[38/70] Building CXX object tests/CMakeFiles/aether_search_service_tests.dir/integration/search_service_test.cpp.o
+[39/70] Building CXX object tests/CMakeFiles/aether_cli_fixture_generator.dir/fixtures/generate_cli_dataset.cpp.o
+[40/70] Building CXX object tests/CMakeFiles/aether_hnsw_node_tests.dir/unit/hnsw_node_test.cpp.o
+[41/70] Building CXX object tests/CMakeFiles/aether_hnsw_search_tests.dir/unit/hnsw_search_test.cpp.o
+[42/70] Building CXX object tests/CMakeFiles/aether_hnsw_graph_tests.dir/unit/hnsw_graph_test.cpp.o
+[43/70] Building CXX object tests/CMakeFiles/aether_hnsw_insert_tests.dir/unit/hnsw_insert_test.cpp.o
+[44/70] Linking CXX executable aetherindex
+[45/70] Linking CXX executable tests/aether_tokenizer_tests
+[46/70] Linking CXX executable tests/aether_inverted_index_tests
+[47/70] Linking CXX executable tests/aether_bm25_statistics_tests
+[48/70] Linking CXX executable tests/aether_bm25_math_tests
+[49/70] Linking CXX executable tests/aether_bm25_search_tests
+[50/70] Linking CXX executable tests/aether_bm25_allocation_tests
+[51/70] Linking CXX executable tests/aether_bm25_contract_tests
+[52/70] Linking CXX executable tests/aether_bm25_evaluate
+[53/70] Linking CXX executable tests/aether_vector_store_tests
+[54/70] Linking CXX executable tests/aether_vector_store_allocation_tests
+[55/70] Linking CXX executable tests/aether_distance_tests
+[56/70] Linking CXX executable tests/aether_brute_force_tests
+[57/70] Linking CXX executable tests/aether_optimization_contract_tests
+[58/70] Linking CXX executable tests/aether_storage_distance_tests
+[59/70] Linking CXX executable tests/aether_query_engine_tests
+[60/70] Linking CXX executable tests/aether_cli_parser_tests
+[61/70] Linking CXX executable tests/aether_search_service_tests
+[62/70] Linking CXX executable tests/aether_cli_fixture_generator
+[63/70] Linking CXX executable tests/aether_hnsw_node_tests
+[64/70] Linking CXX executable tests/aether_hnsw_insert_tests
+[65/70] Linking CXX executable tests/aether_hnsw_search_tests
+[66/70] Linking CXX executable tests/aether_hnsw_graph_tests
+[67/70] Building CXX object tests/CMakeFiles/aether_hnsw_recall_tests.dir/integration/hnsw_recall_test.cpp.o
+[68/70] Linking CXX executable tests/aether_hnsw_recall_tests
+[69/70] Building CXX object tests/CMakeFiles/aether_sprint1_okr1_tests.dir/integration/sprint1_okr1_test.cpp.o
+[70/70] Linking CXX executable tests/aether_sprint1_okr1_tests

@@ -1,232 +1,147 @@
-# HNSW: índice jerárquico en memoria
+# HNSW con FlatGraph y selección diversificada
 
-La implementación inicial de HNSW construye un grafo multicapa y devuelve
-vecinos aproximados mediante navegación jerárquica. Utiliza los embeddings de
-`VectorStore` y exclusivamente `compute_distance` del módulo distance. No
-incluye SIMD, concurrencia, persistencia, actualizaciones ni eliminación.
+El índice conserva la jerarquía probabilística y las búsquedas aproximadas de
+HNSW. La topología usa arenas contiguas; la política predeterminada es el
+Algoritmo 4 de selección de vecinos. Los embeddings pertenecen exclusivamente
+a `VectorStore`. No hay persistencia, actualizaciones, eliminación, generación
+de embeddings ni concurrencia.
 
-## Archivos y dependencias
+## Organización y dependencias
 
-| Responsabilidad | Archivo |
+| Archivo | Responsabilidad |
 |---|---|
-| Configuración y validación compartida | `include/aether/ann/hnsw/hnsw_config.hpp` |
-| Nodo: ID, nivel máximo y vecinos por capa | `include/aether/ann/hnsw/hnsw_node.hpp` |
-| API del índice y diagnóstico del grafo | `include/aether/ann/hnsw/hnsw_index.hpp` |
-| Niveles, búsqueda por capa, selección e inserción | `src/ann/hnsw/hnsw_index.cpp` |
-| Pruebas unitarias | `tests/unit/hnsw_{node,insert,search,graph}_test.cpp` |
-| Evaluación reproducible de Recall@10 | `tests/integration/hnsw_recall_test.cpp` |
-| Evaluación opcional con embeddings reales | `tests/integration/hnsw_real_dataset_test.cpp` |
+| `include/aether/ann/hnsw/flat_graph.hpp` | Arena de slots [grado, vecinos] de stride fijo |
+| `hnsw_config.hpp` en el mismo módulo | Parámetros y política de selección |
+| `hnsw_node.hpp` | Valor diagnóstico escalar, sin contenedores propietarios |
+| `hnsw_index.hpp` | API, buffers globales y diagnóstico de memoria/estructura |
+| `src/ann/hnsw/hnsw_index.cpp` | Inserción, navegación, poda y diversificación |
 
-CMake compila `aether_hnsw`, con dependencias públicas `aether_core` y
-`aether_storage`, y dependencia privada `aether_distance`. El módulo no depende
-de fuerza bruta, aplicación, CLI, BM25, RRF ni persistencia. Las pruebas enlazan
-fuerza bruta como referencia exacta. `aether_application` enlaza de forma
-privada ambos algoritmos; la CLI consume la capa de aplicación.
+`aether_hnsw` depende de core/storage y enlaza distance privadamente. No depende
+de fuerza bruta, CLI ni aplicación. Las pruebas usan fuerza bruta como oráculo.
+La CLI accede mediante `SearchService` → `QueryEngine` → índice.
 
-## API y propiedad
+## Layout y propiedad
+
+Las aristas usan uint32 internos: posiciones densas de inserción en VectorStore.
+La traducción externa se hace con `ids()[position]`. Un ID externo UINT32_MAX
+funciona igual que cero sin reservar una matriz por el valor numérico del ID.
+
+- Layer 0: un arena con N slots; cada slot contiene 1 contador + M0 vecinos.
+- Superiores: un segundo arena con slots de 1 contador + M vecinos. Cada nodo
+  promovido tiene sus slots superiores consecutivos.
+- Metadatos: un uint8 de nivel máximo por posición (255 significa no indexado)
+  y un uint32 con su primer slot superior.
+- Punto de entrada, nivel máximo, contador de inserciones y generador aleatorio:
+  campos globales. No hay mapa ni vector de vecinos propietario por nodo.
+
+Los dos arenas están alineados a 64 bytes. Sus slots **no** se alinean por separado:
+con M0=32 un slot mide 132 bytes. Los embeddings sí comienzan cada uno en una
+dirección alineada a 64 bytes. Los vecinos se leen como `span<const InternalId>`
+sin copias. Antes de evaluar un vecino se solicita prefetch del siguiente embedding
+mediante builtin GCC/Clang, intrínseco MSVC x86 o fallback portable.
+
+El índice reserva para el tamaño conocido del store. `reserve(N)` también permite
+anticipar una carga incremental. Las capas superiores reservan aproximadamente
+1.2×N/(M−1)+32 slots; esto es headroom estocástico, no un límite de nivel ni una
+cuota de bytes universal para cualquier semilla o patrón de crecimiento.
+
+`memory_usage()` desglosa capacidades realmente asignadas, metadatos y sizeof
+el objeto, incluido el RNG. Excluye embeddings y espacios temporales de búsqueda
+e inserción. No debe confundirse con RSS. Para CA-2.2 se usa el límite aclarado
+**14,500,000 bytes** para el grafo completo, y 13,200,000 bytes solo para Layer 0,
+con N=100,000, M=16, M0=32. El benchmark reporta también el delta RSS del proceso,
+que incluye efectos del asignador y no permite aislar exactamente un objeto.
+
+## API
 
 ```cpp
-HnswIndex(const VectorStore& store, HnswConfig config = {});
-void insert(VectorId id);
-std::vector<SearchResult> search(std::span<const EmbeddingValue> query,
-                                 std::size_t k) const;
-std::vector<SearchResult> search(std::span<const EmbeddingValue> query,
-                                 std::size_t k, std::size_t ef_search) const;
+HnswIndex index(store, config);
+for (VectorId id : store.ids()) index.insert(id);
+QueryEngine engine;
+auto result = engine.search(index, query, 10);
+auto wider = index.search(query, 10, 100); // mismo grafo, otro efSearch
 ```
 
-El índice no se copia ni se mueve. El llamador conserva la propiedad de
-`VectorStore`, que debe vivir más tiempo que el índice. Cada nodo contiene
-únicamente `id`, `max_level` y listas de IDs vecinos; no duplica embeddings ni
-conserva vistas `std::span`. Los cálculos obtienen una vista nueva mediante
-`store.find(id)` y utilizan `store.distance_kind()`, evitando métricas
-contradictorias entre construcción y búsqueda.
+`find_node(id)` devuelve `optional<HnswNode>` por valor, con id, internal_id y
+max_level. Sustituye el antiguo puntero a un nodo propietario de subvectores.
+`neighbors(id, level)` devuelve vecinos internos; `external_id(internal)` los
+traduce. Los spans deben descartarse antes de insertar/reservar. El índice no
+se copia ni mueve y el store debe vivir más tiempo. Se pueden añadir embeddings
+e indexar sus IDs entre operaciones; no se solapan lecturas y escrituras.
 
-Se pueden agregar embeddings al store entre operaciones del índice y después
-indexar sus IDs. No se permite solapar lecturas y escrituras; deben descartarse
-las vistas del store antes de insertar en este. Insertar en HNSW no modifica el
-store.
+## Parámetros
 
-```cpp
-#include <array>
-#include <stdexcept>
-
-#include "aether/ann/hnsw/hnsw_index.hpp"
-#include "aether/application/query_engine.hpp"
-
-using namespace aetherindex;
-
-int main() {
-    VectorStore store(3, DistanceKind::Cosine);
-    const std::array<float, 3> first{1.0f, 0.0f, 0.0f};
-    const std::array<float, 3> second{0.8f, 0.6f, 0.0f};
-    if (store.insert(10, first) != InsertStatus::Success ||
-        store.insert(40, second) != InsertStatus::Success) {
-        throw std::runtime_error("No se pudieron cargar los embeddings.");
-    }
-
-    HnswConfig config;
-    HnswIndex index(store, config);
-    for (VectorId id : store.ids()) {
-        index.insert(id);
-    }
-    const QueryEngine engine;
-    const auto neighbors = engine.search(index, first, 2);
-    const auto wider_search = index.search(first, 2, 100);  // Mismo grafo.
-    return neighbors.size() == 2 && wider_search.size() == 2 ? 0 : 1;
-}
-```
-
-`QueryEngine` ofrece sobrecargas para un `VectorStore` (búsqueda exacta) y un
-`HnswIndex` ya construido (búsqueda aproximada). Las respuestas usan la misma
-estructura `SearchResult { id, distance }`.
-
-## Configuración
-
-| Campo | Predeterminado | Contrato |
+| Campo | Valor predeterminado | Condición |
 |---|---:|---|
-| `m` | 16 | Al menos 2; límite de vecinos en capas superiores |
-| `m_max_0` | 32 | Al menos `m`; límite de vecinos de Layer 0 |
-| `ef_construction` | 100 | Al menos `m`; amplitud de búsqueda durante inserción |
-| `ef_search` | 50 | Positivo; amplitud de búsqueda predeterminada |
-| `random_seed` | 42 | Semilla `std::uint64_t` para construir el grafo |
-| `max_level` | 32 | Entre 0 y 32; cero permite un grafo exclusivo de Layer 0 |
+| m / m_max_0 | 16 / 32 | m≥2, M0≥M, ambos representables como grado uint32 |
+| ef_construction / ef_search | 100 / 50 | efConstruction≥M, efSearch>0 |
+| random_seed | 42 | uint64, incluido cero |
+| max_level | 32 | 0..32 |
+| neighbor_selection | Heuristic | Heuristic (Alg.4) o Simple (Alg.3) |
+| extend_candidates | false | Añade vecinos de un salto del conjunto original C |
+| keep_pruned_connections | true | Rellena cupos con candidatos descartados |
 
-`validate_hnsw_config(config)` y el constructor rechazan parámetros inválidos
-mediante `std::invalid_argument`; no los corrigen silenciosamente.
+La CLI añade `--neighbor-selection heuristic|simple` para comparaciones controladas.
+La extensión y el relleno se configuran mediante la API C++.
 
-La generación usa `std::mt19937_64` y un mapeo explícito de enteros a `(0,1)`:
-52 bits aleatorios se convierten en un entero de 1 a `2^52`, dividido entre
-`2^52 + 1`. El nivel es `floor(-log(U)/log(m))`, limitado por `max_level`.
-La misma semilla, configuración, orden de inserción y entorno producen la
-misma construcción. Un nodo de nivel máximo L posee listas para todas las
-capas de 0 a L.
+El nivel se muestrea con mt19937_64 y `floor(-log(U)/log(M))`, con el mismo mapeo
+explícito de 52 bits que el baseline y un máximo de 32. Ese cálculo double es
+muestreo de niveles, no acumulación de distancias. Se conserva la semilla entre
+inserciones; la reproducibilidad exige iguales datos, orden, opciones y entorno.
 
-## Construcción y búsqueda
+## Inserción y Algoritmo 4
 
-El primer nodo se convierte en punto de entrada. Cada inserción posterior
-desciende mediante búsquedas greedy de amplitud 1 por las capas superiores
-que no comparte con el nuevo nodo. En las capas compartidas ejecuta
-`search_layer` con `ef_construction`, selecciona vecinos y crea enlaces en
-ambos sentidos. Si supera el nivel máximo existente, actualiza el punto de
-entrada y el nivel superior del índice.
+1. Verifica existencia en el store y ausencia en el índice; asigna slots antes
+   de activar el nodo. Niveles ausentes permiten indexar posiciones en otro orden.
+2. Desciende desde el punto de entrada con ef=1 por encima del nuevo nivel.
+3. En cada capa compartida ejecuta SEARCH-LAYER con efConstruction y selecciona
+   candidatos ordenados por distancia al nodo base, con desempate por ID externo.
+4. Algoritmo 4 acepta e solo si no existe un vecino seleccionado r con
+   `distance(e,r) < distance(e,base)`. Conserva descartados en orden de distancia
+   para rellenar si la opción está activada. La extensión, si está activada,
+   une los vecinos de un salto de C y elimina duplicados antes de seleccionar.
+5. Conecta el nuevo nodo y propone enlaces recíprocos. Si una lista está llena,
+   puntúa M_max+1 candidatos en un buffer temporal y poda antes de escribir;
+   nunca escribe un slot con grado mayor que su capacidad.
+6. Actualiza entrada/nivel máximo si procede.
 
-`search_layer` mantiene una cola de candidatos con menor distancia primero,
-una cola de resultados con el peor candidato primero y un conjunto de IDs
-visitados. Conserva como máximo `ef` resultados. Se detiene cuando el mejor
-candidato pendiente es más lejano que el peor resultado conservado y el
-conjunto ya tiene `ef` elementos.
+Se conserva la política del proyecto de seleccionar hasta M0 conexiones iniciales
+en Layer 0 y M en superiores. Esta variante se mantiene igual en las ablaciones
+Simple/Heuristic. La poda puede producir aristas de un solo sentido.
 
-La política de selección se implementa en un helper separado: candidatos más
-cercanos primero, con el ID como desempate. La poda puntúa cada candidato una
-vez y conserva como máximo `m_max_0` en la capa base o `m` en las demás. No se
-implementa la heurística avanzada de diversidad espacial. Tras una poda pueden
-permanecer enlaces de un solo sentido; la reciprocidad estricta no forma
-parte del contrato del MVP.
+## Búsqueda y errores
 
-La consulta desciende desde el punto de entrada por las capas superiores y
-realiza la búsqueda amplia en Layer 0, con
-`ef_effective = min(size(), max(ef_search, k))`. La sobrecarga con `ef_search`
-permite comparar amplitudes sobre el mismo grafo, sin reconstruirlo ni cambiar
-la configuración almacenada. La salida está ordenada por distancia ascendente
-y después por ID, sin IDs repetidos, y contiene como máximo `min(k, size())`
-nodos alcanzables a través del grafo. Un grafo poco conectado puede devolver
-menos resultados. No existe un recorrido exhaustivo de respaldo ni fallback
-a fuerza bruta.
+SEARCH-LAYER usa min-heap de candidatos, max-heap de resultados y un bitmap denso
+de visitados temporal de un bit por posición y recorrido. No asigna un hash/objeto por nodo visitado.
+QueryEngine prepara la consulta una sola vez; distancias entre candidatos y
+consultas, o entre nodos en la diversificación, llaman al mismo kernel FP32.
 
-## Validación y errores
+La consulta baja con ef=1 y explora Layer 0 con `min(size,max(k,efSearch))`.
+Devuelve hasta min(k,size) nodos alcanzables ordenados por (distancia, ID).
+K=0 o ef=0 se rechazan; la consulta se valida incluso en un índice vacío.
+No hay fallback exhaustivo ni garantía universal de Recall.
 
-`k` y la amplitud de búsqueda deben ser positivos. La consulta se valida
-incluso si el índice está vacío: dimensión del store, componentes finitos y
-norma no nula para coseno. Una consulta válida sobre un índice vacío devuelve
-una colección vacía. Se conserva el contrato numérico de distance, incluido
-`std::overflow_error` si la distancia euclidiana al cuadrado no cabe en un
-`float` finito. Un error durante una búsqueda no modifica ni invalida el índice.
+Errores de precondición conservan el grafo. Una excepción después de activar
+el nodo marca el índice inutilizable: hay que reconstruirlo; no se afirma rollback
+transaccional de HNSW. Allocation failures antes de activarlo pueden cambiar
+capacidades pero conservan los nodos existentes. Errores de búsqueda no invalidan
+el índice y nunca modifican el store.
 
-Insertar un ID inexistente o duplicado lanza `std::invalid_argument` antes de
-modificar el grafo. Si una excepción de asignación, distancia u otra operación
-ocurre después de empezar a modificar la topología, el índice se marca como
-inutilizable. Las siguientes inserciones y búsquedas lanzan `std::logic_error`
-con la indicación de reconstruirlo; `validate_graph().valid()` será falso.
-Debe descartarse y reconstruirse el índice. El store conserva sus embeddings.
-La inserción de HNSW no se presenta como transaccional.
+`validate_graph()` verifica referencias, presencia de embeddings, niveles,
+capas, duplicados, autoenlaces, grados, entrada y cantidad. Estas invariantes
+no demuestran conectividad ni exactitud: se evalúan mediante consultas aparte.
 
-Las consultas de diagnóstico `size()`, `contains(id)`, `config()`,
-`entry_point()`, `max_level()` y `find_node(id)` permiten inspeccionar el estado
-sin modificarlo. El punto de entrada y nivel máximo son opcionales cuando el
-índice está vacío. Los punteros de solo lectura devueltos por `find_node` no
-deben conservarse durante inserciones ni después de destruir el índice.
+## Evidencia y reproducción
 
-`validate_graph()` devuelve `HnswGraphValidation`, con el número de nodos,
-estado de uso y contadores de referencias inválidas, embeddings ausentes,
-niveles/listas incorrectos, conexiones entre capas incompatibles,
-autorreferencias, vecinos duplicados, límites de grado, punto de entrada,
-nivel máximo y discrepancias con el número de inserciones exitosas.
-`valid()` exige cero infracciones y un índice utilizable.
+Las 19 pruebas normales incluyen invariantes, crecimiento incremental, IDs
+extremos, opciones de Algoritmo 4, casos de diversidad conocidos, reproducción
+de topología, fallos de asignación y Recall con las dos métricas. El caso real
+opcional compara DBpedia con fuerza bruta. Los umbrales de memoria, Recall
+agrupado, Top-K y p99 se registran como CTest optativos de rendimiento.
 
-La validez estructural no demuestra conectividad global ni calidad de búsqueda.
-En particular, seleccionar solamente los vecinos más cercanos puede deteriorar
-la conectividad con parámetros pequeños. La calidad se mide por separado
-contra fuerza bruta, con consultas independientes.
+Ver [validación de optimizaciones](../benchmarks/OPTIMIZATION_VALIDATION.md).
+El protocolo exige en CA-2.4 un incremento **absoluto ≥0.05**, con N=10,000,
+D=128 y efSearch=30; no una mejora relativa del 5%. CA-2.3 necesita contadores
+PMU de Linux: no se infiere una reducción LLC del tiempo de ejecución en macOS.
 
-## Aplicación, CLI y tiempos
-
-`SearchService` valida `SearchRequest::hnsw_config` antes de abrir los archivos.
-Después carga dataset y consulta, construye HNSW recorriendo los IDs del store
-y llama a la sobrecarga correspondiente de `QueryEngine`. El grafo y el store
-se destruyen al terminar la operación; no se guarda un índice persistente.
-
-La duración `index_build_time` mide la construcción del grafo y se informa por
-separado. `query_time` mide únicamente `QueryEngine::search` con `steady_clock`,
-excluyendo carga CSV, construcción y presentación. Cada invocación de CLI con
-HNSW vuelve a construir el índice.
-
-```sh
-./build-cli/aetherindex search \
-  --dataset datasets/examples/vectors.csv \
-  --query datasets/examples/query.csv \
-  --algorithm hnsw --k 10 \
-  --m 16 --m0 32 --ef-construction 100 --ef-search 50 --seed 42
-```
-
-Los parámetros HNSW de CLI son `--m`, `--m0`, `--ef-construction`, `--ef-search`
-y `--seed`; `max_level` se configura solamente mediante la API C++.
-La métrica se selecciona con `--metric cosine` o `--metric squared-euclidean`.
-La tabla mantiene IDs enteros y distancias con nueve decimales.
-
-## Protocolo de pruebas
-
-La suite normal registra 16 pruebas, incluyendo cuatro unitarias HNSW,
-evaluación de Recall y flujo HNSW de CLI. Se ejecuta sin red ni dependencias
-externas. Las pruebas HNSW cubren configuración, nodos, niveles reproducibles,
-inserción incremental, grafo, ambas métricas, consultas inválidas, ceros,
-extremos finitos, desbordamiento y recuperación mediante reconstrucción.
-
-El protocolo de aceptación utiliza 1,000 embeddings × 128 dimensiones,
-dataset con semilla 42, 100 consultas independientes con semilla 424242 y
-grafo con semilla 42, para cada métrica. Evalúa `ef_search` 10, 30, 50 y 100
-sobre el mismo grafo. El umbral obligatorio es Recall@10 promedio ≥ 0.85 con
-los valores predeterminados, `ef_search = 50`. Se verifica dimensión, validez,
-unicidad, orden y distancia de cada resultado; la referencia exacta comprueba
-que no hay empates ambiguos en el corte Top-10. Se conservan resultados de
-cada consulta y parámetros en un CSV generado dentro de la carpeta del build.
-
-La comprobación inicial del núcleo obtuvo Recall@10 de 0.977 para coseno y
-0.972 para euclidiana al cuadrado. La evaluación real optativa utiliza 10,000
-embeddings DBpedia × 1,024 dimensiones y 20 consultas separadas: la ejecución
-Release inicial obtuvo 0.985 con amplitud 50 y 0.995 con amplitud 100. Estos
-resultados describen esos protocolos; no garantizan el mismo Recall en otro
-dataset ni convierten tiempos de CTest en benchmarks de rendimiento.
-
-```sh
-cmake -S . -B build-hnsw-debug -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
-cmake --build build-hnsw-debug
-ctest --test-dir build-hnsw-debug --output-on-failure
-ctest --test-dir build-hnsw-debug -R hnsw -V
-```
-
-Con `AETHER_REAL_DATA_DIR` y los datos preparados se registran dos pruebas
-adicionales, 18 en total: la referencia exhaustiva de CLI y la comparación
-HNSW/fuerza bruta sobre un índice reutilizado. Ver el [caso real](../real_world_validation.md).
-La evidencia final de compilaciones, CTest, sanitizers y criterios pendientes
-se registra en [validación HNSW](../architecture/hnsw_validation.md).
-La revisión del equipo y aprobación del PR son requisitos separados.
+Base algorítmica: [Malkov y Yashunin, Algorithms 1–5](https://arxiv.org/abs/1603.09320).

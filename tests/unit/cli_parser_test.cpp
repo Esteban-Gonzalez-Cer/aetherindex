@@ -76,6 +76,19 @@ void checkValidOptions() {
 }
 
 void checkInvalidOptions() {
+    require(parse({"search", "--dataset", "d", "--query", "q", "--algorithm", "hnsw",
+                   "--neighbor-selection", "simple"})
+                    .search.hnsw_config.neighbor_selection == NeighborSelection::Simple,
+            "The CLI must support the controlled Algorithm 3 comparison.");
+    for (const auto algorithm : {"brute-force", "hnsw"}) {
+        requireInvalidArgument(
+            [&] {
+                parse({"search", "--dataset", "d", "--query", "q", "--algorithm", algorithm,
+                       "--neighbor-selection",
+                       algorithm == std::string_view("hnsw") ? "unknown" : "heuristic"});
+            },
+            "Invalid or inapplicable selection options must be rejected.");
+    }
     const std::vector<std::vector<std::string_view>> invalid = {
         {"index"},
         {"search"},

@@ -1,0 +1,14 @@
+{
+  "before_build_sha256": {
+    "aetherindex": "1d6c57cd36734e3e8e00fcaf2a00b3e06ef7019f1ead44aeeeac00d4dabf21a2",
+    "benchmarks/aether_optimization_benchmark": "55d7ada089a6cbf3f316bae028f4ade4ae3599da87d36d95f29e4351a6f392fc",
+    "benchmarks/aether_dbpedia_benchmark": "9d81875133d0e9985788b969dedce92892571506d2b9a6be3b3223e44d5c0ee6"
+  },
+  "change": "PreparedQuery four deleted copy/move members and compile-time assertions; no runtime logic change",
+  "after_build_sha256": {
+    "aetherindex": "1d6c57cd36734e3e8e00fcaf2a00b3e06ef7019f1ead44aeeeac00d4dabf21a2",
+    "benchmarks/aether_optimization_benchmark": "55d7ada089a6cbf3f316bae028f4ade4ae3599da87d36d95f29e4351a6f392fc",
+    "benchmarks/aether_dbpedia_benchmark": "9d81875133d0e9985788b969dedce92892571506d2b9a6be3b3223e44d5c0ee6"
+  },
+  "release_binaries_byte_identical": true
+}

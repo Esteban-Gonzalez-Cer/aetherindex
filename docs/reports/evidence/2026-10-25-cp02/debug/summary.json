@@ -1,0 +1,14 @@
+{
+  "scope": "preliminary_only_not_CP05_certification",
+  "tokenizer": "ascii-tech-v1",
+  "k1": 1.2,
+  "b": 0.75,
+  "k": 10,
+  "documents": 100,
+  "vocabulary_size": 325,
+  "total_tokens": 2182,
+  "average_document_length": 21.82,
+  "queries": 20,
+  "hits_at_10": 20,
+  "hit_rate_at_10": 1
+}

@@ -1,0 +1,18 @@
+{
+  "captured_utc": "2026-10-22T03:30:28.014309+00:00",
+  "configure": "Clean CMake Ninja Release with AppleClang, arm64, native SIMD, sanitizers OFF; tests ON, benchmarks ON, performance thresholds OFF; no optional real-data tests",
+  "build_returncode": 0,
+  "ctest_command": [
+    "ctest",
+    "--test-dir",
+    "build-hardware-reference-20261021",
+    "--output-on-failure",
+    "-j",
+    "1"
+  ],
+  "ctest_returncode": 0,
+  "scope": "Correctness check of the reference build; elapsed CTest time is not search latency",
+  "tests_passed": 19,
+  "tests_failed": 0,
+  "benchmarks_executed": false
+}

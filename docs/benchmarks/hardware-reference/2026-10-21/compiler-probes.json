@@ -1,0 +1,123 @@
+{
+  "captured_utc": "2026-10-22T03:27:14.366573+00:00",
+  "scope": "Compilation and execution of known distance cases plus assembly inspection; no timing comparison",
+  "initial_issue": "Direct AppleClang invocation without SDKROOT/isysroot could not find libc++ headers; explicit SDK resolved it. CMake had already configured the SDK correctly.",
+  "profiles": [
+    {
+      "profile": "appleclang-arm64",
+      "compiler": "/Library/Developer/CommandLineTools/usr/bin/clang++",
+      "build_command": [
+        "/Library/Developer/CommandLineTools/usr/bin/clang++",
+        "-std=c++20",
+        "-O3",
+        "-DNDEBUG",
+        "-arch",
+        "arm64",
+        "-isysroot",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+        "-mmacosx-version-min=26.5",
+        "-I",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/include",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/scalar_distance.cpp",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/docs/benchmarks/hardware-reference/2026-10-21/kernel_probe.cpp",
+        "-o",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-probes-20261021/appleclang-arm64"
+      ],
+      "environment": {
+        "SDKROOT": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+      },
+      "build_returncode": 0,
+      "run_returncode": 0,
+      "runtime_output": {
+        "backend": "NEON/FMA FP32",
+        "cosine": "1",
+        "squared_euclidean": "2",
+        "compiler": "Apple LLVM 17.0.0 (clang-1700.6.3.2)",
+        "libcpp_version": "200100",
+        "fast_math": "false"
+      },
+      "binary_sha256": "c9820c50e115c2d11e90138a7631c950bc33d11c51f225e5988b636a4cb944a5",
+      "assembly_check_returncode": 0,
+      "packed_fp32_fma_count": 8,
+      "assembly_json": "docs/benchmarks/hardware-reference/2026-10-21/appleclang-arm64/assembly.json"
+    },
+    {
+      "profile": "appleclang-native",
+      "compiler": "/Library/Developer/CommandLineTools/usr/bin/clang++",
+      "build_command": [
+        "/Library/Developer/CommandLineTools/usr/bin/clang++",
+        "-std=c++20",
+        "-O3",
+        "-DNDEBUG",
+        "-arch",
+        "arm64",
+        "-isysroot",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+        "-mmacosx-version-min=26.5",
+        "-march=native",
+        "-I",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/include",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/scalar_distance.cpp",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/docs/benchmarks/hardware-reference/2026-10-21/kernel_probe.cpp",
+        "-o",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-probes-20261021/appleclang-native"
+      ],
+      "environment": {
+        "SDKROOT": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+      },
+      "build_returncode": 0,
+      "run_returncode": 0,
+      "runtime_output": {
+        "backend": "NEON/FMA FP32",
+        "cosine": "1",
+        "squared_euclidean": "2",
+        "compiler": "Apple LLVM 17.0.0 (clang-1700.6.3.2)",
+        "libcpp_version": "200100",
+        "fast_math": "false"
+      },
+      "binary_sha256": "9464507929baea7201dedd791973812b7f0c3411c9097f988563385a8289ade6",
+      "assembly_check_returncode": 0,
+      "packed_fp32_fma_count": 8,
+      "assembly_json": "docs/benchmarks/hardware-reference/2026-10-21/appleclang-native/assembly.json"
+    },
+    {
+      "profile": "homebrew-native",
+      "compiler": "/opt/homebrew/opt/llvm/bin/clang++",
+      "build_command": [
+        "/opt/homebrew/opt/llvm/bin/clang++",
+        "-std=c++20",
+        "-O3",
+        "-DNDEBUG",
+        "-arch",
+        "arm64",
+        "-isysroot",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+        "-mmacosx-version-min=26.5",
+        "-march=native",
+        "-I",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/include",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/scalar_distance.cpp",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/docs/benchmarks/hardware-reference/2026-10-21/kernel_probe.cpp",
+        "-o",
+        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-probes-20261021/homebrew-native"
+      ],
+      "environment": {
+        "SDKROOT": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+      },
+      "build_returncode": 0,
+      "run_returncode": 0,
+      "runtime_output": {
+        "backend": "NEON/FMA FP32",
+        "cosine": "1",
+        "squared_euclidean": "2",
+        "compiler": "Homebrew Clang 23.1.3",
+        "libcpp_version": "230103",
+        "fast_math": "false"
+      },
+      "binary_sha256": "27b0b9e6f34f99fd0266e05abdbe7b3f84fd590b4c7951c53493384b312a928b",
+      "assembly_check_returncode": 0,
+      "packed_fp32_fma_count": 8,
+      "assembly_json": "docs/benchmarks/hardware-reference/2026-10-21/homebrew-native/assembly.json"
+    }
+  ]
+}

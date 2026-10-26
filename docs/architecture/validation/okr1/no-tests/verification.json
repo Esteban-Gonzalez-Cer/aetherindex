@@ -1,0 +1,11 @@
+{
+  "base_commit": "031adae19951d95ede349eaeaf295dd8d4a611d2",
+  "build_directory": "/private/tmp/aetherindex-okr1-no-tests-20261014",
+  "build_testing": false,
+  "configuration": "Release",
+  "configure_exit_code": 0,
+  "build_exit_code": 0,
+  "build_result": "CMake completed the aetherindex target successfully; captured in execution transcript",
+  "help_exit_code": 0,
+  "help_stderr": ""
+}

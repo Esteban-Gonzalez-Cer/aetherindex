@@ -1,9 +1,48 @@
+foreach(component tokenizer inverted_index bm25_statistics bm25_math bm25_search bm25_allocation)
+    add_executable(aether_${component}_tests unit/${component}_test.cpp)
+    target_link_libraries(aether_${component}_tests PRIVATE aether_lexical)
+    add_test(NAME unit.${component} COMMAND aether_${component}_tests)
+    set_tests_properties(unit.${component} PROPERTIES TIMEOUT 60 LABELS "lexical;cp02")
+endforeach()
+
+add_executable(aether_bm25_contract_tests integration/bm25_contract_test.cpp)
+target_link_libraries(aether_bm25_contract_tests PRIVATE aether_lexical)
+add_test(NAME integration.bm25_contract COMMAND aether_bm25_contract_tests)
+set_tests_properties(integration.bm25_contract PROPERTIES TIMEOUT 60 LABELS "lexical;cp02;contract")
+
+add_executable(aether_bm25_evaluate integration/bm25_corpus_test.cpp)
+target_link_libraries(aether_bm25_evaluate PRIVATE aether_lexical)
+add_test(NAME integration.bm25_corpus_regression
+    COMMAND "${CMAKE_COMMAND}"
+        "-DEVALUATOR_PATH=$<TARGET_FILE:aether_bm25_evaluate>"
+        "-DDATA_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/bm25"
+        "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/bm25-regression/$<CONFIG>"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/bm25_corpus_test.cmake"
+)
+set_tests_properties(integration.bm25_corpus_regression PROPERTIES TIMEOUT 120 LABELS "lexical;cp02;regression")
+
+# CP-01 is not present yet. This opt-in consumes its agreed TSV adapter when
+# available; it records preliminary HitRate without asserting the CP-05 goal.
+set(AETHER_BM25_CORPUS_DIR "" CACHE PATH "Optional labelled BM25 corpus (documents.tsv, queries.tsv)")
+if(AETHER_BM25_CORPUS_DIR)
+    foreach(name documents.tsv queries.tsv)
+        if(NOT EXISTS "${AETHER_BM25_CORPUS_DIR}/${name}")
+            message(FATAL_ERROR "Missing BM25 corpus file: ${AETHER_BM25_CORPUS_DIR}/${name}")
+        endif()
+    endforeach()
+    add_test(NAME integration.bm25_corpus_external
+        COMMAND aether_bm25_evaluate "${AETHER_BM25_CORPUS_DIR}/documents.tsv"
+            "${AETHER_BM25_CORPUS_DIR}/queries.tsv"
+            "${CMAKE_CURRENT_BINARY_DIR}/bm25-external/$<CONFIG>")
+    set_tests_properties(integration.bm25_corpus_external PROPERTIES TIMEOUT 180 LABELS "lexical;cp02;external-data")
+endif()
+
 add_executable(aether_vector_store_tests unit/vector_store_test.cpp)
 target_link_libraries(aether_vector_store_tests PRIVATE aether_storage)
 add_test(NAME unit.vector_store COMMAND aether_vector_store_tests)
 
 add_executable(aether_vector_store_allocation_tests unit/vector_store_allocation_test.cpp)
-target_link_libraries(aether_vector_store_allocation_tests PRIVATE aether_storage)
+target_link_libraries(aether_vector_store_allocation_tests PRIVATE aether_hnsw)
 add_test(NAME unit.vector_store_allocation COMMAND aether_vector_store_allocation_tests)
 
 add_executable(aether_distance_tests unit/distance_test.cpp)
@@ -13,6 +52,11 @@ add_test(NAME unit.distance COMMAND aether_distance_tests)
 add_executable(aether_brute_force_tests unit/brute_force_test.cpp)
 target_link_libraries(aether_brute_force_tests PRIVATE aether_brute_force)
 add_test(NAME unit.brute_force COMMAND aether_brute_force_tests)
+
+add_executable(aether_optimization_contract_tests unit/optimization_contracts_test.cpp)
+target_link_libraries(aether_optimization_contract_tests PRIVATE aether_application)
+add_test(NAME unit.optimization_contracts COMMAND aether_optimization_contract_tests)
+set_tests_properties(unit.optimization_contracts PROPERTIES TIMEOUT 120)
 
 add_executable(aether_storage_distance_tests integration/vector_store_distance_test.cpp)
 target_link_libraries(aether_storage_distance_tests PRIVATE aether_storage aether_distance)
@@ -70,6 +114,25 @@ add_test(NAME integration.hnsw_recall
     COMMAND aether_hnsw_recall_tests "${CMAKE_CURRENT_BINARY_DIR}/hnsw-recall-$<CONFIG>.csv"
 )
 set_tests_properties(integration.hnsw_recall PROPERTIES TIMEOUT 300)
+
+# Sprint 1 acceptance uses one shared dataset and a separate, frozen query set.
+add_executable(aether_sprint1_okr1_tests integration/sprint1_okr1_test.cpp)
+target_link_libraries(aether_sprint1_okr1_tests PRIVATE aether_application)
+add_test(NAME integration.sprint1_okr1
+    COMMAND aether_sprint1_okr1_tests "${CMAKE_CURRENT_BINARY_DIR}/okr1-$<CONFIG>"
+)
+set_tests_properties(integration.sprint1_okr1 PROPERTIES
+    TIMEOUT 300 LABELS "sprint1;okr1" FIXTURES_SETUP sprint1_okr1_data
+)
+add_test(NAME e2e.sprint1_okr1
+    COMMAND "${CMAKE_COMMAND}"
+        "-DCLI_PATH=$<TARGET_FILE:aetherindex>"
+        "-DEVIDENCE_DIR=${CMAKE_CURRENT_BINARY_DIR}/okr1-$<CONFIG>"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/sprint1_okr1_test.cmake"
+)
+set_tests_properties(e2e.sprint1_okr1 PROPERTIES
+    TIMEOUT 180 LABELS "sprint1;okr1" FIXTURES_REQUIRED sprint1_okr1_data
+)
 
 add_test(NAME e2e.cli_hnsw
     COMMAND "${CMAKE_COMMAND}"

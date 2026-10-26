@@ -20,9 +20,9 @@ cmake --build build-cli --parallel 4
 
 El ejemplo debe devolver los IDs 10 y 40, a distancias coseno 0 y aproximadamente
 0.2, respectivamente. Las distancias se muestran siempre con **nueve decimales**:
-`0.000000000` y `0.200000003`. Los IDs conservan su formato entero. La cantidad de
+`0.000000000` y `0.199999988`. Los IDs conservan su formato entero. La cantidad de
 decimales es una decisión de presentación; la precisión del `float` no cambia y
-`0.200000003` satisface `|resultado - 0.2| < 1e-5`.
+`0.199999988` satisface `|resultado - 0.2| < 1e-5`.
 
 Para euclidiana al cuadrado:
 
@@ -98,8 +98,9 @@ alcanzarlos. Ver [el contrato del algoritmo](algorithms/hnsw.md).
 - Se permiten espacios/tabulaciones alrededor de campos, líneas vacías y LF/CRLF.
 - Se rechazan encabezados, comillas, comentarios, BOM, valores NaN/infinito,
   campos vacíos, comas finales y registros inválidos. No se omiten filas inválidas.
-- Coseno rechaza embeddings y consultas completamente cero; euclidiana al
-  cuadrado los acepta. No se normalizan ni cambian los datos proporcionados.
+- Coseno rechaza embeddings con norma L2 <1e-7 y consultas cero; euclidiana al
+  cuadrado los acepta. Cosine almacena la dirección normalizada; SquaredEuclidean
+  conserva las componentes originales. Los archivos y spans del llamador no se modifican.
 - Las rutas deben identificar archivos regulares legibles. No hay stdin ni
   separadores regionales distintos de coma y punto decimal.
 
@@ -121,7 +122,7 @@ ancho según el contenido, incluso para el ID máximo y distancias muy grandes.
 +------+-----------+-------------+
 |    1 |        10 | 0.000000000 |
 +------+-----------+-------------+
-|    2 |        40 | 0.200000003 |
+|    2 |        40 | 0.199999988 |
 +------+-----------+-------------+
 ```
 
@@ -242,3 +243,13 @@ La sobrecarga de `QueryEngine` recibe un `const HnswIndex&` ya construido.
 `SearchService` coordina el store, el grafo y los tiempos; la CLI solo conoce
 solicitudes, configuración y resultados públicos. Consultar
 [la auditoría y validación de HNSW](architecture/hnsw_validation.md).
+
+## Actualización de kernels y selección HNSW
+
+Cosine normaliza al insertar y prepara la consulta una sola vez. Los kernels
+acumulan en FP32/FMA. HNSW usa FlatGraph y `heuristic` (Algoritmo 4) por defecto;
+`--neighbor-selection simple` permite comparar con Algoritmo 3, solo con
+`--algorithm hnsw`. La distancia matemática 0.2 se presenta `0.199999988` en
+este ejemplo: es el redondeo de FP32, conservando nueve decimales en la tabla.
+El tiempo de consulta incluye preparación y búsqueda; no incluye carga CSV ni
+construcción. Ver [la validación de optimizaciones](benchmarks/OPTIMIZATION_VALIDATION.md).

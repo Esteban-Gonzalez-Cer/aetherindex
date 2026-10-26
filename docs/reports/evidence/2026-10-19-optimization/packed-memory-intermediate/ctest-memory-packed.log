@@ -1,0 +1,47 @@
+UpdateCTestConfiguration  from :/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/DartConfiguration.tcl
+Parse Config file:/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/DartConfiguration.tcl
+Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 23
+    Start 23: performance.memory
+
+23: Test command: /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/check_optimization_benchmark.py" "--benchmark" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/aether_optimization_benchmark" "--workload" "memory" "--output" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/memory"
+23: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks
+23: Test timeout computed to be: 1800
+23: Graph bytes=14248912 blocks=4 RSS delta=15204352
+23: {
+23:   "vectors": 100000,
+23:   "dimension": 8,
+23:   "m": 16,
+23:   "m0": 32,
+23:   "seed": 42,
+23:   "layer0_allocated_bytes": 13200000,
+23:   "upper_allocated_bytes": 546176,
+23:   "upper_occupied_slots": 6615,
+23:   "metadata_allocated_bytes": 500000,
+23:   "object_bytes": 2736,
+23:   "graph_allocated_bytes": 14248912,
+23:   "global_buffer_blocks": 4,
+23:   "rss_before_graph_bytes": 12369920,
+23:   "rss_after_graph_bytes": 27574272,
+23:   "rss_delta_bytes": 15204352,
+23:   "rss_scope": "process delta; includes allocator and temporary-workspace retention, not equivalent to owned graph bytes",
+23:   "build_ms": 7021.6975,
+23:   "ca_2_2_owned_capacity_pass": true
+23: }
+1/1 Test #23: performance.memory ...............   Passed    7.69 sec
+
+The following tests passed:
+	performance.memory
+
+100% tests passed out of 1
+
+Label Time Summary:
+performance    =   7.69 sec*proc (1 test)
+
+Total Test time (real) =   7.69 sec

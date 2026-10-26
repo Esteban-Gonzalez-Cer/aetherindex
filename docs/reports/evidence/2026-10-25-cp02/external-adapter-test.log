@@ -1,0 +1,29 @@
+UpdateCTestConfiguration  from :/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug/DartConfiguration.tcl
+Parse Config file:/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug/DartConfiguration.tcl
+Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 9
+    Start 9: integration.bm25_corpus_external
+
+9: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug/tests/aether_bm25_evaluate "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/fixtures/bm25/documents.tsv" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/fixtures/bm25/queries.tsv" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug/tests/bm25-external/Debug"
+9: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug/tests
+9: Test timeout computed to be: 180
+9: Preliminary BM25: documents=100; vocabulary=325; HitRate@10=20/20; report=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-debug/tests/bm25-external/Debug. CP-05 certification is separate.
+1/1 Test #9: integration.bm25_corpus_external ...   Passed    0.26 sec
+
+The following tests passed:
+	integration.bm25_corpus_external
+
+100% tests passed out of 1
+
+Label Time Summary:
+cp02             =   0.26 sec*proc (1 test)
+external-data    =   0.26 sec*proc (1 test)
+lexical          =   0.26 sec*proc (1 test)
+
+Total Test time (real) =   0.27 sec

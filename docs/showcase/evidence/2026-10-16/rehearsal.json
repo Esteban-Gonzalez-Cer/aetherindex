@@ -1,0 +1,190 @@
+{
+  "rehearsal_date": "2026-10-16",
+  "base_commit": "031adae19951d95ede349eaeaf295dd8d4a611d2",
+  "runs": [
+    {
+      "label": "dbpedia-query00-brute-force",
+      "command": [
+        "./build-showcase/aetherindex",
+        "search",
+        "--dataset",
+        "datasets/real/dbpedia/vectors.csv",
+        "--query",
+        "datasets/real/dbpedia/queries/query_00.csv",
+        "--algorithm",
+        "brute-force",
+        "--metric",
+        "cosine",
+        "--k",
+        "10"
+      ],
+      "query_index": 0,
+      "exit_code": 0,
+      "process_seconds": 2.0845999580342323
+    },
+    {
+      "label": "dbpedia-query00-hnsw-50",
+      "command": [
+        "./build-showcase/aetherindex",
+        "search",
+        "--dataset",
+        "datasets/real/dbpedia/vectors.csv",
+        "--query",
+        "datasets/real/dbpedia/queries/query_00.csv",
+        "--algorithm",
+        "hnsw",
+        "--metric",
+        "cosine",
+        "--k",
+        "10",
+        "--m",
+        "16",
+        "--m0",
+        "32",
+        "--ef-construction",
+        "100",
+        "--ef-search",
+        "50",
+        "--seed",
+        "42"
+      ],
+      "query_index": 0,
+      "exit_code": 0,
+      "process_seconds": 23.79769004206173
+    },
+    {
+      "label": "dbpedia-query13-brute-force",
+      "command": [
+        "./build-showcase/aetherindex",
+        "search",
+        "--dataset",
+        "datasets/real/dbpedia/vectors.csv",
+        "--query",
+        "datasets/real/dbpedia/queries/query_13.csv",
+        "--algorithm",
+        "brute-force",
+        "--metric",
+        "cosine",
+        "--k",
+        "10"
+      ],
+      "query_index": 13,
+      "exit_code": 0,
+      "process_seconds": 2.050747917033732
+    },
+    {
+      "label": "dbpedia-query13-hnsw-50",
+      "command": [
+        "./build-showcase/aetherindex",
+        "search",
+        "--dataset",
+        "datasets/real/dbpedia/vectors.csv",
+        "--query",
+        "datasets/real/dbpedia/queries/query_13.csv",
+        "--algorithm",
+        "hnsw",
+        "--metric",
+        "cosine",
+        "--k",
+        "10",
+        "--m",
+        "16",
+        "--m0",
+        "32",
+        "--ef-construction",
+        "100",
+        "--ef-search",
+        "50",
+        "--seed",
+        "42"
+      ],
+      "query_index": 13,
+      "exit_code": 0,
+      "process_seconds": 23.82780195795931
+    },
+    {
+      "label": "dbpedia-query13-hnsw-100",
+      "command": [
+        "./build-showcase/aetherindex",
+        "search",
+        "--dataset",
+        "datasets/real/dbpedia/vectors.csv",
+        "--query",
+        "datasets/real/dbpedia/queries/query_13.csv",
+        "--algorithm",
+        "hnsw",
+        "--metric",
+        "cosine",
+        "--k",
+        "10",
+        "--m",
+        "16",
+        "--m0",
+        "32",
+        "--ef-construction",
+        "100",
+        "--ef-search",
+        "100",
+        "--seed",
+        "42"
+      ],
+      "query_index": 13,
+      "exit_code": 0,
+      "process_seconds": 24.23496654094197
+    }
+  ],
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "python": "3.13.5",
+  "cmake": "cmake version 4.4.4",
+  "build_type": "Release",
+  "compiler": "AppleClang 17.0.0.17000603",
+  "graph_parameters": {
+    "m": 16,
+    "m0": 32,
+    "ef_construction": 100,
+    "seed": 42
+  },
+  "data_manifest_sha256": "5af80eb7ce05320dc303957c2c3a66729bcbbe28717e0ebcc5b5460f95596d23",
+  "presentation_helper_sha256": "87dea0c11303ec3dd15accb107c086ae4d5f2b6aea56fd4eb68f4a409eff0b8d",
+  "production_sources_unchanged": true,
+  "recall_comparisons": [
+    {
+      "query_index": 0,
+      "ef_search": 50,
+      "matches": 10,
+      "recall_at_10": 1.0
+    },
+    {
+      "query_index": 13,
+      "ef_search": 50,
+      "matches": 9,
+      "recall_at_10": 0.9
+    },
+    {
+      "query_index": 13,
+      "ef_search": 100,
+      "matches": 10,
+      "recall_at_10": 1.0
+    }
+  ],
+  "acceptance_rehearsal": "2/2 focused CTest checks passed on 2026-10-16; full historical suite is documented separately",
+  "artifact_sha256": {
+    "acceptance_cli_ctest.log": "ae3cfa647ff39e07d89e05069cd6d402924c9fcbb847bcbd8bf6d7689187296b",
+    "articles-query00-brute-force.txt": "7980eb5017f1b752bec830b2ea206ff5e5e18090f1757c132964470b34256ae1",
+    "articles-query00-hnsw-50.txt": "6854e6870c81f6bbe32d7fe3f44a4ca983067e899e549df3d21f6238ab7e4e11",
+    "articles-query13-hnsw-100.txt": "f04287f633b3dab98401278aa6e616b3330d57681fe99c398b8016cedd0680c5",
+    "articles-query13-hnsw-50.txt": "cd2387abe192cf8edbf74141382d1eead1e77fec5f15e74f29f65c507b3cde44",
+    "dbpedia-query00-brute-force.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dbpedia-query00-brute-force.txt": "3abc4da73cfe8f0096104d2a841c65b648ff8cf7c5a60c425a73243c16343748",
+    "dbpedia-query00-hnsw-50.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dbpedia-query00-hnsw-50.txt": "8f721437f577370031c0405a4929e2fe108bc1bbfccb4e8d099af3aad58e516a",
+    "dbpedia-query13-brute-force.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dbpedia-query13-brute-force.txt": "8078d92936c677ecd05e6165adeabfd0bcd9b2fe080457a7f7669e04dde947ec",
+    "dbpedia-query13-hnsw-100.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dbpedia-query13-hnsw-100.txt": "82a075b7f604b04d4352e5b054290503822c6c0f8053c67d1cc8686baae597de",
+    "dbpedia-query13-hnsw-50.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dbpedia-query13-hnsw-50.txt": "eac1dbe3d863c889953ed6b7c60ef73aaa392a0bd9dead5e75f26bb701477ff2",
+    "error-wrong-dimension.txt": "d2c84f8e7c84e8566dc61aae41fb3092a7b366837c599c3813a8c336fb981a76",
+    "error-zero-k.txt": "99bba1d2c0db75ac305b939959ac937e6bb467ea535f4731a95a1cb09b18ef17"
+  }
+}

@@ -1,0 +1,13 @@
+Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-showcase
+    Start 16: integration.sprint1_okr1
+1/2 Test #16: integration.sprint1_okr1 .........   Passed    0.32 sec
+    Start 17: e2e.sprint1_okr1
+2/2 Test #17: e2e.sprint1_okr1 .................   Passed    0.33 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+okr1       =   0.65 sec*proc (2 tests)
+sprint1    =   0.65 sec*proc (2 tests)
+
+Total Test time (real) =   0.65 sec

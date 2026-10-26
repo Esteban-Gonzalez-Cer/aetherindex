@@ -1,0 +1,164 @@
+UpdateCTestConfiguration  from :/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/DartConfiguration.tcl
+Parse Config file:/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/DartConfiguration.tcl
+Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 22
+    Start 22: performance.topk
+
+22: Test command: /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/check_optimization_benchmark.py" "--benchmark" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/aether_optimization_benchmark" "--workload" "topk" "--output" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/topk"
+22: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks
+22: Test timeout computed to be: 1800
+22: TopK reduction=0.867946 sort_ms=5.42983 heap_ms=0.717031
+22: {
+22:   "vectors": 100000,
+22:   "dimension": 128,
+22:   "k": 10,
+22:   "samples_per_algorithm": 50,
+22:   "kernel": "NEON/FMA FP32",
+22:   "full_sort_mean_ms": 5.429834119999999,
+22:   "heap_mean_ms": 0.71703082,
+22:   "full_sort_median_ms": 5.395292,
+22:   "heap_median_ms": 0.711292,
+22:   "relative_time_reduction": 0.8679460911413626,
+22:   "ca_1_3_pass": true,
+22:   "checksum": 166480222
+22: }
+1/5 Test #22: performance.topk .................   Passed    1.18 sec
+test 23
+    Start 23: performance.memory
+
+23: Test command: /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/check_optimization_benchmark.py" "--benchmark" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/aether_optimization_benchmark" "--workload" "memory" "--output" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/memory"
+23: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks
+23: Test timeout computed to be: 1800
+23: Graph bytes=14248912 blocks=4 RSS delta=15876096
+23: {
+23:   "vectors": 100000,
+23:   "dimension": 8,
+23:   "m": 16,
+23:   "m0": 32,
+23:   "seed": 42,
+23:   "layer0_allocated_bytes": 13200000,
+23:   "upper_allocated_bytes": 546176,
+23:   "upper_occupied_slots": 6615,
+23:   "metadata_allocated_bytes": 500000,
+23:   "object_bytes": 2736,
+23:   "graph_allocated_bytes": 14248912,
+23:   "global_buffer_blocks": 4,
+23:   "rss_before_graph_bytes": 12369920,
+23:   "rss_after_graph_bytes": 28246016,
+23:   "rss_delta_bytes": 15876096,
+23:   "rss_scope": "process delta; includes allocator and temporary-workspace retention, not equivalent to owned graph bytes",
+23:   "build_ms": 6707.281792,
+23:   "ca_2_2_owned_capacity_pass": true
+23: }
+2/5 Test #23: performance.memory ...............   Passed    6.76 sec
+test 24
+    Start 24: performance.clustered
+
+24: Test command: /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/check_optimization_benchmark.py" "--benchmark" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/aether_optimization_benchmark" "--workload" "clustered" "--output" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/clustered"
+24: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks
+24: Test timeout computed to be: 1800
+24: Clustered recall simple=0.3909 heuristic=0.9191 absolute_gain=0.5282
+24: {
+24:   "vectors": 10000,
+24:   "dimension": 128,
+24:   "queries": 1000,
+24:   "ef_search": 30,
+24:   "k": 10,
+24:   "simple_mean_recall": 0.39089999999999964,
+24:   "heuristic_mean_recall": 0.9190999999999989,
+24:   "absolute_recall_gain": 0.5281999999999992,
+24:   "required_absolute_gain": 0.05,
+24:   "simple_build_ms": 218.132333,
+24:   "heuristic_build_ms": 587.6275,
+24:   "ca_2_4_pass": true
+24: }
+3/5 Test #24: performance.clustered ............   Passed    0.95 sec
+test 25
+    Start 25: performance.dbpedia
+
+25: Test command: /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/check_optimization_benchmark.py" "--benchmark" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/aether_dbpedia_benchmark" "--workload" "dbpedia" "--data-dir" "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia" "--output" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/dbpedia"
+25: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks
+25: Test timeout computed to be: 1800
+25: DBpedia heuristic: p99=0.252292 ms; mean_recall=0.985; build=7079.95 ms
+25: {
+25:   "vectors": 10000,
+25:   "dimension": 1024,
+25:   "distinct_queries": 20,
+25:   "measured_searches": 1000,
+25:   "warmup_searches": 100,
+25:   "threads": 1,
+25:   "ef_search": 50,
+25:   "k": 10,
+25:   "selection": "heuristic",
+25:   "build_ms": 7079.945083,
+25:   "mean_query_ms": 0.18143437200000007,
+25:   "p50_query_ms": 0.178583,
+25:   "p95_query_ms": 0.228834,
+25:   "p99_query_ms": 0.252292,
+25:   "max_query_ms": 0.287709,
+25:   "mean_recall_at_10": 0.9849999999999977,
+25:   "ca_2_5_pass": true,
+25:   "checksum": 360093290,
+25:   "timing_scope": "QueryEngine including query preparation; graph construction and CSV I/O excluded",
+25:   "sample_limit": "20 distinct held-out queries repeated 50 times; local warm-cache observation"
+25: }
+4/5 Test #25: performance.dbpedia ..............   Passed    9.48 sec
+test 26
+    Start 26: performance.assembly
+
+26: Test command: /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/verify_distance_assembly.py" "--compiler" "/usr/bin/c++" "--source-root" "/Users/estebangonzalezcervantes/Documents/aetherindex" "--output" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/assembly" "--native"
+26: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks
+26: Test timeout computed to be: 60
+26: {
+26:   "compiler_command": [
+26:     "/usr/bin/c++",
+26:     "-std=c++20",
+26:     "-O3",
+26:     "-S",
+26:     "-I",
+26:     "/Users/estebangonzalezcervantes/Documents/aetherindex/include",
+26:     "/Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/scalar_distance.cpp",
+26:     "-o",
+26:     "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/assembly/distance-kernels.s",
+26:     "-march=native"
+26:   ],
+26:   "machine": "arm64",
+26:   "packed_fp32_fma_count": 8,
+26:   "fma_examples": [
+26:     "fmla.4s\tv0, v16, v4",
+26:     "fmla.4s\tv1, v17, v5",
+26:     "fmla.4s\tv2, v18, v6",
+26:     "fmla.4s\tv3, v19, v7",
+26:     "fmla.4s\tv0, v4, v4",
+26:     "fmla.4s\tv1, v5, v5",
+26:     "fmla.4s\tv2, v6, v6",
+26:     "fmla.4s\tv3, v7, v7"
+26:   ],
+26:   "float_to_double_instructions": [],
+26:   "sqrt_divide_instructions": [],
+26:   "ca_1_1_pass": true,
+26:   "ca_1_4_pass": true
+26: }
+5/5 Test #26: performance.assembly .............   Passed    0.34 sec
+
+The following tests passed:
+	performance.topk
+	performance.memory
+	performance.clustered
+	performance.dbpedia
+	performance.assembly
+
+100% tests passed out of 5
+
+Label Time Summary:
+assembly       =   0.34 sec*proc (1 test)
+performance    =  18.37 sec*proc (4 tests)
+real-data      =   9.48 sec*proc (1 test)
+
+Total Test time (real) =  18.71 sec

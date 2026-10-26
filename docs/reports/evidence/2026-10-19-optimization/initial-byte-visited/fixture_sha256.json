@@ -1,0 +1,10 @@
+{
+  "cluster_vectors.f32": {
+    "sha256": "133d3ff85e87cd9552873f6156ac43d6c40f502d392aac5931d4308ed6fce6b9",
+    "bytes": 5120000
+  },
+  "cluster_queries.f32": {
+    "sha256": "cf5a080d72541cd8441ced3f59baa803ecae40f9022f77a9192eb18c17ac0207",
+    "bytes": 512000
+  }
+}

@@ -42,6 +42,7 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
     bool have_ef_construction = false;
     bool have_ef_search = false;
     bool have_seed = false;
+    bool have_selection = false;
     for (std::size_t i = 1; i < arguments.size(); ++i) {
         const auto name = arguments[i];
         if (name == "--help") {
@@ -72,6 +73,8 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
             seen = &have_ef_search;
         } else if (name == "--seed") {
             seen = &have_seed;
+        } else if (name == "--neighbor-selection") {
+            seen = &have_selection;
         } else {
             throw std::invalid_argument("Unknown option: " + std::string(name) + ".");
         }
@@ -105,6 +108,14 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
             } else {
                 throw std::invalid_argument("Invalid --metric: use cosine or squared-euclidean.");
             }
+        } else if (name == "--neighbor-selection") {
+            if (value == "simple")
+                options.search.hnsw_config.neighbor_selection = NeighborSelection::Simple;
+            else if (value == "heuristic")
+                options.search.hnsw_config.neighbor_selection = NeighborSelection::Heuristic;
+            else
+                throw std::invalid_argument(
+                    "Invalid --neighbor-selection: use simple or heuristic.");
         } else if (name == "--k") {
             options.search.k = parse_unsigned<std::size_t>(value, name);
         } else if (name == "--seed") {
@@ -134,7 +145,8 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
             throw std::invalid_argument("Missing required option: --algorithm.");
         }
         if (options.search.algorithm != SearchAlgorithm::Hnsw &&
-            (have_m || have_m0 || have_ef_construction || have_ef_search || have_seed)) {
+            (have_m || have_m0 || have_ef_construction || have_ef_search || have_seed ||
+             have_selection)) {
             throw std::invalid_argument("HNSW options require --algorithm hnsw.");
         }
         validate_search_request(options.search);
@@ -158,10 +170,13 @@ std::string_view help_text() {
            "  --ef-construction N  HNSW construction search width (default: 100; >= M)\n"
            "  --ef-search N        HNSW query search width (default: 50; > 0)\n"
            "  --seed INTEGER       HNSW unsigned 64-bit seed, including zero (default: 42)\n"
+           "  --neighbor-selection NAME  HNSW heuristic (default, Algorithm 4) | simple (Algorithm "
+           "3)\n"
            "  --help               Show help (also: search --help)\n\n"
            "CSV: no headers or quotes; finite floats; unique unsigned 32-bit IDs.\n"
            "Spaces/tabs around fields and blank lines are allowed. All dimensions must match.\n"
-           "Cosine rejects all-zero vectors; squared Euclidean permits them.\n"
+           "Cosine stores unit vectors and rejects embedding L2 norms below 1e-7.\n"
+           "Cosine queries must be nonzero; squared Euclidean permits zero vectors.\n"
            "Results are sorted by increasing distance; at most min(k, dataset size) are returned.\n"
            "Distances use nine decimal places; IDs stay integers in the bordered results table.\n"
            "Query time is reported in milliseconds and excludes CSV loading and output.\n"

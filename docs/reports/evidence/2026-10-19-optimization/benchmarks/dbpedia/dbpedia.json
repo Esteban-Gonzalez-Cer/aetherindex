@@ -1,0 +1,7 @@
+{
+"vectors":10000,"dimension":1024,"distinct_queries":20,"measured_searches":1000,"warmup_searches":100,"threads":1,"ef_search":50,"k":10,
+"selection":"heuristic","build_ms":7404.4818750000004,"mean_query_ms":0.22614317999999997,"p50_query_ms":0.22229099999999999,"p95_query_ms":0.29833300000000001,"p99_query_ms":0.34008300000000002,"max_query_ms":0.36995800000000001,
+"mean_recall_at_10":0.98499999999999766,"ca_2_5_pass":true,"checksum":360093290,
+"timing_scope":"QueryEngine including query preparation; graph construction and CSV I/O excluded",
+"sample_limit":"20 distinct held-out queries repeated 50 times; local warm-cache observation"
+}
