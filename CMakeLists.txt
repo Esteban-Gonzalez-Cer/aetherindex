@@ -55,10 +55,11 @@ add_library(aether_application STATIC
     src/application/query_engine.cpp
     src/application/search_service.cpp
     src/application/csv_loader.cpp
+    src/application/jsonl_loader.cpp
 )
 target_link_libraries(aether_application
     PUBLIC aether_core aether_storage
-    PRIVATE aether_brute_force aether_hnsw
+    PRIVATE aether_brute_force aether_hnsw aether_lexical
 )
 
 add_library(aether_cli STATIC apps/cli/cli_parser.cpp apps/cli/cli_runner.cpp)

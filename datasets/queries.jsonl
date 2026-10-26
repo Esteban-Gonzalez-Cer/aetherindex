@@ -1,0 +1,24 @@
+{"query_id": "Q001", "query_text": "¿Cómo encuentra HNSW vecinos cercanos sin comparar todos los vectores?", "relevant_document_ids": ["D001", "D015", "D016"]}
+{"query_id": "Q002", "query_text": "¿Qué factores considera BM25 para ordenar documentos?", "relevant_document_ids": ["D002", "D009"]}
+{"query_id": "Q003", "query_text": "¿Cómo se fusionan rankings cuyas puntuaciones originales tienen escalas diferentes?", "relevant_document_ids": ["D003", "D018", "D026", "D027"]}
+{"query_id": "Q004", "query_text": "¿Cómo se representa semánticamente un texto para buscarlo por significado?", "relevant_document_ids": ["D004", "D024"]}
+{"query_id": "Q005", "query_text": "¿Qué método compara una consulta contra todos los vectores?", "relevant_document_ids": ["D005"]}
+{"query_id": "Q006", "query_text": "¿Qué mide la proporción de documentos relevantes encontrados en los primeros diez resultados?", "relevant_document_ids": ["D012", "D015"]}
+{"query_id": "Q007", "query_text": "¿Cómo medir cuántos de los resultados iniciales son relevantes?", "relevant_document_ids": ["D013"]}
+{"query_id": "Q008", "query_text": "¿Qué métrica evalúa el orden cuando existen distintos grados de relevancia?", "relevant_document_ids": ["D014"]}
+{"query_id": "Q009", "query_text": "¿Qué estructura acelera la búsqueda por términos en documentos?", "relevant_document_ids": ["D008"]}
+{"query_id": "Q010", "query_text": "¿Por qué los términos comunes suelen ser menos informativos?", "relevant_document_ids": ["D009"]}
+{"query_id": "Q011", "query_text": "¿Qué proceso divide el texto en palabras o subpalabras?", "relevant_document_ids": ["D011"]}
+{"query_id": "Q012", "query_text": "¿Qué transformaciones se pueden aplicar antes de indexar texto?", "relevant_document_ids": ["D010", "D011"]}
+{"query_id": "Q013", "query_text": "¿Cómo se calcula la distancia basada en el ángulo entre vectores?", "relevant_document_ids": ["D006", "D023"]}
+{"query_id": "Q014", "query_text": "¿Qué métrica suma diferencias al cuadrado entre componentes?", "relevant_document_ids": ["D007"]}
+{"query_id": "Q015", "query_text": "¿Qué parámetro de HNSW ajusta cuántos candidatos se exploran durante una búsqueda?", "relevant_document_ids": ["D016"]}
+{"query_id": "Q016", "query_text": "¿Qué parámetro afecta las conexiones de los nodos del grafo HNSW?", "relevant_document_ids": ["D017"]}
+{"query_id": "Q017", "query_text": "¿Cómo se resuelve de forma consistente un empate en los resultados?", "relevant_document_ids": ["D019", "D020"]}
+{"query_id": "Q018", "query_text": "¿Qué debe comprobar el almacén antes de aceptar un vector?", "relevant_document_ids": ["D021", "D022"]}
+{"query_id": "Q019", "query_text": "¿Qué ventaja tiene combinar búsqueda textual y búsqueda semántica?", "relevant_document_ids": ["D025", "D027"]}
+{"query_id": "Q020", "query_text": "¿Cómo se evalúan sistemas usando consultas con documentos relevantes conocidos?", "relevant_document_ids": ["D028", "D012", "D013", "D014"]}
+{"query_id": "Q021", "query_text": "¿Por qué una consulta puede recuperar un texto aunque use sinónimos?", "relevant_document_ids": ["D024", "D004"]}
+{"query_id": "Q022", "query_text": "¿Qué regla usa RRF para sumar la contribución de un documento en varias listas?", "relevant_document_ids": ["D003", "D026"]}
+{"query_id": "Q023", "query_text": "¿Qué información permite repetir un experimento de búsqueda?", "relevant_document_ids": ["D030"]}
+{"query_id": "Q024", "query_text": "¿Por qué es importante que los documentos tengan IDs estables?", "relevant_document_ids": ["D029", "D028"]}
