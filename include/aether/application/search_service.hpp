@@ -5,6 +5,8 @@
 #include <filesystem>
 #include <stdexcept>
 #include <vector>
+#include <limits>
+#include <string>
 
 #include "aether/ann/hnsw/hnsw_config.hpp"
 #include "aether/core/search_result.hpp"
