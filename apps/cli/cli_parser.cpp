@@ -96,9 +96,11 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
                 options.search.algorithm = SearchAlgorithm::BruteForce;
             } else if (value == "hnsw") {
                 options.search.algorithm = SearchAlgorithm::Hnsw;
+            }  else if (value == "bm25") {
+    options.search.algorithm = SearchAlgorithm::Bm25;
             } else {
                 throw std::invalid_argument("Unknown algorithm: " + std::string(value) +
-                                            ". Available algorithms: brute-force, hnsw.");
+                                            ". Available algorithms: brute-force, hnsw, bm25.");
             }
         } else if (name == "--metric") {
             if (value == "cosine") {
