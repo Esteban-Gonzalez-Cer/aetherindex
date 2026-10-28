@@ -4,7 +4,6 @@
 #include <sstream>
 #include <stdexcept>
 
-// Nota: Si usas nlohmann/json en tu CMakeLists.txt, reemplaza el parser manual por nlohmann::json
 namespace aetherindex {
 namespace detail {
 
@@ -48,7 +47,7 @@ std::pair<std::shared_ptr<VectorStore>, std::vector<DocumentRecord>> load_jsonl_
         throw std::runtime_error("Could not open JSONL corpus file: " + path);
     }
 
-    auto store = std::make_shared<VectorStore>();
+    std::shared_ptr<VectorStore> store = nullptr;
     std::vector<DocumentRecord> docs;
     std::string line;
     uint32_t internal_id = 0;
@@ -62,10 +61,19 @@ std::pair<std::shared_ptr<VectorStore>, std::vector<DocumentRecord>> load_jsonl_
         doc.vector = parse_float_array(line, "vector");
 
         if (!doc.vector.empty()) {
-            // Se inserta el embedding en el VectorStore usando un ID numérico interno
-            store->add_vector(internal_id++, doc.vector);
+            // Se inicializa el VectorStore con la dimensión del primer vector detectado
+            if (!store) {
+                store = std::make_shared<VectorStore>(doc.vector.size());
+            }
+            // Se inserta usando 'insert(id, span)'
+            store->insert(static_cast<VectorId>(internal_id++), doc.vector);
         }
         docs.push_back(std::move(doc));
+    }
+
+    // Si el archivo no contenía vectores, instanciamos un store por defecto para evitar puntero nulo
+    if (!store) {
+        store = std::make_shared<VectorStore>(1);
     }
 
     return {store, docs};
@@ -85,7 +93,7 @@ std::vector<QueryRecord> load_jsonl_queries(const std::string& path) {
 
         QueryRecord q;
         q.id = parse_string_field(line, "id");
-        q.text = parse_string_field(line, "query") ;
+        q.text = parse_string_field(line, "query");
         if (q.text.empty()) q.text = parse_string_field(line, "text");
         q.vector = parse_float_array(line, "vector");
         

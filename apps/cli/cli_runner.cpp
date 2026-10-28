@@ -1,5 +1,6 @@
 #include "cli_runner.hpp"
 
+#include <iostream>
 #include <algorithm>
 #include <array>
 #include <exception>
@@ -58,6 +59,22 @@ void print_neighbors(std::ostream& output, const std::vector<SearchResult>& neig
 }
 
 }  // namespace
+
+// Agrega el prototipo o la definición completa arriba en cli_runner.cpp:
+void print_ranked_documents(
+    const std::vector<aetherindex::RankedResult>& results,
+    const std::vector<std::string>& document_ids) {
+    
+    for (size_t i = 0; i < results.size(); ++i) {
+        std::string doc_id = (results[i].document_id < document_ids.size()) 
+            ? document_ids[results[i].document_id] 
+            : std::to_string(results[i].document_id);
+
+        std::cout << "Rank " << (i + 1) 
+                  << " | Doc ID: " << doc_id 
+                  << " | Score: " << results[i].score << "\n";
+    }
+}
 
 int run(std::span<const std::string_view> arguments, std::ostream& output, std::ostream& errors) {
     CliOptions options;
@@ -121,7 +138,7 @@ int run(std::span<const std::string_view> arguments, std::ostream& output, std::
                       << response.index_build_time.count()
                       << "\nQuery time (ms): " << response.query_time.count() << "\n\n";
 
-            print_ranked_documents(formatted, response.ranked_documents, response.document_ids);
+            print_ranked_documents(response.ranked_documents, response.ranked_document_ids);
         } else {
             formatted << "\nQuery time (ms): " << std::fixed << std::setprecision(6)
                       << response.query_time.count() << "\n\n";
