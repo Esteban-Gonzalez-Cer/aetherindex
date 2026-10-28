@@ -143,50 +143,54 @@ int run(std::span<const std::string_view> arguments, std::ostream& output, std::
         formatted << "AetherIndex Search\n\n"
                   << "Algorithm: ";
 
-        switch (options.search.algorithm) {
-            case SearchAlgorithm::BruteForce:
-                formatted << "BruteForce\n"
-                          << "Distance metric: "
-                          << (options.search.metric == DistanceKind::Cosine ? "Cosine"
-                                                                            : "SquaredEuclidean");
-                break;
+        // 1. Algoritmo y configuración
+switch (options.search.algorithm) {
+    case SearchAlgorithm::BruteForce:
+        formatted << "BruteForce\n"
+                  << "Distance metric: "
+                  << (options.search.metric == DistanceKind::Cosine ? "Cosine" : "SquaredEuclidean");
+        break;
 
-            case SearchAlgorithm::Hnsw:
-                formatted << "HNSW\n"
-                          << "Distance metric: "
-                          << (options.search.metric == DistanceKind::Cosine ? "Cosine"
-                                                                            : "SquaredEuclidean");
-                break;
+    case SearchAlgorithm::Hnsw:
+        formatted << "HNSW\n"
+                  << "Distance metric: "
+                  << (options.search.metric == DistanceKind::Cosine ? "Cosine" : "SquaredEuclidean");
+        break;
 
-            case SearchAlgorithm::Bm25:
-                formatted << "BM25\n"
-                          << "Scoring: lexical relevance";
-                break;
-        }
+    case SearchAlgorithm::Bm25:
+        formatted << "BM25\n"
+                  << "Scoring: lexical relevance";
+        break;
+}
 
-        formatted << "\nDocuments indexed: "
-                  << (options.search.algorithm == SearchAlgorithm::Bm25
-                          ? response.ranked_document_ids.size()
-                          : response.vectors_indexed)
-                  << "\nRequested K: " << options.search.k << "\nResults returned: "
-                  << (options.search.algorithm == SearchAlgorithm::Bm25
-                          ? response.ranked_documents.size()
-                          : response.neighbors.size());
-        formatted << "\nQuery time (ms): " << std::fixed << std::setprecision(6)
-                  << response.query_time.count()
-                  << "\nQuery time scope: search only (excludes CSV loading)\n\n";
-        if (options.search.algorithm == SearchAlgorithm::Bm25) {
-            formatted << "\nIndex build time (ms): " << std::fixed << std::setprecision(6)
-                      << response.index_build_time.count()
-                      << "\nQuery time (ms): " << response.query_time.count() << "\n\n";
+// 2. Estadísticas generales
+formatted << "\nDocuments indexed: "
+          << (options.search.algorithm == SearchAlgorithm::Bm25
+                  ? response.ranked_document_ids.size()
+                  : response.vectors_indexed)
+          << "\nRequested K: " << options.search.k 
+          << "\nResults returned: "
+          << (options.search.algorithm == SearchAlgorithm::Bm25
+                  ? response.ranked_documents.size()
+                  : response.neighbors.size());
 
-            print_ranked_documents(std::cout, response.ranked_documents, response.ranked_document_ids);
-        } else {
-            formatted << "\nQuery time (ms): " << std::fixed << std::setprecision(6)
-                      << response.query_time.count() << "\n\n";
+// 3. Tiempos de ejecución
+if (options.search.algorithm == SearchAlgorithm::Hnsw || 
+    options.search.algorithm == SearchAlgorithm::Bm25) {
+    formatted << "\nIndex build time (ms): " << std::fixed << std::setprecision(6)
+              << response.index_build_time.count();
+}
 
-            print_neighbors(formatted, response.neighbors);
-        }
+formatted << "\nQuery time (ms): " << std::fixed << std::setprecision(6)
+          << response.query_time.count()
+          << "\nQuery time scope: search only (excludes file loading)\n\n";
+
+// 4. Salida de tabla ASCII formateada en el flujo 'formatted'
+if (options.search.algorithm == SearchAlgorithm::Bm25) {
+    print_ranked_documents(formatted, response.ranked_documents, response.ranked_document_ids);
+} else {
+    print_neighbors(formatted, response.neighbors);
+}
         formatted << "\nSearch completed successfully.\n";
         output << formatted.str();
         return 0;
