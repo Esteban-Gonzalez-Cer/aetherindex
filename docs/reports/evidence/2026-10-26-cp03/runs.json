@@ -1,0 +1,193 @@
+{
+  "captured_utc": "2026-10-27T03:07:17.629566+00:00",
+  "runs": [
+    {
+      "name": "debug-configure",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "build-cp03-debug-final",
+        "-G",
+        "Ninja",
+        "-DCMAKE_OSX_SYSROOT=macosx",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+        "-DAETHER_BUILD_BENCHMARKS=OFF",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DCMAKE_CXX_COMPILER=/Library/Developer/CommandLineTools/usr/bin/clang++",
+        "-DBUILD_TESTING=ON",
+        "-DAETHER_ENABLE_SANITIZERS=OFF"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "debug-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build-cp03-debug-final",
+        "--parallel",
+        "4"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "debug-ctest",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build-cp03-debug-final",
+        "--output-on-failure",
+        "-V",
+        "-j",
+        "1"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "release-configure",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "build-cp03-release-final",
+        "-G",
+        "Ninja",
+        "-DCMAKE_OSX_SYSROOT=macosx",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+        "-DAETHER_BUILD_BENCHMARKS=OFF",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_CXX_COMPILER=/Library/Developer/CommandLineTools/usr/bin/clang++",
+        "-DBUILD_TESTING=ON",
+        "-DAETHER_ENABLE_SANITIZERS=OFF"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "release-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build-cp03-release-final",
+        "--parallel",
+        "4"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "release-ctest",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build-cp03-release-final",
+        "--output-on-failure",
+        "-V",
+        "-j",
+        "1"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "sanitizers-configure",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "build-cp03-sanitizers-final",
+        "-G",
+        "Ninja",
+        "-DCMAKE_OSX_SYSROOT=macosx",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+        "-DAETHER_BUILD_BENCHMARKS=OFF",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++",
+        "-DBUILD_TESTING=ON",
+        "-DAETHER_ENABLE_SANITIZERS=ON"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "sanitizers-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build-cp03-sanitizers-final",
+        "--parallel",
+        "4"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "sanitizers-ctest",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build-cp03-sanitizers-final",
+        "--output-on-failure",
+        "-V",
+        "-j",
+        "1"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "no-tests-configure",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "build-cp03-no-tests-final",
+        "-G",
+        "Ninja",
+        "-DCMAKE_OSX_SYSROOT=macosx",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+        "-DAETHER_BUILD_BENCHMARKS=OFF",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_CXX_COMPILER=/Library/Developer/CommandLineTools/usr/bin/clang++",
+        "-DBUILD_TESTING=OFF",
+        "-DAETHER_ENABLE_SANITIZERS=OFF"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "standalone-hybrid-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build-cp03-no-tests-final",
+        "--target",
+        "aether_hybrid",
+        "--parallel",
+        "4"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "standalone-hybrid-dependencies",
+      "command": [
+        "ninja",
+        "-C",
+        "build-cp03-no-tests-final",
+        "-t",
+        "commands",
+        "aether_hybrid"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "no-tests-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build-cp03-no-tests-final",
+        "--parallel",
+        "4"
+      ],
+      "returncode": 0
+    }
+  ]
+}

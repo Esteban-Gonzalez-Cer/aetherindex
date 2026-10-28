@@ -1,0 +1,9 @@
+{
+"case_id":"RRF-07",
+"passed":true,
+"error":"",
+"absolute_tolerance":1e-12,
+"property_trials":0,
+"repetitions":0,
+"checks":[{"dense":[],"lexical":[],"k_rrf":60,"top_k":10,"expected_error":null,"actual_error":null,"expected":[],"actual":[]}]
+}

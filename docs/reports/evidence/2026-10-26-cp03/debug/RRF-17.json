@@ -1,0 +1,9 @@
+{
+"case_id":"RRF-17",
+"passed":true,
+"error":"",
+"absolute_tolerance":1e-12,
+"property_trials":0,
+"repetitions":0,
+"checks":[{"dense":[],"lexical":[],"k_rrf":0,"top_k":10,"expected_error":"std::invalid_argument","actual_error":"std::invalid_argument","expected":[],"actual":[]},{"dense":[],"lexical":[],"k_rrf":-0,"top_k":10,"expected_error":"std::invalid_argument","actual_error":"std::invalid_argument","expected":[],"actual":[]}]
+}

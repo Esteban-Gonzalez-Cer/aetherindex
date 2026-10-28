@@ -16,6 +16,9 @@ target_link_libraries(aether_core INTERFACE aether_sanitizers)
 add_library(aether_storage STATIC src/storage/vector_store.cpp)
 target_link_libraries(aether_storage PUBLIC aether_core)
 
+add_library(aether_hybrid STATIC src/hybrid/rrf.cpp)
+target_link_libraries(aether_hybrid PUBLIC aether_core)
+
 add_library(aether_lexical STATIC
     src/lexical/tokenizer.cpp
     src/lexical/inverted_index.cpp
@@ -55,7 +58,7 @@ add_library(aether_application STATIC
     src/application/query_engine.cpp
     src/application/search_service.cpp
     src/application/csv_loader.cpp
-    src/application/jsonl_loader.cpp
+    src/application/json_loader.cpp
 )
 target_link_libraries(aether_application
     PUBLIC aether_core aether_storage

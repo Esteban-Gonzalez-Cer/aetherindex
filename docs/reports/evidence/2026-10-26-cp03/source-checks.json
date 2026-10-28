@@ -1,0 +1,72 @@
+[
+  {
+    "name": "strict-warnings",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/clang++",
+      "-std=c++20",
+      "-isysroot",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+      "-Iinclude",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-fsyntax-only",
+      "src/hybrid/rrf.cpp",
+      "tests/unit/rrf_test.cpp",
+      "tests/integration/rrf_contract_test.cpp",
+      "tests/integration/jsonl_service_compatibility_test.cpp",
+      "src/application/json_loader.cpp",
+      "src/application/search_service.cpp"
+    ],
+    "returncode": 0
+  },
+  {
+    "name": "format-check",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang-format",
+      "--dry-run",
+      "--Werror",
+      "src/hybrid/rrf.cpp",
+      "tests/unit/rrf_test.cpp",
+      "tests/integration/rrf_contract_test.cpp",
+      "tests/integration/jsonl_service_compatibility_test.cpp",
+      "src/application/json_loader.cpp",
+      "src/application/search_service.cpp",
+      "include/aether/hybrid/rrf.hpp",
+      "include/aether/hybrid/rrf_config.hpp",
+      "include/aether/application/json_loader.hpp"
+    ],
+    "returncode": 0
+  },
+  {
+    "name": "independent-matrix-verification",
+    "command": [
+      "python3",
+      "/Users/estebangonzalezcervantes/Documents/aetherindex/docs/reports/evidence/2026-10-26-cp03/verify_matrix.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "name": "standalone-consumer-compile",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/clang++",
+      "-std=c++20",
+      "-isysroot",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+      "-Iinclude",
+      "/Users/estebangonzalezcervantes/Documents/aetherindex/docs/reports/evidence/2026-10-26-cp03/standalone_consumer.cpp",
+      "build-cp03-no-tests-final/libaether_hybrid.a",
+      "-o",
+      "build-cp03-no-tests-final/rrf_standalone_consumer"
+    ],
+    "returncode": 0
+  },
+  {
+    "name": "standalone-consumer-run",
+    "command": [
+      "build-cp03-no-tests-final/rrf_standalone_consumer"
+    ],
+    "returncode": 0
+  }
+]

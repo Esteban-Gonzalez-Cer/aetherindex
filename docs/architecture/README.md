@@ -2,8 +2,8 @@
 
 AetherIndex es un monolito modular en C++20 con dependencias
 unidireccionales. VectorStore, kernels FP32/SIMD, fuerza bruta, HNSW y la
-aplicación/CLI y el módulo BM25 de CP-02 están implementados; los demás módulos se incorporarán
-progresivamente.
+aplicación/CLI, BM25 de CP-02 y RRF de CP-03 están implementados; los demás
+módulos se incorporarán progresivamente.
 
 ## Estructura actual
 
@@ -29,6 +29,8 @@ aetherindex/
 │       │       └── hnsw_index.hpp
 │       ├── lexical/
 │       ├── hybrid/
+│       │   ├── rrf.hpp
+│       │   └── rrf_config.hpp
 │       ├── persistence/
 │       └── application/
 ├── src/
@@ -41,6 +43,7 @@ aetherindex/
 │   │       └── hnsw_index.cpp
 │   ├── lexical/
 │   ├── hybrid/
+│   │   └── rrf.cpp
 │   ├── persistence/
 │   ├── application/
 │   └── api/
@@ -111,8 +114,8 @@ No se permitirán dependencias circulares.
 
 Estos nombres son una guía para las siguientes implementaciones. Ya existen
 `vector_store.cpp`, `scalar_distance.cpp`, `brute_force_index.cpp`, `hnsw_index.cpp`,
-`query_engine.cpp`, `search_service.cpp`, `csv_loader.cpp`, los tres archivos de
-`src/lexical/` de CP-02 y
+`query_engine.cpp`, `search_service.cpp`, `csv_loader.cpp`, `json_loader.cpp`, los tres archivos de
+`src/lexical/` de CP-02, `src/hybrid/rrf.cpp` de CP-03 y
 `cmake/Sanitizers.cmake`; el resto sigue reservado. No se crean archivos fuente vacíos.
 
 | Carpeta | Archivos previstos |
@@ -126,7 +129,7 @@ Estos nombres son una guía para las siguientes implementaciones. Ya existen
 | `src/lexical` | `tokenizer.cpp`, `inverted_index.cpp`, `bm25.cpp` |
 | `src/hybrid` | `rrf.cpp` |
 | `src/persistence` | `serializer.cpp`, `mmap_storage.cpp` |
-| `src/application` | `query_engine.cpp`, `search_service.cpp`, lector interno `csv_loader.hpp/.cpp`; futuro `index_engine.cpp` |
+| `src/application` | `query_engine.cpp`, `search_service.cpp`, lector CSV interno `csv_loader.hpp/.cpp` y `json_loader.cpp`; futuro `index_engine.cpp` |
 | `apps/server` | `main.cpp` cuando se implemente gRPC |
 
 ## Evolución
@@ -152,6 +155,8 @@ CMake construye los siguientes targets:
 - `aether_storage`: biblioteca compilada de `VectorStore`, dependiente de core.
 - `aether_lexical`: tokenizer ASCII/UTF-8 conservador, postings y BM25, dependiente
   únicamente de core y biblioteca estándar. No enlaza HNSW, CLI ni RRF.
+- `aether_hybrid`: fusión RRF de dos rankings documentales, con constante positiva
+  configurable y Top-K determinístico; solo depende de core y biblioteca estándar.
 - `aether_distance`: API general y kernels FP32/SIMD de coseno y euclidiana al cuadrado, dependiente de core.
 - `aether_brute_force`: búsqueda exacta, enlazada con storage y distance.
 - `aether_hnsw`: grafo e índice aproximado; depende de core/storage y enlaza distance de forma privada.
@@ -205,8 +210,10 @@ Los invariantes no garantizan conectividad ni Recall: ambos se evalúan aparte.
 Una excepción después de activar un nodo exige reconstruir el índice; errores
 de búsqueda no lo invalidan y el store nunca se modifica desde HNSW.
 
-CTest registra 19 pruebas de corrección sin dependencias externas. Los dos
-casos reales optativos (`AETHER_REAL_DATA_DIR`) elevan la suite a 21. La opción
+CTest registra 52 comprobaciones normales: 27 previas, 24 de CP-03 (matriz de
+22 casos, propiedades y contrato) y una de compatibilidad del cargador JSONL.
+Los dos casos reales optativos (`AETHER_REAL_DATA_DIR`) y el corpus léxico
+externo (`AETHER_BM25_CORPUS_DIR`) se registran por separado. La opción
 `AETHER_BUILD_BENCHMARKS=ON` compila drivers separados; con
 `AETHER_REGISTER_PERFORMANCE_TESTS=ON` se registran umbrales de Top-K, memoria,
 Recall agrupado y, si hay DBpedia, p99, además de inspección del ensamblador
@@ -215,5 +222,7 @@ los segundos totales de CTest. El perfil PMU de caché necesita Linux y permisos
 para `perf`; no es una dependencia del motor ni de la suite normal.
 
 Ver [protocolo y reproducción](../benchmarks/OPTIMIZATION_VALIDATION.md) y
-[validación inicial histórica](hnsw_validation.md). BM25, RRF, persistencia,
-concurrencia y gRPC permanecen pendientes.
+[validación inicial histórica](hnsw_validation.md). BM25 y RRF se documentan en
+[CP-02](../algorithms/bm25.md) y [CP-03](../algorithms/rrf.md). La orquestación
+híbrida de QueryEngine y su CLI corresponden a CP-04; persistencia, concurrencia
+y gRPC permanecen pendientes.

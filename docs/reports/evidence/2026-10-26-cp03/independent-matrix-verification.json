@@ -1,0 +1,1260 @@
+{
+  "method": "Python fractions.Fraction from saved inputs; no production helper or C++ expected score reused",
+  "absolute_tolerance": 1e-12,
+  "profiles": {
+    "debug": {
+      "passed_cases": 22,
+      "executed_cases": 22,
+      "cases": [
+        {
+          "case_id": "RRF-01",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102,
+                101,
+                104,
+                103
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-02",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101,
+                102,
+                103
+              ],
+              "exact_score_fractions": [
+                "2/61",
+                "1/31",
+                "2/63"
+              ],
+              "max_actual_absolute_error": 2.0317460317460316e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-03",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101,
+                103,
+                102
+              ],
+              "exact_score_fractions": [
+                "124/3843",
+                "124/3843",
+                "1/31"
+              ],
+              "max_actual_absolute_error": 3.3119958365860004e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-04",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101,
+                103,
+                102,
+                104
+              ],
+              "exact_score_fractions": [
+                "1/61",
+                "1/61",
+                "1/62",
+                "1/62"
+              ],
+              "max_actual_absolute_error": 1.3278688524590163e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-05",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101,
+                102,
+                103
+              ],
+              "exact_score_fractions": [
+                "1/61",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 1.3278688524590163e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-06",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102,
+                104,
+                101
+              ],
+              "exact_score_fractions": [
+                "1/61",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 1.3278688524590163e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-07",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [],
+              "exact_score_fractions": [],
+              "max_actual_absolute_error": 0.0
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-08",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102
+              ],
+              "exact_score_fractions": [
+                "123/3782"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-09",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102,
+                101
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            },
+            {
+              "ids": [
+                102,
+                101,
+                104
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            },
+            {
+              "ids": [
+                102,
+                101,
+                104,
+                103
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-10",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102,
+                101,
+                104,
+                103
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            },
+            {
+              "ids": [
+                102,
+                101,
+                104,
+                103
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-11",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-12",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-13",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101
+              ],
+              "exact_score_fractions": [
+                "2/61"
+              ],
+              "max_actual_absolute_error": 1.6557377049180328e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-14",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                100,
+                200
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "123/3782"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-15",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101
+              ],
+              "exact_score_fractions": [
+                "1/2"
+              ],
+              "max_actual_absolute_error": 0.0
+            },
+            {
+              "ids": [
+                101
+              ],
+              "exact_score_fractions": [
+                "1/11"
+              ],
+              "max_actual_absolute_error": 2.9090909090909093e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-16",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101
+              ],
+              "exact_score_fractions": [
+                "1/101"
+              ],
+              "max_actual_absolute_error": 1.099009900990099e-19
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-17",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            },
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-18",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-19",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            },
+            {
+              "invalid_input_rejected": true
+            },
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-20",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-21",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102,
+                101,
+                104,
+                103
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            },
+            {
+              "ids": [
+                100,
+                200
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "123/3782"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-22",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                200,
+                427,
+                0,
+                91
+              ],
+              "exact_score_fractions": [
+                "124/3843",
+                "124/3843",
+                "1/62",
+                "1/62"
+              ],
+              "max_actual_absolute_error": 3.3119958365860004e-18
+            }
+          ]
+        }
+      ]
+    },
+    "release": {
+      "passed_cases": 22,
+      "executed_cases": 22,
+      "cases": [
+        {
+          "case_id": "RRF-01",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102,
+                101,
+                104,
+                103
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-02",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101,
+                102,
+                103
+              ],
+              "exact_score_fractions": [
+                "2/61",
+                "1/31",
+                "2/63"
+              ],
+              "max_actual_absolute_error": 2.0317460317460316e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-03",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101,
+                103,
+                102
+              ],
+              "exact_score_fractions": [
+                "124/3843",
+                "124/3843",
+                "1/31"
+              ],
+              "max_actual_absolute_error": 3.3119958365860004e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-04",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101,
+                103,
+                102,
+                104
+              ],
+              "exact_score_fractions": [
+                "1/61",
+                "1/61",
+                "1/62",
+                "1/62"
+              ],
+              "max_actual_absolute_error": 1.3278688524590163e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-05",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101,
+                102,
+                103
+              ],
+              "exact_score_fractions": [
+                "1/61",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 1.3278688524590163e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-06",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102,
+                104,
+                101
+              ],
+              "exact_score_fractions": [
+                "1/61",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 1.3278688524590163e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-07",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [],
+              "exact_score_fractions": [],
+              "max_actual_absolute_error": 0.0
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-08",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102
+              ],
+              "exact_score_fractions": [
+                "123/3782"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-09",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102,
+                101
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            },
+            {
+              "ids": [
+                102,
+                101,
+                104
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            },
+            {
+              "ids": [
+                102,
+                101,
+                104,
+                103
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-10",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102,
+                101,
+                104,
+                103
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            },
+            {
+              "ids": [
+                102,
+                101,
+                104,
+                103
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-11",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-12",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-13",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101
+              ],
+              "exact_score_fractions": [
+                "2/61"
+              ],
+              "max_actual_absolute_error": 1.6557377049180328e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-14",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                100,
+                200
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "123/3782"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-15",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101
+              ],
+              "exact_score_fractions": [
+                "1/2"
+              ],
+              "max_actual_absolute_error": 0.0
+            },
+            {
+              "ids": [
+                101
+              ],
+              "exact_score_fractions": [
+                "1/11"
+              ],
+              "max_actual_absolute_error": 2.9090909090909093e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-16",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101
+              ],
+              "exact_score_fractions": [
+                "1/101"
+              ],
+              "max_actual_absolute_error": 1.099009900990099e-19
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-17",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            },
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-18",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-19",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            },
+            {
+              "invalid_input_rejected": true
+            },
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-20",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-21",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102,
+                101,
+                104,
+                103
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            },
+            {
+              "ids": [
+                100,
+                200
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "123/3782"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-22",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                200,
+                427,
+                0,
+                91
+              ],
+              "exact_score_fractions": [
+                "124/3843",
+                "124/3843",
+                "1/62",
+                "1/62"
+              ],
+              "max_actual_absolute_error": 3.3119958365860004e-18
+            }
+          ]
+        }
+      ]
+    },
+    "sanitizers": {
+      "passed_cases": 22,
+      "executed_cases": 22,
+      "cases": [
+        {
+          "case_id": "RRF-01",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102,
+                101,
+                104,
+                103
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-02",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101,
+                102,
+                103
+              ],
+              "exact_score_fractions": [
+                "2/61",
+                "1/31",
+                "2/63"
+              ],
+              "max_actual_absolute_error": 2.0317460317460316e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-03",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101,
+                103,
+                102
+              ],
+              "exact_score_fractions": [
+                "124/3843",
+                "124/3843",
+                "1/31"
+              ],
+              "max_actual_absolute_error": 3.3119958365860004e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-04",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101,
+                103,
+                102,
+                104
+              ],
+              "exact_score_fractions": [
+                "1/61",
+                "1/61",
+                "1/62",
+                "1/62"
+              ],
+              "max_actual_absolute_error": 1.3278688524590163e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-05",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101,
+                102,
+                103
+              ],
+              "exact_score_fractions": [
+                "1/61",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 1.3278688524590163e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-06",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102,
+                104,
+                101
+              ],
+              "exact_score_fractions": [
+                "1/61",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 1.3278688524590163e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-07",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [],
+              "exact_score_fractions": [],
+              "max_actual_absolute_error": 0.0
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-08",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102
+              ],
+              "exact_score_fractions": [
+                "123/3782"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-09",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102,
+                101
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            },
+            {
+              "ids": [
+                102,
+                101,
+                104
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            },
+            {
+              "ids": [
+                102,
+                101,
+                104,
+                103
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-10",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102,
+                101,
+                104,
+                103
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            },
+            {
+              "ids": [
+                102,
+                101,
+                104,
+                103
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-11",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-12",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-13",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101
+              ],
+              "exact_score_fractions": [
+                "2/61"
+              ],
+              "max_actual_absolute_error": 1.6557377049180328e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-14",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                100,
+                200
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "123/3782"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-15",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101
+              ],
+              "exact_score_fractions": [
+                "1/2"
+              ],
+              "max_actual_absolute_error": 0.0
+            },
+            {
+              "ids": [
+                101
+              ],
+              "exact_score_fractions": [
+                "1/11"
+              ],
+              "max_actual_absolute_error": 2.9090909090909093e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-16",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                101
+              ],
+              "exact_score_fractions": [
+                "1/101"
+              ],
+              "max_actual_absolute_error": 1.099009900990099e-19
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-17",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            },
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-18",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-19",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            },
+            {
+              "invalid_input_rejected": true
+            },
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-20",
+          "passed": true,
+          "checks": [
+            {
+              "invalid_input_rejected": true
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-21",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                102,
+                101,
+                104,
+                103
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "124/3843",
+                "1/62",
+                "1/63"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            },
+            {
+              "ids": [
+                100,
+                200
+              ],
+              "exact_score_fractions": [
+                "123/3782",
+                "123/3782"
+              ],
+              "max_actual_absolute_error": 4.1988365943945e-18
+            }
+          ]
+        },
+        {
+          "case_id": "RRF-22",
+          "passed": true,
+          "checks": [
+            {
+              "ids": [
+                200,
+                427,
+                0,
+                91
+              ],
+              "exact_score_fractions": [
+                "124/3843",
+                "124/3843",
+                "1/62",
+                "1/62"
+              ],
+              "max_actual_absolute_error": 3.3119958365860004e-18
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

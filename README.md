@@ -30,9 +30,10 @@ incorporar lógica de almacenamiento ni algoritmos en la presentación.
 Sprint 2 incorpora la biblioteca independiente `aether_lexical`: tokenizer,
 índice invertido, estadísticas y BM25 con rankings de `DocumentId` y score double.
 Su uso, contratos y pruebas están en [BM25 — CP-02](docs/algorithms/bm25.md).
-La CLI conserva la búsqueda vectorial actual; RRF y la composición híbrida
-corresponden a las siguientes tarjetas. El corpus CP-01 sigue pendiente y las
-pruebas léxicas usan un fixture de regresión identificado por separado.
+CP-03 incorpora `aether_hybrid` para [fusión RRF](docs/algorithms/rrf.md) mediante
+rankings de DocumentId, con pruebas matemáticas y de contrato. La composición
+híbrida y la extensión de la CLI corresponden a CP-04. Las pruebas léxicas
+conservan su fixture de regresión identificado por separado de CP-01.
 
 La [validación de optimizaciones](docs/benchmarks/OPTIMIZATION_VALIDATION.md)
 documenta los cambios de contrato, el presupuesto de memoria de 14.50 MB y

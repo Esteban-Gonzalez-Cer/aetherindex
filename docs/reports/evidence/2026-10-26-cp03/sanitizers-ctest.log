@@ -1,0 +1,467 @@
+UpdateCTestConfiguration  from :/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/DartConfiguration.tcl
+Parse Config file:/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/DartConfiguration.tcl
+Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+      Start  1: unit.rrf.RRF-01
+
+1: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-01" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-01.json"
+1: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+1: Test timeout computed to be: 30
+1: RRF-01 PASS; checks=1; property_trials=0; repetitions=0
+ 1/52 Test  #1: unit.rrf.RRF-01 ...........................   Passed    0.28 sec
+test 2
+      Start  2: unit.rrf.RRF-02
+
+2: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-02" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-02.json"
+2: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+2: Test timeout computed to be: 30
+2: RRF-02 PASS; checks=1; property_trials=0; repetitions=0
+ 2/52 Test  #2: unit.rrf.RRF-02 ...........................   Passed    0.05 sec
+test 3
+      Start  3: unit.rrf.RRF-03
+
+3: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-03" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-03.json"
+3: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+3: Test timeout computed to be: 30
+3: RRF-03 PASS; checks=1; property_trials=0; repetitions=0
+ 3/52 Test  #3: unit.rrf.RRF-03 ...........................   Passed    0.05 sec
+test 4
+      Start  4: unit.rrf.RRF-04
+
+4: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-04" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-04.json"
+4: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+4: Test timeout computed to be: 30
+4: RRF-04 PASS; checks=1; property_trials=0; repetitions=0
+ 4/52 Test  #4: unit.rrf.RRF-04 ...........................   Passed    0.05 sec
+test 5
+      Start  5: unit.rrf.RRF-05
+
+5: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-05" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-05.json"
+5: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+5: Test timeout computed to be: 30
+5: RRF-05 PASS; checks=1; property_trials=0; repetitions=0
+ 5/52 Test  #5: unit.rrf.RRF-05 ...........................   Passed    0.05 sec
+test 6
+      Start  6: unit.rrf.RRF-06
+
+6: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-06" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-06.json"
+6: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+6: Test timeout computed to be: 30
+6: RRF-06 PASS; checks=1; property_trials=0; repetitions=0
+ 6/52 Test  #6: unit.rrf.RRF-06 ...........................   Passed    0.05 sec
+test 7
+      Start  7: unit.rrf.RRF-07
+
+7: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-07" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-07.json"
+7: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+7: Test timeout computed to be: 30
+7: RRF-07 PASS; checks=1; property_trials=0; repetitions=0
+ 7/52 Test  #7: unit.rrf.RRF-07 ...........................   Passed    0.05 sec
+test 8
+      Start  8: unit.rrf.RRF-08
+
+8: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-08" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-08.json"
+8: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+8: Test timeout computed to be: 30
+8: RRF-08 PASS; checks=1; property_trials=0; repetitions=0
+ 8/52 Test  #8: unit.rrf.RRF-08 ...........................   Passed    0.05 sec
+test 9
+      Start  9: unit.rrf.RRF-09
+
+9: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-09" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-09.json"
+9: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+9: Test timeout computed to be: 30
+9: RRF-09 PASS; checks=3; property_trials=0; repetitions=0
+ 9/52 Test  #9: unit.rrf.RRF-09 ...........................   Passed    0.07 sec
+test 10
+      Start 10: unit.rrf.RRF-10
+
+10: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-10" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-10.json"
+10: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+10: Test timeout computed to be: 30
+10: RRF-10 PASS; checks=2; property_trials=0; repetitions=0
+10/52 Test #10: unit.rrf.RRF-10 ...........................   Passed    0.05 sec
+test 11
+      Start 11: unit.rrf.RRF-11
+
+11: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-11" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-11.json"
+11: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+11: Test timeout computed to be: 30
+11: RRF-11 PASS; checks=1; property_trials=0; repetitions=0
+11/52 Test #11: unit.rrf.RRF-11 ...........................   Passed    0.05 sec
+test 12
+      Start 12: unit.rrf.RRF-12
+
+12: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-12" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-12.json"
+12: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+12: Test timeout computed to be: 30
+12: RRF-12 PASS; checks=1; property_trials=0; repetitions=0
+12/52 Test #12: unit.rrf.RRF-12 ...........................   Passed    0.05 sec
+test 13
+      Start 13: unit.rrf.RRF-13
+
+13: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-13" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-13.json"
+13: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+13: Test timeout computed to be: 30
+13: RRF-13 PASS; checks=1; property_trials=0; repetitions=0
+13/52 Test #13: unit.rrf.RRF-13 ...........................   Passed    0.05 sec
+test 14
+      Start 14: unit.rrf.RRF-14
+
+14: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-14" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-14.json"
+14: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+14: Test timeout computed to be: 30
+14: RRF-14 PASS; checks=1; property_trials=0; repetitions=0
+14/52 Test #14: unit.rrf.RRF-14 ...........................   Passed    0.05 sec
+test 15
+      Start 15: unit.rrf.RRF-15
+
+15: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-15" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-15.json"
+15: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+15: Test timeout computed to be: 30
+15: RRF-15 PASS; checks=2; property_trials=0; repetitions=0
+15/52 Test #15: unit.rrf.RRF-15 ...........................   Passed    0.05 sec
+test 16
+      Start 16: unit.rrf.RRF-16
+
+16: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-16" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-16.json"
+16: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+16: Test timeout computed to be: 30
+16: RRF-16 PASS; checks=1; property_trials=0; repetitions=0
+16/52 Test #16: unit.rrf.RRF-16 ...........................   Passed    0.05 sec
+test 17
+      Start 17: unit.rrf.RRF-17
+
+17: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-17" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-17.json"
+17: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+17: Test timeout computed to be: 30
+17: RRF-17 PASS; checks=2; property_trials=0; repetitions=0
+17/52 Test #17: unit.rrf.RRF-17 ...........................   Passed    0.05 sec
+test 18
+      Start 18: unit.rrf.RRF-18
+
+18: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-18" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-18.json"
+18: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+18: Test timeout computed to be: 30
+18: RRF-18 PASS; checks=1; property_trials=0; repetitions=0
+18/52 Test #18: unit.rrf.RRF-18 ...........................   Passed    0.06 sec
+test 19
+      Start 19: unit.rrf.RRF-19
+
+19: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-19" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-19.json"
+19: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+19: Test timeout computed to be: 30
+19: RRF-19 PASS; checks=3; property_trials=0; repetitions=0
+19/52 Test #19: unit.rrf.RRF-19 ...........................   Passed    0.05 sec
+test 20
+      Start 20: unit.rrf.RRF-20
+
+20: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-20" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-20.json"
+20: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+20: Test timeout computed to be: 30
+20: RRF-20 PASS; checks=1; property_trials=0; repetitions=0
+20/52 Test #20: unit.rrf.RRF-20 ...........................   Passed    0.05 sec
+test 21
+      Start 21: unit.rrf.RRF-21
+
+21: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-21" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-21.json"
+21: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+21: Test timeout computed to be: 30
+21: RRF-21 PASS; checks=2; property_trials=0; repetitions=50
+21/52 Test #21: unit.rrf.RRF-21 ...........................   Passed    0.05 sec
+test 22
+      Start 22: unit.rrf.RRF-22
+
+22: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "RRF-22" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/RRF-22.json"
+22: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+22: Test timeout computed to be: 30
+22: RRF-22 PASS; checks=1; property_trials=0; repetitions=0
+22/52 Test #22: unit.rrf.RRF-22 ...........................   Passed    0.05 sec
+test 23
+      Start 23: unit.rrf.properties
+
+23: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_tests "properties" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/rrf-evidence/Debug/properties.json"
+23: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+23: Test timeout computed to be: 60
+23: properties PASS; checks=5; property_trials=200; repetitions=0
+23/52 Test #23: unit.rrf.properties .......................   Passed    0.17 sec
+test 24
+      Start 24: integration.rrf_contract
+
+24: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_rrf_contract_tests
+24: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+24: Test timeout computed to be: 30
+24: T10: public core types, explicit VectorId mapping, rank-only fusion and consumer passed.
+24: Contract fixture only: no HNSW/BM25 queries or hybrid QueryEngine executed.
+24/52 Test #24: integration.rrf_contract ..................   Passed    0.25 sec
+test 25
+      Start 25: integration.jsonl_service_compatibility
+
+25: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_jsonl_service_compatibility_tests "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/jsonl-compatibility/Debug"
+25: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+25: Test timeout computed to be: 60
+25: Existing JSONL vector path: both algorithms/metrics and missing-data guards passed.
+25/52 Test #25: integration.jsonl_service_compatibility ...   Passed    0.27 sec
+test 26
+      Start 26: unit.tokenizer
+
+26: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_tokenizer_tests
+26: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+26: Test timeout computed to be: 60
+26: T1: ASCII, technical identifiers, UTF-8 validity and ownership passed.
+26/52 Test #26: unit.tokenizer ............................   Passed    0.22 sec
+test 27
+      Start 27: unit.inverted_index
+
+27: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_inverted_index_tests
+27: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+27: Test timeout computed to be: 60
+27: T2: postings, duplicate rejection, read-only views and full ID range passed.
+27/52 Test #27: unit.inverted_index .......................   Passed    0.24 sec
+test 28
+      Start 28: unit.bm25_statistics
+
+28: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_bm25_statistics_tests
+28: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+28: Test timeout computed to be: 60
+28: T3/T10: N, DF, TF, lengths, avgdl and empty documents passed.
+28/52 Test #28: unit.bm25_statistics ......................   Passed    0.24 sec
+test 29
+      Start 29: unit.bm25_math
+
+29: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_bm25_math_tests
+29: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+29: Test timeout computed to be: 60
+29: T4/T5/T10: independent numerical references, configuration and limits passed.
+29/52 Test #29: unit.bm25_math ............................   Passed    0.23 sec
+test 30
+      Start 30: unit.bm25_search
+
+30: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_bm25_search_tests
+30: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+30: Test timeout computed to be: 60
+30: T6-T10: accumulation, top-k, states and independent full-scan oracle passed.
+30/52 Test #30: unit.bm25_search ..........................   Passed    1.05 sec
+test 31
+      Start 31: unit.bm25_allocation
+
+31: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_bm25_allocation_tests
+31: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+31: Test timeout computed to be: 60
+31: insert allocation failure points=14
+31: build allocation failure points=15
+31: search allocation failure points=6
+31/52 Test #31: unit.bm25_allocation ......................   Passed    0.27 sec
+test 32
+      Start 32: integration.bm25_contract
+
+32: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_bm25_contract_tests
+32: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+32: Test timeout computed to be: 60
+32: T11: public RankedResult contract passed; RRF algorithm not executed.
+32/52 Test #32: integration.bm25_contract .................   Passed    0.23 sec
+test 33
+      Start 33: integration.bm25_corpus_regression
+
+33: Test command: /opt/homebrew/bin/cmake "-DEVALUATOR_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_bm25_evaluate" "-DDATA_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/tests/fixtures/bm25" "-DOUTPUT_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/bm25-regression/Debug" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/bm25_corpus_test.cmake"
+33: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+33: Test timeout computed to be: 120
+33: -- T12 regression: 100 synthetic technical documents, 20 queries; Preliminary BM25: documents=100; vocabulary=325; HitRate@10=20/20; report=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/bm25-regression/Debug. CP-05 certification is separate.
+33: 
+33/52 Test #33: integration.bm25_corpus_regression ........   Passed    0.63 sec
+test 34
+      Start 34: unit.vector_store
+
+34: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_vector_store_tests
+34: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+34: Test timeout computed to be: 30
+34: 1000/1000 embeddings of dimension 128 recovered exactly (seed 42).
+34/52 Test #34: unit.vector_store .........................   Passed    0.26 sec
+test 35
+      Start 35: unit.vector_store_allocation
+
+35: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_vector_store_allocation_tests
+35: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+35: Test timeout computed to be: 30
+35: Rollback verified at 5 allocation points with 0 existing embeddings, metric=0.
+35: Rollback verified at 4 allocation points with 1 existing embeddings, metric=0.
+35: Rollback verified at 5 allocation points with 2 existing embeddings, metric=0.
+35: Rollback verified at 2 allocation points with 13 existing embeddings, metric=0.
+35: Rollback verified at 2 allocation points with 29 existing embeddings, metric=0.
+35: Rollback verified at 5 allocation points with 0 existing embeddings, metric=1.
+35: Rollback verified at 4 allocation points with 1 existing embeddings, metric=1.
+35: Rollback verified at 5 allocation points with 2 existing embeddings, metric=1.
+35: Rollback verified at 2 allocation points with 13 existing embeddings, metric=1.
+35: Rollback verified at 2 allocation points with 29 existing embeddings, metric=1.
+35: CA-2.1 dynamic allocation audit: N=1000, persistent blocks=4, bytes=144616
+35/52 Test #35: unit.vector_store_allocation ..............   Passed    1.68 sec
+test 36
+      Start 36: unit.distance
+
+36: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_distance_tests
+36: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+36: Test timeout computed to be: 30
+36/52 Test #36: unit.distance .............................   Passed    0.24 sec
+test 37
+      Start 37: unit.brute_force
+
+37: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_brute_force_tests
+37: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+37: Test timeout computed to be: 30
+37/52 Test #37: unit.brute_force ..........................   Passed    0.22 sec
+test 38
+      Start 38: unit.optimization_contracts
+
+38: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_optimization_contract_tests
+38: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+38: Test timeout computed to be: 120
+38: CA-1.2: 2016 comparisons; max absolute error=3.57628e-07 (<1e-6); backend=NEON/FMA FP32
+38/52 Test #38: unit.optimization_contracts ...............   Passed    0.51 sec
+test 39
+      Start 39: integration.storage_distance
+
+39: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_storage_distance_tests
+39: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+39: Test timeout computed to be: 30
+39/52 Test #39: integration.storage_distance ..............   Passed    0.24 sec
+test 40
+      Start 40: integration.dense_retrieval
+
+40: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_query_engine_tests
+40: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+40: Test timeout computed to be: 30
+40/52 Test #40: integration.dense_retrieval ...............   Passed    0.26 sec
+test 41
+      Start 41: unit.cli_parser
+
+41: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_cli_parser_tests
+41: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+41: Test timeout computed to be: 30
+41/52 Test #41: unit.cli_parser ...........................   Passed    0.26 sec
+test 42
+      Start 42: integration.search_service
+
+42: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_search_service_tests "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/service-fixtures/Debug"
+42: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+42: Test timeout computed to be: 30
+42/52 Test #42: integration.search_service ................   Passed    0.27 sec
+test 43
+      Start 43: e2e.cli_search
+
+43: Test command: /opt/homebrew/bin/cmake "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/aetherindex" "-DWORK_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/cli-fixtures/Debug" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_search_test.cmake"
+43: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+43: Test timeout computed to be: 60
+43: -- CLI help, exact/HNSW search, both metrics, k, error messages, streams and exit codes passed.
+43/52 Test #43: e2e.cli_search ............................   Passed    2.44 sec
+test 44
+      Start 44: e2e.cli_mvp
+
+44: Test command: /opt/homebrew/bin/cmake "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/aetherindex" "-DGENERATOR_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_cli_fixture_generator" "-DWORK_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/mvp-fixtures/Debug" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_mvp_test.cmake"
+44: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+44: Test timeout computed to be: 60
+44: -- 1000 x 128 embeddings; seed 42; 10/10 distinct CLI Top-10 queries passed with valid, unique, sorted IDs.
+44/52 Test #44: e2e.cli_mvp ...............................   Passed    2.28 sec
+test 45
+      Start 45: unit.hnsw_node
+
+45: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_hnsw_node_tests
+45: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+45: Test timeout computed to be: 120
+45: Level reproduction: nodes=1000 dimensions=3 dataset_seed=123 graph_seed=42
+45: Level 0: 954 nodes
+45: Level 1: 44 nodes
+45: Level 2: 2 nodes
+45/52 Test #45: unit.hnsw_node ............................   Passed    3.31 sec
+test 46
+      Start 46: unit.hnsw_insert
+
+46: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_hnsw_insert_tests
+46: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+46: Test timeout computed to be: 120
+46: Incremental insertion: 100 + 100 nodes; storage reallocation exercised; VALID
+46/52 Test #46: unit.hnsw_insert ..........................   Passed    1.23 sec
+test 47
+      Start 47: unit.hnsw_search
+
+47: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_hnsw_search_tests
+47: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+47: Test timeout computed to be: 120
+47: HNSW search: known cosine 0/0.2/1/2; squared 25; both metrics; edge cases PASS
+47/52 Test #47: unit.hnsw_search ..........................   Passed    0.28 sec
+test 48
+      Start 48: unit.hnsw_graph
+
+48: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_hnsw_graph_tests
+48: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+48: Test timeout computed to be: 120
+48: Graph validation: nodes=250 edges=2274 M=4 M0=8; all invariants VALID before/after queries
+48/52 Test #48: unit.hnsw_graph ...........................   Passed    0.82 sec
+test 49
+      Start 49: integration.hnsw_recall
+
+49: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_hnsw_recall_tests "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/hnsw-recall-Debug.csv"
+49: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+49: Test timeout computed to be: 300
+49: Protocol metric=cosine vectors=1000 dimensions=128 queries=100 k=10 dataset_seed=42 query_seed=424242 graph_seed=42 M=16 M0=32 efConstruction=100 max_level=32 build_ms=5050.426166
+49: Evaluation metric=cosine efSearch=10 mean_recall_at_10=0.687000 mean_query_ms=0.266907 invalid_results=0 crashes=0
+49: Evaluation metric=cosine efSearch=30 mean_recall_at_10=0.923000 mean_query_ms=0.537757 invalid_results=0 crashes=0
+49: Evaluation metric=cosine efSearch=50 mean_recall_at_10=0.983000 mean_query_ms=0.722040 invalid_results=0 crashes=0
+49: Evaluation metric=cosine efSearch=100 mean_recall_at_10=0.999000 mean_query_ms=1.056103 invalid_results=0 crashes=0
+49: Protocol metric=squared-euclidean vectors=1000 dimensions=128 queries=100 k=10 dataset_seed=42 query_seed=424242 graph_seed=42 M=16 M0=32 efConstruction=100 max_level=32 build_ms=5267.210500
+49: Evaluation metric=squared-euclidean efSearch=10 mean_recall_at_10=0.717000 mean_query_ms=0.260042 invalid_results=0 crashes=0
+49: Evaluation metric=squared-euclidean efSearch=30 mean_recall_at_10=0.938000 mean_query_ms=0.523247 invalid_results=0 crashes=0
+49: Evaluation metric=squared-euclidean efSearch=50 mean_recall_at_10=0.985000 mean_query_ms=0.712663 invalid_results=0 crashes=0
+49: Evaluation metric=squared-euclidean efSearch=100 mean_recall_at_10=1.000000 mean_query_ms=1.050434 invalid_results=0 crashes=0
+49: Structural validation before/after: VALID; exact cutoff ties=0; 100 independent queries per metric, 400 measured searches per graph
+49/52 Test #49: integration.hnsw_recall ...................   Passed   12.00 sec
+test 50
+      Start 50: integration.sprint1_okr1
+
+50: Test command: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_sprint1_okr1_tests "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/okr1-Debug"
+50: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+50: Test timeout computed to be: 300
+50: OKR1 protocol v2: normalized cosine, N=1000, D=128, Q=100, k=10; seeds=42/20261014/42
+50: KR1.1: inserted=1000 retrieved=1000 altered=0 compared_components=128000; recovery=100%
+50: KR1.2: incremental=500+500 retained=500 successful_queries=100/100 invalid_queries=0 execution_errors=0 graph_violations=0
+50: KR1.6: matches=987/1000 meanRecall@10=0.987 threshold=0.85 cutoff_ties=0
+50/52 Test #50: integration.sprint1_okr1 ..................   Passed    8.30 sec
+test 51
+      Start 51: e2e.sprint1_okr1
+
+51: Test command: /opt/homebrew/bin/cmake "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/aetherindex" "-DEVIDENCE_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/okr1-Debug" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/sprint1_okr1_test.cmake"
+51: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+51: Test timeout computed to be: 180
+51: -- OKR1 integrated CLI demonstration: both algorithms match the official query-0 rankings/distances; tables, timing and metadata valid.
+51/52 Test #51: e2e.sprint1_okr1 ..........................   Passed    5.50 sec
+test 52
+      Start 52: e2e.cli_hnsw
+
+52: Test command: /opt/homebrew/bin/cmake "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/aetherindex" "-DGENERATOR_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/aether_cli_fixture_generator" "-DWORK_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests/hnsw-cli-fixtures/Debug" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_hnsw_test.cmake"
+52: Working Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp03-sanitizers-final/tests
+52: Test timeout computed to be: 300
+52: -- HNSW CLI: both metrics, full IDs/seed range, validated flags, separate timing, 1000x128 MVP and repeatable result tables passed.
+52/52 Test #52: e2e.cli_hnsw ..............................   Passed   69.39 sec
+
+100% tests passed out of 52
+
+Label Time Summary:
+application      =   0.27 sec*proc (1 test)
+compatibility    =   0.27 sec*proc (1 test)
+contract         =   0.48 sec*proc (2 tests)
+cp02             =   3.11 sec*proc (8 tests)
+cp03             =   1.80 sec*proc (24 tests)
+hybrid           =   1.80 sec*proc (24 tests)
+kr1_4            =   1.37 sec*proc (22 tests)
+lexical          =   3.11 sec*proc (8 tests)
+okr1             =  13.80 sec*proc (2 tests)
+regression       =   0.63 sec*proc (1 test)
+rrf              =   1.80 sec*proc (24 tests)
+sprint1          =  13.80 sec*proc (2 tests)
+
+Total Test time (real) = 114.73 sec

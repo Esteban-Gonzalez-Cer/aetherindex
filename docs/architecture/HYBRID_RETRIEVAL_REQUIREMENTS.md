@@ -11,6 +11,11 @@ que devuelven un ranking vacío. Esas decisiones posteriores sustituyen las
 propuestas de normalización Unicode completa, IDs fuertes y rechazo de vacíos
 de este análisis inicial. RRF y la orquestación híbrida siguen pendientes.
 
+**Actualización del 26 de octubre de 2026:** [CP-03](../algorithms/rrf.md)
+implementa la fusión RRF independiente, con `k_rrf` double positivo y rankings
+documentales. Su contrato sustituye la propuesta inicial de constante entera;
+la orquestación híbrida y las políticas de candidatos siguen en CP-04.
+
 ## 1. Resultado esperado de esta tarjeta
 
 Definir la información y los contratos necesarios para recuperar documentos mediante BM25 y HNSW y combinar ambos rankings. La unidad del resultado final será el **documento**, identificado mediante `DocumentId`.

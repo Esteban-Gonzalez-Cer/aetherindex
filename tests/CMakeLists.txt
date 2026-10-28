@@ -1,3 +1,33 @@
+add_executable(aether_rrf_tests unit/rrf_test.cpp)
+target_link_libraries(aether_rrf_tests PRIVATE aether_hybrid)
+foreach(number RANGE 1 22)
+    if(number LESS 10)
+        set(case_id "RRF-0${number}")
+    else()
+        set(case_id "RRF-${number}")
+    endif()
+    add_test(NAME "unit.rrf.${case_id}"
+        COMMAND aether_rrf_tests "${case_id}"
+            "${CMAKE_CURRENT_BINARY_DIR}/rrf-evidence/$<CONFIG>/${case_id}.json")
+    set_tests_properties("unit.rrf.${case_id}" PROPERTIES TIMEOUT 30 LABELS "hybrid;rrf;cp03;kr1_4")
+endforeach()
+add_test(NAME unit.rrf.properties COMMAND aether_rrf_tests properties
+    "${CMAKE_CURRENT_BINARY_DIR}/rrf-evidence/$<CONFIG>/properties.json")
+set_tests_properties(unit.rrf.properties PROPERTIES TIMEOUT 60 LABELS "hybrid;rrf;cp03")
+
+add_executable(aether_rrf_contract_tests integration/rrf_contract_test.cpp)
+target_link_libraries(aether_rrf_contract_tests PRIVATE aether_hybrid)
+add_test(NAME integration.rrf_contract COMMAND aether_rrf_contract_tests)
+set_tests_properties(integration.rrf_contract PROPERTIES TIMEOUT 30 LABELS "hybrid;rrf;cp03;contract")
+
+add_executable(aether_jsonl_service_compatibility_tests integration/jsonl_service_compatibility_test.cpp)
+target_link_libraries(aether_jsonl_service_compatibility_tests PRIVATE aether_application)
+add_test(NAME integration.jsonl_service_compatibility
+    COMMAND aether_jsonl_service_compatibility_tests
+        "${CMAKE_CURRENT_BINARY_DIR}/jsonl-compatibility/$<CONFIG>")
+set_tests_properties(integration.jsonl_service_compatibility PROPERTIES
+    TIMEOUT 60 LABELS "application;compatibility")
+
 foreach(component tokenizer inverted_index bm25_statistics bm25_math bm25_search bm25_allocation)
     add_executable(aether_${component}_tests unit/${component}_test.cpp)
     target_link_libraries(aether_${component}_tests PRIVATE aether_lexical)

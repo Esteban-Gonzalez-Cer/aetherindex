@@ -1,0 +1,9 @@
+{
+"case_id":"RRF-03",
+"passed":true,
+"error":"",
+"absolute_tolerance":1e-12,
+"property_trials":0,
+"repetitions":0,
+"checks":[{"dense":[101,102,103],"lexical":[103,102,101],"k_rrf":60,"top_k":10,"expected_error":null,"actual_error":null,"expected":[{"document_id":101,"score":0.032266458495966696},{"document_id":103,"score":0.032266458495966696},{"document_id":102,"score":0.032258064516129031}],"actual":[{"document_id":101,"score":0.032266458495966696},{"document_id":103,"score":0.032266458495966696},{"document_id":102,"score":0.032258064516129031}]}]
+}

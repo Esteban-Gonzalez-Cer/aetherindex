@@ -1,0 +1,9 @@
+{
+"case_id":"RRF-08",
+"passed":true,
+"error":"",
+"absolute_tolerance":1e-12,
+"property_trials":0,
+"repetitions":0,
+"checks":[{"dense":[101,102,103],"lexical":[102,104,101],"k_rrf":60,"top_k":1,"expected_error":null,"actual_error":null,"expected":[{"document_id":102,"score":0.03252247488101534}],"actual":[{"document_id":102,"score":0.03252247488101534}]}]
+}
