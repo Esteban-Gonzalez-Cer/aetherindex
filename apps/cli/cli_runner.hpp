@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <iosfwd>
 #include <span>
 #include <string_view>

@@ -61,18 +61,60 @@ void print_neighbors(std::ostream& output, const std::vector<SearchResult>& neig
 }  // namespace
 
 // Agrega el prototipo o la definición completa arriba en cli_runner.cpp:
-void print_ranked_documents(
-    const std::vector<aetherindex::RankedResult>& results,
-    const std::vector<std::string>& document_ids) {
+void print_ranked_documents(std::ostream& output,
+                            const std::vector<aetherindex::RankedResult>& results,
+                            const std::vector<std::string>& document_ids) {
+    using Row = std::array<std::string, 3>;
+    const Row headings{"Rank", "Document ID", "Score"};
+    std::array<std::size_t, 3> widths{headings[0].size(), headings[1].size(), headings[2].size()};
     
-    for (size_t i = 0; i < results.size(); ++i) {
+    std::vector<Row> rows;
+    rows.reserve(results.size());
+
+    for (std::size_t i = 0; i < results.size(); ++i) {
+        // Mapea el DocumentId numérico al ID original en string si está dentro de rango
         std::string doc_id = (results[i].document_id < document_ids.size()) 
             ? document_ids[results[i].document_id] 
             : std::to_string(results[i].document_id);
 
-        std::cout << "Rank " << (i + 1) 
-                  << " | Doc ID: " << doc_id 
-                  << " | Score: " << results[i].score << "\n";
+        // Formateo del puntaje (Score BM25) con precisión fija
+        std::ostringstream score_ss;
+        score_ss.imbue(std::locale::classic());
+        score_ss << std::fixed << std::setprecision(6) << results[i].score;
+
+        rows.push_back({std::to_string(i + 1), std::move(doc_id), score_ss.str()});
+
+        // Actualización dinámica del ancho de columnas
+        for (std::size_t column = 0; column < widths.size(); ++column) {
+            widths[column] = std::max(widths[column], rows.back()[column].size());
+        }
+    }
+
+    // Dibujado de bordes superiores e inferiores de la tabla
+    const auto border = [&] {
+        output << '+';
+        for (const auto width : widths) {
+            output << std::string(width + 2, '-') << '+';
+        }
+        output << '\n';
+    };
+
+    // Formateo de cada fila respetando alineación
+    const auto print_row = [&](const Row& row, bool align_right) {
+        output << '|';
+        for (std::size_t column = 0; column < widths.size(); ++column) {
+            const std::string padding(widths[column] - row[column].size(), ' ');
+            output << ' ' << (align_right ? padding + row[column] : row[column] + padding) << " |";
+        }
+        output << '\n';
+    };
+
+    border();
+    print_row(headings, false); // Encabezados alineados a la izquierda
+    border();
+    for (const auto& row : rows) {
+        print_row(row, true);   // Datos alineados a la derecha
+        border();
     }
 }
 
@@ -138,7 +180,7 @@ int run(std::span<const std::string_view> arguments, std::ostream& output, std::
                       << response.index_build_time.count()
                       << "\nQuery time (ms): " << response.query_time.count() << "\n\n";
 
-            print_ranked_documents(response.ranked_documents, response.ranked_document_ids);
+            print_ranked_documents(std::cout, response.ranked_documents, response.ranked_document_ids);
         } else {
             formatted << "\nQuery time (ms): " << std::fixed << std::setprecision(6)
                       << response.query_time.count() << "\n\n";
@@ -154,64 +196,6 @@ int run(std::span<const std::string_view> arguments, std::ostream& output, std::
     } catch (const std::exception& error) {
         errors << "Error during search: " << error.what() << '\n';
         return 4;
-    }
-}
-
-void print_ranked_documents(std::ostream& output, const std::vector<RankedResult>& results,
-                            const std::vector<std::string>& document_ids) {
-    using Row = std::array<std::string, 3>;
-
-    const Row headings{"Rank", "Document ID", "BM25 Score"};
-    std::array<std::size_t, 3> widths{headings[0].size(), headings[1].size(), headings[2].size()};
-
-    std::vector<Row> rows;
-    rows.reserve(results.size());
-
-    for (std::size_t i = 0; i < results.size(); ++i) {
-        const auto internal_id = static_cast<std::size_t>(results[i].document_id);
-
-        const std::string original_id = internal_id < document_ids.size()
-                                            ? document_ids[internal_id]
-                                            : std::to_string(results[i].document_id);
-
-        std::ostringstream score;
-        score.imbue(std::locale::classic());
-        score << std::fixed << std::setprecision(6) << results[i].score;
-
-        rows.push_back({std::to_string(i + 1), original_id, score.str()});
-
-        for (std::size_t column = 0; column < widths.size(); ++column) {
-            widths[column] = std::max(widths[column], rows.back()[column].size());
-        }
-    }
-
-    const auto border = [&] {
-        output << '+';
-        for (const auto width : widths) {
-            output << std::string(width + 2, '-') << '+';
-        }
-        output << '\n';
-    };
-
-    const auto print_row = [&](const Row& row, bool align_right) {
-        output << '|';
-
-        for (std::size_t column = 0; column < widths.size(); ++column) {
-            const std::string padding(widths[column] - row[column].size(), ' ');
-
-            output << ' ' << (align_right ? padding + row[column] : row[column] + padding) << " |";
-        }
-
-        output << '\n';
-    };
-
-    border();
-    print_row(headings, false);
-    border();
-
-    for (const auto& row : rows) {
-        print_row(row, true);
-        border();
     }
 }
 }  // namespace aetherindex::cli
