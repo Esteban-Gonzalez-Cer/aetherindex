@@ -1,8 +1,7 @@
 {
 	"InstallScripts" : 
 	[
-		"C:/Users/juang/Documents/Escuela/semestre7/gestion_proyectos/aetherIndex/aetherindex/build/cmake_install.cmake",
-		"C:/Users/juang/Documents/Escuela/semestre7/gestion_proyectos/aetherIndex/aetherindex/build/tests/cmake_install.cmake"
+		"/Users/estebangonzalezcervantes/Documents/aetherindex/build/cmake_install.cmake"
 	],
 	"Parallel" : false
 }

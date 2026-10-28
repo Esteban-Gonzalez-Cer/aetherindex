@@ -5,8 +5,6 @@
 #include <filesystem>
 #include <stdexcept>
 #include <vector>
-#include <limits>
-#include <string>
 
 #include "aether/ann/hnsw/hnsw_config.hpp"
 #include "aether/core/search_result.hpp"
@@ -14,11 +12,7 @@
 namespace aetherindex {
 
 // Explicit selection: approximate search never falls back to exact search.
-enum class SearchAlgorithm {
-    BruteForce,
-    Hnsw,
-    Bm25
-};
+enum class SearchAlgorithm { BruteForce, Hnsw };
 
 struct SearchRequest {
     std::filesystem::path dataset_path;
@@ -37,10 +31,6 @@ struct SearchResponse {
     std::chrono::duration<double, std::milli> query_time;
     // HNSW graph construction only; zero for brute force. No CSV or query time included.
     std::chrono::duration<double, std::milli> index_build_time{};
-    
-    //bm25
-    std::vector<RankedResult> ranked_documents;
-    std::vector<std::string> ranked_document_ids;
 };
 
 // A malformed or unreadable input file. Presentation layers choose how to report it.

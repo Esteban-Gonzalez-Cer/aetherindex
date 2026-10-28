@@ -50,7 +50,7 @@ std::pair<std::shared_ptr<VectorStore>, std::vector<DocumentRecord>> load_jsonl_
         throw InputDataError("Could not open JSONL corpus file: " + path);
     }
 
-    std::shared_ptr<VectorStore> store = nullptr;
+    std::shared_ptr<VectorStore> store;
     std::vector<DocumentRecord> docs;
     std::string line;
 
