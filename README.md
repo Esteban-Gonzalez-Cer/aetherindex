@@ -196,7 +196,7 @@ ctest --test-dir build-sprint2 --output-on-failure
 **Optimización posterior al Sprint 2** ([informe y resultados](docs/reports/OPTIMIZATION_ROADMAP.md)):
 formato binario `.avec` y `convert`, construcción HNSW paralela, consultas en lote
 (`--all-queries`), cuantización SQ8/PQ con reordenamiento exacto, estrategias BM25
-comprimidas (`--bm25-strategy taat|wand|bmw`) y filtros por metadatos (`--filter`). Todas son
+comprimidas (`--bm25-strategy taat|wand|bmw|maxscore`) y filtros por metadatos (`--filter`). Todas son
 opcionales: la salida por defecto se mantiene byte a byte (`e2e.cli_golden`). Ver
 [opciones de la CLI](docs/cli.md).
 

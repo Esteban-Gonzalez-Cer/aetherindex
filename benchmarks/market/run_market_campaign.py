@@ -158,6 +158,10 @@ def beir_steps():
            "--strategy", "exhaustive", *freq)
         ir("aether-bm25-english-freq-k1.2", "bm25", "--analyzer", "english-v1", "--strategy",
            "bmw", "--k1", "1.2", "--b", "0.75", *freq)
+        ir("aether-bm25-english-maxscore", "bm25", "--analyzer", "english-v1", "--strategy",
+           "maxscore")
+        ir("aether-bm25-english-freq-maxscore", "bm25", "--analyzer", "english-v1", "--strategy",
+           "maxscore", *freq)
         porter = lucene_index(dataset, "porter", [])
         plain = lucene_index(dataset, "none-keepstop", ["-stemmer", "none", "-keepStopwords"])
         def lucene(name, index, k1, b, stemmer, keep):
@@ -178,6 +182,8 @@ def beir_steps():
         ir("aether-dense-sq8", "dense", "--index", "sq8")
         ir("aether-hybrid", "hybrid", "--analyzer", "english-v1", "--strategy", "bmw")
         ir("aether-hybrid-freq", "hybrid", "--analyzer", "english-v1", "--strategy", "bmw", *freq)
+        ir("aether-hybrid-freq-maxscore", "hybrid", "--analyzer", "english-v1", "--strategy",
+           "maxscore", *freq)
         run(f"beir/{dataset}/reference-hybrid",
             [sys.executable, "-I", "benchmarks/market/fuse_rrf.py", "--dense",
              folder / "exact-dense.run", "--lexical", folder / "lucene-bm25-porter.run",

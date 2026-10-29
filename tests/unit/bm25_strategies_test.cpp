@@ -18,7 +18,7 @@ using namespace aetherindex::lexical;
 namespace {
 
 constexpr Bm25Strategy kStrategies[] = {Bm25Strategy::TermAtATime, Bm25Strategy::Wand,
-                                        Bm25Strategy::BlockMaxWand};
+                                        Bm25Strategy::BlockMaxWand, Bm25Strategy::MaxScore};
 
 // Zipf-like ranks via an explicit inverse transform (portable across libraries).
 std::size_t zipf_rank(std::mt19937_64& engine, std::size_t vocabulary) {
@@ -77,6 +77,13 @@ std::unique_ptr<Bm25Index> build(const std::vector<std::string>& docs, Bm25Confi
 std::size_t compare(const std::vector<std::string>& docs, const std::vector<std::string>& queries,
                     Bm25Config config) {
     const auto reference = build(docs, config, 11);
+    const auto k_for = [](std::size_t q) {
+        return std::array<std::size_t, 5>{1, 5, 10, 100, 1000}[q % 5];
+    };
+    // The exhaustive answers are computed once and shared by every strategy.
+    std::vector<std::vector<RankedResult>> expected(queries.size());
+    for (std::size_t q = 0; q < queries.size(); ++q)
+        expected[q] = reference->search(queries[q], k_for(q));
     std::size_t checked = 0;
     for (auto strategy : kStrategies) {
         auto variant_config = config;
@@ -92,13 +99,11 @@ std::size_t compare(const std::vector<std::string>& docs, const std::vector<std:
                 "Compressed postings are not smaller than raw postings.");
         require(memory.postings == reference->posting_memory().postings, "Posting count differs.");
         for (std::size_t q = 0; q < queries.size(); ++q) {
-            const std::size_t k = std::array<std::size_t, 5>{1, 5, 10, 100, 1000}[q % 5];
-            const auto expected = reference->search(queries[q], k);
-            const auto actual = variant->search(queries[q], k);
-            require(actual.size() == expected.size(), "Strategy returned a different count.");
+            const auto actual = variant->search(queries[q], k_for(q));
+            require(actual.size() == expected[q].size(), "Strategy returned a different count.");
             for (std::size_t i = 0; i < actual.size(); ++i)
-                require(actual[i].document_id == expected[i].document_id &&
-                            actual[i].score == expected[i].score,
+                require(actual[i].document_id == expected[q][i].document_id &&
+                            actual[i].score == expected[q][i].score,
                         "Strategy differs from exhaustive (ID or bitwise score).");
             ++checked;
         }
@@ -137,6 +142,16 @@ int main() {
         for (int r = 0; r < 60; ++r)
             repeated.insert(repeated.end(), tie_queries.begin(), tie_queries.end());
         checked += compare(tie_corpus(), repeated, {});
+        // Long queries (ArguAna-like) span many MaxScore windows and move most terms to the
+        // non-essential side; repeated terms exercise weighted bounds.
+        std::vector<std::string> long_queries(100);
+        for (auto& query : long_queries)
+            for (std::size_t t = 0, n = 20 + engine() % 130; t < n; ++t)
+                query += " w" + std::to_string(zipf_rank(engine, 30000));
+        Bm25Config frequency;
+        frequency.query_weighting = QueryTermWeighting::Frequency;
+        checked += compare(zipf, long_queries, {});
+        checked += compare(zipf, long_queries, frequency);
 
         // Compressed strategies release raw postings but keep statistics.
         Bm25Config wand;

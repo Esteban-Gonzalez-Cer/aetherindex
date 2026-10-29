@@ -123,7 +123,8 @@ void check_lexical() {
             doc += " w" + std::to_string(engine() % (1 + engine() % 400));
     const auto allow = [](DocumentId id) { return id % 7 == 0 || id % 11 == 3; };
     for (auto strategy : {lexical::Bm25Strategy::Exhaustive, lexical::Bm25Strategy::TermAtATime,
-                          lexical::Bm25Strategy::Wand, lexical::Bm25Strategy::BlockMaxWand}) {
+                          lexical::Bm25Strategy::Wand, lexical::Bm25Strategy::BlockMaxWand,
+                          lexical::Bm25Strategy::MaxScore}) {
         lexical::Bm25Index reference, variant({1.2, 0.75, strategy});
         for (std::size_t i = 0; i < docs.size(); ++i) {
             reference.add_document(static_cast<DocumentId>(i), docs[i]);

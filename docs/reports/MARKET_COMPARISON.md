@@ -36,10 +36,12 @@ de reproducirlos están en [`benchmarks/market/`](../../benchmarks/market/README
   AetherIndex responde en 0.08–0.38 ms frente a 0.58–2.38 ms de Qdrant y OpenSearch medidos
   desde el cliente. Esa diferencia incluye la red local y la serialización, así que no es
   una comparación de motores.
-- **Lucene es más rápido que nuestro BM25 en colecciones grandes.** Lucene responde con
-  menor latencia y mayor throughput en FiQA, ArguAna, TREC-COVID y Quora; nosotros ganamos
-  en SciFact y NFCorpus. En ArguAna y TREC-COVID incluso Qdrant, con la red incluida,
-  responde antes que nuestro BM25 con un hilo.
+- **BM25 con MaxScore: a la par de Lucene en consultas largas, todavía detrás en colecciones
+  grandes.** La nueva estrategia `maxscore` reduce la latencia de BMW de 7.90 a 0.54 ms en
+  ArguAna (Lucene 0.55 ms) y de 1.49 a 0.67 ms en TREC-COVID, con los mismos resultados bit a
+  bit. Ganamos en SciFact y NFCorpus y empatamos en ArguAna; Lucene sigue siendo de 1.2 a 1.8
+  veces más rápido con un hilo en FiQA, TREC-COVID y Quora. Ver
+  [Estrategia MaxScore](#estrategia-maxscore).
 
 ## Protocolo de equidad
 
@@ -137,14 +139,17 @@ repite: con `unique` perdemos en ArguAna (0.4062 frente a 0.4780); con `frequenc
 
 Latencia p50 con un hilo y QPS con 10 hilos (k = 10):
 
-| Dataset | AetherIndex BMW | Lucene | bm25s |
-|---|---|---|---|
-| SciFact | **0.064 ms · 102 K** | 0.077 ms · 45 K | 0.125 ms · 10 K |
-| NFCorpus | **0.005 ms · 663 K** | 0.024 ms · 76 K | 0.086 ms · 21 K |
-| FiQA | 0.519 ms · 13.9 K | **0.165 ms · 46.5 K** | 0.458 ms · 6.9 K |
-| ArguAna | 7.901 ms · 0.9 K | 0.553 ms · **15.4 K** | **0.347 ms** · 1.3 K |
-| TREC-COVID | 1.487 ms · 3.0 K | **0.375 ms · 14.1 K** | 1.399 ms · 3.4 K |
-| Quora | 0.339 ms · 17.6 K | **0.205 ms · 40.1 K** | 2.550 ms · 3.1 K |
+| Dataset | AetherIndex BMW | AetherIndex MaxScore | Lucene | bm25s |
+|---|---|---|---|---|
+| SciFact | **0.064 ms** · 102 K | 0.068 ms · **113 K** | 0.077 ms · 45 K | 0.125 ms · 10 K |
+| NFCorpus | **0.005 ms · 663 K** | 0.006 ms · 511 K | 0.024 ms · 76 K | 0.086 ms · 21 K |
+| FiQA | 0.519 ms · 13.9 K | 0.278 ms · 26.8 K | **0.165 ms · 46.5 K** | 0.458 ms · 6.9 K |
+| ArguAna | 7.901 ms · 0.9 K | 0.544 ms · 14.5 K | 0.553 ms · **15.4 K** | **0.347 ms** · 1.3 K |
+| TREC-COVID | 1.487 ms · 3.0 K | 0.667 ms · 9.4 K | **0.375 ms · 14.1 K** | 1.399 ms · 3.4 K |
+| Quora | 0.339 ms · 17.6 K | 0.248 ms · 28.4 K | **0.205 ms · 40.1 K** | 2.550 ms · 3.1 K |
+
+Ambas columnas de AetherIndex usan la ponderación por defecto; con `frequency` las cifras son
+prácticamente iguales (`summary.md`).
 
 Construcción con un hilo: AetherIndex indexa de 1.5 a 6.4 veces más rápido que Lucene
 (TREC-COVID 3.9 s frente a 6.0 s; el tiempo de Lucene incluye el arranque de la JVM y la
@@ -250,20 +255,54 @@ repetidos y k ∈ {1, 10, 100}). El valor por defecto no cambia la salida: los r
 defecto de SciFact, ArguAna y Quora, en BMW y exhaustivo, son idénticos byte a byte a los de
 la primera pasada. La ponderación no cambia la latencia (ArguAna BMW 7.47 ms frente a 7.90 ms).
 
+## Estrategia MaxScore
+
+La primera versión de este informe mostraba que BlockMaxWand, la estrategia léxica más rápida
+hasta entonces, era lenta con consultas largas: 7.9 ms en ArguAna, más que la búsqueda
+exhaustiva (1.3 ms) y que la acumulación término a término (0.28 ms). WAND reordena todos los
+cursores en cada paso; con 93 términos por consulta ese coste domina.
+
+Se añadió `Bm25Strategy::MaxScore` (`--bm25-strategy maxscore`), la poda de disyunciones que
+usa Lucene (Turtle y Flood, 1995), en ventanas de 4,096 ordinales como el
+`MaxScoreBulkScorer` de Lucene:
+
+- en cada ventana, la cota de cada término es la mayor cota de bloque que la solapa;
+- los términos de menor cota cuya suma no alcanza el K-ésimo score son no esenciales: un
+  documento que solo los contiene no puede entrar en el Top-K;
+- los términos esenciales se acumulan en un búfer de la ventana, sin montículo;
+- cada documento tocado consulta los no esenciales, de mayor a menor cota, solo mientras aún
+  puede alcanzar el umbral;
+- los documentos que sobreviven se puntúan sumando sus contribuciones en orden de término,
+  igual que las demás estrategias, así que los scores son idénticos bit a bit.
+
+Una primera versión sin ventanas (montículo de cursores y cotas globales) ya bajaba ArguAna a
+1.0 ms; con ventanas y cotas de bloque baja a 0.48 ms en la medición rápida. Se probaron
+ventanas de 512 a 8,192 documentos y 4,096 fue la mejor o casi la mejor en los cuatro datasets
+grandes.
+
+Verificación: `unit.bm25_strategies` compara 18,960 consultas/estrategias con la ruta
+exhaustiva (incluye consultas de 20 a 150 términos, ambas ponderaciones, k de 1 a 1,000 y
+empates masivos); los filtros, el análisis `english-v1` y la CLI en modo léxico e híbrido
+también se prueban con `maxscore`. En la campaña, los runs BM25 de `maxscore` son idénticos
+byte a byte a los de `bmw` en los 6 datasets y con las dos ponderaciones, y el híbrido con
+`maxscore` es idéntico al run determinista de control (HNSW construido con un hilo).
+
+El híbrido se beneficia igual: con `frequency`, ArguAna pasa de 8.73 a 0.79 ms y TREC-COVID de
+2.22 a 1.29 ms.
+
 ## Dónde perdemos y por qué
 
 1. **Ponderación por defecto en consultas largas.** Sin `--bm25-query-weighting frequency`,
    BM25 pierde 0.079 de nDCG@10 frente a Lucene en ArguAna (ver la sección anterior). El
    valor por defecto se mantiene para no cambiar resultados existentes.
-2. **Latencia léxica en colecciones grandes.** Lucene responde de 1.7 a 4 veces más rápido en
-   FiQA, TREC-COVID y Quora, y su throughput es de 2.3 a 4.7 veces mayor. En ArguAna nuestra
-   BlockMaxWand tarda 7.9 ms, más que nuestra propia búsqueda exhaustiva (1.3 ms): con más
-   de cien términos, el coste de ordenar y recalcular el pivote supera lo que ahorra saltar
-   bloques. Lucene 10 usa MaxScore por bloques, que escala mejor con consultas largas.
-   Además, Qdrant (índice invertido disperso, con la red incluida) responde antes
-   que nuestro BM25 con un hilo en ArguAna (1.91 ms frente a 7.90 ms) y TREC-COVID (0.61 ms frente a
-   1.49 ms), y también sirve más consultas con 10 clientes (5.2 K y 5.8 K QPS frente a 0.9 K
-   y 3.0 K).
+2. **Latencia léxica en colecciones grandes.** Incluso con `maxscore`, Lucene responde de 1.2
+   a 1.8 veces más rápido con un hilo en FiQA, TREC-COVID y Quora, y su throughput con 10
+   hilos es de 1.4 a 1.7 veces mayor. La diferencia que queda está sobre todo en la
+   decodificación de postings: Lucene empaqueta bloques de bits con SIMD y AetherIndex usa
+   varint. En TREC-COVID, Qdrant (con la red incluida) todavía responde algo antes con un hilo
+   (0.61 ms frente a 0.67 ms), aunque nuestro throughput ya es mayor (9.4 K frente a 5.8 K
+   QPS). Con BMW, la estrategia recomendada antes, la diferencia con Lucene era de 1.7 a 14
+   veces.
 3. **Índice léxico más grande.** Nuestros postings comprimidos ocupan de 1.2 a 3.0 veces el
    índice de Lucene.
 4. **GloVe-100 a alto recall.** hnswlib compilado con `-ffast-math` nos supera a Recall@10 ≥
@@ -289,10 +328,12 @@ la primera pasada. La ponderación no cambia la latencia (ArguAna BMW 7.47 ms fr
   provienen del código corregido, salvo GloVe-100, que terminó sin error con el código
   previo; el cambio solo afecta a qué canal se usa. El log de la ejecución abortada se
   conserva en `servers/servers-aborted-wait-bug.log`.
-- La campaña tiene dos pasadas. La primera (`manifest-pass1.json`) produjo todos los
-  resultados salvo los de ponderación por frecuencia; la segunda (`manifest.json`, binario
-  con `QueryTermWeighting`) añadió los runs `*-freq` y sus controles. Antes de la segunda se
-  comprobó que el nuevo binario reproduce byte a byte los runs por defecto de la primera.
+- La campaña tiene tres pasadas. La primera (`manifest-pass1.json`) produjo todos los
+  resultados salvo los de ponderación por frecuencia y MaxScore; la segunda
+  (`manifest-pass2.json`, binario con `QueryTermWeighting`) añadió los runs `*-freq` y sus
+  controles; la tercera (`manifest.json`, binario con `MaxScore`) añadió los runs
+  `*-maxscore`. Antes de cada pasada se comprobó que el nuevo binario reproduce byte a byte
+  los runs por defecto de la primera.
 - Qdrant no se volvió a medir con ponderación por frecuencia; sus vectores dispersos de
   consulta admiten pesos, así que el mismo cambio aplicaría allí. OpenSearch ya pondera por
   repetición (su consulta `match` repite la cláusula de cada término) y por eso coincide con
@@ -315,4 +356,4 @@ python3 benchmarks/market/run_market_campaign.py
 
 Los pasos de datos, Anserini y servidores están en
 [`benchmarks/market/README.md`](../../benchmarks/market/README.md). La campaña en proceso
-tarda unas 3 h 10 min (más unos 20 min de la segunda pasada) y los servidores unos 55 min.
+tarda unas 3 h 10 min (más unos 20 min de la segunda pasada y 3 de la tercera) y los servidores unos 55 min.

@@ -252,9 +252,11 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
                 strategy = lexical::Bm25Strategy::Wand;
             else if (value == "bmw")
                 strategy = lexical::Bm25Strategy::BlockMaxWand;
+            else if (value == "maxscore")
+                strategy = lexical::Bm25Strategy::MaxScore;
             else
                 throw std::invalid_argument(
-                    "Invalid --bm25-strategy: use exhaustive, taat, wand or bmw.");
+                    "Invalid --bm25-strategy: use exhaustive, taat, wand, bmw or maxscore.");
         } else if (name == "--analyzer") {
             if (value == "ascii-tech-v1")
                 options.search.bm25_config.analyzer = lexical::Analyzer::AsciiTechV1;
@@ -391,7 +393,8 @@ std::string_view help_text() {
            "  --k INTEGER          Positive maximum result count (default: 10)\n"
            "  --bm25-k1 NUMBER     BM25 finite positive term saturation (default: 1.2)\n"
            "  --bm25-b NUMBER      BM25 finite length normalization in [0,1] (default: 0.75)\n"
-           "  --bm25-strategy NAME exhaustive (default) | taat | wand | bmw (Block-Max WAND);\n"
+           "  --bm25-strategy NAME exhaustive (default) | taat | wand | bmw (Block-Max WAND) |\n"
+           "                       maxscore;\n"
            "                       identical results, compressed postings except exhaustive\n"
            "  --analyzer NAME      ascii-tech-v1 (default) | english-v1 (Lucene-style English:\n"
            "                       stopwords, possessives, Porter stemming)\n"

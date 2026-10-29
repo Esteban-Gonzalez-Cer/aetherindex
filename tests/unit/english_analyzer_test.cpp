@@ -121,8 +121,8 @@ void check_bm25() {
                     stemmed[i].score == plain[i].score,
                 "Stemmed query differs from its stem.");
     require(reference.search("the a is", 10).empty(), "Stopword-only query matched.");
-    for (auto strategy :
-         {Bm25Strategy::TermAtATime, Bm25Strategy::Wand, Bm25Strategy::BlockMaxWand}) {
+    for (auto strategy : {Bm25Strategy::TermAtATime, Bm25Strategy::Wand,
+                          Bm25Strategy::BlockMaxWand, Bm25Strategy::MaxScore}) {
         Bm25Index variant({1.2, 0.75, strategy, Analyzer::EnglishV1});
         for (std::size_t i = 0; i < docs.size(); ++i)
             variant.add_document(static_cast<DocumentId>(i), docs[i]);
@@ -202,8 +202,8 @@ void check_query_weighting() {
     }
     for (auto weighting : {QueryTermWeighting::Unique, QueryTermWeighting::Frequency}) {
         const auto reference = build(Bm25Strategy::Exhaustive, weighting);
-        for (auto strategy :
-             {Bm25Strategy::TermAtATime, Bm25Strategy::Wand, Bm25Strategy::BlockMaxWand}) {
+        for (auto strategy : {Bm25Strategy::TermAtATime, Bm25Strategy::Wand,
+                              Bm25Strategy::BlockMaxWand, Bm25Strategy::MaxScore}) {
             const auto variant = build(strategy, weighting);
             for (const auto& query : queries)
                 for (std::size_t k : {1, 10, 100})

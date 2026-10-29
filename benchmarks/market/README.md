@@ -22,7 +22,8 @@ Tablas generadas: `evaluation/reports/market/summary.md`.
    y sin stemming frente a `english-v1` y `ascii-tech-v1`; bm25s por defecto y con los
    tokens de `english-v1`; Qdrant con BM25 disperso calculado con la misma fórmula.
    AetherIndex se mide con las dos ponderaciones de consulta (`unique` por defecto y
-   `frequency`, que cuenta los términos repetidos como Lucene y bm25s).
+   `frequency`, que cuenta los términos repetidos como Lucene y bm25s) y con las estrategias
+   `bmw` y `maxscore` (resultados idénticos, distinta velocidad).
 5. Rigor: 5 repeticiones (mediana e IQR), recall contra el ground truth oficial, nDCG@10,
    Recall@100 y MRR@10 con un evaluador propio contrastado con `trec_eval`, y prueba de
    aleatorización pareada por consulta.

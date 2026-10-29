@@ -99,6 +99,8 @@ const char* strategy_name(lexical::Bm25Strategy strategy) {
             return "WAND (compressed)";
         case lexical::Bm25Strategy::BlockMaxWand:
             return "Block-Max WAND (compressed)";
+        case lexical::Bm25Strategy::MaxScore:
+            return "MaxScore (compressed)";
         default:
             return "exhaustive";
     }

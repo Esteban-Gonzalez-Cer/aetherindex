@@ -196,12 +196,13 @@ con ef=128 y a 0.90 con ef=64.
 
 ## Estrategias BM25 a escala (optimización, fase 5)
 
-`--bm25-strategy exhaustive|taat|wand|bmw` (modo léxico o híbrido). Todas devuelven los
-mismos documentos con scores idénticos bit a bit; `unit.bm25_strategies` compara 13,620
-consultas/estrategias contra la ruta exhaustiva, incluyendo empates masivos.
+`--bm25-strategy exhaustive|taat|wand|bmw|maxscore` (modo léxico o híbrido). Todas
+devuelven los mismos documentos con scores idénticos bit a bit; `unit.bm25_strategies`
+compara 18,960 consultas/estrategias contra la ruta exhaustiva, incluyendo empates masivos y
+consultas de hasta 150 términos.
 
 - `exhaustive` (por defecto): la implementación original sobre postings sin comprimir.
-- `taat`, `wand`, `bmw`: ordinales densos por DocumentId, normalización por longitud
+- `taat`, `wand`, `bmw`, `maxscore`: ordinales densos por DocumentId, normalización por longitud
   precalculada y postings comprimidos en bloques de 128 (delta + varint, `tf=1` en un bit),
   con la cota máxima de cada bloque redondeada hacia arriba. Liberan los postings crudos
   (`InvertedIndex::find` deja de estar disponible). En un corpus Zipf de 1.07 millones de
@@ -209,6 +210,13 @@ consultas/estrategias contra la ruta exhaustiva, incluyendo empates masivos.
 - `wand`/`bmw` omiten documentos o bloques cuya cota (inflada en 1e-9 para que el redondeo
   nunca pode un resultado válido) no alcanza el K-ésimo score; un empate con el umbral
   siempre se evalúa, así que el desempate por DocumentId no cambia.
+- `maxscore` recorre la colección en ventanas de 4,096 ordinales, como el
+  `MaxScoreBulkScorer` de Lucene. En cada ventana, la cota de cada término es la mayor cota de
+  bloque que la solapa; los términos cuya suma de cotas no alcanza el umbral son no
+  esenciales. Los esenciales se acumulan término a término y los no esenciales solo se
+  consultan mientras el documento aún puede entrar en el Top-K. No reordena cursores en cada
+  paso, así que es la estrategia recomendada para consultas largas: en ArguAna (93 términos
+  por consulta) responde en 0.48 ms frente a 7.5 ms de `bmw`.
 
 ## Analizador inglés `english-v1` (comparación con el mercado)
 

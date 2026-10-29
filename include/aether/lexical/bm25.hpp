@@ -100,6 +100,8 @@ class Bm25Index {
                                                     std::size_t k, const Allow& allow) const;
     std::vector<RankedResult> search_wand(const std::vector<QueryTerm>& terms, std::size_t k,
                                           bool block_max, const Allow& allow) const;
+    std::vector<RankedResult> search_maxscore(const std::vector<QueryTerm>& terms, std::size_t k,
+                                              const Allow& allow) const;
 
     const Bm25Config config_;
     InvertedIndex index_;

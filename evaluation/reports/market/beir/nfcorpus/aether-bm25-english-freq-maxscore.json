@@ -1,0 +1,23 @@
+{
+  "system": "aetherindex-bm25",
+  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/nfcorpus",
+  "documents": 3633,
+  "queries": 323,
+  "build_type": "Release (NDEBUG)",
+  "bm25": {"k1": 0.9, "b": 0.4, "analyzer": "english-v1", "strategy": "maxscore", "query_weighting": "frequency", "build_seconds_single_thread": 0.123068083, "postings_raw_bytes": 3656040, "postings_compressed_bytes": 2423723},
+  "memory_mib": 25.9375687,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50,
+  "latency_queries": 323,
+  "repetitions": 5,
+  "lat_p50_ms": 0.005875,
+  "lat_p95_ms": 0.052791,
+  "lat_p99_ms": 0.068125,
+  "lat_mean_ms": 0.0130931238,
+  "qps_single": 76375.9674,
+  "threads": 10,
+  "qps_batch": 469676.083,
+  "qps_batch_q1": 466145.296,
+  "qps_batch_q3": 479050.797
+}

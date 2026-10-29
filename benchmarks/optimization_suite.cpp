@@ -135,6 +135,7 @@ Options parse(int argc, char** argv) {
             o.bm25_strategy = value == "taat"   ? lexical::Bm25Strategy::TermAtATime
                               : value == "wand" ? lexical::Bm25Strategy::Wand
                               : value == "bmw"  ? lexical::Bm25Strategy::BlockMaxWand
+                              : value == "maxscore" ? lexical::Bm25Strategy::MaxScore
                                                 : lexical::Bm25Strategy::Exhaustive;
         } else {
             throw std::invalid_argument("Unknown option " + flag);

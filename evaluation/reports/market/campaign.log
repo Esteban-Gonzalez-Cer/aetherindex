@@ -461,3 +461,40 @@
 [11:02:04] start beir/quora/aether-hybrid-freq
 [11:03:12] done  beir/quora/aether-hybrid-freq (68 s)
 [11:03:12] campaign finished
+[15:42:29] start beir/scifact/aether-bm25-english-maxscore
+[15:42:29] done  beir/scifact/aether-bm25-english-maxscore (0 s)
+[15:42:29] start beir/scifact/aether-bm25-english-freq-maxscore
+[15:42:30] done  beir/scifact/aether-bm25-english-freq-maxscore (0 s)
+[15:42:30] start beir/scifact/aether-hybrid-freq-maxscore
+[15:42:31] done  beir/scifact/aether-hybrid-freq-maxscore (1 s)
+[15:42:31] start beir/nfcorpus/aether-bm25-english-maxscore
+[15:42:31] done  beir/nfcorpus/aether-bm25-english-maxscore (0 s)
+[15:42:31] start beir/nfcorpus/aether-bm25-english-freq-maxscore
+[15:42:31] done  beir/nfcorpus/aether-bm25-english-freq-maxscore (0 s)
+[15:42:31] start beir/nfcorpus/aether-hybrid-freq-maxscore
+[15:42:32] done  beir/nfcorpus/aether-hybrid-freq-maxscore (1 s)
+[15:42:32] start beir/fiqa/aether-bm25-english-maxscore
+[15:42:34] done  beir/fiqa/aether-bm25-english-maxscore (3 s)
+[15:42:34] start beir/fiqa/aether-bm25-english-freq-maxscore
+[15:42:37] done  beir/fiqa/aether-bm25-english-freq-maxscore (3 s)
+[15:42:37] start beir/fiqa/aether-hybrid-freq-maxscore
+[15:42:47] done  beir/fiqa/aether-hybrid-freq-maxscore (10 s)
+[15:42:47] start beir/arguana/aether-bm25-english-maxscore
+[15:42:51] done  beir/arguana/aether-bm25-english-maxscore (4 s)
+[15:42:51] start beir/arguana/aether-bm25-english-freq-maxscore
+[15:42:55] done  beir/arguana/aether-bm25-english-freq-maxscore (4 s)
+[15:42:55] start beir/arguana/aether-hybrid-freq-maxscore
+[15:43:02] done  beir/arguana/aether-hybrid-freq-maxscore (7 s)
+[15:43:02] start beir/trec-covid/aether-bm25-english-maxscore
+[15:43:08] done  beir/trec-covid/aether-bm25-english-maxscore (6 s)
+[15:43:08] start beir/trec-covid/aether-bm25-english-freq-maxscore
+[15:43:13] done  beir/trec-covid/aether-bm25-english-freq-maxscore (5 s)
+[15:43:13] start beir/trec-covid/aether-hybrid-freq-maxscore
+[15:43:32] done  beir/trec-covid/aether-hybrid-freq-maxscore (19 s)
+[15:43:32] start beir/quora/aether-bm25-english-maxscore
+[15:43:39] done  beir/quora/aether-bm25-english-maxscore (7 s)
+[15:43:39] start beir/quora/aether-bm25-english-freq-maxscore
+[15:43:46] done  beir/quora/aether-bm25-english-freq-maxscore (7 s)
+[15:43:46] start beir/quora/aether-hybrid-freq-maxscore
+[15:44:56] done  beir/quora/aether-hybrid-freq-maxscore (70 s)
+[15:44:56] campaign finished

@@ -3,7 +3,7 @@
 // BEIR document ids, plus build time, memory and query latency.
 //
 //   aether_ir_compare bm25   --data DIR --out PREFIX [--analyzer english-v1]
-//                            [--strategy bmw] [--k1 0.9] [--b 0.4]
+//                            [--strategy bmw|maxscore|...] [--k1 0.9] [--b 0.4]
 //                            [--query-weighting unique|frequency]
 //   aether_ir_compare dense  --data DIR --out PREFIX [--index hnsw|exact|sq8] [--M 16]
 //                            [--ef-construction 200] [--ef 128]
@@ -60,6 +60,7 @@ lexical::Bm25Strategy parse_strategy(const std::string& name) {
     if (name == "taat") return lexical::Bm25Strategy::TermAtATime;
     if (name == "wand") return lexical::Bm25Strategy::Wand;
     if (name == "bmw") return lexical::Bm25Strategy::BlockMaxWand;
+    if (name == "maxscore") return lexical::Bm25Strategy::MaxScore;
     throw std::invalid_argument("Unknown --strategy " + name);
 }
 

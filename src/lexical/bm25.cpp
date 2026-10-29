@@ -21,6 +21,7 @@ void validate_bm25_config(const Bm25Config& config) {
         case Bm25Strategy::TermAtATime:
         case Bm25Strategy::Wand:
         case Bm25Strategy::BlockMaxWand:
+        case Bm25Strategy::MaxScore:
             break;
         default:
             throw std::invalid_argument("Unsupported BM25 strategy.");
@@ -203,6 +204,16 @@ class Bm25Index::Cursor {
                    ? weight_ * static_cast<double>(term_->blocks[shallow_].max_score)
                    : 0.0;
     }
+    // Largest weighted block bound over documents [first, last]; first >= doc().
+    double range_max(std::uint32_t first, std::uint32_t last) {
+        block_max(first);  // Positions shallow_ at the block holding first.
+        double best = 0.0;
+        for (std::size_t b = shallow_; b < term_->blocks.size(); ++b) {
+            best = std::max(best, static_cast<double>(term_->blocks[b].max_score));
+            if (term_->blocks[b].last >= last) break;
+        }
+        return weight_ * best;
+    }
     std::uint32_t block_last() const noexcept {
         return shallow_ < term_->blocks.size() ? term_->blocks[shallow_].last : kEnd;
     }
@@ -328,6 +339,8 @@ std::vector<RankedResult> Bm25Index::search(std::string_view query, std::size_t 
             return search_wand(terms, k, false, allow);
         case Bm25Strategy::BlockMaxWand:
             return search_wand(terms, k, true, allow);
+        case Bm25Strategy::MaxScore:
+            return search_maxscore(terms, k, allow);
     }
     throw std::logic_error("Unsupported BM25 strategy.");
 }
@@ -479,6 +492,118 @@ std::vector<RankedResult> Bm25Index::search_wand(const std::vector<QueryTerm>& t
             for (std::size_t i = 1; i < pivot && order[i]->doc() != pivot_doc; ++i)
                 if (order[i]->upper_bound() > order[widest]->upper_bound()) widest = i;
             order[widest]->next_geq(pivot_doc);
+        }
+    }
+    return std::move(top).sorted();
+}
+
+// Rank-safe MaxScore (Turtle and Flood 1995) over windows of document ordinals, as in
+// Lucene's MaxScoreBulkScorer. For each window, every list's bound is the largest block
+// bound overlapping it; the longest prefix of lists (by ascending bound) whose summed
+// bounds stay (slack-inflated) strictly below the K-th score is non-essential, since a
+// document matching only those lists cannot enter the Top-K. Essential lists are
+// accumulated term-at-a-time into the window; each touched document then probes the
+// non-essential lists from the largest bound down only while it can still reach the
+// threshold. Partial sums (any order) drive pruning only: survivors are scored by summing
+// their contributions in term (rank) order, so scores are bitwise identical to the other
+// strategies, and documents tying the threshold are always scored.
+std::vector<RankedResult> Bm25Index::search_maxscore(const std::vector<QueryTerm>& terms,
+                                                     std::size_t k, const Allow& allow) const {
+    constexpr std::uint32_t kWindow = 4096;
+    constexpr std::uint32_t kNone = std::numeric_limits<std::uint32_t>::max();
+    struct Entry {
+        std::uint32_t next;  // Previous entry of the same document, or kNone.
+        std::uint32_t rank;
+        double value;
+    };
+    thread_local std::vector<double> partial;
+    thread_local std::vector<std::uint32_t> head;
+    thread_local std::vector<std::uint32_t> touched;
+    thread_local std::vector<Entry> pool;
+    if (partial.size() < kWindow) {
+        partial.assign(kWindow, 0.0);
+        head.assign(kWindow, kNone);
+    }
+    std::vector<Cursor> cursors;
+    cursors.reserve(terms.size());
+    for (std::size_t rank = 0; rank < terms.size(); ++rank) {
+        const auto found = layout_.find(terms[rank].text);
+        if (found != layout_.end()) cursors.emplace_back(found->second, rank, terms[rank].weight);
+    }
+    const auto contribution = [&](const Cursor& cursor, std::uint32_t d) {
+        return cursor.weight() *
+               detail::bm25_score_from_norm(cursor.tf(), length_norm_[d], cursor.idf(), config_);
+    };
+    TopK top(k);
+    std::vector<std::pair<double, Cursor*>> lists;  // (window bound, cursor), ascending.
+    std::vector<double> prefix;                     // Summed window bounds of lists[0..i].
+    std::vector<std::pair<std::size_t, double>> contributions;
+    std::uint32_t lo = kEnd;
+    for (const auto& cursor : cursors) lo = std::min(lo, cursor.doc());
+    while (lo != kEnd) {
+        const std::uint32_t hi = lo >= kEnd - kWindow ? kEnd : lo + kWindow;  // Exclusive.
+        lists.clear();
+        for (auto& cursor : cursors)
+            if (cursor.doc() < hi) lists.emplace_back(cursor.range_max(cursor.doc(), hi - 1), &cursor);
+        std::sort(lists.begin(), lists.end(), [](const auto& a, const auto& b) {
+            return a.first != b.first ? a.first < b.first : a.second->rank() < b.second->rank();
+        });
+        prefix.resize(lists.size());
+        for (std::size_t i = 0; i < lists.size(); ++i)
+            prefix[i] = (i == 0 ? 0.0 : prefix[i - 1]) + lists[i].first;
+        std::size_t essential = 0;
+        if (top.full())
+            while (essential < lists.size() && prefix[essential] * kBoundSlack < top.threshold())
+                ++essential;
+
+        touched.clear();
+        pool.clear();
+        for (std::size_t i = essential; i < lists.size(); ++i) {
+            Cursor& cursor = *lists[i].second;
+            for (; cursor.doc() < hi; cursor.next()) {
+                const std::uint32_t slot = cursor.doc() - lo;
+                const double value = contribution(cursor, cursor.doc());
+                if (head[slot] == kNone) touched.push_back(slot);
+                pool.push_back({head[slot], static_cast<std::uint32_t>(cursor.rank()), value});
+                head[slot] = static_cast<std::uint32_t>(pool.size() - 1);
+                partial[slot] += value;
+            }
+        }
+        std::sort(touched.begin(), touched.end());
+        for (const std::uint32_t slot : touched) {
+            const std::uint32_t d = lo + slot;
+            double sum = partial[slot];
+            std::uint32_t chain = head[slot];
+            partial[slot] = 0.0;
+            head[slot] = kNone;
+            if (allow && !allow(document_ids_[d])) continue;
+            contributions.clear();
+            bool pruned = false;
+            for (std::size_t i = essential; i-- > 0;) {
+                if (top.full() && (sum + prefix[i]) * kBoundSlack < top.threshold()) {
+                    pruned = true;
+                    break;
+                }
+                Cursor& cursor = *lists[i].second;
+                cursor.next_geq(d);
+                if (cursor.doc() != d) continue;
+                const double value = contribution(cursor, d);
+                contributions.emplace_back(cursor.rank(), value);
+                sum += value;
+            }
+            if (pruned || (top.full() && sum * kBoundSlack < top.threshold())) continue;
+            for (; chain != kNone; chain = pool[chain].next)
+                contributions.emplace_back(pool[chain].rank, pool[chain].value);
+            std::sort(contributions.begin(), contributions.end());
+            double score = 0.0;
+            for (const auto& [rank, value] : contributions) score += value;
+            if (!std::isfinite(score)) throw std::overflow_error("BM25 accumulated score overflow.");
+            top.offer({document_ids_[d], score});
+        }
+        lo = kEnd;
+        for (auto& cursor : cursors) {
+            cursor.next_geq(hi);
+            lo = std::min(lo, cursor.doc());
         }
     }
     return std::move(top).sorted();

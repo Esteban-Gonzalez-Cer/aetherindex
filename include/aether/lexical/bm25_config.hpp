@@ -12,7 +12,10 @@ namespace aetherindex::lexical {
 //   Wand         document-at-a-time, skipping documents whose term bounds cannot
 //                reach the current Top-K threshold.
 //   BlockMaxWand Wand plus per-block bounds that skip whole blocks.
-enum class Bm25Strategy { Exhaustive, TermAtATime, Wand, BlockMaxWand };
+//   MaxScore     document-at-a-time over the terms whose bounds can reach the threshold;
+//                the others are probed only while a candidate can still reach it. Never
+//                re-sorts cursors, so it stays fast on long queries.
+enum class Bm25Strategy { Exhaustive, TermAtATime, Wand, BlockMaxWand, MaxScore };
 
 // How a term repeated in the analyzed query counts.
 //   Unique     each distinct term contributes once (the default).
