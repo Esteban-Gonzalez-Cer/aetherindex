@@ -178,10 +178,143 @@ void checkInvalidOptions() {
         "efConstruction must be at least M.");
 }
 
+void checkLexicalOptions() {
+    const auto defaults = parse({"search", "--dataset", "corpus.jsonl", "--query", "queries.jsonl",
+                                 "--query-id", "Q002", "--algorithm", "bm25"});
+    require(defaults.search.mode == SearchMode::Lexical && defaults.search.query_id == "Q002" &&
+                defaults.search.bm25_config.k1 == 1.2 && defaults.search.bm25_config.b == 0.75,
+            "BM25 shorthand must select lexical mode and preserve query/configuration.");
+    const auto literal = parse({"search", "--mode", "lexical", "--dataset", "corpus.jsonl",
+                                "--query-text", "", "--bm25-k1", "2.5", "--bm25-b", "0"});
+    require(literal.search.query_text && literal.search.query_text->empty() &&
+                literal.search.bm25_config.k1 == 2.5 && literal.search.bm25_config.b == 0,
+            "Lexical mode requires no vector algorithm and accepts empty queries and b=0.");
+    const std::vector<std::vector<std::string_view>> invalid = {
+        {"--mode", "vector"},
+        {"--mode", "hybrid"},
+        {"--metric", "cosine"},
+        {"--m", "16"},
+        {"--ef-search", "50"},
+        {"--seed", "42"},
+        {"--neighbor-selection", "heuristic"},
+        {"--query", "queries.jsonl"},
+        {"--query-id", "Q001"},
+        {"--bm25-k1", "0"},
+        {"--bm25-k1", "-1"},
+        {"--bm25-b", "-0.1"},
+        {"--bm25-b", "1.1"},
+        {"--bm25-k1", "1", "--bm25-k1", "2"},
+        {"--mode", "lexical", "--mode", "lexical"},
+        {"--bm25-b", "0", "--bm25-b", "1"},
+        {"--query-id", "Q1", "--query-id", "Q2"},
+    };
+    for (const auto& suffix : invalid) {
+        std::vector<std::string_view> arguments = {
+            "search", "--algorithm", "bm25", "--dataset", "missing.jsonl", "--query-text", "radio"};
+        arguments.insert(arguments.end(), suffix.begin(), suffix.end());
+        requireInvalidArgument(
+            [&] { static_cast<void>(parse_arguments(arguments)); },
+            "Inapplicable, conflicting or repeated lexical flags were accepted.");
+    }
+    for (const auto flag : {"--bm25-k1", "--bm25-b"}) {
+        for (const auto value : {"nan", "inf", "-inf", "1junk", "1e999", "1,2", ""}) {
+            requireInvalidArgument(
+                [&] {
+                    parse({"search", "--algorithm", "bm25", "--dataset", "missing.jsonl",
+                           "--query-text", "radio", flag, value});
+                },
+                "Invalid/nonfinite BM25 numeric argument was accepted.");
+        }
+        requireInvalidArgument(
+            [&] {
+                parse({"search", "--algorithm", "brute-force", "--dataset", "data.csv", "--query",
+                       "query.csv", flag, "1"});
+            },
+            "BM25-only flags must not be ignored by vector search.");
+    }
+    for (const auto algorithm : {"brute-force", "hnsw"}) {
+        requireInvalidArgument(
+            [&] {
+                parse({"search", "--mode", "lexical", "--algorithm", algorithm, "--dataset",
+                       "missing.jsonl", "--query-text", "radio"});
+            },
+            "A vector algorithm must not silently run as BM25.");
+    }
+    requireInvalidArgument(
+        [&] {
+            parse({"search", "--algorithm", "brute-force", "--dataset", "data.csv", "--query",
+                   "query.csv", "--query-id", "Q1"});
+        },
+        "Query selectors require JSONL.");
+}
+
+void checkHybridOptions() {
+    const auto defaults = parse({"search", "--mode", "hybrid", "--dataset", "corpus.jsonl",
+                                 "--query", "queries.jsonl", "--query-id", "Q001"});
+    require(defaults.search.mode == SearchMode::Hybrid &&
+                defaults.search.algorithm == SearchAlgorithm::Hnsw &&
+                !defaults.search.candidate_k && defaults.search.rrf_config.k_rrf == 60.0 &&
+                effective_candidate_k(defaults.search) == 50,
+            "Hybrid defaults must be HNSW + BM25 + RRF(k=60) with max(k,50) candidates.");
+    const auto large_k = parse({"search", "--mode", "hybrid", "--dataset", "corpus.jsonl",
+                                "--query", "queries.jsonl", "--k", "80"});
+    require(effective_candidate_k(large_k.search) == 80, "Default candidates must cover k.");
+    const auto custom = parse({"search", "--mode", "hybrid", "--algorithm", "hnsw", "--dataset",
+                               "corpus.jsonl", "--query", "queries.jsonl", "--k", "5",
+                               "--candidate-k", "20", "--rrf-k", "10.5", "--ef-search", "64",
+                               "--bm25-k1", "1.5", "--bm25-b", "0.5", "--metric",
+                               "squared-euclidean"});
+    require(custom.search.candidate_k == 20 && custom.search.rrf_config.k_rrf == 10.5 &&
+                custom.search.hnsw_config.ef_search == 64 && custom.search.bm25_config.k1 == 1.5 &&
+                custom.search.bm25_config.b == 0.5 &&
+                custom.search.metric == DistanceKind::SquaredEuclidean,
+            "Hybrid must accept HNSW, BM25, metric and fusion parameters.");
+    const std::vector<std::vector<std::string_view>> invalid = {
+        {"--algorithm", "brute-force"},
+        {"--algorithm", "bm25"},
+        {"--candidate-k", "4", "--k", "5"},
+        {"--candidate-k", "0"},
+        {"--rrf-k", "0"},
+        {"--rrf-k", "-1"},
+        {"--rrf-k", "nan"},
+        {"--rrf-k", "1", "--rrf-k", "2"},
+        {"--query-text", "motor"},
+    };
+    for (const auto& suffix : invalid) {
+        std::vector<std::string_view> arguments = {"search", "--mode", "hybrid", "--dataset",
+                                                   "corpus.jsonl", "--query", "queries.jsonl"};
+        arguments.insert(arguments.end(), suffix.begin(), suffix.end());
+        requireInvalidArgument([&] { static_cast<void>(parse_arguments(arguments)); },
+                               "Invalid or conflicting hybrid flags were accepted.");
+    }
+    for (const auto flag : {"--candidate-k", "--rrf-k"}) {
+        requireInvalidArgument(
+            [&] {
+                parse({"search", "--algorithm", "hnsw", "--dataset", "data.csv", "--query",
+                       "query.csv", flag, "10"});
+            },
+            "Fusion flags must not be ignored by vector search.");
+        requireInvalidArgument(
+            [&] {
+                parse({"search", "--algorithm", "bm25", "--dataset", "corpus.jsonl",
+                       "--query-text", "radio", flag, "10"});
+            },
+            "Fusion flags must not be ignored by lexical search.");
+    }
+    requireInvalidArgument(
+        [&] {
+            parse({"search", "--mode", "hybrid", "--dataset", "data.csv", "--query",
+                   "query.csv"});
+        },
+        "Hybrid requires JSONL documents and queries.");
+}
+
 int main() {
     try {
         checkValidOptions();
         checkInvalidOptions();
+        checkLexicalOptions();
+        checkHybridOptions();
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

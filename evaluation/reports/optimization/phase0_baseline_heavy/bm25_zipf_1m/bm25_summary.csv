@@ -1,0 +1,2 @@
+rep,documents,build_ms,rss_mib,mean_ms,p50_ms,p95_ms,p99_ms,max_ms,qps,mean_results,strategy,postings,raw_posting_bytes,compressed_posting_bytes
+1,1000000,19745.5648,2840.04688,21.9382701,13.100333,85.618167,107.346958,127.244042,45.5824455,10,0,79031748,637053984,0

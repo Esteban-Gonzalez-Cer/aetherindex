@@ -194,6 +194,12 @@ void checkPersistentGraphAllocations() {
         require(store.insert(id * 7, values) == InsertStatus::Success,
                 "Allocation graph fixture failed.");
     }
+    // Traversals reuse a thread-local visited workspace (not graph topology) sized to the
+    // largest index seen. Warm it first so the audit counts only graph-owned blocks.
+    {
+        HnswIndex warmup(store);
+        for (VectorId id : store.ids()) warmup.insert(id);
+    }
     trace_graph = true;
     {
         HnswIndex index(store);

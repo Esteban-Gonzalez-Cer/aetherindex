@@ -48,6 +48,13 @@ class VectorStore {
     const float* data_by_position(std::size_t position) const noexcept;
     void reserve(std::size_t count);
 
+    // Frees the FP32 rows while keeping IDs, positions, dimension and metric, so a
+    // quantized copy can serve searches with less memory. Afterwards insert(), reserve()
+    // and find() throw logic_error, and data_by_position() must not be called; callers
+    // check has_rows() first. Irreversible.
+    void release_rows();
+    bool has_rows() const noexcept { return !rows_released_; }
+
    private:
     const std::size_t dimension_;
     const std::size_t stride_;
@@ -55,6 +62,7 @@ class VectorStore {
     AlignedVector<EmbeddingValue> data_;
     std::vector<VectorId> ids_;
     std::unordered_map<VectorId, std::size_t> positions_;
+    bool rows_released_ = false;
 };
 
 }  // namespace aetherindex

@@ -18,6 +18,7 @@ VectorStore::VectorStore(std::size_t dimension, DistanceKind metric)
 }
 
 InsertStatus VectorStore::insert(VectorId id, std::span<const EmbeddingValue> embedding) {
+    if (rows_released_) throw std::logic_error("VectorStore rows were released.");
     if (embedding.size() != dimension_) {
         return InsertStatus::DimensionMismatch;
     }
@@ -58,6 +59,7 @@ InsertStatus VectorStore::insert(VectorId id, std::span<const EmbeddingValue> em
 }
 
 std::optional<std::span<const EmbeddingValue>> VectorStore::find(VectorId id) const {
+    if (rows_released_) throw std::logic_error("VectorStore rows were released.");
     const auto position = positions_.find(id);
     if (position == positions_.end()) {
         return std::nullopt;
@@ -86,7 +88,13 @@ const float* VectorStore::data_by_position(std::size_t position) const noexcept 
     return data_.data() + position * stride_;
 }
 
+void VectorStore::release_rows() {
+    AlignedVector<EmbeddingValue>().swap(data_);
+    rows_released_ = true;
+}
+
 void VectorStore::reserve(std::size_t count) {
+    if (rows_released_) throw std::logic_error("VectorStore rows were released.");
     if (count > data_.max_size() / stride_)
         throw std::length_error("VectorStore capacity overflow.");
     data_.reserve(count * stride_);

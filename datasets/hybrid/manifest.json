@@ -1,0 +1,17 @@
+{
+  "profile": "aether-hash-trigram-v1",
+  "dimension": 128,
+  "metric": "cosine",
+  "generator": "scripts/generate_hashing_embeddings.py",
+  "semantic_model": false,
+  "documents": 30,
+  "queries": 24,
+  "source_sha256": {
+    "corpus.jsonl": "c1f2575fc36b496bf1539571f2b4af15674fe1d87ce17676a2a8474429cde684",
+    "queries.jsonl": "e7f52c48012ce909af5d208effd031c923b06da9c4d09b15fbfa71cb9281c898"
+  },
+  "output_sha256": {
+    "corpus.jsonl": "13b55af25416d3902cb27c787981de7d514546b71f36766b55d2872e999d219b",
+    "queries.jsonl": "d8e9160c3ac78c3f702e64109a1def5e148909a7d4bfcec375c909631a6687b7"
+  }
+}

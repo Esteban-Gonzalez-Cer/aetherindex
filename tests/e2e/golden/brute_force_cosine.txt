@@ -1,0 +1,19 @@
+AetherIndex Search
+
+Algorithm: BruteForce
+Distance metric: Cosine
+Vectors indexed: 4
+Dimensions: 2
+Requested K: 2
+Results returned: 2
+Query time scope: search only (excludes input loading)
+
++------+-----------+-------------+
+| Rank | Vector ID | Distance    |
++------+-----------+-------------+
+|    1 |        10 | 0.000000000 |
++------+-----------+-------------+
+|    2 |        40 | 0.199999988 |
++------+-----------+-------------+
+
+Search completed successfully.

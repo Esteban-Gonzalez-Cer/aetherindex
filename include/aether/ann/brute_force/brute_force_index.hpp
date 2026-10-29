@@ -21,4 +21,10 @@ std::vector<SearchResult> bruteForceSearch(const VectorStore& database,
 std::vector<SearchResult> bruteForceSearchPrepared(const VectorStore& database,
                                                    const PreparedQuery& query, std::size_t k);
 
+// Exact Top-k restricted to `candidates` (VectorIds present in the store; IDs absent
+// from the store are ignored, duplicates are not). Same ordering rules as above.
+std::vector<SearchResult> bruteForceSearchSubset(const VectorStore& database,
+                                                 const PreparedQuery& query, std::size_t k,
+                                                 std::span<const VectorId> candidates);
+
 }  // namespace aetherindex

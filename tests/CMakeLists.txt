@@ -1,3 +1,56 @@
+add_executable(aether_json_value_tests unit/json_value_test.cpp)
+target_link_libraries(aether_json_value_tests PRIVATE aether_application)
+add_test(NAME unit.json_value COMMAND aether_json_value_tests)
+set_tests_properties(unit.json_value PROPERTIES TIMEOUT 30 LABELS "application;jsonl;bm25-cli")
+
+add_executable(aether_lexical_service_tests integration/lexical_service_test.cpp)
+target_link_libraries(aether_lexical_service_tests PRIVATE aether_application)
+add_test(NAME integration.lexical_service COMMAND aether_lexical_service_tests
+    "${CMAKE_CURRENT_BINARY_DIR}/lexical-service/$<CONFIG>")
+set_tests_properties(integration.lexical_service PROPERTIES TIMEOUT 60 LABELS "application;lexical;bm25-cli")
+
+add_test(NAME e2e.cli_bm25 COMMAND "${CMAKE_COMMAND}"
+    "-DCLI_PATH=$<TARGET_FILE:aetherindex>"
+    "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/bm25-cli/$<CONFIG>"
+    "-DCORPUS_DIR=${PROJECT_SOURCE_DIR}/datasets"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_bm25_test.cmake")
+set_tests_properties(e2e.cli_bm25 PROPERTIES TIMEOUT 120 LABELS "application;lexical;bm25-cli")
+
+add_executable(aether_bm25_cli_corpus_tests integration/bm25_cli_corpus_test.cpp)
+target_link_libraries(aether_bm25_cli_corpus_tests PRIVATE aether_application)
+add_test(NAME integration.bm25_cli_corpus COMMAND aether_bm25_cli_corpus_tests
+    "${PROJECT_SOURCE_DIR}/datasets" "${CMAKE_CURRENT_BINARY_DIR}/bm25-cli-corpus/$<CONFIG>")
+set_tests_properties(integration.bm25_cli_corpus PROPERTIES TIMEOUT 60 LABELS "application;lexical;bm25-cli")
+
+# CP-04: hybrid HNSW + BM25 + RRF orchestration (DoD level 2 scenarios).
+add_executable(aether_hybrid_retrieval_tests integration/hybrid_retrieval_test.cpp)
+target_link_libraries(aether_hybrid_retrieval_tests PRIVATE aether_application aether_hnsw
+    aether_lexical aether_hybrid)
+add_test(NAME integration.hybrid_retrieval COMMAND aether_hybrid_retrieval_tests
+    "${CMAKE_CURRENT_BINARY_DIR}/hybrid-retrieval/$<CONFIG>")
+set_tests_properties(integration.hybrid_retrieval PROPERTIES TIMEOUT 60 LABELS "hybrid;cp04")
+
+add_test(NAME e2e.cli_hybrid COMMAND "${CMAKE_COMMAND}"
+    "-DCLI_PATH=$<TARGET_FILE:aetherindex>"
+    "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/hybrid-cli/$<CONFIG>"
+    "-DDATA_DIR=${PROJECT_SOURCE_DIR}/datasets/hybrid"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_hybrid_test.cmake")
+set_tests_properties(e2e.cli_hybrid PROPERTIES TIMEOUT 300 LABELS "hybrid;cp04;kr1_5;sprint2")
+
+# Sprint 2 / OKR 1 formal evaluation: KR1.3 on the labelled CP-01 corpus and KR1.5 on
+# its hybrid derivative. Reports (CSV + JSON summaries) are written next to the build.
+add_executable(aether_sprint2_okr1_evaluate integration/sprint2_okr1_test.cpp)
+target_link_libraries(aether_sprint2_okr1_evaluate PRIVATE aether_application)
+add_test(NAME acceptance.kr1_3_bm25 COMMAND aether_sprint2_okr1_evaluate kr1_3
+    "${PROJECT_SOURCE_DIR}/datasets/corpus.jsonl" "${PROJECT_SOURCE_DIR}/datasets/queries.jsonl"
+    "${CMAKE_CURRENT_BINARY_DIR}/sprint2-okr1/$<CONFIG>")
+set_tests_properties(acceptance.kr1_3_bm25 PROPERTIES TIMEOUT 120 LABELS "lexical;sprint2;kr1_3")
+add_test(NAME acceptance.kr1_5_hybrid COMMAND aether_sprint2_okr1_evaluate kr1_5
+    "${PROJECT_SOURCE_DIR}/datasets/hybrid/corpus.jsonl"
+    "${PROJECT_SOURCE_DIR}/datasets/hybrid/queries.jsonl"
+    "${CMAKE_CURRENT_BINARY_DIR}/sprint2-okr1/$<CONFIG>")
+set_tests_properties(acceptance.kr1_5_hybrid PROPERTIES TIMEOUT 300 LABELS "hybrid;sprint2;kr1_5")
+
 add_executable(aether_rrf_tests unit/rrf_test.cpp)
 target_link_libraries(aether_rrf_tests PRIVATE aether_hybrid)
 foreach(number RANGE 1 22)
@@ -51,8 +104,8 @@ add_test(NAME integration.bm25_corpus_regression
 )
 set_tests_properties(integration.bm25_corpus_regression PROPERTIES TIMEOUT 120 LABELS "lexical;cp02;regression")
 
-# CP-01 is not present yet. This opt-in consumes its agreed TSV adapter when
-# available; it records preliminary HitRate without asserting the CP-05 goal.
+# Optional TSV evaluation corpus; independent of the JSONL CLI corpus. This
+# records preliminary HitRate without asserting the CP-05 goal.
 set(AETHER_BM25_CORPUS_DIR "" CACHE PATH "Optional labelled BM25 corpus (documents.tsv, queries.tsv)")
 if(AETHER_BM25_CORPUS_DIR)
     foreach(name documents.tsv queries.tsv)
@@ -197,3 +250,73 @@ if(AETHER_REAL_DATA_DIR)
     )
     set_tests_properties(integration.hnsw_real_dataset PROPERTIES TIMEOUT 1800 LABELS "real-data")
 endif()
+
+# Optimization regression gate: default-path CLI outputs must remain byte-identical
+# to tests/e2e/golden (captured before the optimization phases; timing lines ignored).
+add_test(NAME e2e.cli_golden COMMAND "${CMAKE_COMMAND}"
+    "-DCLI_PATH=$<TARGET_FILE:aetherindex>"
+    "-DGENERATOR_PATH=$<TARGET_FILE:aether_cli_fixture_generator>"
+    "-DSOURCE_DIR=${PROJECT_SOURCE_DIR}"
+    "-DGOLDEN_DIR=${CMAKE_CURRENT_SOURCE_DIR}/e2e/golden"
+    "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/golden/$<CONFIG>"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_golden_test.cmake")
+set_tests_properties(e2e.cli_golden PROPERTIES TIMEOUT 120 LABELS "regression;golden")
+
+# Optimization phase 1: binary .avec embeddings.
+add_executable(aether_vector_file_tests unit/vector_file_test.cpp)
+target_link_libraries(aether_vector_file_tests PRIVATE aether_storage)
+add_test(NAME unit.vector_file COMMAND aether_vector_file_tests
+    "${CMAKE_CURRENT_BINARY_DIR}/vector-file/$<CONFIG>")
+set_tests_properties(unit.vector_file PROPERTIES TIMEOUT 60 LABELS "storage;optimization;avec")
+add_test(NAME e2e.cli_avec COMMAND "${CMAKE_COMMAND}"
+    "-DCLI_PATH=$<TARGET_FILE:aetherindex>"
+    "-DGENERATOR_PATH=$<TARGET_FILE:aether_cli_fixture_generator>"
+    "-DSOURCE_DIR=${PROJECT_SOURCE_DIR}"
+    "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/avec-cli/$<CONFIG>"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_avec_test.cmake")
+set_tests_properties(e2e.cli_avec PROPERTIES TIMEOUT 300 LABELS "optimization;avec")
+
+# Optimization phase 2: parallel construction, batch queries, concurrent retrievers.
+add_executable(aether_hnsw_parallel_build_tests unit/hnsw_parallel_build_test.cpp)
+target_link_libraries(aether_hnsw_parallel_build_tests PRIVATE aether_hnsw aether_brute_force)
+add_test(NAME unit.hnsw_parallel_build COMMAND aether_hnsw_parallel_build_tests)
+set_tests_properties(unit.hnsw_parallel_build PROPERTIES TIMEOUT 300 LABELS "hnsw;optimization;parallel")
+add_test(NAME e2e.cli_batch COMMAND "${CMAKE_COMMAND}"
+    "-DCLI_PATH=$<TARGET_FILE:aetherindex>"
+    "-DSOURCE_DIR=${PROJECT_SOURCE_DIR}"
+    "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/batch-cli/$<CONFIG>"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_batch_test.cmake")
+set_tests_properties(e2e.cli_batch PROPERTIES TIMEOUT 600 LABELS "optimization;parallel")
+
+# Optimization phases 3-4: SQ8/PQ codes and quantized HNSW traversal.
+add_executable(aether_quantization_tests integration/quantization_test.cpp)
+target_link_libraries(aether_quantization_tests PRIVATE aether_quantization aether_hnsw aether_brute_force)
+add_test(NAME integration.quantization COMMAND aether_quantization_tests)
+set_tests_properties(integration.quantization PROPERTIES TIMEOUT 300 LABELS "quantization;optimization")
+add_test(NAME e2e.cli_quantization COMMAND "${CMAKE_COMMAND}"
+    "-DCLI_PATH=$<TARGET_FILE:aetherindex>"
+    "-DGENERATOR_PATH=$<TARGET_FILE:aether_cli_fixture_generator>"
+    "-DSOURCE_DIR=${PROJECT_SOURCE_DIR}"
+    "-DMETHODS=sq8;pq"
+    "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/quantization-cli/$<CONFIG>"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_quantization_test.cmake")
+set_tests_properties(e2e.cli_quantization PROPERTIES TIMEOUT 300 LABELS "quantization;optimization")
+
+# Optimization phase 5: compressed BM25 strategies (TAAT, WAND, Block-Max WAND).
+add_executable(aether_bm25_strategies_tests unit/bm25_strategies_test.cpp)
+target_link_libraries(aether_bm25_strategies_tests PRIVATE aether_lexical)
+add_test(NAME unit.bm25_strategies COMMAND aether_bm25_strategies_tests)
+set_tests_properties(unit.bm25_strategies PROPERTIES TIMEOUT 600 LABELS "lexical;optimization;bm25-scale")
+
+# Optimization phase 6: metadata filtering (dense exact/graph, BM25 strategies, hybrid).
+add_executable(aether_filter_tests integration/filter_test.cpp)
+target_link_libraries(aether_filter_tests PRIVATE aether_application aether_hnsw aether_brute_force
+    aether_lexical)
+add_test(NAME integration.filter COMMAND aether_filter_tests
+    "${CMAKE_CURRENT_BINARY_DIR}/filter/$<CONFIG>")
+set_tests_properties(integration.filter PROPERTIES TIMEOUT 300 LABELS "filter;optimization")
+add_test(NAME e2e.cli_filter COMMAND "${CMAKE_COMMAND}"
+    "-DCLI_PATH=$<TARGET_FILE:aetherindex>"
+    "-DSOURCE_DIR=${PROJECT_SOURCE_DIR}"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_filter_test.cmake")
+set_tests_properties(e2e.cli_filter PROPERTIES TIMEOUT 120 LABELS "filter;optimization")

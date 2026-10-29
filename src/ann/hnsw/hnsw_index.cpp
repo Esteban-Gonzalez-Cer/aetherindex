@@ -6,6 +6,9 @@
 #include <limits>
 #include <queue>
 #include <stdexcept>
+#include <unordered_set>
+
+#include "aether/core/parallel.hpp"
 
 #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
 #include <immintrin.h>
@@ -23,6 +26,32 @@ inline void prefetch_read(const float* pointer) noexcept {
     (void)pointer;
 #endif
 }
+
+// Epoch-stamped visited marks reused by every traversal on this thread: preparing a
+// search is O(1) instead of allocating and clearing an N-bit map per layer visit.
+class VisitedTable {
+   public:
+    void prepare(std::size_t nodes) {
+        if (stamps_.size() < nodes) stamps_.resize(nodes, 0);
+        if (++epoch_ == 0) {
+            std::fill(stamps_.begin(), stamps_.end(), 0);
+            epoch_ = 1;
+        }
+    }
+    // Returns whether id was already visited in this epoch, marking it visited.
+    bool test_and_set(std::uint32_t id) noexcept {
+        if (stamps_[id] == epoch_) return true;
+        stamps_[id] = epoch_;
+        return false;
+    }
+
+   private:
+    std::vector<std::uint32_t> stamps_;
+    std::uint32_t epoch_ = 0;
+};
+
+thread_local VisitedTable visited_table;
+thread_local std::vector<InternalId> adjacency_copy;
 
 }  // namespace
 
@@ -112,8 +141,30 @@ void HnswIndex::set_neighbors(InternalId id, std::size_t level,
         upper_.set_neighbors(static_cast<std::size_t>(upper_offsets_[id]) + level - 1, neighbors);
 }
 
+std::mutex& HnswIndex::stripe(InternalId id) const noexcept {
+    return build_stripes_[id & (stripe_count - 1)];
+}
+
+void HnswIndex::require_rows() const {
+    if (!store_.has_rows())
+        throw std::logic_error("This HNSW operation needs the FP32 rows; they were released.");
+}
+
+template <bool Concurrent>
 std::vector<HnswIndex::Candidate> HnswIndex::search_layer(const float* query, InternalId entry,
                                                           std::size_t ef, std::size_t level) const {
+    return search_layer_with<Concurrent>([&](InternalId id) { return distance_to(query, id); },
+                                         entry, ef, level);
+}
+
+// Concurrent=true is used only by parallel construction: each adjacency list is copied
+// under its stripe lock before traversal. Concurrent=false is the unchanged query path.
+// Prefetching targets the FP32 rows, which is harmless when distances use codes.
+template <bool Concurrent, class Distance, class Admit>
+std::vector<HnswIndex::Candidate> HnswIndex::search_layer_with(const Distance& distance,
+                                                               InternalId entry, std::size_t ef,
+                                                               std::size_t level,
+                                                               const Admit& admit) const {
     ef = std::min(ef, successful_insertions_ + 1);
     using MinHeap = std::priority_queue<Candidate, std::vector<Candidate>, std::greater<Candidate>>;
     std::vector<Candidate> candidate_buffer, result_buffer;
@@ -121,36 +172,42 @@ std::vector<HnswIndex::Candidate> HnswIndex::search_layer(const float* query, In
     result_buffer.reserve(ef);
     MinHeap candidates(std::greater<Candidate>{}, std::move(candidate_buffer));
     std::priority_queue<Candidate> results(std::less<Candidate>{}, std::move(result_buffer));
-    // One bit per dense position, not a heap/hash allocation per visited node.
-    // The packed workspace is local to this traversal and is not graph topology.
-    std::vector<std::uint64_t> visited((levels_.size() + 63) / 64, 0);
-    const auto mark_visited = [&](InternalId id) {
-        auto& word = visited[id / 64];
-        const std::uint64_t mask = std::uint64_t{1} << (id % 64);
-        const bool previously_seen = (word & mask) != 0;
-        word |= mask;
-        return previously_seen;
-    };
-    const Candidate first{distance_to(query, entry), store_.ids()[entry], entry};
+    // Thread-local workspace, not graph topology; reset by bumping its epoch.
+    auto& visited = visited_table;
+    visited.prepare(levels_.size());
+    const auto mark_visited = [&](InternalId id) { return visited.test_and_set(id); };
+    const Candidate first{distance(entry), store_.ids()[entry], entry};
     mark_visited(entry);
     candidates.push(first);
-    results.push(first);
+    if (admit(entry)) results.push(first);
 
     while (!candidates.empty()) {
         const Candidate current = candidates.top();
         if (results.size() >= ef && current.distance > results.top().distance) break;
         candidates.pop();
-        const auto adjacent = neighbors_internal(current.node, level);
-        if (!adjacent.empty()) prefetch_read(store_.data_by_position(adjacent.front()));
+        std::span<const InternalId> adjacent;
+        if constexpr (Concurrent) {
+            const std::lock_guard lock(stripe(current.node));
+            const auto shared = neighbors_internal(current.node, level);
+            adjacency_copy.assign(shared.begin(), shared.end());
+            adjacent = adjacency_copy;
+        } else {
+            adjacent = neighbors_internal(current.node, level);
+        }
+        const bool rows = store_.has_rows();
+        if (rows && !adjacent.empty()) prefetch_read(store_.data_by_position(adjacent.front()));
         for (std::size_t i = 0; i < adjacent.size(); ++i) {
-            if (i + 1 < adjacent.size()) prefetch_read(store_.data_by_position(adjacent[i + 1]));
+            if (rows && i + 1 < adjacent.size())
+                prefetch_read(store_.data_by_position(adjacent[i + 1]));
             const InternalId neighbor = adjacent[i];
             if (mark_visited(neighbor)) continue;
-            const Candidate next{distance_to(query, neighbor), store_.ids()[neighbor], neighbor};
+            const Candidate next{distance(neighbor), store_.ids()[neighbor], neighbor};
             if (results.size() < ef || next < results.top()) {
                 candidates.push(next);
-                results.push(next);
-                if (results.size() > ef) results.pop();
+                if (admit(neighbor)) {
+                    results.push(next);
+                    if (results.size() > ef) results.pop();
+                }
             }
         }
     }
@@ -241,6 +298,7 @@ void HnswIndex::add_link(InternalId a, InternalId b, std::size_t level) {
 
 void HnswIndex::insert(VectorId id) {
     ensure_usable();
+    require_rows();
     const auto position = store_.position_of(id);
     if (!position)
         throw std::invalid_argument("Insert the vector into VectorStore before indexing its ID.");
@@ -273,12 +331,12 @@ void HnswIndex::insert(VectorId id) {
         const float* embedding = store_.data_by_position(node);
         InternalId current = *entry_point_;
         for (std::size_t level = max_level_; level > new_level; --level) {
-            current = search_layer(embedding, current, 1, level).front().node;
+            current = search_layer<false>(embedding, current, 1, level).front().node;
         }
         std::size_t level = std::min(new_level, max_level_);
         for (;;) {
             const auto candidates =
-                search_layer(embedding, current, config_.ef_construction, level);
+                search_layer<false>(embedding, current, config_.ef_construction, level);
             const auto selected =
                 select_neighbors(node, candidates, connection_limit(level), level);
             set_neighbors(node, level, selected);
@@ -298,6 +356,134 @@ void HnswIndex::insert(VectorId id) {
     }
 }
 
+void HnswIndex::add_link_concurrent(InternalId a, InternalId b, std::size_t level) {
+    const std::lock_guard lock(stripe(a));
+    add_link(a, b, level);
+}
+
+// One node of a parallel build. Only a node that raises the top level keeps the entry
+// lock for its whole insertion (as in hnswlib); others snapshot the entry and release.
+// The node becomes reachable only through the backlinks of the final phase, so every
+// level's adjacency is complete before another thread can traverse from it, and no
+// link another thread adds to it can be overwritten.
+void HnswIndex::insert_concurrent(InternalId node, std::size_t new_level) {
+    std::unique_lock entry_lock(entry_mutex_);
+    const InternalId entry = *entry_point_;
+    const std::size_t top = max_level_;
+    if (new_level <= top) entry_lock.unlock();
+    const float* embedding = store_.data_by_position(node);
+    InternalId current = entry;
+    for (std::size_t level = top; level > new_level; --level)
+        current = search_layer<true>(embedding, current, 1, level).front().node;
+    // Phase 1: neighbor selection for every level, top-down (no graph mutation).
+    const std::size_t first_level = std::min(new_level, top);
+    std::vector<std::vector<InternalId>> selected(first_level + 1);
+    for (std::size_t level = first_level;; --level) {
+        const auto candidates =
+            search_layer<true>(embedding, current, config_.ef_construction, level);
+        selected[level] = select_neighbors(node, candidates, connection_limit(level), level);
+        if (!candidates.empty()) current = candidates.front().node;
+        if (level == 0) break;
+    }
+    // Phase 2: the node's own lists, merged with any link that already reached it.
+    {
+        const std::lock_guard lock(stripe(node));
+        for (std::size_t level = 0; level <= first_level; ++level) {
+            const auto existing = neighbors_internal(node, level);
+            if (existing.empty()) {
+                set_neighbors(node, level, selected[level]);
+                continue;
+            }
+            std::vector<Candidate> pool;
+            for (InternalId id : existing)
+                pool.push_back({distance_to(embedding, id), store_.ids()[id], id});
+            for (InternalId id : selected[level])
+                if (std::find(existing.begin(), existing.end(), id) == existing.end())
+                    pool.push_back({distance_to(embedding, id), store_.ids()[id], id});
+            set_neighbors(node, level,
+                          select_neighbors(node, std::move(pool), connection_limit(level), level));
+        }
+    }
+    // Phase 3: publish the node through backlinks.
+    for (std::size_t level = 0; level <= first_level; ++level)
+        for (InternalId neighbor : selected[level]) add_link_concurrent(neighbor, node, level);
+    if (new_level > top) {
+        entry_point_ = node;
+        max_level_ = new_level;
+    }
+    successful_insertions_.fetch_add(1, std::memory_order_relaxed);
+}
+
+void HnswIndex::insert_parallel(std::span<const VectorId> ids, std::size_t threads) {
+    ensure_usable();
+    require_rows();
+    if (threads <= 1) {
+        for (VectorId id : ids) insert(id);
+        return;
+    }
+    if (config_.extend_candidates)
+        throw std::invalid_argument("Parallel HNSW construction requires extend_candidates=false.");
+    // Validate every ID before mutating anything.
+    std::vector<InternalId> nodes;
+    nodes.reserve(ids.size());
+    std::unordered_set<VectorId> batch;
+    batch.reserve(ids.size());
+    for (VectorId id : ids) {
+        const auto position = store_.position_of(id);
+        if (!position)
+            throw std::invalid_argument(
+                "Insert the vector into VectorStore before indexing its ID.");
+        if (contains(id) || !batch.insert(id).second)
+            throw std::invalid_argument("The vector ID is already indexed in HNSW.");
+        if (*position >= std::numeric_limits<InternalId>::max())
+            throw std::length_error("HNSW position overflow.");
+        nodes.push_back(static_cast<InternalId>(*position));
+    }
+    if (nodes.empty()) return;
+    // Deterministic levels in input order, then all storage before any thread starts,
+    // so no buffer is reallocated while others read it.
+    std::vector<std::uint8_t> new_levels(nodes.size());
+    std::size_t upper_total = upper_.slots();
+    for (std::size_t i = 0; i < nodes.size(); ++i) {
+        new_levels[i] = static_cast<std::uint8_t>(random_level());
+        if (upper_total > std::numeric_limits<std::uint32_t>::max() - new_levels[i])
+            throw std::length_error("HNSW upper slot offset overflow.");
+        upper_total += new_levels[i];
+    }
+    const InternalId highest = *std::max_element(nodes.begin(), nodes.end());
+    auto stripes = std::make_unique<std::mutex[]>(stripe_count);
+    try {
+        if (levels_.size() <= highest) {
+            layer0_.resize(static_cast<std::size_t>(highest) + 1);
+            upper_offsets_.resize(static_cast<std::size_t>(highest) + 1, 0);
+            levels_.resize(static_cast<std::size_t>(highest) + 1, absent_level);
+        }
+        std::size_t offset = upper_.slots();
+        upper_.resize(upper_total);
+        for (std::size_t i = 0; i < nodes.size(); ++i) {
+            upper_offsets_[nodes[i]] = static_cast<std::uint32_t>(offset);
+            levels_[nodes[i]] = new_levels[i];
+            offset += new_levels[i];
+        }
+        std::size_t first = 0;
+        if (!entry_point_) {
+            entry_point_ = nodes[0];
+            max_level_ = new_levels[0];
+            ++successful_insertions_;
+            first = 1;
+        }
+        build_stripes_ = std::move(stripes);
+        parallel_for(nodes.size() - first, threads, [&](std::size_t i) {
+            insert_concurrent(nodes[first + i], new_levels[first + i]);
+        });
+        build_stripes_.reset();
+    } catch (...) {
+        build_stripes_.reset();
+        usable_ = false;
+        throw;
+    }
+}
+
 std::vector<SearchResult> HnswIndex::search(std::span<const EmbeddingValue> query,
                                             std::size_t k) const {
     return search(query, k, config_.ef_search);
@@ -312,6 +498,7 @@ std::vector<SearchResult> HnswIndex::search(std::span<const EmbeddingValue> quer
 std::vector<SearchResult> HnswIndex::search_prepared(const PreparedQuery& query, std::size_t k,
                                                      std::size_t ef_search) const {
     ensure_usable();
+    require_rows();
     if (k == 0 || ef_search == 0)
         throw std::invalid_argument("HNSW k and ef_search must be positive.");
     if (query.dimension() != store_.dimension() ||
@@ -321,16 +508,80 @@ std::vector<SearchResult> HnswIndex::search_prepared(const PreparedQuery& query,
     if (!entry_point_) return {};
     InternalId current = *entry_point_;
     for (std::size_t level = max_level_; level > 0; --level) {
-        current = search_layer(query.data(), current, 1, level).front().node;
+        current = search_layer<false>(query.data(), current, 1, level).front().node;
     }
     const std::size_t ef = std::min(size(), std::max(k, ef_search));
-    const auto candidates = search_layer(query.data(), current, ef, 0);
+    const auto candidates = search_layer<false>(query.data(), current, ef, 0);
     std::vector<SearchResult> results;
     const std::size_t count = std::min(k, candidates.size());
     results.reserve(count);
     for (std::size_t i = 0; i < count; ++i)
         results.push_back({candidates[i].id, candidates[i].distance});
     return results;
+}
+
+// Shared tail of the quantized and filtered searches: greedy descent without filtering,
+// filtered layer-0 search, optional exact FP32 re-rank of the best `rerank` candidates.
+template <class Distance, class Admit>
+std::vector<SearchResult> HnswIndex::search_with(const PreparedQuery& query,
+                                                 const Distance& distance, const Admit& admit,
+                                                 std::size_t k, std::size_t ef_search,
+                                                 std::size_t rerank) const {
+    if (!entry_point_) return {};
+    InternalId current = *entry_point_;
+    for (std::size_t level = max_level_; level > 0; --level)
+        current = search_layer_with<false>(distance, current, 1, level).front().node;
+    const std::size_t ef = std::min(size(), std::max(k, ef_search));
+    auto candidates = search_layer_with<false>(distance, current, ef, 0, admit);
+    if (rerank != 0) {
+        candidates.resize(std::min(candidates.size(), rerank));
+        for (auto& candidate : candidates)
+            candidate.distance = distance_to(query.data(), candidate.node);
+        std::sort(candidates.begin(), candidates.end());
+    }
+    std::vector<SearchResult> results;
+    const std::size_t count = std::min(k, candidates.size());
+    results.reserve(count);
+    for (std::size_t i = 0; i < count; ++i)
+        results.push_back({candidates[i].id, candidates[i].distance});
+    return results;
+}
+
+std::vector<SearchResult> HnswIndex::search_quantized(const PreparedQuery& query,
+                                                      const QuantizedVectors& codes, std::size_t k,
+                                                      std::size_t ef_search,
+                                                      std::size_t rerank) const {
+    return search_filtered(query, k, ef_search, {}, &codes, rerank);
+}
+
+std::vector<SearchResult> HnswIndex::search_filtered(const PreparedQuery& query, std::size_t k,
+                                                     std::size_t ef_search,
+                                                     const std::function<bool(VectorId)>& allow,
+                                                     const QuantizedVectors* codes,
+                                                     std::size_t rerank) const {
+    ensure_usable();
+    if (k == 0 || ef_search == 0)
+        throw std::invalid_argument("HNSW k and ef_search must be positive.");
+    if (query.dimension() != store_.dimension() || query.distance_kind() != store_.distance_kind())
+        throw std::invalid_argument("Prepared query does not match HNSW VectorStore.");
+    if (codes && (codes->size() != store_.size() || codes->dimension() != store_.dimension() ||
+                  codes->metric() != store_.distance_kind()))
+        throw std::invalid_argument("Quantized codes do not match the HNSW VectorStore.");
+    if (!codes && rerank != 0) throw std::invalid_argument("HNSW rerank requires quantized codes.");
+    if (rerank != 0 && rerank < k)
+        throw std::invalid_argument("HNSW rerank must be 0 or at least k.");
+    if (!codes || rerank != 0) require_rows();
+    const auto admit_all = [](InternalId) { return true; };
+    const auto admit = [&](InternalId id) { return allow(store_.ids()[id]); };
+    if (codes) {
+        const auto approximate = codes->prepare(query);
+        const auto distance = [&](InternalId id) { return approximate->distance(id); };
+        return allow ? search_with(query, distance, admit, k, ef_search, rerank)
+                     : search_with(query, distance, admit_all, k, ef_search, rerank);
+    }
+    const auto distance = [&](InternalId id) { return distance_to(query.data(), id); };
+    return allow ? search_with(query, distance, admit, k, ef_search, 0)
+                 : search_with(query, distance, admit_all, k, ef_search, 0);
 }
 
 std::size_t HnswIndex::size() const noexcept { return successful_insertions_; }

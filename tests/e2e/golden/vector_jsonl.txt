@@ -1,0 +1,26 @@
+AetherIndex Search
+
+Algorithm: BruteForce
+Distance metric: Cosine
+Vectors indexed: 30
+Dimensions: 128
+Requested K: 5
+Results returned: 5
+Query ID: Q001
+Query time scope: search only (excludes input loading)
+
++------+-------------+-------------+
+| Rank | Document ID | Distance    |
++------+-------------+-------------+
+|    1 |        D001 | 0.574091196 |
++------+-------------+-------------+
+|    2 |        D004 | 0.628582418 |
++------+-------------+-------------+
+|    3 |        D015 | 0.635177314 |
++------+-------------+-------------+
+|    4 |        D030 | 0.680196583 |
++------+-------------+-------------+
+|    5 |        D021 | 0.708703041 |
++------+-------------+-------------+
+
+Search completed successfully.

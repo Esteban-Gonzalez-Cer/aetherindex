@@ -1,0 +1,23 @@
+[
+  {
+    "finding": "Malformed numeric suffix was accepted",
+    "before_returncode": 0,
+    "after_returncode": 3,
+    "after_stdout": "",
+    "after_stderr": "Error: build-bm25-cli-review/baseline-inputs/vectors.jsonl:line 1: JSON column 22: expected ','.\n"
+  },
+  {
+    "finding": "Multiple queries silently selected the first",
+    "before_returncode": 0,
+    "after_returncode": 3,
+    "after_stdout": "",
+    "after_stderr": "Error: build-bm25-cli-review/baseline-inputs/queries.jsonl: expected exactly one query; use --query-id to select from a multi-query file.\n"
+  },
+  {
+    "finding": "Invalid JSONL query dimensions returned internal-error code",
+    "before_returncode": 4,
+    "after_returncode": 3,
+    "after_stdout": "",
+    "after_stderr": "Error: build-bm25-cli-review/baseline-inputs/queries.jsonl: query dimension mismatch or missing embedding.\n"
+  }
+]

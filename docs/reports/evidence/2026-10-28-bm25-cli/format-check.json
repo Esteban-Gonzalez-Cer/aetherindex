@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/opt/homebrew/opt/llvm/bin/clang-format",
+    "--dry-run",
+    "--Werror",
+    "apps/cli/cli_parser.cpp",
+    "apps/cli/cli_runner.cpp",
+    "include/aether/application/json_loader.hpp",
+    "include/aether/application/query_engine.hpp",
+    "include/aether/application/search_service.hpp",
+    "src/application/json_loader.cpp",
+    "src/application/json_value.cpp",
+    "src/application/json_value.hpp",
+    "src/application/query_engine.cpp",
+    "src/application/search_service.cpp",
+    "tests/integration/bm25_cli_corpus_test.cpp",
+    "tests/integration/jsonl_service_compatibility_test.cpp",
+    "tests/integration/lexical_service_test.cpp",
+    "tests/unit/cli_parser_test.cpp",
+    "tests/unit/json_value_test.cpp"
+  ],
+  "returncode": 0
+}

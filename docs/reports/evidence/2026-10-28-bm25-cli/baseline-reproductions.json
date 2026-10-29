@@ -1,0 +1,86 @@
+[
+  {
+    "command": [
+      "build-bm25-cli-review/aetherindex",
+      "search",
+      "--dataset",
+      "datasets/corpus.jsonl",
+      "--query",
+      "datasets/queries.jsonl",
+      "--algorithm",
+      "bm25"
+    ],
+    "returncode": 2,
+    "stdout": "",
+    "stderr": "Error: Unknown algorithm: bm25. Available algorithms: brute-force, hnsw.\nUse aetherindex --help for usage.\n"
+  },
+  {
+    "command": [
+      "build-bm25-cli-review/aetherindex",
+      "search",
+      "--dataset",
+      "datasets/corpus.jsonl",
+      "--query",
+      "datasets/queries.jsonl",
+      "--algorithm",
+      "brute-force"
+    ],
+    "returncode": 3,
+    "stdout": "",
+    "stderr": "Error: JSONL vector search requires a nonempty 'vector' embedding per document.\n"
+  },
+  {
+    "finding": "Malformed numeric suffix was accepted",
+    "corpus": "{\"id\":\"a\",\"vector\":[1oops,0]}\n",
+    "query": "{\"id\":\"Q1\",\"vector\":[1,0]}\n",
+    "command": [
+      "build-bm25-cli-review/aetherindex",
+      "search",
+      "--dataset",
+      "build-bm25-cli-review/baseline-inputs/vectors.jsonl",
+      "--query",
+      "build-bm25-cli-review/baseline-inputs/queries.jsonl",
+      "--algorithm",
+      "brute-force"
+    ],
+    "returncode": 0,
+    "stdout": "AetherIndex Search\n\nAlgorithm: BruteForce\nDistance metric: Cosine\nVectors indexed: 1\nDimensions: 2\nRequested K: 10\nResults returned: 1\nQuery time (ms): 0.001833\nQuery time scope: search only (excludes CSV loading)\n\n+------+-----------+-------------+\n| Rank | Vector ID | Distance    |\n+------+-----------+-------------+\n|    1 |         0 | 0.000000000 |\n+------+-----------+-------------+\n\nSearch completed successfully.\n",
+    "stderr": ""
+  },
+  {
+    "finding": "Multiple queries silently selected the first",
+    "corpus": "{\"id\":\"a\",\"vector\":[1,0]}\n",
+    "query": "{\"id\":\"Q1\",\"vector\":[1,0]}\n{\"id\":\"Q2\",\"vector\":[0,1]}\n",
+    "command": [
+      "build-bm25-cli-review/aetherindex",
+      "search",
+      "--dataset",
+      "build-bm25-cli-review/baseline-inputs/vectors.jsonl",
+      "--query",
+      "build-bm25-cli-review/baseline-inputs/queries.jsonl",
+      "--algorithm",
+      "brute-force"
+    ],
+    "returncode": 0,
+    "stdout": "AetherIndex Search\n\nAlgorithm: BruteForce\nDistance metric: Cosine\nVectors indexed: 1\nDimensions: 2\nRequested K: 10\nResults returned: 1\nQuery time (ms): 0.003500\nQuery time scope: search only (excludes CSV loading)\n\n+------+-----------+-------------+\n| Rank | Vector ID | Distance    |\n+------+-----------+-------------+\n|    1 |         0 | 0.000000000 |\n+------+-----------+-------------+\n\nSearch completed successfully.\n",
+    "stderr": ""
+  },
+  {
+    "finding": "Invalid JSONL query dimensions returned internal-error code",
+    "corpus": "{\"id\":\"a\",\"vector\":[1,0]}\n",
+    "query": "{\"id\":\"Q1\",\"vector\":[1,0,0]}\n",
+    "command": [
+      "build-bm25-cli-review/aetherindex",
+      "search",
+      "--dataset",
+      "build-bm25-cli-review/baseline-inputs/vectors.jsonl",
+      "--query",
+      "build-bm25-cli-review/baseline-inputs/queries.jsonl",
+      "--algorithm",
+      "brute-force"
+    ],
+    "returncode": 4,
+    "stdout": "",
+    "stderr": "Error during search: La consulta debe tener la dimension del VectorStore.\n"
+  }
+]

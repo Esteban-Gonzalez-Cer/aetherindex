@@ -1,0 +1,90 @@
+{
+  "debug": {
+    "registered_tests": 56,
+    "ctest_passed": 56,
+    "suite_elapsed_seconds": 43.65,
+    "cache": {
+      "AETHER_BUILD_BENCHMARKS": "OFF",
+      "AETHER_ENABLE_SANITIZERS": "OFF",
+      "AETHER_NATIVE_SIMD": "OFF",
+      "BUILD_TESTING": "ON",
+      "CMAKE_BUILD_TYPE": "",
+      "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
+      "CMAKE_OSX_SYSROOT": ""
+    },
+    "service_compile_command": "/usr/bin/c++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -g -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_application.dir/src/application/search_service.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/application/search_service.cpp",
+    "sha256": {
+      "CMakeCache.txt": "317630d8679ee5798c4ccbebd20dc31b2e2d0ac0d5a485b9ccaa8107688bf411",
+      "compile_commands.json": "f45b44ead02486268d4f0e196b3e6b1a4a7e86ecd0018e9b8dfb4f5a83a9012e",
+      "aetherindex": "7527bba1cf7132c153e3e5fedb8bf56662abc4c5ca4c5a720cf75cc84f4b018f"
+    },
+    "corpus_check": {
+      "documents": 30,
+      "queries": 24,
+      "passed_queries": 24,
+      "absolute_tolerance": 1e-12,
+      "maximum_score_error": 3.552713678800501e-15,
+      "purpose": "wiring and arithmetic; no relevance target asserted"
+    }
+  },
+  "release": {
+    "registered_tests": 56,
+    "ctest_passed": 56,
+    "suite_elapsed_seconds": 12.49,
+    "cache": {
+      "AETHER_BUILD_BENCHMARKS": "OFF",
+      "AETHER_ENABLE_SANITIZERS": "OFF",
+      "AETHER_NATIVE_SIMD": "OFF",
+      "BUILD_TESTING": "ON",
+      "CMAKE_BUILD_TYPE": "Release",
+      "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
+      "CMAKE_OSX_SYSROOT": "macosx"
+    },
+    "service_compile_command": "/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_application.dir/src/application/search_service.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/application/search_service.cpp",
+    "sha256": {
+      "CMakeCache.txt": "a5f5667e3f35367b1fc8c036aeb4200a9091b212beb858f35c766436506d9ff1",
+      "compile_commands.json": "b5e673542c5b500f2aba2874874d4ae26b29174ad91c272c45352cd6b3eebac9",
+      "aetherindex": "6e97131e6b93308afeb26acfb8d2581a841d5d62c820957b9c35b402ea82237d"
+    },
+    "corpus_check": {
+      "documents": 30,
+      "queries": 24,
+      "passed_queries": 24,
+      "absolute_tolerance": 1e-12,
+      "maximum_score_error": 3.552713678800501e-15,
+      "purpose": "wiring and arithmetic; no relevance target asserted"
+    }
+  },
+  "sanitizers": {
+    "registered_tests": 56,
+    "ctest_passed": 56,
+    "suite_elapsed_seconds": 123.91,
+    "cache": {
+      "AETHER_BUILD_BENCHMARKS": "OFF",
+      "AETHER_ENABLE_SANITIZERS": "ON",
+      "AETHER_NATIVE_SIMD": "OFF",
+      "BUILD_TESTING": "ON",
+      "CMAKE_BUILD_TYPE": "Debug",
+      "CMAKE_CXX_COMPILER": "/opt/homebrew/opt/llvm/bin/clang++",
+      "CMAKE_OSX_SYSROOT": "macosx"
+    },
+    "service_compile_command": "/opt/homebrew/opt/llvm/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -g -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -o CMakeFiles/aether_application.dir/src/application/search_service.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/application/search_service.cpp",
+    "sha256": {
+      "CMakeCache.txt": "c504914019fc64c70aff7b1db615d8caa30292014396f30e025698ed80ed9001",
+      "compile_commands.json": "24275547b444ce3de83a29045978132f3bbf6bf6e74863aa744a2ae88d360dc5",
+      "aetherindex": "b0a7873e62078116a368b777ebe338bb9d9524c56792f1c270fd0d96df51ccb3"
+    },
+    "corpus_check": {
+      "documents": 30,
+      "queries": 24,
+      "passed_queries": 24,
+      "absolute_tolerance": 1e-12,
+      "maximum_score_error": 3.552713678800501e-15,
+      "purpose": "wiring and arithmetic; no relevance target asserted"
+    }
+  },
+  "no-tests": {
+    "registered_tests": 0,
+    "smoke_returncode": 0
+  }
+}

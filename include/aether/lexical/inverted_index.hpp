@@ -52,6 +52,16 @@ class InvertedIndex {
     // Registered-document statistics are also readable while collecting.
     [[nodiscard]] double average_document_length() const noexcept;
     [[nodiscard]] std::optional<std::uint32_t> document_length(DocumentId id) const;
+    // Built index: every DocumentId, ascending.
+    [[nodiscard]] std::vector<DocumentId> document_ids() const;
+    // Visits every (term, postings) pair of the built index; order unspecified.
+    void for_each_term(
+        const std::function<void(std::string_view, std::span<const Posting>)>& visit) const;
+    // Frees the raw postings after a compressed copy was built. Afterwards find(),
+    // document_frequency(), vocabulary_size() and for_each_term() throw logic_error;
+    // statistics and document lengths remain available. Irreversible.
+    void release_postings();
+    [[nodiscard]] bool has_postings() const noexcept { return !postings_released_; }
 
    private:
     struct TermHash {
@@ -70,6 +80,7 @@ class InvertedIndex {
     void require_built() const;
 
     bool ready_ = false;
+    bool postings_released_ = false;
     std::size_t document_count_ = 0;
     std::uint64_t total_tokens_ = 0;
     double average_length_ = 0.0;

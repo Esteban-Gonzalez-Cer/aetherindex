@@ -1,0 +1,174 @@
+Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-opt-tsan
+      Start 58: integration.sprint1_okr1
+      Start 68: unit.bm25_strategies
+      Start 63: e2e.cli_avec
+      Start 60: e2e.cli_hnsw
+ 1/70 Test #58: integration.sprint1_okr1 ..................   Passed    3.27 sec
+      Start 66: integration.quantization
+ 2/70 Test #66: integration.quantization ..................   Passed   25.38 sec
+      Start 69: integration.filter
+ 3/70 Test #60: e2e.cli_hnsw ..............................   Passed   30.65 sec
+      Start 64: unit.hnsw_parallel_build
+ 4/70 Test #63: e2e.cli_avec ..............................   Passed   31.25 sec
+      Start 67: e2e.cli_quantization
+ 5/70 Test #68: unit.bm25_strategies ......................   Passed   34.91 sec
+      Start 57: integration.hnsw_recall
+ 6/70 Test #57: integration.hnsw_recall ...................   Passed    5.47 sec
+      Start 61: e2e.cli_golden
+ 7/70 Test #61: e2e.cli_golden ............................   Passed    2.82 sec
+      Start 65: e2e.cli_batch
+ 8/70 Test #65: e2e.cli_batch .............................   Passed    2.67 sec
+      Start 59: e2e.sprint1_okr1
+ 9/70 Test #67: e2e.cli_quantization ......................   Passed   15.20 sec
+      Start 43: unit.vector_store_allocation
+10/70 Test #64: unit.hnsw_parallel_build ..................   Passed   16.37 sec
+      Start 53: unit.hnsw_node
+11/70 Test #43: unit.vector_store_allocation ..............   Passed    1.28 sec
+      Start 52: e2e.cli_mvp
+12/70 Test #59: e2e.sprint1_okr1 ..........................   Passed    2.36 sec
+      Start 54: unit.hnsw_insert
+13/70 Test #53: unit.hnsw_node ............................   Passed    1.23 sec
+      Start  8: acceptance.kr1_5_hybrid
+14/70 Test #52: e2e.cli_mvp ...............................   Passed    0.71 sec
+      Start  3: e2e.cli_bm25
+15/70 Test  #3: e2e.cli_bm25 ..............................   Passed    0.21 sec
+      Start 38: unit.bm25_search
+16/70 Test #54: unit.hnsw_insert ..........................   Passed    0.48 sec
+      Start  4: integration.bm25_cli_corpus
+17/70 Test  #4: integration.bm25_cli_corpus ...............   Passed    0.34 sec
+      Start 55: unit.hnsw_search
+18/70 Test #38: unit.bm25_search ..........................   Passed    0.51 sec
+      Start 50: integration.search_service
+19/70 Test #55: unit.hnsw_search ..........................   Passed    0.14 sec
+      Start  5: integration.hybrid_retrieval
+20/70 Test  #8: acceptance.kr1_5_hybrid ...................   Passed    1.00 sec
+      Start  1: unit.json_value
+21/70 Test #69: integration.filter ........................   Passed   20.63 sec
+      Start 48: integration.dense_retrieval
+22/70 Test #50: integration.search_service ................   Passed    0.19 sec
+      Start 45: unit.brute_force
+23/70 Test  #5: integration.hybrid_retrieval ..............   Passed    0.32 sec
+      Start 39: unit.bm25_allocation
+24/70 Test  #1: unit.json_value ...........................   Passed    0.39 sec
+      Start 47: integration.storage_distance
+25/70 Test #48: integration.dense_retrieval ...............   Passed    0.50 sec
+      Start 40: integration.bm25_contract
+26/70 Test #45: unit.brute_force ..........................   Passed    0.56 sec
+      Start 44: unit.distance
+27/70 Test #39: unit.bm25_allocation ......................   Passed    0.54 sec
+      Start 49: unit.cli_parser
+28/70 Test #47: integration.storage_distance ..............   Passed    0.54 sec
+      Start 46: unit.optimization_contracts
+29/70 Test #40: integration.bm25_contract .................   Passed    0.53 sec
+      Start  6: e2e.cli_hybrid
+30/70 Test #44: unit.distance .............................   Passed    0.53 sec
+      Start 37: unit.bm25_math
+31/70 Test #49: unit.cli_parser ...........................   Passed    0.55 sec
+      Start 56: unit.hnsw_graph
+32/70 Test  #6: e2e.cli_hybrid ............................   Passed    0.44 sec
+      Start 41: integration.bm25_corpus_regression
+33/70 Test #46: unit.optimization_contracts ...............   Passed    0.66 sec
+      Start 34: unit.tokenizer
+34/70 Test #37: unit.bm25_math ............................   Passed    0.44 sec
+      Start 42: unit.vector_store
+35/70 Test #41: integration.bm25_corpus_regression ........   Passed    0.42 sec
+      Start 36: unit.bm25_statistics
+36/70 Test #56: unit.hnsw_graph ...........................   Passed    0.61 sec
+      Start 35: unit.inverted_index
+37/70 Test #34: unit.tokenizer ............................   Passed    0.44 sec
+      Start  7: acceptance.kr1_3_bm25
+38/70 Test  #7: acceptance.kr1_3_bm25 .....................   Passed    0.05 sec
+      Start 33: integration.jsonl_service_compatibility
+39/70 Test #42: unit.vector_store .........................   Passed    0.54 sec
+      Start 51: e2e.cli_search
+40/70 Test #36: unit.bm25_statistics ......................   Passed    0.37 sec
+      Start 62: unit.vector_file
+41/70 Test #51: e2e.cli_search ............................   Passed    0.18 sec
+      Start  2: integration.lexical_service
+42/70 Test #35: unit.inverted_index .......................   Passed    0.47 sec
+      Start 32: integration.rrf_contract
+43/70 Test #32: integration.rrf_contract ..................   Passed    0.00 sec
+      Start  9: unit.rrf.RRF-01
+44/70 Test  #9: unit.rrf.RRF-01 ...........................   Passed    0.00 sec
+      Start 70: e2e.cli_filter
+45/70 Test #70: e2e.cli_filter ............................   Passed    0.11 sec
+      Start 10: unit.rrf.RRF-02
+46/70 Test #10: unit.rrf.RRF-02 ...........................   Passed    0.00 sec
+      Start 31: unit.rrf.properties
+47/70 Test #31: unit.rrf.properties .......................   Passed    0.04 sec
+      Start 29: unit.rrf.RRF-21
+48/70 Test #33: integration.jsonl_service_compatibility ...   Passed    0.51 sec
+      Start 28: unit.rrf.RRF-20
+49/70 Test #29: unit.rrf.RRF-21 ...........................   Passed    0.00 sec
+      Start 12: unit.rrf.RRF-04
+50/70 Test #28: unit.rrf.RRF-20 ...........................   Passed    0.00 sec
+      Start 11: unit.rrf.RRF-03
+51/70 Test #12: unit.rrf.RRF-04 ...........................   Passed    0.00 sec
+      Start 27: unit.rrf.RRF-19
+52/70 Test #11: unit.rrf.RRF-03 ...........................   Passed    0.00 sec
+      Start 14: unit.rrf.RRF-06
+53/70 Test #27: unit.rrf.RRF-19 ...........................   Passed    0.00 sec
+      Start 13: unit.rrf.RRF-05
+54/70 Test #14: unit.rrf.RRF-06 ...........................   Passed    0.00 sec
+      Start 15: unit.rrf.RRF-07
+55/70 Test #13: unit.rrf.RRF-05 ...........................   Passed    0.00 sec
+      Start 16: unit.rrf.RRF-08
+56/70 Test #15: unit.rrf.RRF-07 ...........................   Passed    0.00 sec
+      Start 30: unit.rrf.RRF-22
+57/70 Test #16: unit.rrf.RRF-08 ...........................   Passed    0.00 sec
+      Start 26: unit.rrf.RRF-18
+58/70 Test #30: unit.rrf.RRF-22 ...........................   Passed    0.00 sec
+      Start 17: unit.rrf.RRF-09
+59/70 Test #26: unit.rrf.RRF-18 ...........................   Passed    0.00 sec
+      Start 24: unit.rrf.RRF-16
+60/70 Test #17: unit.rrf.RRF-09 ...........................   Passed    0.00 sec
+      Start 22: unit.rrf.RRF-14
+61/70 Test #22: unit.rrf.RRF-14 ...........................   Passed    0.00 sec
+      Start 21: unit.rrf.RRF-13
+62/70 Test #24: unit.rrf.RRF-16 ...........................   Passed    0.00 sec
+      Start 25: unit.rrf.RRF-17
+63/70 Test #21: unit.rrf.RRF-13 ...........................   Passed    0.00 sec
+      Start 23: unit.rrf.RRF-15
+64/70 Test #25: unit.rrf.RRF-17 ...........................   Passed    0.00 sec
+      Start 18: unit.rrf.RRF-10
+65/70 Test #23: unit.rrf.RRF-15 ...........................   Passed    0.00 sec
+      Start 20: unit.rrf.RRF-12
+66/70 Test #18: unit.rrf.RRF-10 ...........................   Passed    0.00 sec
+      Start 19: unit.rrf.RRF-11
+67/70 Test #20: unit.rrf.RRF-12 ...........................   Passed    0.00 sec
+68/70 Test #19: unit.rrf.RRF-11 ...........................   Passed    0.00 sec
+69/70 Test #62: unit.vector_file ..........................   Passed    0.44 sec
+70/70 Test  #2: integration.lexical_service ...............   Passed    0.54 sec
+
+100% tests passed out of 70
+
+Label Time Summary:
+application      =   1.99 sec*proc (5 tests)
+avec             =  31.69 sec*proc (2 tests)
+bm25-cli         =   1.48 sec*proc (4 tests)
+bm25-scale       =  34.91 sec*proc (1 test)
+compatibility    =   0.51 sec*proc (1 test)
+contract         =   0.53 sec*proc (2 tests)
+cp02             =   3.73 sec*proc (8 tests)
+cp03             =   0.09 sec*proc (24 tests)
+cp04             =   0.76 sec*proc (2 tests)
+filter           =  20.74 sec*proc (2 tests)
+golden           =   2.82 sec*proc (1 test)
+hnsw             =  16.37 sec*proc (1 test)
+hybrid           =   1.86 sec*proc (27 tests)
+jsonl            =   0.39 sec*proc (1 test)
+kr1_3            =   0.05 sec*proc (1 test)
+kr1_4            =   0.05 sec*proc (22 tests)
+kr1_5            =   1.44 sec*proc (2 tests)
+lexical          =  39.77 sec*proc (13 tests)
+okr1             =   5.63 sec*proc (2 tests)
+optimization     = 146.96 sec*proc (9 tests)
+parallel         =  19.04 sec*proc (2 tests)
+quantization     =  40.59 sec*proc (2 tests)
+regression       =   3.24 sec*proc (2 tests)
+rrf              =   0.09 sec*proc (24 tests)
+sprint1          =   5.63 sec*proc (2 tests)
+sprint2          =   1.49 sec*proc (3 tests)
+storage          =   0.44 sec*proc (1 test)
+
+Total Test time (real) =  52.14 sec

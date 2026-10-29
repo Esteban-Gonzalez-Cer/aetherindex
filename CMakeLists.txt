@@ -13,7 +13,7 @@ target_include_directories(aether_core INTERFACE "${PROJECT_SOURCE_DIR}/include"
 target_compile_features(aether_core INTERFACE cxx_std_20)
 target_link_libraries(aether_core INTERFACE aether_sanitizers)
 
-add_library(aether_storage STATIC src/storage/vector_store.cpp)
+add_library(aether_storage STATIC src/storage/vector_store.cpp src/storage/vector_file.cpp)
 target_link_libraries(aether_storage PUBLIC aether_core)
 
 add_library(aether_hybrid STATIC src/hybrid/rrf.cpp)
@@ -48,6 +48,9 @@ target_link_libraries(aether_brute_force
     PRIVATE aether_distance
 )
 
+add_library(aether_quantization STATIC src/quantization/sq8.cpp src/quantization/pq.cpp)
+target_link_libraries(aether_quantization PUBLIC aether_core aether_storage)
+
 add_library(aether_hnsw STATIC src/ann/hnsw/hnsw_index.cpp)
 target_link_libraries(aether_hnsw
     PUBLIC aether_core aether_storage
@@ -59,11 +62,16 @@ add_library(aether_application STATIC
     src/application/search_service.cpp
     src/application/csv_loader.cpp
     src/application/json_loader.cpp
+    src/application/json_value.cpp
+    src/application/filter.cpp
 )
 target_link_libraries(aether_application
     PUBLIC aether_core aether_storage
-    PRIVATE aether_brute_force aether_hnsw aether_lexical
+    PRIVATE aether_brute_force aether_hnsw aether_lexical aether_hybrid aether_quantization
 )
+if(MSVC)
+    target_compile_options(aether_application PUBLIC /utf-8)
+endif()
 
 add_library(aether_cli STATIC apps/cli/cli_parser.cpp apps/cli/cli_runner.cpp)
 target_include_directories(aether_cli PUBLIC "${PROJECT_SOURCE_DIR}/apps/cli")

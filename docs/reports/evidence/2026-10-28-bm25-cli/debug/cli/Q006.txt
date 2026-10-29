@@ -1,0 +1,40 @@
+AetherIndex Search
+
+Search mode: Lexical
+Algorithm: BM25
+Documents indexed: 30
+Indexed fields: title + text (no field boosts)
+Requested K: 10
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+Query ID: Q006
+Index build time (ms): 0.671000
+Index build time scope: lexical indexing (excludes input loading)
+Query time (ms): 0.037334
+Query time scope: BM25 search only (excludes input loading, index build and output)
+
++------+-------------+--------------+
+| Rank | Document ID | BM25 Score   |
++------+-------------+--------------+
+|    1 |        D013 | 14.236331856 |
++------+-------------+--------------+
+|    2 |        D012 | 12.901926542 |
++------+-------------+--------------+
+|    3 |        D014 |  5.967172914 |
++------+-------------+--------------+
+|    4 |        D025 |  5.420078689 |
++------+-------------+--------------+
+|    5 |        D028 |  3.008708793 |
++------+-------------+--------------+
+|    6 |        D029 |  2.757378449 |
++------+-------------+--------------+
+|    7 |        D008 |  2.737201849 |
++------+-------------+--------------+
+|    8 |        D009 |  2.469738698 |
++------+-------------+--------------+
+|    9 |        D011 |  2.452816173 |
++------+-------------+--------------+
+|   10 |        D005 |  2.362465456 |
++------+-------------+--------------+
+
+Search completed successfully.

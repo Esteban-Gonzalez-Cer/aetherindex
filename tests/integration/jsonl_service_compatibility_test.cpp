@@ -63,6 +63,23 @@ int main(int argc, char** argv) {
         write(request.query_path, "{\"id\":\"q\",\"query\":\"motor\"}\n");
         require_input_error([&] { static_cast<void>(service.search(request)); });
         write(request.query_path, "{\"id\":\"q\",\"vector\":[1,0]}\n");
+        write(request.dataset_path, "{\"id\":\"a\",\"vector\":[1oops,0]}\n");
+        require_input_error([&] { static_cast<void>(service.search(request)); });
+        write(request.dataset_path, "{\"id\":\"a\",\"vector\":[1,0]}\n");
+        write(request.query_path,
+              "{\"query_id\":\"Q1\",\"embedding\":[1,0]}\n{\"query_id\":\"Q2\",\"embedding\":[0,1]}"
+              "\n");
+        require_input_error([&] { static_cast<void>(service.search(request)); });
+        request.query_id = "Q2";
+        require(service.search(request).selected_query_id == "Q2",
+                "Vector query selector was ignored.");
+        request.query_id.reset();
+        write(request.query_path, "{\"id\":\"q\",\"vector\":[1,0,0]}\n");
+        require_input_error([&] { static_cast<void>(service.search(request)); });
+        write(request.query_path, "{\"id\":\"q\",\"vector\":[0,0]}\n");
+        request.metric = DistanceKind::Cosine;
+        require_input_error([&] { static_cast<void>(service.search(request)); });
+        write(request.query_path, "{\"id\":\"q\",\"vector\":[1,0]}\n");
         write(request.dataset_path,
               "{\"document_id\":\"D001\",\"text\":\"motor\",\"embedding\":null}\n");
         require_input_error([&] { static_cast<void>(service.search(request)); });

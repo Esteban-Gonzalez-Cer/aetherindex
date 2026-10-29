@@ -12,3 +12,12 @@ __pycache__/
 # Archivos locales del sistema
 .DS_Store
 Thumbs.db
+
+# Compiled objects/binaries must never be versioned (they break clean checkouts)
+*.obj
+*.o
+*.exe
+
+# Optimization-phase public datasets (downloaded on demand)
+/datasets/real/dbpedia-100k/
+/datasets/real/sift1m/

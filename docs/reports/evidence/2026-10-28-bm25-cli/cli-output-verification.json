@@ -1,0 +1,25 @@
+{
+  "method": "Compare actual executable output for all 24 queries against full-precision service scores and independent formula references. Check IDs, ranks and nine decimal places.",
+  "full_precision_tolerance": 1e-12,
+  "presentation_rounding_tolerance": 5e-10,
+  "profiles": {
+    "debug": {
+      "queries_verified": 24,
+      "display_rows_verified": 238,
+      "maximum_presentation_rounding_error": 4.996412172886266e-10,
+      "maximum_full_precision_error": 3.552713678800501e-15
+    },
+    "release": {
+      "queries_verified": 24,
+      "display_rows_verified": 238,
+      "maximum_presentation_rounding_error": 4.996412172886266e-10,
+      "maximum_full_precision_error": 3.552713678800501e-15
+    },
+    "sanitizers": {
+      "queries_verified": 24,
+      "display_rows_verified": 238,
+      "maximum_presentation_rounding_error": 4.996412172886266e-10,
+      "maximum_full_precision_error": 3.552713678800501e-15
+    }
+  }
+}

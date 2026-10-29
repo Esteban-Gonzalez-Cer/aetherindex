@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/usr/bin/clang++",
+    "-std=c++20",
+    "-isysroot",
+    "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+    "-Iinclude",
+    "-Iapps/cli",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-fsyntax-only",
+    "src/application/json_value.cpp",
+    "src/application/json_loader.cpp",
+    "src/application/search_service.cpp",
+    "src/application/query_engine.cpp",
+    "apps/cli/cli_parser.cpp",
+    "apps/cli/cli_runner.cpp",
+    "tests/unit/json_value_test.cpp",
+    "tests/unit/cli_parser_test.cpp",
+    "tests/integration/lexical_service_test.cpp",
+    "tests/integration/jsonl_service_compatibility_test.cpp",
+    "tests/integration/bm25_cli_corpus_test.cpp"
+  ],
+  "returncode": 0
+}

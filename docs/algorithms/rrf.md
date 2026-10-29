@@ -11,8 +11,8 @@ Recibe dos rankings documentales ya ordenados y devuelve resultados propios
 `vector<RankedResult>`. No ejecuta HNSW/BM25, ni consulta un DocumentStore, ni
 recibe puntuaciones originales, ni convierte VectorId en DocumentId.
 
-La composición de búsquedas, asociación documental y CLI híbrida corresponden
-a CP-04. CP-03 puede validarse con rankings conocidos sin requerir embeddings,
+La composición de búsquedas, asociación documental y CLI híbrida están
+implementadas en CP-04: ver [CLI híbrida](../cli_hybrid.md). CP-03 puede validarse con rankings conocidos sin requerir embeddings,
 un corpus de relevancia ni una llamada a los recuperadores.
 
 ## Fórmula y parámetros
@@ -106,7 +106,8 @@ persistencia o ejecución concurrente en esta tarjeta.
 
 ## Integración documental para CP-04
 
-La capa de aplicación deberá:
+Implementado en `QueryEngine::search(HnswIndex, VectorDocumentBinding, Bm25Index,
+RrfFusion, HybridQuery)`; la aplicación:
 
 1. Obtener candidatos de cada recuperador, con su orden de relevancia válido.
 2. Resolver explícitamente cada VectorId del ranking denso a un DocumentId.

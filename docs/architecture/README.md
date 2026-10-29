@@ -160,7 +160,9 @@ CMake construye los siguientes targets:
 - `aether_distance`: API general y kernels FP32/SIMD de coseno y euclidiana al cuadrado, dependiente de core.
 - `aether_brute_force`: búsqueda exacta, enlazada con storage y distance.
 - `aether_hnsw`: grafo e índice aproximado; depende de core/storage y enlaza distance de forma privada.
-- `aether_application`: `QueryEngine`, `SearchService` y lector CSV interno; enlaza fuerza bruta y HNSW de forma privada.
+- `aether_application`: `QueryEngine`, `SearchService` y lectores CSV/JSONL;
+  enlaza fuerza bruta, HNSW y BM25 de forma privada. El parsing JSON y las
+  asociaciones de IDs permanecen en aplicación, fuera de los algoritmos.
 - `aether_cli`: interpretación de argumentos y presentación, dependiente de aplicación.
 - `aetherindex`: punto de entrada, enlazado con `aether_cli`.
 - `aether_sanitizers`: opciones de instrumentación, activas solo con
@@ -169,8 +171,8 @@ CMake construye los siguientes targets:
 Cada store tiene dimensión y métrica fijas. La métrica se comparte a través de
 core, por lo que storage no depende de distance. El llamador posee el store;
 ni `QueryEngine` ni los algoritmos mantienen copias de embeddings. `QueryEngine`
-admite un store para fuerza bruta o un `HnswIndex` ya preparado para búsqueda
-aproximada. `SearchService` valida la solicitud y configuración antes de abrir
+admite un store para fuerza bruta, un `HnswIndex` para búsqueda aproximada o un
+`Bm25Index` construido para búsqueda textual. `SearchService` valida la solicitud y configuración antes de abrir
 archivos, crea el store local, procesa una fila CSV por vez y valida la consulta.
 Para HNSW construye el grafo recorriendo los IDs del store antes de llamar a
 `QueryEngine`. El grafo y el store se destruyen al terminar la operación.
@@ -210,8 +212,8 @@ Los invariantes no garantizan conectividad ni Recall: ambos se evalúan aparte.
 Una excepción después de activar un nodo exige reconstruir el índice; errores
 de búsqueda no lo invalidan y el store nunca se modifica desde HNSW.
 
-CTest registra 52 comprobaciones normales: 27 previas, 24 de CP-03 (matriz de
-22 casos, propiedades y contrato) y una de compatibilidad del cargador JSONL.
+CTest registra 56 comprobaciones normales: las 52 de CP-03 y módulos previos,
+más cuatro para parsing JSON, servicio léxico, CLI BM25 y referencia del corpus.
 Los dos casos reales optativos (`AETHER_REAL_DATA_DIR`) y el corpus léxico
 externo (`AETHER_BM25_CORPUS_DIR`) se registran por separado. La opción
 `AETHER_BUILD_BENCHMARKS=ON` compila drivers separados; con
@@ -224,5 +226,6 @@ para `perf`; no es una dependencia del motor ni de la suite normal.
 Ver [protocolo y reproducción](../benchmarks/OPTIMIZATION_VALIDATION.md) y
 [validación inicial histórica](hnsw_validation.md). BM25 y RRF se documentan en
 [CP-02](../algorithms/bm25.md) y [CP-03](../algorithms/rrf.md). La orquestación
-híbrida de QueryEngine y su CLI corresponden a CP-04; persistencia, concurrencia
+híbrida de QueryEngine y su CLI están implementadas ([CLI híbrida](../cli_hybrid.md)). La
+[CLI BM25](../cli_bm25.md) también está conectada a QueryEngine; persistencia, concurrencia
 y gRPC permanecen pendientes.

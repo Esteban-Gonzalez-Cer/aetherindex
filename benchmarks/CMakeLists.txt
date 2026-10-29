@@ -37,3 +37,13 @@ if(AETHER_REGISTER_PERFORMANCE_TESTS)
         set_tests_properties(performance.assembly PROPERTIES TIMEOUT 60 LABELS "assembly")
     endif()
 endif()
+
+# Sprint 2 / CP-06 (KR3.1, KR3.2, KR3.8): run manually in a Release build.
+add_executable(aether_hnsw_parameter_sweep hnsw_parameter_sweep.cpp)
+target_link_libraries(aether_hnsw_parameter_sweep PRIVATE aether_hnsw aether_brute_force)
+
+# Optimization roadmap: baseline and before/after measurements (Release only).
+add_executable(aether_optimization_suite optimization_suite.cpp)
+target_include_directories(aether_optimization_suite PRIVATE "${PROJECT_SOURCE_DIR}/src/application")
+target_link_libraries(aether_optimization_suite PRIVATE aether_application aether_hnsw
+    aether_brute_force aether_lexical aether_hybrid)

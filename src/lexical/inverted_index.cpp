@@ -53,6 +53,29 @@ void InvertedIndex::build() {
 
 void InvertedIndex::require_built() const {
     if (!ready_) throw std::logic_error("The inverted index requires build().");
+    if (postings_released_)
+        throw std::logic_error("Raw postings were released by a compressed BM25 strategy.");
+}
+
+std::vector<DocumentId> InvertedIndex::document_ids() const {
+    if (!ready_) throw std::logic_error("The inverted index requires build().");
+    std::vector<DocumentId> ids;
+    ids.reserve(lengths_.size());
+    for (const auto& [id, length] : lengths_) ids.push_back(id);
+    std::sort(ids.begin(), ids.end());
+    return ids;
+}
+
+void InvertedIndex::for_each_term(
+    const std::function<void(std::string_view, std::span<const Posting>)>& visit) const {
+    require_built();
+    for (const auto& [term, list] : postings_) visit(term, list);
+}
+
+void InvertedIndex::release_postings() {
+    if (!ready_) throw std::logic_error("The inverted index requires build().");
+    InvertedIndexData().swap(postings_);
+    postings_released_ = true;
 }
 
 std::span<const Posting> InvertedIndex::find(std::string_view term) const {

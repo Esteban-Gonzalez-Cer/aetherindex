@@ -1,7 +1,10 @@
-# CLI mínima de AetherIndex
+# CLI de AetherIndex
 
 La CLI de Sprint 1 permite cargar embeddings proporcionados externamente y
-ejecutar Top-K exacto con fuerza bruta o aproximado con HNSW. Toda la operación
+ejecutar Top-K exacto con fuerza bruta o aproximado con HNSW. La actualización del
+28 de octubre de 2026 incorpora [búsqueda BM25 sobre documentos JSONL](cli_bm25.md),
+con consultas de texto y selección por query_id, sin requerir embeddings, y la
+[búsqueda híbrida HNSW + BM25 + RRF](cli_hybrid.md). Toda la operación
 ocurre en memoria dentro de un proceso; no se guardan índices ni datos entre
 ejecuciones. No hay modo interactivo, modelos de embeddings, servidor ni
 comparación automática de Recall@K dentro del comando de búsqueda. Los tests
@@ -45,8 +48,15 @@ Las pruebas de un generador de múltiples configuraciones requieren
 |---|---|
 | `search` | Único comando de búsqueda |
 | `--dataset FILE` | Ruta obligatoria del dataset |
-| `--query FILE` | Ruta obligatoria del embedding de consulta |
-| `--algorithm NAME` | Obligatorio: `brute-force` exacto o `hnsw` aproximado |
+| `--query FILE` | CSV vectorial o JSONL de consultas; excluyente con `--query-text` |
+| `--query-text TEXT` | Texto literal de BM25; admite cadena vacía |
+| `--query-id ID` | Selección exacta en JSONL; obligatoria si hay varias consultas |
+| `--mode NAME` | `vector` por defecto, `lexical` (BM25) o `hybrid` ([HNSW + BM25 + RRF](cli_hybrid.md)) |
+| `--candidate-k N` | Solo híbrido: candidatos por recuperador, ≥ K; default `max(K,50)` |
+| `--rrf-k NUMBER` | Solo híbrido: constante RRF finita y positiva; default 60 |
+| `--algorithm NAME` | Vector: `brute-force` o `hnsw`; `bm25` selecciona modo léxico |
+| `--bm25-k1 NUMBER` | Solo BM25: finito y positivo, default 1.2 |
+| `--bm25-b NUMBER` | Solo BM25: finito en [0,1], default 0.75 |
 | `--k INTEGER` | Entero decimal positivo dentro del rango de `size_t`; por defecto 10 |
 | `--metric NAME` | `cosine` (por defecto) o `squared-euclidean` |
 | `--m INTEGER` | Solo HNSW: vecinos máximos en capas superiores, al menos 2; por defecto 16 |
@@ -108,6 +118,123 @@ La carga procesa una fila a la vez mediante `VectorStore::insert()`, sin una
 segunda copia permanente del dataset. Si una fila falla, se descarta el store
 local y no se presentan resultados parciales.
 
+## Formato binario `.avec` (optimización, fase 1)
+
+Leer embeddings como texto (CSV/JSONL) domina el tiempo de carga. `convert` los escribe
+una sola vez en un archivo binario y la búsqueda los carga sin parsear texto:
+
+```sh
+./build-cli/aetherindex convert --dataset datasets/examples/vectors.csv --out vectors.avec
+./build-cli/aetherindex search --algorithm hnsw --dataset vectors.avec --query datasets/examples/query.csv --k 2
+# Híbrido: documentos JSONL sin embeddings + vectores binarios con los mismos DocumentId
+./build-cli/aetherindex convert --dataset datasets/hybrid/corpus.jsonl --out corpus.avec --documents-out corpus.text.jsonl
+./build-cli/aetherindex search --mode hybrid --dataset corpus.text.jsonl --vectors corpus.avec --query datasets/hybrid/queries.jsonl --query-id Q002
+```
+
+- Formato v1: cabecera de 64 bytes (`AETHVEC1`, versión, dimensión, cantidad, offsets,
+  tamaño, CRC-32C de IDs, filas y cabecera), `uint32 ids[N]` y filas `float32` crudas
+  alineadas a 64 bytes, little-endian. El contrato está en
+  `include/aether/storage/vector_file.hpp`.
+- `convert` conserva los valores originales; la métrica se aplica al cargar (coseno
+  normaliza exactamente igual que con CSV/JSONL). Desde JSONL, los VectorId son los
+  DocumentId, así que `--vectors` mantiene la identidad documental compartida.
+- Se rechazan con código 3 los archivos corruptos o truncados (checksum, tamaño,
+  magia o versión), los IDs duplicados, los valores no finitos y, en híbrido, un `.avec`
+  que no tenga exactamente un vector por documento. Las combinaciones inválidas
+  (`--vectors` fuera de híbrido, `--out` sin `.avec`) devuelven código 2.
+- Las salidas de búsqueda son idénticas a las de la entrada de texto
+  (`e2e.cli_avec`). **No es persistencia:** el grafo HNSW y el índice BM25 se siguen
+  construyendo en cada ejecución.
+
+## Paralelismo y consultas en lote (optimización, fase 2)
+
+| Opción | Contrato |
+|---|---|
+| `--all-queries` | Ejecuta todas las consultas de un `--query` JSONL con **una sola** carga y construcción de índices. Excluye `--query-id` y `--query-text`. |
+| `--query-threads N` | Hilos para `--all-queries` (por defecto 1). La salida conserva el orden del archivo. |
+| `--build-threads N` | Hilos para construir HNSW (vector con `hnsw` e híbrido). **1 (por defecto) reproduce exactamente el grafo secuencial**; con más hilos los niveles siguen saliendo de la semilla, pero la topología depende de la planificación de los hilos. |
+| `--parallel-retrievers` | Solo híbrido: BM25 se ejecuta en otro hilo mientras corre HNSW. No cambia resultados; solo puede cambiar el tiempo. |
+
+En lote, la salida comienza con `Batch queries`, `Batch time (ms)` y
+`Throughput (queries/s)`, y sigue con un bloque `=== Query i/N ===` por consulta. Cada
+bloque es exactamente el reporte individual de esa consulta (`e2e.cli_batch` lo
+verifica con 1 y 4 hilos en los tres modos).
+
+```sh
+./build-cli/aetherindex search --mode hybrid --dataset datasets/hybrid/corpus.jsonl \
+    --query datasets/hybrid/queries.jsonl --all-queries --query-threads 4 --build-threads 4
+```
+
+Construcción paralela: niveles pre-muestreados en orden con la semilla, memoria del
+grafo reservada antes de iniciar los hilos, 65,536 bloqueos por franjas (un hilo nunca
+toma dos a la vez) y un bloqueo de entrada solo para el nodo que eleva el nivel máximo.
+Cada nodo calcula sus vecinos en todos los niveles, escribe sus listas y recién después
+publica los enlaces inversos, así nadie recorre una lista incompleta.
+`--build-threads` requiere `extend_candidates=false` (el valor por defecto). Las
+búsquedas reutilizan un registro de visitados por hilo con marcas de época, en lugar de
+reservar un mapa de bits por recorrido. Los resultados son idénticos.
+
+## Cuantización SQ8/PQ (optimización, fases 3 y 4)
+
+`--quantization sq8|pq` recorre el grafo HNSW con distancias sobre códigos comprimidos y
+reordena los candidatos finales con la distancia FP32 exacta. Se aplica a `--algorithm hnsw`
+y al canal denso híbrido; el grafo siempre se construye con FP32.
+
+| Opción | Contrato |
+|---|---|
+| `--quantization none\|sq8\|pq` | `none` por defecto. SQ8: 1 byte por dimensión (≈4× menos que FP32), rango por dimensión y consulta FP32 sin cuantizar. PQ: 1 byte por subespacio, k-means con semilla e igual resultado con cualquier número de hilos. |
+| `--rerank N` | Candidatos que se reordenan con FP32 (por defecto, todos los `max(K, efSearch)`); `0` devuelve las distancias aproximadas. Debe ser 0 o ≥ K (≥ `candidate_k` en híbrido). |
+| `--drop-fp32` | Libera las filas FP32 después de construir el grafo y los códigos: la memoria de vectores queda en la de los códigos. Implica `--rerank 0`; la búsqueda exacta, la inserción y el reordenamiento se rechazan desde entonces. |
+| `--pq-subspaces M` | Subespacios de PQ; deben dividir la dimensión (por defecto, dimensión/4 → 16×). |
+
+La salida agrega `Quantization` (memoria de códigos y FP32), `Re-rank` y
+`Quantization time (ms)`. PQ suele necesitar un `--ef-search` mayor para que el
+reordenamiento recupere el Recall: en la prueba de integración, m=16 llega a Recall@10 = 1.0
+con ef=128 y a 0.90 con ef=64.
+
+## Estrategias BM25 a escala (optimización, fase 5)
+
+`--bm25-strategy exhaustive|taat|wand|bmw` (modo léxico o híbrido). Todas devuelven los
+mismos documentos con scores idénticos bit a bit; `unit.bm25_strategies` compara 13,620
+consultas/estrategias contra la ruta exhaustiva, incluyendo empates masivos.
+
+- `exhaustive` (por defecto): la implementación original sobre postings sin comprimir.
+- `taat`, `wand`, `bmw`: ordinales densos por DocumentId, normalización por longitud
+  precalculada y postings comprimidos en bloques de 128 (delta + varint, `tf=1` en un bit),
+  con la cota máxima de cada bloque redondeada hacia arriba. Liberan los postings crudos
+  (`InvertedIndex::find` deja de estar disponible). En un corpus Zipf de 1.07 millones de
+  postings ocupan 4.35 MB frente a 9.25 MB (2.13×).
+- `wand`/`bmw` omiten documentos o bloques cuya cota (inflada en 1e-9 para que el redondeo
+  nunca pode un resultado válido) no alcanza el K-ésimo score; un empate con el umbral
+  siempre se evalúa, así que el desempate por DocumentId no cambia.
+
+## Filtros por metadatos (optimización, fase 6)
+
+Los documentos JSONL pueden incluir `"metadata": {"campo": valor}` con valores string,
+número o booleano (se comparan como texto). Los filtros se combinan con AND:
+
+```sh
+./build-cli/aetherindex search --mode hybrid --dataset datasets/hybrid/corpus.jsonl \
+    --query datasets/hybrid/queries.jsonl --query-id Q003 --filter "topic=hnsw|rrf"
+```
+
+| Opción | Contrato |
+|---|---|
+| `--filter campo=v1\|v2` | El campo debe valer v1 o v2. Repetible. |
+| `--filter-date campo=AAAA-MM-DD..AAAA-MM-DD` | Fecha gregoriana válida dentro del rango (cualquiera de los extremos puede omitirse). |
+
+- Canal denso: si coinciden menos de 2,000 documentos o menos del 5% del corpus, se hace una
+  búsqueda **exacta** solo sobre los vectores que coinciden. Si no, se recorre HNSW de forma
+  filtrada: se visitan todos los nodos, pero solo los que coinciden entran en el resultado, y
+  la búsqueda continúa hasta reunir suficientes coincidencias. Con `--drop-fp32` siempre se
+  usa el recorrido filtrado.
+- Canal léxico: BM25 omite los documentos que no coinciden, en todas las estrategias.
+- Híbrido: el mismo filtro se aplica a ambos canales antes de RRF.
+- La salida agrega `Filter` (coincidencias de N) y, con canal denso, la estrategia usada. Un
+  campo que no existe en ningún documento devuelve código 3; una sintaxis inválida o un
+  dataset CSV/.avec devuelven código 2. Si nada coincide, la búsqueda termina bien, con cero
+  resultados.
+
 ## Resultados y errores
 
 Una búsqueda correcta presenta algoritmo, métrica, cantidad de vectores,
@@ -166,7 +293,7 @@ carga y búsqueda usando el servicio; `e2e.cli_search` comprueba el ejecutable,
 streams, códigos y errores; `e2e.cli_mvp` ejecuta diez procesos de búsqueda Top-10
 sobre 1,000 embeddings de dimensión 128, con IDs no consecutivos y semilla 42.
 
-La suite normal registra **16 tests**. Los cinco tests HNSW del núcleo cubren
+La suite normal registra **56 tests**. Los cinco tests HNSW del núcleo cubren
 nodos/niveles, inserción, búsqueda, invariantes y Recall@10 con 100 consultas
 independientes por métrica. `e2e.cli_hnsw` ejecuta el algoritmo por la CLI sobre
 1,000 × 128 con ambas métricas, parámetros y semilla reproducible. Sus consultas

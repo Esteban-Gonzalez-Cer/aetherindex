@@ -31,8 +31,11 @@ Sprint 2 incorpora la biblioteca independiente `aether_lexical`: tokenizer,
 índice invertido, estadísticas y BM25 con rankings de `DocumentId` y score double.
 Su uso, contratos y pruebas están en [BM25 — CP-02](docs/algorithms/bm25.md).
 CP-03 incorpora `aether_hybrid` para [fusión RRF](docs/algorithms/rrf.md) mediante
-rankings de DocumentId, con pruebas matemáticas y de contrato. La composición
-híbrida y la extensión de la CLI corresponden a CP-04. Las pruebas léxicas
+rankings de DocumentId, con pruebas matemáticas y de contrato. Desde el 28 de
+octubre de 2026 se puede ejecutar [BM25 desde la CLI](docs/cli_bm25.md) y la
+[búsqueda híbrida HNSW + BM25 + RRF](docs/cli_hybrid.md) (CP-04). El estado de
+aceptación del Sprint 2 está en [la revisión del Sprint 2](docs/sprints/sprint_2_review.md).
+Las pruebas léxicas
 conservan su fixture de regresión identificado por separado de CP-01.
 
 La [validación de optimizaciones](docs/benchmarks/OPTIMIZATION_VALIDATION.md)
@@ -162,6 +165,54 @@ Consultar [VectorStore y distancias](docs/algorithms/vector_store_and_distances.
 para el contrato y los comandos de pruebas, [Fuerza bruta](docs/algorithms/brute_force.md)
 para el flujo de búsqueda y [Evidencia de validación](docs/architecture/vector_store_validation.md)
 para los resultados registrados.
+
+## Sprint 2: MVP híbrido — inicio rápido
+
+Construcción limpia, pruebas y los tres modos de recuperación desde la raíz del
+repositorio (macOS/Linux; en Windows usar `--config Release`, `-C Release` y
+`.\build-sprint2\Release\aetherindex.exe`):
+
+```sh
+cmake -S . -B build-sprint2 -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+cmake --build build-sprint2 --parallel 4
+ctest --test-dir build-sprint2 --output-on-failure
+# Densa (HNSW) sobre vectores CSV
+./build-sprint2/aetherindex search --algorithm hnsw --dataset datasets/examples/vectors.csv --query datasets/examples/query.csv --k 2
+# Léxica (BM25) sobre el corpus CP-01
+./build-sprint2/aetherindex search --mode lexical --dataset datasets/corpus.jsonl --query datasets/queries.jsonl --query-id Q002 --k 5
+# Híbrida (HNSW + BM25 + RRF) sobre el corpus CP-01 con embeddings externos
+./build-sprint2/aetherindex search --mode hybrid --dataset datasets/hybrid/corpus.jsonl --query datasets/hybrid/queries.jsonl --query-id Q002 --k 5
+```
+
+| Elemento | Contrato |
+|---|---|
+| Modos | `vector` (`brute-force`/`hnsw`), `lexical` (BM25) e `hybrid` (HNSW + BM25 + RRF) |
+| Entradas | CSV numérico para vectores; JSONL de documentos/consultas para BM25 e híbrido ([formatos](docs/cli_bm25.md), [híbrido](docs/cli_hybrid.md)) |
+| Identidad | HNSW y BM25 resuelven a la misma `DocumentId` antes de RRF |
+| Parámetros | HNSW `M=16 M0=32 efConstruction=100 efSearch=50 seed=42`; BM25 `k1=1.2 b=0.75`; RRF `k_rrf=60`, `candidate_k=max(K,50)` |
+| Datasets | `datasets/corpus.jsonl` + `queries.jsonl` (CP-01, 30 documentos, 24 consultas etiquetadas); `datasets/hybrid/` se regenera con `python3 scripts/generate_hashing_embeddings.py` |
+| Evaluación | `ctest -L sprint2` ejecuta KR1.3 y KR1.5; [reportes y procedimiento](evaluation/README.md) |
+
+**Optimización posterior al Sprint 2** ([informe y resultados](docs/reports/OPTIMIZATION_ROADMAP.md)):
+formato binario `.avec` y `convert`, construcción HNSW paralela, consultas en lote
+(`--all-queries`), cuantización SQ8/PQ con reordenamiento exacto, estrategias BM25
+comprimidas (`--bm25-strategy taat|wand|bmw`) y filtros por metadatos (`--filter`). Todas son
+opcionales: la salida por defecto se mantiene byte a byte (`e2e.cli_golden`). Ver
+[opciones de la CLI](docs/cli.md).
+
+**Plataformas verificadas:** macOS 26 ARM64 con AppleClang 17 (Debug/Release) y
+Homebrew Clang 23 (ASan/UBSan). Linux con GCC/Clang y Windows con MSVC 2022 son
+objetivos documentados, pero no tienen una ejecución registrada en esta revisión.
+Requisitos: CMake ≥ 3.20 y un compilador C++20. La suite normal no necesita red,
+Python ni bibliotecas externas; Python 3.10+ solo se usa en scripts opcionales.
+
+**Limitaciones conocidas:** sin persistencia (cada ejecución carga datos y
+reconstruye índices); el motor no genera embeddings; los vectores de
+`datasets/hybrid/` son un *hashing* léxico reproducible, no un modelo semántico;
+el corpus CP-01 tiene 30 documentos, por lo que Hit Rate@10 es evidencia débil;
+BM25 usa el perfil `ascii-tech-v1` sin stemming ni sinónimos; sin servidor,
+concurrencia ni actualizaciones/borrados; SIMD y escalas de 100K–1M vectores
+pertenecen a KR3.3–KR3.7, no a este Sprint.
 
 ## 1. Requisitos del sistema
 
