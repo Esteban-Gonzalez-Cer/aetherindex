@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "aether/core/types.hpp"
+#include "aether/lexical/tokenizer.hpp"
 
 namespace aetherindex::lexical {
 
@@ -25,7 +26,7 @@ using PostingList = std::vector<Posting>;
 // like VectorStore: read-only posting views belong to this owner's lifetime.
 class InvertedIndex {
    public:
-    InvertedIndex() = default;
+    explicit InvertedIndex(Analyzer analyzer = Analyzer::AsciiTechV1) : tokenizer_(analyzer) {}
     InvertedIndex(const InvertedIndex&) = delete;
     InvertedIndex& operator=(const InvertedIndex&) = delete;
     InvertedIndex(InvertedIndex&&) = delete;
@@ -79,6 +80,7 @@ class InvertedIndex {
 
     void require_built() const;
 
+    Tokenizer tokenizer_;
     bool ready_ = false;
     bool postings_released_ = false;
     std::size_t document_count_ = 0;

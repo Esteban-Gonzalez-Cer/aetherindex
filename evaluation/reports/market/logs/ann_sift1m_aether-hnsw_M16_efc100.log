@@ -1,0 +1,14 @@
+aether-hnsw ef=10 recall@10=0.76037 p50=0.032959ms qps(batch)=263823
+aether-hnsw ef=16 recall@10=0.83684 p50=0.045ms qps(batch)=199354
+aether-hnsw ef=24 recall@10=0.89061 p50=0.06025ms qps(batch)=153579
+aether-hnsw ef=32 recall@10=0.92146 p50=0.075416ms qps(batch)=125795
+aether-hnsw ef=48 recall@10=0.95394 p50=0.10375ms qps(batch)=92748.4
+aether-hnsw ef=64 recall@10=0.96951 p50=0.132083ms qps(batch)=74032.9
+aether-hnsw ef=96 recall@10=0.98421 p50=0.185584ms qps(batch)=53369.4
+aether-hnsw ef=128 recall@10=0.98994 p50=0.237291ms qps(batch)=42245
+aether-hnsw ef=192 recall@10=0.99476 p50=0.3355ms qps(batch)=30094.6
+aether-hnsw ef=256 recall@10=0.99659 p50=0.427542ms qps(batch)=23715.4
+aether-hnsw ef=384 recall@10=0.99773 p50=0.6065ms qps(batch)=16824.3
+aether-hnsw ef=512 recall@10=0.99812 p50=0.77275ms qps(batch)=13204.5
+aether-hnsw ef=800 recall@10=0.9983 p50=1.09413ms qps(batch)=9051.27
+aether-hnsw build 26.3198 s, memory 701.344 MiB (Release (NDEBUG))

@@ -1,0 +1,8 @@
+{
+  "flags": [],
+  "threads": 1,
+  "optimize": true,
+  "wall_seconds": 1.9513001441955566,
+  "anserini_reported": "00:00:01",
+  "index_bytes": 6939214
+}

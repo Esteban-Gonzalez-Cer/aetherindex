@@ -200,6 +200,12 @@ comprimidas (`--bm25-strategy taat|wand|bmw`) y filtros por metadatos (`--filter
 opcionales: la salida por defecto se mantiene byte a byte (`e2e.cli_golden`). Ver
 [opciones de la CLI](docs/cli.md).
 
+**Comparación con el mercado** ([informe](docs/reports/MARKET_COMPARISON.md)): AetherIndex
+frente a hnswlib, FAISS, Lucene, bm25s, Qdrant y OpenSearch en SIFT1M, GloVe-100 y seis
+datasets BEIR, con un protocolo de equidad explícito y los resultados que perdemos. Añade el
+analizador opcional `--analyzer english-v1` (stopwords y Porter, equivalente al de Lucene).
+Arneses en [benchmarks/market](benchmarks/market/README.md).
+
 **Plataformas verificadas:** macOS 26 ARM64 con AppleClang 17 (Debug/Release) y
 Homebrew Clang 23 (ASan/UBSan). Linux con GCC/Clang y Windows con MSVC 2022 son
 objetivos documentados, pero no tienen una ejecución registrada en esta revisión.
@@ -210,7 +216,7 @@ Python ni bibliotecas externas; Python 3.10+ solo se usa en scripts opcionales.
 reconstruye índices); el motor no genera embeddings; los vectores de
 `datasets/hybrid/` son un *hashing* léxico reproducible, no un modelo semántico;
 el corpus CP-01 tiene 30 documentos, por lo que Hit Rate@10 es evidencia débil;
-BM25 usa el perfil `ascii-tech-v1` sin stemming ni sinónimos; sin servidor,
+BM25 usa por defecto el perfil `ascii-tech-v1` sin stemming ni sinónimos (`english-v1` es opcional); sin servidor,
 concurrencia ni actualizaciones/borrados; SIMD y escalas de 100K–1M vectores
 pertenecen a KR3.3–KR3.7, no a este Sprint.
 

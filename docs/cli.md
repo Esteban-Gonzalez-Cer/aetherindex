@@ -57,6 +57,8 @@ Las pruebas de un generador de múltiples configuraciones requieren
 | `--algorithm NAME` | Vector: `brute-force` o `hnsw`; `bm25` selecciona modo léxico |
 | `--bm25-k1 NUMBER` | Solo BM25: finito y positivo, default 1.2 |
 | `--bm25-b NUMBER` | Solo BM25: finito en [0,1], default 0.75 |
+| `--analyzer NAME` | Solo BM25: `ascii-tech-v1` (por defecto) o `english-v1` (ver abajo) |
+| `--bm25-query-weighting NAME` | Solo BM25: `unique` (por defecto) o `frequency` (ver abajo) |
 | `--k INTEGER` | Entero decimal positivo dentro del rango de `size_t`; por defecto 10 |
 | `--metric NAME` | `cosine` (por defecto) o `squared-euclidean` |
 | `--m INTEGER` | Solo HNSW: vecinos máximos en capas superiores, al menos 2; por defecto 16 |
@@ -207,6 +209,33 @@ consultas/estrategias contra la ruta exhaustiva, incluyendo empates masivos.
 - `wand`/`bmw` omiten documentos o bloques cuya cota (inflada en 1e-9 para que el redondeo
   nunca pode un resultado válido) no alcanza el K-ésimo score; un empate con el umbral
   siempre se evalúa, así que el desempate por DocumentId no cambia.
+
+## Analizador inglés `english-v1` (comparación con el mercado)
+
+`--analyzer ascii-tech-v1|english-v1` (modo léxico o híbrido) elige el análisis de texto,
+que se aplica igual a documentos y consultas. `ascii-tech-v1` sigue siendo el valor por
+defecto y su salida no cambia (la línea `BM25 analyzer` solo aparece con `english-v1`).
+
+`english-v1` reproduce el `EnglishAnalyzer` de Lucene para texto latino:
+
+- separa en guiones y en signos y símbolos Unicode (`±`, `×`, `≥`, superíndices); `_` une;
+  `.`, `:`, `·` y apóstrofos unen dos letras; `.`, `,`, `;` y apóstrofos unen dos dígitos;
+- quita el posesivo `'s`, pasa a minúsculas letras latinas, griegas y cirílicas;
+- elimina las 33 *stopwords* inglesas de Lucene y aplica el *stemmer* Porter clásico
+  (con las variantes `bli`/`logi` de Martin Porter, igual que Lucene).
+
+En el corpus de SciFact (BEIR, 838,128 tokens), el 99.993 % de los tokens coincide con los
+que indexa Anserini/Lucene; las diferencias restantes son símbolos como `®`, `©` y `™`, que
+Lucene emite como tokens. Resultados y protocolo de la comparación:
+[informe de comparación con el mercado](reports/MARKET_COMPARISON.md).
+
+`--bm25-query-weighting unique|frequency` decide cuánto cuenta un término repetido en la
+consulta analizada. Con `unique` (por defecto, salida sin cambios) cada término distinto
+cuenta una vez. Con `frequency` su contribución se multiplica por las veces que aparece, como
+en las consultas *bag of words* de Lucene/Anserini; la salida añade
+`BM25 query weighting: frequency`. Las cuatro estrategias siguen devolviendo los mismos
+resultados con scores idénticos. Importa en consultas largas: en ArguAna (mediana de 174
+palabras por consulta) es lo que separa a BM25 del resultado de Lucene.
 
 ## Filtros por metadatos (optimización, fase 6)
 

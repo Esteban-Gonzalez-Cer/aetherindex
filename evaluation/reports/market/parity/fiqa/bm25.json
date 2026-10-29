@@ -1,0 +1,12 @@
+{
+  "system": "aetherindex-bm25",
+  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/fiqa",
+  "documents": 57638,
+  "queries": 648,
+  "build_type": "Release (NDEBUG)",
+  "bm25": {"k1": 0.9, "b": 0.4, "analyzer": "english-v1", "strategy": "bmw", "build_seconds_single_thread": 0.945387875, "postings_raw_bytes": 31202064, "postings_compressed_bytes": 11935535},
+  "memory_mib": 78.1096268,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50
+}

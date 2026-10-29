@@ -1,0 +1,10 @@
+faiss-ivfpq-refine nprobe=1 recall@10=0.38929 p50=0.068292ms qps(batch)=125829
+faiss-ivfpq-refine nprobe=2 recall@10=0.51638 p50=0.075625ms qps(batch)=113996
+faiss-ivfpq-refine nprobe=4 recall@10=0.62269 p50=0.089083ms qps(batch)=94807.8
+faiss-ivfpq-refine nprobe=8 recall@10=0.70577 p50=0.117042ms qps(batch)=73344.4
+faiss-ivfpq-refine nprobe=16 recall@10=0.76751 p50=0.166291ms qps(batch)=50418.4
+faiss-ivfpq-refine nprobe=32 recall@10=0.81308 p50=0.265667ms qps(batch)=30992.8
+faiss-ivfpq-refine nprobe=64 recall@10=0.84393 p50=0.457ms qps(batch)=18065.7
+faiss-ivfpq-refine nprobe=128 recall@10=0.86374 p50=0.847916ms qps(batch)=9822.59
+faiss-ivfpq-refine nprobe=256 recall@10=0.87453 p50=1.60821ms qps(batch)=5163.81
+faiss-ivfpq-refine build 6.54284 s, memory 718.985 MiB (Release (NDEBUG))

@@ -1,0 +1,27 @@
+{
+  "system": "qdrant-hybrid",
+  "dataset": "arguana",
+  "documents": 8674,
+  "queries": 1406,
+  "ingest_and_index_seconds": 7.363256957847625,
+  "container_memory_mib": 1221.632,
+  "image": "sha256:9bfc89f9914fc14876a88c05270685921a55b8877b254a98bcc1cc2f0a424cd2",
+  "k1": 0.9,
+  "b": 0.4,
+  "hnsw": {
+    "M": 16,
+    "ef_construction": 200,
+    "ef": 128
+  },
+  "qdrant_indexed_vectors": 8673,
+  "latency_queries": 1000,
+  "repetitions": 5,
+  "lat_p50_ms": 2.268292009830475,
+  "lat_p95_ms": 3.011499997228384,
+  "lat_p99_ms": 4.208958009257913,
+  "lat_mean_ms": 2.1138953687623143,
+  "threads": 10,
+  "qps_batch": 3885.0220365098103,
+  "qps_batch_q1": 3808.353500072797,
+  "qps_batch_q3": 3886.344244895227
+}

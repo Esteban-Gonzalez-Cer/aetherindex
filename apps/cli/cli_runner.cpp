@@ -131,6 +131,10 @@ void print_lexical(std::ostream& output, const SearchRequest& request,
            << " b=" << request.bm25_config.b;
     if (request.bm25_config.strategy != lexical::Bm25Strategy::Exhaustive)
         output << "\nBM25 strategy: " << strategy_name(request.bm25_config.strategy);
+    if (request.bm25_config.analyzer != lexical::Analyzer::AsciiTechV1)
+        output << "\nBM25 analyzer: " << lexical::analyzer_name(request.bm25_config.analyzer);
+    if (request.bm25_config.query_weighting != lexical::QueryTermWeighting::Unique)
+        output << "\nBM25 query weighting: frequency";
     print_filter(output, request, response, false);
     if (!response.selected_query_id.empty())
         output << "\nQuery ID: " << display_id(response.selected_query_id);
@@ -206,6 +210,13 @@ void print_hybrid(std::ostream& output, const SearchRequest& request,
            << (request.bm25_config.strategy != lexical::Bm25Strategy::Exhaustive
                    ? std::string("\nBM25 strategy: ") + strategy_name(request.bm25_config.strategy)
                    : std::string())
+           << (request.bm25_config.analyzer != lexical::Analyzer::AsciiTechV1
+                   ? std::string("\nBM25 analyzer: ") +
+                         lexical::analyzer_name(request.bm25_config.analyzer)
+                   : std::string())
+           << (request.bm25_config.query_weighting != lexical::QueryTermWeighting::Unique
+                   ? "\nBM25 query weighting: frequency"
+                   : "")
            << "\nHNSW configuration: M=" << hnsw.m << " M0=" << hnsw.m_max_0
            << " efConstruction=" << hnsw.ef_construction << " efSearch=" << hnsw.ef_search
            << " seed=" << hnsw.random_seed << "\nHNSW neighbor selection: "

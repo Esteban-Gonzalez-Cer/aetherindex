@@ -6,12 +6,32 @@
 
 namespace aetherindex::lexical {
 
-// ascii-tech-v1: ASCII lowercase, internal -/_, C++ (including C++17), repeated
-// tokens retained. Valid UTF-8 is preserved, without Unicode case folding/NFC.
+// Text analysis applied identically to documents and queries.
+//   AsciiTechV1  ascii-tech-v1: ASCII lowercase, internal -/_, C++ (including C++17),
+//                repeated tokens retained. The default.
+//   EnglishV1    english-v1: modeled on Lucene's EnglishAnalyzer for Latin text. Words
+//                split at hyphens and at punctuation/symbol code points (e.g. ± × ≥);
+//                '_' joins; '.', ':', '·' and apostrophes join two letters; '.', ',', ';'
+//                and apostrophes join two digits. Then the English possessive 's is
+//                removed, Latin/Greek/Cyrillic letters are lowercased, Lucene's 33
+//                English stopwords are dropped and the classic Porter stemmer is applied.
+// Neither applies NFC or full Unicode case folding; ascii-tech-v1 lowercases ASCII only.
+enum class Analyzer { AsciiTechV1, EnglishV1 };
+
+[[nodiscard]] const char* analyzer_name(Analyzer analyzer) noexcept;
+
 // Invalid UTF-8 throws invalid_argument. Returned strings own their contents.
 class Tokenizer {
    public:
+    explicit Tokenizer(Analyzer analyzer = Analyzer::AsciiTechV1) : analyzer_(analyzer) {}
     [[nodiscard]] std::vector<std::string> tokenize(std::string_view text) const;
+
+   private:
+    Analyzer analyzer_;
 };
+
+// Classic Porter (1980) stemmer as published by Martin Porter (with his 'bli'/'logi'
+// departures, as in Lucene's PorterStemmer). Words of two letters or fewer are unchanged.
+[[nodiscard]] std::string porter_stem(std::string word);
 
 }  // namespace aetherindex::lexical

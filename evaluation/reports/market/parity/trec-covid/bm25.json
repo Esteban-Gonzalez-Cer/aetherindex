@@ -1,0 +1,12 @@
+{
+  "system": "aetherindex-bm25",
+  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/trec-covid",
+  "documents": 171332,
+  "queries": 50,
+  "build_type": "Release (NDEBUG)",
+  "bm25": {"k1": 0.9, "b": 0.4, "analyzer": "english-v1", "strategy": "bmw", "build_seconds_single_thread": 3.76395687, "postings_raw_bytes": 110724336, "postings_compressed_bytes": 40569797},
+  "memory_mib": 134.813438,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50
+}

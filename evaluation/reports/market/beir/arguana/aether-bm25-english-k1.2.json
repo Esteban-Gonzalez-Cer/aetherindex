@@ -1,0 +1,23 @@
+{
+  "system": "aetherindex-bm25",
+  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/arguana",
+  "documents": 8674,
+  "queries": 1406,
+  "build_type": "Release (NDEBUG)",
+  "bm25": {"k1": 1.2, "b": 0.75, "analyzer": "english-v1", "strategy": "bmw", "build_seconds_single_thread": 0.193094542, "postings_raw_bytes": 6350608, "postings_compressed_bytes": 3095124},
+  "memory_mib": 22.1250458,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50,
+  "latency_queries": 1000,
+  "repetitions": 5,
+  "lat_p50_ms": 7.966667,
+  "lat_p95_ms": 24.092625,
+  "lat_p99_ms": 43.122709,
+  "lat_mean_ms": 10.2622798,
+  "qps_single": 97.4442345,
+  "threads": 10,
+  "qps_batch": 900.744203,
+  "qps_batch_q1": 900.026005,
+  "qps_batch_q3": 903.55917
+}

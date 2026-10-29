@@ -1,0 +1,12 @@
+{
+  "flags": [
+    "-stemmer",
+    "none",
+    "-keepStopwords"
+  ],
+  "threads": 1,
+  "optimize": true,
+  "wall_seconds": 2.083317995071411,
+  "anserini_reported": "00:00:01",
+  "index_bytes": 17670572
+}

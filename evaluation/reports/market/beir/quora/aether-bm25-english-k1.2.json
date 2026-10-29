@@ -1,0 +1,23 @@
+{
+  "system": "aetherindex-bm25",
+  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/quora",
+  "documents": 522931,
+  "queries": 10000,
+  "build_type": "Release (NDEBUG)",
+  "bm25": {"k1": 1.2, "b": 0.75, "analyzer": "english-v1", "strategy": "bmw", "build_seconds_single_thread": 1.05300608, "postings_raw_bytes": 35230472, "postings_compressed_bytes": 18936011},
+  "memory_mib": 287.85981,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50,
+  "latency_queries": 1000,
+  "repetitions": 5,
+  "lat_p50_ms": 0.364958,
+  "lat_p95_ms": 1.624,
+  "lat_p99_ms": 2.838125,
+  "lat_mean_ms": 0.570144089,
+  "qps_single": 1753.94259,
+  "threads": 10,
+  "qps_batch": 15555.2918,
+  "qps_batch_q1": 15524.3364,
+  "qps_batch_q3": 15572.3218
+}

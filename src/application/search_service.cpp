@@ -451,7 +451,8 @@ void validate_search_request(const SearchRequest& request) {
             throw std::invalid_argument("--candidate-k and --vectors require hybrid mode.");
         lexical::validate_bm25_config(request.bm25_config);
         if (request.query_text)
-            static_cast<void>(lexical::Tokenizer{}.tokenize(*request.query_text));
+            static_cast<void>(
+                lexical::Tokenizer(request.bm25_config.analyzer).tokenize(*request.query_text));
         return;
     }
     if (request.mode == SearchMode::Hybrid) {

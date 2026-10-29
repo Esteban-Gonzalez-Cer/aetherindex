@@ -1,0 +1,23 @@
+{
+  "system": "aetherindex-bm25",
+  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/fiqa",
+  "documents": 57638,
+  "queries": 648,
+  "build_type": "Release (NDEBUG)",
+  "bm25": {"k1": 0.9, "b": 0.4, "analyzer": "english-v1", "strategy": "exhaustive", "build_seconds_single_thread": 0.951809125, "postings_raw_bytes": 31202064, "postings_compressed_bytes": 0},
+  "memory_mib": 88.3908768,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50,
+  "latency_queries": 648,
+  "repetitions": 5,
+  "lat_p50_ms": 3.149917,
+  "lat_p95_ms": 5.249625,
+  "lat_p99_ms": 5.760917,
+  "lat_mean_ms": 3.09132071,
+  "qps_single": 323.486332,
+  "threads": 10,
+  "qps_batch": 2917.00546,
+  "qps_batch_q1": 2895.83701,
+  "qps_batch_q3": 2917.15702
+}

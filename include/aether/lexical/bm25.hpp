@@ -84,14 +84,21 @@ class Bm25Index {
         }
     };
     class Cursor;
+    // A distinct analyzed query term and the factor applied to its contribution
+    // (1 under QueryTermWeighting::Unique, its query occurrences under Frequency).
+    struct QueryTerm {
+        std::string text;
+        double weight;
+    };
 
+    std::vector<QueryTerm> query_terms(std::string_view query) const;
     void build_layout();
     using Allow = std::function<bool(DocumentId)>;
-    std::vector<RankedResult> search_exhaustive(const std::vector<std::string>& terms,
+    std::vector<RankedResult> search_exhaustive(const std::vector<QueryTerm>& terms,
                                                 std::size_t k, const Allow& allow) const;
-    std::vector<RankedResult> search_term_at_a_time(const std::vector<std::string>& terms,
+    std::vector<RankedResult> search_term_at_a_time(const std::vector<QueryTerm>& terms,
                                                     std::size_t k, const Allow& allow) const;
-    std::vector<RankedResult> search_wand(const std::vector<std::string>& terms, std::size_t k,
+    std::vector<RankedResult> search_wand(const std::vector<QueryTerm>& terms, std::size_t k,
                                           bool block_max, const Allow& allow) const;
 
     const Bm25Config config_;

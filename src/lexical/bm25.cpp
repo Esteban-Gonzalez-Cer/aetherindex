@@ -21,9 +21,17 @@ void validate_bm25_config(const Bm25Config& config) {
         case Bm25Strategy::TermAtATime:
         case Bm25Strategy::Wand:
         case Bm25Strategy::BlockMaxWand:
-            return;
+            break;
+        default:
+            throw std::invalid_argument("Unsupported BM25 strategy.");
     }
-    throw std::invalid_argument("Unsupported BM25 strategy.");
+    if (config.analyzer != Analyzer::AsciiTechV1 && config.analyzer != Analyzer::EnglishV1) {
+        throw std::invalid_argument("Unsupported BM25 analyzer.");
+    }
+    if (config.query_weighting != QueryTermWeighting::Unique &&
+        config.query_weighting != QueryTermWeighting::Frequency) {
+        throw std::invalid_argument("Unsupported BM25 query term weighting.");
+    }
 }
 
 double compute_idf(std::size_t document_count, std::size_t document_frequency) {
@@ -99,13 +107,6 @@ bool better(const RankedResult& a, const RankedResult& b) {
     return a.score != b.score ? a.score > b.score : a.document_id < b.document_id;
 }
 
-std::vector<std::string> query_terms(std::string_view query) {
-    auto terms = Tokenizer{}.tokenize(query);
-    std::sort(terms.begin(), terms.end());
-    terms.erase(std::unique(terms.begin(), terms.end()), terms.end());
-    return terms;
-}
-
 // Bounded Top-K under the ranking order; top() is the current worst kept result.
 class TopK {
    public:
@@ -137,17 +138,40 @@ class TopK {
 
 }  // namespace
 
+// Distinct terms in lexicographic order, so every strategy sums contributions in the same
+// order. A weight of 1 leaves each contribution bitwise unchanged.
+std::vector<Bm25Index::QueryTerm> Bm25Index::query_terms(std::string_view query) const {
+    auto tokens = Tokenizer(config_.analyzer).tokenize(query);
+    std::sort(tokens.begin(), tokens.end());
+    std::vector<QueryTerm> terms;
+    for (auto& token : tokens) {
+        if (!terms.empty() && terms.back().text == token) {
+            if (config_.query_weighting == QueryTermWeighting::Frequency)
+                terms.back().weight += 1.0;
+        } else {
+            terms.push_back({std::move(token), 1.0});
+        }
+    }
+    return terms;
+}
+
 // Document-at-a-time cursor over one compressed posting list. The "shallow" block
 // pointer serves block-max lookups without decoding; it only moves forward.
 class Bm25Index::Cursor {
    public:
-    Cursor(const TermLayout& term, std::size_t rank) : term_(&term), rank_(rank) { decode(0); }
+    Cursor(const TermLayout& term, std::size_t rank, double weight)
+        : term_(&term), rank_(rank), weight_(weight) {
+        decode(0);
+    }
 
     std::uint32_t doc() const noexcept { return doc_; }
     std::uint32_t tf() const noexcept { return tfs_[position_]; }
     std::size_t rank() const noexcept { return rank_; }
-    double upper_bound() const noexcept { return term_->max_score; }
+    // Bounds include the query weight; rounding is monotonic, so weight * score never
+    // exceeds weight * bound.
+    double upper_bound() const noexcept { return weight_ * term_->max_score; }
     double idf() const noexcept { return term_->idf; }
+    double weight() const noexcept { return weight_; }
 
     void next() {
         if (++position_ < count_) {
@@ -176,7 +200,7 @@ class Bm25Index::Cursor {
         if (shallow_ > block_ && term_->blocks[shallow_ - 1].last >= target) shallow_ = block_;
         while (shallow_ < term_->blocks.size() && term_->blocks[shallow_].last < target) ++shallow_;
         return shallow_ < term_->blocks.size()
-                   ? static_cast<double>(term_->blocks[shallow_].max_score)
+                   ? weight_ * static_cast<double>(term_->blocks[shallow_].max_score)
                    : 0.0;
     }
     std::uint32_t block_last() const noexcept {
@@ -203,12 +227,15 @@ class Bm25Index::Cursor {
 
     const TermLayout* term_;
     std::size_t rank_;
+    double weight_;
     std::size_t block_ = 0, shallow_ = 0, position_ = 0, count_ = 0;
     std::uint32_t doc_ = kEnd;
     std::array<std::uint32_t, kBlockSize> docs_{}, tfs_{};
 };
 
-Bm25Index::Bm25Index(Bm25Config config) : config_(config) { validate_bm25_config(config_); }
+Bm25Index::Bm25Index(Bm25Config config) : config_(config), index_(config.analyzer) {
+    validate_bm25_config(config_);
+}
 void Bm25Index::add_document(DocumentId id, std::string_view text) {
     index_.add_document(id, text);
 }
@@ -305,19 +332,23 @@ std::vector<RankedResult> Bm25Index::search(std::string_view query, std::size_t 
     throw std::logic_error("Unsupported BM25 strategy.");
 }
 
-std::vector<RankedResult> Bm25Index::search_exhaustive(const std::vector<std::string>& terms,
+std::vector<RankedResult> Bm25Index::search_exhaustive(const std::vector<QueryTerm>& terms,
                                                        std::size_t k, const Allow& allow) const {
     std::unordered_map<DocumentId, double> scores;
     for (const auto& term : terms) {
-        const auto list = index_.find(term);
+        const auto list = index_.find(term.text);
         if (list.empty()) continue;
         const double idf = compute_idf(index_.document_count(), list.size());
         for (const auto& posting : list) {
             if (allow && !allow(posting.document_id)) continue;
+            // Separate statements keep the weighted product from being fused into the sum
+            // (FMA), so every strategy adds identically rounded contributions.
+            const double contribution =
+                term.weight * bm25_term_score(posting.term_frequency,
+                                              index_.document_length(posting.document_id).value(),
+                                              index_.average_document_length(), idf, config_);
             auto& score = scores[posting.document_id];
-            score += bm25_term_score(posting.term_frequency,
-                                     index_.document_length(posting.document_id).value(),
-                                     index_.average_document_length(), idf, config_);
+            score += contribution;
             if (!std::isfinite(score))
                 throw std::overflow_error("BM25 accumulated score overflow.");
         }
@@ -332,7 +363,7 @@ std::vector<RankedResult> Bm25Index::search_exhaustive(const std::vector<std::st
 
 // Dense per-thread accumulator; terms are added in the same lexicographic order as the
 // exhaustive path, so each document's floating-point sum is identical.
-std::vector<RankedResult> Bm25Index::search_term_at_a_time(const std::vector<std::string>& terms,
+std::vector<RankedResult> Bm25Index::search_term_at_a_time(const std::vector<QueryTerm>& terms,
                                                            std::size_t k,
                                                            const Allow& allow) const {
     thread_local std::vector<double> scores;
@@ -344,17 +375,19 @@ std::vector<RankedResult> Bm25Index::search_term_at_a_time(const std::vector<std
     }
     touched.clear();
     for (const auto& term : terms) {
-        const auto found = layout_.find(term);
+        const auto found = layout_.find(term.text);
         if (found == layout_.end()) continue;
-        Cursor cursor(found->second, 0);
+        Cursor cursor(found->second, 0, term.weight);
         for (; cursor.doc() != kEnd; cursor.next()) {
             const std::uint32_t d = cursor.doc();
             if (!touched_flag[d]) {
                 touched_flag[d] = 1;
                 touched.push_back(d);
             }
-            scores[d] +=
+            const double contribution =
+                term.weight *
                 detail::bm25_score_from_norm(cursor.tf(), length_norm_[d], cursor.idf(), config_);
+            scores[d] += contribution;
         }
     }
     TopK top(k);
@@ -374,13 +407,13 @@ std::vector<RankedResult> Bm25Index::search_term_at_a_time(const std::vector<std
 // documents tying the threshold are still scored and the DocumentId tie rule holds.
 // A filter only removes candidates, so it can never raise the threshold incorrectly;
 // excluded documents are skipped without being offered.
-std::vector<RankedResult> Bm25Index::search_wand(const std::vector<std::string>& terms,
+std::vector<RankedResult> Bm25Index::search_wand(const std::vector<QueryTerm>& terms,
                                                  std::size_t k, bool block_max,
                                                  const Allow& allow) const {
     std::vector<Cursor> cursors;
     for (std::size_t rank = 0; rank < terms.size(); ++rank) {
-        const auto found = layout_.find(terms[rank]);
-        if (found != layout_.end()) cursors.emplace_back(found->second, rank);
+        const auto found = layout_.find(terms[rank].text);
+        if (found != layout_.end()) cursors.emplace_back(found->second, rank, terms[rank].weight);
     }
     std::vector<Cursor*> order;
     for (auto& cursor : cursors) order.push_back(&cursor);
@@ -430,8 +463,9 @@ std::vector<RankedResult> Bm25Index::search_wand(const std::vector<std::string>&
             for (std::size_t i = 0; i <= pivot; ++i)
                 contributions.emplace_back(
                     order[i]->rank(),
-                    detail::bm25_score_from_norm(order[i]->tf(), length_norm_[pivot_doc],
-                                                 order[i]->idf(), config_));
+                    order[i]->weight() *
+                        detail::bm25_score_from_norm(order[i]->tf(), length_norm_[pivot_doc],
+                                                     order[i]->idf(), config_));
             std::sort(contributions.begin(), contributions.end());
             double score = 0.0;
             for (const auto& [rank, value] : contributions) score += value;

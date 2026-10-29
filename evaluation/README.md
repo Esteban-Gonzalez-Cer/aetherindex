@@ -85,3 +85,14 @@ Los datasets públicos opcionales se preparan con `scripts/prepare_real_dataset.
 SIFT1M de TEXMEX (`ftp://ftp.irisa.fr/local/texmex/corpus/sift.tar.gz`, descomprimido en
 `datasets/real/sift1m/`). Ambos quedan fuera de Git. Resultados e interpretación:
 [informe de optimización](../docs/reports/OPTIMIZATION_ROADMAP.md).
+
+## Comparación con el mercado
+
+`evaluation/reports/market/` contiene los resultados crudos de la comparación con hnswlib,
+FAISS, Lucene, bm25s, Qdrant y OpenSearch: `ann/` (CSV por sistema y configuración),
+`beir/<dataset>/` (runs TREC, JSON y latencias por consulta), `beir-ann/`, `parity/` (control
+de la fusión RRF), `servers/` (Qdrant y OpenSearch), `analyzer_parity.json`, los logs y el
+`manifest.json` con versiones y hashes. `scripts/summarize_market.py` genera `summary.md`,
+`quality.csv`, `ann_targets.csv` y las gráficas de `plots/`. Procedimiento en
+[benchmarks/market](../benchmarks/market/README.md); resultados e interpretación en el
+[informe de comparación](../docs/reports/MARKET_COMPARISON.md).

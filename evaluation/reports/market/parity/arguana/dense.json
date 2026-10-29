@@ -1,0 +1,12 @@
+{
+  "system": "aetherindex-dense",
+  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/arguana",
+  "documents": 8674,
+  "queries": 1406,
+  "build_type": "Release (NDEBUG)",
+  "dense": {"index": "hnsw", "M": 16, "ef_construction": 200, "ef": 128, "build_threads": 1, "build_seconds": 2.16364842, "dimension": 384},
+  "memory_mib": 15.0000229,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50
+}

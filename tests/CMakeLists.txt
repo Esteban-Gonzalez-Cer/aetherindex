@@ -308,6 +308,17 @@ target_link_libraries(aether_bm25_strategies_tests PRIVATE aether_lexical)
 add_test(NAME unit.bm25_strategies COMMAND aether_bm25_strategies_tests)
 set_tests_properties(unit.bm25_strategies PROPERTIES TIMEOUT 600 LABELS "lexical;optimization;bm25-scale")
 
+# Market comparison: opt-in english-v1 analyzer (Porter, possessives, stopwords).
+add_executable(aether_english_analyzer_tests unit/english_analyzer_test.cpp)
+target_link_libraries(aether_english_analyzer_tests PRIVATE aether_lexical)
+add_test(NAME unit.english_analyzer COMMAND aether_english_analyzer_tests)
+set_tests_properties(unit.english_analyzer PROPERTIES TIMEOUT 120 LABELS "lexical;market")
+add_test(NAME e2e.cli_analyzer COMMAND "${CMAKE_COMMAND}"
+    "-DCLI_PATH=$<TARGET_FILE:aetherindex>"
+    "-DSOURCE_DIR=${PROJECT_SOURCE_DIR}"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_analyzer_test.cmake")
+set_tests_properties(e2e.cli_analyzer PROPERTIES TIMEOUT 120 LABELS "lexical;market")
+
 # Optimization phase 6: metadata filtering (dense exact/graph, BM25 strategies, hybrid).
 add_executable(aether_filter_tests integration/filter_test.cpp)
 target_link_libraries(aether_filter_tests PRIVATE aether_application aether_hnsw aether_brute_force

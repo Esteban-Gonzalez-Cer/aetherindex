@@ -1,0 +1,463 @@
+[02:52:28] start parity/scifact/bm25
+[02:52:28] done  parity/scifact/bm25 (0 s)
+[02:52:28] start parity/scifact/dense
+[02:52:29] done  parity/scifact/dense (1 s)
+[02:52:29] start parity/scifact/hybrid
+[02:52:31] done  parity/scifact/hybrid (1 s)
+[02:52:31] start parity/scifact/check
+[02:52:31] done  parity/scifact/check (0 s)
+[02:52:31] start parity/nfcorpus/bm25
+[02:52:31] done  parity/nfcorpus/bm25 (0 s)
+[02:52:31] start parity/nfcorpus/dense
+[02:52:32] done  parity/nfcorpus/dense (1 s)
+[02:52:32] start parity/nfcorpus/hybrid
+[02:52:33] done  parity/nfcorpus/hybrid (1 s)
+[02:52:33] start parity/nfcorpus/check
+[02:52:33] done  parity/nfcorpus/check (0 s)
+[02:52:33] start parity/fiqa/bm25
+[02:52:34] done  parity/fiqa/bm25 (1 s)
+[02:52:34] start parity/fiqa/dense
+[02:53:02] done  parity/fiqa/dense (28 s)
+[02:53:02] start parity/fiqa/hybrid
+[02:53:32] done  parity/fiqa/hybrid (29 s)
+[02:53:32] start parity/fiqa/check
+[02:53:32] done  parity/fiqa/check (0 s)
+[02:53:32] start parity/arguana/bm25
+[02:53:34] done  parity/arguana/bm25 (2 s)
+[02:53:34] start parity/arguana/dense
+[02:53:36] done  parity/arguana/dense (2 s)
+[02:53:36] start parity/arguana/hybrid
+[02:53:40] done  parity/arguana/hybrid (4 s)
+[02:53:40] start parity/arguana/check
+[02:53:40] done  parity/arguana/check (0 s)
+[02:53:40] start parity/trec-covid/bm25
+[02:53:45] done  parity/trec-covid/bm25 (5 s)
+[02:53:45] start parity/trec-covid/dense
+[02:55:22] done  parity/trec-covid/dense (97 s)
+[02:55:22] start parity/trec-covid/hybrid
+[02:57:04] done  parity/trec-covid/hybrid (102 s)
+[02:57:04] start parity/trec-covid/check
+[02:57:04] done  parity/trec-covid/check (0 s)
+[02:57:04] start parity/quora/bm25
+[02:57:07] done  parity/quora/bm25 (3 s)
+[02:57:07] start parity/quora/dense
+[03:03:19] done  parity/quora/dense (372 s)
+[03:03:19] start parity/quora/hybrid
+[03:09:35] done  parity/quora/hybrid (377 s)
+[03:09:35] start parity/quora/check
+[03:09:38] done  parity/quora/check (3 s)
+[03:09:38] start beir/scifact/aether-bm25-english
+[03:09:38] done  beir/scifact/aether-bm25-english (0 s)
+[03:09:38] start beir/scifact/aether-bm25-english-exhaustive
+[03:09:39] done  beir/scifact/aether-bm25-english-exhaustive (1 s)
+[03:09:39] start beir/scifact/aether-bm25-ascii
+[03:09:40] done  beir/scifact/aether-bm25-ascii (0 s)
+[03:09:40] start beir/scifact/aether-bm25-english-k1.2
+[03:09:40] done  beir/scifact/aether-bm25-english-k1.2 (0 s)
+[03:09:40] start beir/scifact/lucene-index-porter
+[03:09:41] done  beir/scifact/lucene-index-porter (1 s)
+[03:09:41] start beir/scifact/lucene-index-none-keepstop
+[03:09:42] done  beir/scifact/lucene-index-none-keepstop (1 s)
+[03:09:42] start beir/scifact/lucene-bm25-porter
+[03:09:42] done  beir/scifact/lucene-bm25-porter (1 s)
+[03:09:42] start beir/scifact/lucene-bm25-none-keepstop
+[03:09:43] done  beir/scifact/lucene-bm25-none-keepstop (1 s)
+[03:09:43] start beir/scifact/lucene-bm25-porter-k1.2
+[03:09:44] done  beir/scifact/lucene-bm25-porter-k1.2 (1 s)
+[03:09:44] start beir/scifact/bm25s-default
+[03:09:45] done  beir/scifact/bm25s-default (1 s)
+[03:09:45] start beir/scifact/bm25s-matched
+[03:09:46] done  beir/scifact/bm25s-matched (1 s)
+[03:09:46] start beir/scifact/exact-dense
+[03:09:46] done  beir/scifact/exact-dense (0 s)
+[03:09:46] start beir/scifact/aether-dense-hnsw
+[03:09:47] done  beir/scifact/aether-dense-hnsw (0 s)
+[03:09:47] start beir/scifact/aether-dense-sq8
+[03:09:47] done  beir/scifact/aether-dense-sq8 (0 s)
+[03:09:47] start beir/scifact/aether-hybrid
+[03:09:48] done  beir/scifact/aether-hybrid (1 s)
+[03:09:48] start beir/scifact/reference-hybrid
+[03:09:48] done  beir/scifact/reference-hybrid (0 s)
+[03:09:48] start beir/nfcorpus/aether-bm25-english
+[03:09:48] done  beir/nfcorpus/aether-bm25-english (0 s)
+[03:09:48] start beir/nfcorpus/aether-bm25-english-exhaustive
+[03:09:48] done  beir/nfcorpus/aether-bm25-english-exhaustive (0 s)
+[03:09:48] start beir/nfcorpus/aether-bm25-ascii
+[03:09:49] done  beir/nfcorpus/aether-bm25-ascii (0 s)
+[03:09:49] start beir/nfcorpus/aether-bm25-english-k1.2
+[03:09:49] done  beir/nfcorpus/aether-bm25-english-k1.2 (0 s)
+[03:09:49] start beir/nfcorpus/lucene-index-porter
+[03:09:49] done  beir/nfcorpus/lucene-index-porter (1 s)
+[03:09:49] start beir/nfcorpus/lucene-index-none-keepstop
+[03:09:50] done  beir/nfcorpus/lucene-index-none-keepstop (1 s)
+[03:09:50] start beir/nfcorpus/lucene-bm25-porter
+[03:09:51] done  beir/nfcorpus/lucene-bm25-porter (1 s)
+[03:09:51] start beir/nfcorpus/lucene-bm25-none-keepstop
+[03:09:51] done  beir/nfcorpus/lucene-bm25-none-keepstop (1 s)
+[03:09:51] start beir/nfcorpus/lucene-bm25-porter-k1.2
+[03:09:52] done  beir/nfcorpus/lucene-bm25-porter-k1.2 (1 s)
+[03:09:52] start beir/nfcorpus/bm25s-default
+[03:09:53] done  beir/nfcorpus/bm25s-default (1 s)
+[03:09:53] start beir/nfcorpus/bm25s-matched
+[03:09:54] done  beir/nfcorpus/bm25s-matched (1 s)
+[03:09:54] start beir/nfcorpus/exact-dense
+[03:09:54] done  beir/nfcorpus/exact-dense (0 s)
+[03:09:54] start beir/nfcorpus/aether-dense-hnsw
+[03:09:54] done  beir/nfcorpus/aether-dense-hnsw (0 s)
+[03:09:54] start beir/nfcorpus/aether-dense-sq8
+[03:09:54] done  beir/nfcorpus/aether-dense-sq8 (0 s)
+[03:09:54] start beir/nfcorpus/aether-hybrid
+[03:09:55] done  beir/nfcorpus/aether-hybrid (1 s)
+[03:09:55] start beir/nfcorpus/reference-hybrid
+[03:09:55] done  beir/nfcorpus/reference-hybrid (0 s)
+[03:09:55] start beir/fiqa/aether-bm25-english
+[03:09:59] done  beir/fiqa/aether-bm25-english (4 s)
+[03:09:59] start beir/fiqa/aether-bm25-english-exhaustive
+[03:10:14] done  beir/fiqa/aether-bm25-english-exhaustive (15 s)
+[03:10:14] start beir/fiqa/aether-bm25-ascii
+[03:10:20] done  beir/fiqa/aether-bm25-ascii (6 s)
+[03:10:20] start beir/fiqa/aether-bm25-english-k1.2
+[03:10:24] done  beir/fiqa/aether-bm25-english-k1.2 (5 s)
+[03:10:24] start beir/fiqa/lucene-index-porter
+[03:10:26] done  beir/fiqa/lucene-index-porter (2 s)
+[03:10:26] start beir/fiqa/lucene-index-none-keepstop
+[03:10:28] done  beir/fiqa/lucene-index-none-keepstop (2 s)
+[03:10:28] start beir/fiqa/lucene-bm25-porter
+[03:10:30] done  beir/fiqa/lucene-bm25-porter (2 s)
+[03:10:30] start beir/fiqa/lucene-bm25-none-keepstop
+[03:10:31] done  beir/fiqa/lucene-bm25-none-keepstop (2 s)
+[03:10:31] start beir/fiqa/lucene-bm25-porter-k1.2
+[03:10:33] done  beir/fiqa/lucene-bm25-porter-k1.2 (2 s)
+[03:10:33] start beir/fiqa/bm25s-default
+[03:10:39] done  beir/fiqa/bm25s-default (5 s)
+[03:10:39] start beir/fiqa/bm25s-matched
+[03:10:44] done  beir/fiqa/bm25s-matched (6 s)
+[03:10:44] start beir/fiqa/exact-dense
+[03:10:45] done  beir/fiqa/exact-dense (0 s)
+[03:10:45] start beir/fiqa/aether-dense-hnsw
+[03:10:50] done  beir/fiqa/aether-dense-hnsw (5 s)
+[03:10:50] start beir/fiqa/aether-dense-sq8
+[03:10:54] done  beir/fiqa/aether-dense-sq8 (4 s)
+[03:10:54] start beir/fiqa/aether-hybrid
+[03:11:04] done  beir/fiqa/aether-hybrid (10 s)
+[03:11:04] start beir/fiqa/reference-hybrid
+[03:11:04] done  beir/fiqa/reference-hybrid (0 s)
+[03:11:04] start beir/arguana/aether-bm25-english
+[03:12:16] done  beir/arguana/aether-bm25-english (72 s)
+[03:12:16] start beir/arguana/aether-bm25-english-exhaustive
+[03:12:26] done  beir/arguana/aether-bm25-english-exhaustive (10 s)
+[03:12:26] start beir/arguana/aether-bm25-ascii
+[03:14:12] done  beir/arguana/aether-bm25-ascii (106 s)
+[03:14:12] start beir/arguana/aether-bm25-english-k1.2
+[03:15:24] done  beir/arguana/aether-bm25-english-k1.2 (72 s)
+[03:15:24] start beir/arguana/lucene-index-porter
+[03:15:25] done  beir/arguana/lucene-index-porter (1 s)
+[03:15:25] start beir/arguana/lucene-index-none-keepstop
+[03:15:26] done  beir/arguana/lucene-index-none-keepstop (1 s)
+[03:15:26] start beir/arguana/lucene-bm25-porter
+[03:15:32] done  beir/arguana/lucene-bm25-porter (6 s)
+[03:15:32] start beir/arguana/lucene-bm25-none-keepstop
+[03:15:39] done  beir/arguana/lucene-bm25-none-keepstop (7 s)
+[03:15:39] start beir/arguana/lucene-bm25-porter-k1.2
+[03:15:45] done  beir/arguana/lucene-bm25-porter-k1.2 (6 s)
+[03:15:45] start beir/arguana/bm25s-default
+[03:15:56] done  beir/arguana/bm25s-default (11 s)
+[03:15:56] start beir/arguana/bm25s-matched
+[03:16:07] done  beir/arguana/bm25s-matched (11 s)
+[03:16:07] start beir/arguana/exact-dense
+[03:16:07] done  beir/arguana/exact-dense (0 s)
+[03:16:07] start beir/arguana/aether-dense-hnsw
+[03:16:08] done  beir/arguana/aether-dense-hnsw (1 s)
+[03:16:08] start beir/arguana/aether-dense-sq8
+[03:16:09] done  beir/arguana/aether-dense-sq8 (1 s)
+[03:16:09] start beir/arguana/aether-hybrid
+[03:17:23] done  beir/arguana/aether-hybrid (74 s)
+[03:17:23] start beir/arguana/reference-hybrid
+[03:17:24] done  beir/arguana/reference-hybrid (0 s)
+[03:17:24] start beir/trec-covid/aether-bm25-english
+[03:17:29] done  beir/trec-covid/aether-bm25-english (6 s)
+[03:17:29] start beir/trec-covid/aether-bm25-english-exhaustive
+[03:17:38] done  beir/trec-covid/aether-bm25-english-exhaustive (9 s)
+[03:17:38] start beir/trec-covid/aether-bm25-ascii
+[03:17:43] done  beir/trec-covid/aether-bm25-ascii (5 s)
+[03:17:43] start beir/trec-covid/aether-bm25-english-k1.2
+[03:17:48] done  beir/trec-covid/aether-bm25-english-k1.2 (6 s)
+[03:17:48] start beir/trec-covid/lucene-index-porter
+[03:17:54] done  beir/trec-covid/lucene-index-porter (6 s)
+[03:17:54] start beir/trec-covid/lucene-index-none-keepstop
+[03:18:00] done  beir/trec-covid/lucene-index-none-keepstop (5 s)
+[03:18:00] start beir/trec-covid/lucene-bm25-porter
+[03:18:00] done  beir/trec-covid/lucene-bm25-porter (1 s)
+[03:18:00] start beir/trec-covid/lucene-bm25-none-keepstop
+[03:18:01] done  beir/trec-covid/lucene-bm25-none-keepstop (1 s)
+[03:18:01] start beir/trec-covid/lucene-bm25-porter-k1.2
+[03:18:02] done  beir/trec-covid/lucene-bm25-porter-k1.2 (1 s)
+[03:18:02] start beir/trec-covid/bm25s-default
+[03:18:13] done  beir/trec-covid/bm25s-default (11 s)
+[03:18:13] start beir/trec-covid/bm25s-matched
+[03:18:26] done  beir/trec-covid/bm25s-matched (13 s)
+[03:18:26] start beir/trec-covid/exact-dense
+[03:18:26] done  beir/trec-covid/exact-dense (0 s)
+[03:18:26] start beir/trec-covid/aether-dense-hnsw
+[03:18:39] done  beir/trec-covid/aether-dense-hnsw (13 s)
+[03:18:39] start beir/trec-covid/aether-dense-sq8
+[03:18:52] done  beir/trec-covid/aether-dense-sq8 (13 s)
+[03:18:52] start beir/trec-covid/aether-hybrid
+[03:19:10] done  beir/trec-covid/aether-hybrid (18 s)
+[03:19:10] start beir/trec-covid/reference-hybrid
+[03:19:10] done  beir/trec-covid/reference-hybrid (0 s)
+[03:19:10] start beir/quora/aether-bm25-english
+[03:19:20] done  beir/quora/aether-bm25-english (10 s)
+[03:19:20] start beir/quora/aether-bm25-english-exhaustive
+[03:24:32] done  beir/quora/aether-bm25-english-exhaustive (312 s)
+[03:24:32] start beir/quora/aether-bm25-ascii
+[03:24:53] done  beir/quora/aether-bm25-ascii (21 s)
+[03:24:53] start beir/quora/aether-bm25-english-k1.2
+[03:25:04] done  beir/quora/aether-bm25-english-k1.2 (10 s)
+[03:25:04] start beir/quora/lucene-index-porter
+[03:25:06] done  beir/quora/lucene-index-porter (2 s)
+[03:25:06] start beir/quora/lucene-index-none-keepstop
+[03:25:08] done  beir/quora/lucene-index-none-keepstop (2 s)
+[03:25:08] start beir/quora/lucene-bm25-porter
+[03:25:14] done  beir/quora/lucene-bm25-porter (6 s)
+[03:25:14] start beir/quora/lucene-bm25-none-keepstop
+[03:25:22] done  beir/quora/lucene-bm25-none-keepstop (8 s)
+[03:25:22] start beir/quora/lucene-bm25-porter-k1.2
+[03:25:29] done  beir/quora/lucene-bm25-porter-k1.2 (7 s)
+[03:25:29] start beir/quora/bm25s-default
+[03:26:12] done  beir/quora/bm25s-default (43 s)
+[03:26:12] start beir/quora/bm25s-matched
+[03:26:57] done  beir/quora/bm25s-matched (45 s)
+[03:26:57] start beir/quora/exact-dense
+[03:27:33] done  beir/quora/exact-dense (35 s)
+[03:27:33] start beir/quora/aether-dense-hnsw
+[03:28:28] done  beir/quora/aether-dense-hnsw (55 s)
+[03:28:28] start beir/quora/aether-dense-sq8
+[03:29:22] done  beir/quora/aether-dense-sq8 (54 s)
+[03:29:22] start beir/quora/aether-hybrid
+[03:30:32] done  beir/quora/aether-hybrid (69 s)
+[03:30:32] start beir/quora/reference-hybrid
+[03:30:34] done  beir/quora/reference-hybrid (2 s)
+[03:30:34] start beir-ann/scifact/aether-hnsw
+[03:30:34] done  beir-ann/scifact/aether-hnsw (1 s)
+[03:30:34] start beir-ann/scifact/hnswlib
+[03:30:36] done  beir-ann/scifact/hnswlib (2 s)
+[03:30:36] start beir-ann/scifact/faiss-hnsw
+[03:30:38] done  beir-ann/scifact/faiss-hnsw (2 s)
+[03:30:38] start beir-ann/nfcorpus/aether-hnsw
+[03:30:39] done  beir-ann/nfcorpus/aether-hnsw (1 s)
+[03:30:39] start beir-ann/nfcorpus/hnswlib
+[03:30:41] done  beir-ann/nfcorpus/hnswlib (2 s)
+[03:30:41] start beir-ann/nfcorpus/faiss-hnsw
+[03:30:43] done  beir-ann/nfcorpus/faiss-hnsw (2 s)
+[03:30:43] start beir-ann/fiqa/aether-hnsw
+[03:30:50] done  beir-ann/fiqa/aether-hnsw (7 s)
+[03:30:50] start beir-ann/fiqa/hnswlib
+[03:31:00] done  beir-ann/fiqa/hnswlib (9 s)
+[03:31:00] start beir-ann/fiqa/faiss-hnsw
+[03:31:08] done  beir-ann/fiqa/faiss-hnsw (8 s)
+[03:31:08] start beir-ann/arguana/aether-hnsw
+[03:31:10] done  beir-ann/arguana/aether-hnsw (2 s)
+[03:31:10] start beir-ann/arguana/hnswlib
+[03:31:17] done  beir-ann/arguana/hnswlib (7 s)
+[03:31:17] start beir-ann/arguana/faiss-hnsw
+[03:31:22] done  beir-ann/arguana/faiss-hnsw (5 s)
+[03:31:22] start beir-ann/trec-covid/aether-hnsw
+[03:31:35] done  beir-ann/trec-covid/aether-hnsw (12 s)
+[03:31:35] start beir-ann/trec-covid/hnswlib
+[03:31:48] done  beir-ann/trec-covid/hnswlib (13 s)
+[03:31:48] start beir-ann/trec-covid/faiss-hnsw
+[03:32:00] done  beir-ann/trec-covid/faiss-hnsw (12 s)
+[03:32:00] start beir-ann/quora/aether-hnsw
+[03:33:11] done  beir-ann/quora/aether-hnsw (71 s)
+[03:33:11] start beir-ann/quora/hnswlib
+[03:34:31] done  beir-ann/quora/hnswlib (80 s)
+[03:34:31] start beir-ann/quora/faiss-hnsw
+[03:35:45] done  beir-ann/quora/faiss-hnsw (74 s)
+[03:35:45] start ann/sift1m/faiss-flat
+[03:41:15] done  ann/sift1m/faiss-flat (330 s)
+[03:41:15] start ann/sift1m/aether-hnsw/M16/efc100
+[03:42:35] done  ann/sift1m/aether-hnsw/M16/efc100 (79 s)
+[03:42:35] start ann/sift1m/hnswlib/M16/efc100
+[03:44:01] done  ann/sift1m/hnswlib/M16/efc100 (87 s)
+[03:44:01] start ann/sift1m/faiss-hnsw/M16/efc100
+[03:45:50] done  ann/sift1m/faiss-hnsw/M16/efc100 (109 s)
+[03:45:50] start ann/sift1m/hnswlib-fastmath/M16/efc100
+[03:46:54] done  ann/sift1m/hnswlib-fastmath/M16/efc100 (63 s)
+[03:46:54] start ann/sift1m/aether-hnsw/M16/efc200
+[03:48:32] done  ann/sift1m/aether-hnsw/M16/efc200 (98 s)
+[03:48:32] start ann/sift1m/hnswlib/M16/efc200
+[03:50:23] done  ann/sift1m/hnswlib/M16/efc200 (111 s)
+[03:50:23] start ann/sift1m/faiss-hnsw/M16/efc200
+[03:52:42] done  ann/sift1m/faiss-hnsw/M16/efc200 (139 s)
+[03:52:42] start ann/sift1m/hnswlib-fastmath/M16/efc200
+[03:54:01] done  ann/sift1m/hnswlib-fastmath/M16/efc200 (79 s)
+[03:54:01] start ann/sift1m/aether-hnsw/M32/efc100
+[03:56:25] done  ann/sift1m/aether-hnsw/M32/efc100 (144 s)
+[03:56:25] start ann/sift1m/hnswlib/M32/efc100
+[04:02:21] done  ann/sift1m/hnswlib/M32/efc100 (356 s)
+[04:02:21] start ann/sift1m/faiss-hnsw/M32/efc100
+[04:04:29] done  ann/sift1m/faiss-hnsw/M32/efc100 (128 s)
+[04:04:29] start ann/sift1m/hnswlib-fastmath/M32/efc100
+[04:05:46] done  ann/sift1m/hnswlib-fastmath/M32/efc100 (77 s)
+[04:05:46] start ann/sift1m/aether-hnsw/M32/efc200
+[04:08:40] done  ann/sift1m/aether-hnsw/M32/efc200 (174 s)
+[04:08:40] start ann/sift1m/hnswlib/M32/efc200
+[04:11:07] done  ann/sift1m/hnswlib/M32/efc200 (147 s)
+[04:11:07] start ann/sift1m/faiss-hnsw/M32/efc200
+[04:13:54] done  ann/sift1m/faiss-hnsw/M32/efc200 (167 s)
+[04:13:54] start ann/sift1m/hnswlib-fastmath/M32/efc200
+[04:15:33] done  ann/sift1m/hnswlib-fastmath/M32/efc200 (100 s)
+[04:15:33] start ann/sift1m/aether-sq8/M16/efc200
+[04:16:56] done  ann/sift1m/aether-sq8/M16/efc200 (83 s)
+[04:16:56] start ann/sift1m/aether-sq8-lean/M16/efc200
+[04:18:13] done  ann/sift1m/aether-sq8-lean/M16/efc200 (77 s)
+[04:18:13] start ann/sift1m/aether-pq/M16/efc200
+[04:19:43] done  ann/sift1m/aether-pq/M16/efc200 (89 s)
+[04:19:43] start ann/sift1m/faiss-hnsw-sq8/M16/efc200
+[04:21:43] done  ann/sift1m/faiss-hnsw-sq8/M16/efc200 (120 s)
+[04:21:43] start ann/sift1m/faiss-ivfpq-refine
+[04:22:49] done  ann/sift1m/faiss-ivfpq-refine (66 s)
+[04:22:49] start ann/glove-100/faiss-flat
+[04:27:17] done  ann/glove-100/faiss-flat (268 s)
+[04:27:17] start ann/glove-100/aether-hnsw/M16/efc100
+[04:28:57] done  ann/glove-100/aether-hnsw/M16/efc100 (100 s)
+[04:28:57] start ann/glove-100/hnswlib/M16/efc100
+[04:30:29] done  ann/glove-100/hnswlib/M16/efc100 (92 s)
+[04:30:29] start ann/glove-100/faiss-hnsw/M16/efc100
+[04:32:37] done  ann/glove-100/faiss-hnsw/M16/efc100 (128 s)
+[04:32:37] start ann/glove-100/hnswlib-fastmath/M16/efc100
+[04:33:50] done  ann/glove-100/hnswlib-fastmath/M16/efc100 (73 s)
+[04:33:50] start ann/glove-100/aether-hnsw/M16/efc200
+[04:35:59] done  ann/glove-100/aether-hnsw/M16/efc200 (130 s)
+[04:35:59] start ann/glove-100/hnswlib/M16/efc200
+[04:37:59] done  ann/glove-100/hnswlib/M16/efc200 (120 s)
+[04:37:59] start ann/glove-100/faiss-hnsw/M16/efc200
+[04:40:51] done  ann/glove-100/faiss-hnsw/M16/efc200 (172 s)
+[04:40:51] start ann/glove-100/hnswlib-fastmath/M16/efc200
+[04:42:25] done  ann/glove-100/hnswlib-fastmath/M16/efc200 (94 s)
+[04:42:25] start ann/glove-100/aether-hnsw/M32/efc100
+[04:46:04] done  ann/glove-100/aether-hnsw/M32/efc100 (219 s)
+[04:46:04] start ann/glove-100/hnswlib/M32/efc100
+[04:48:17] done  ann/glove-100/hnswlib/M32/efc100 (132 s)
+[04:48:17] start ann/glove-100/faiss-hnsw/M32/efc100
+[04:51:10] done  ann/glove-100/faiss-hnsw/M32/efc100 (174 s)
+[04:51:10] start ann/glove-100/hnswlib-fastmath/M32/efc100
+[04:52:54] done  ann/glove-100/hnswlib-fastmath/M32/efc100 (104 s)
+[04:52:54] start ann/glove-100/aether-hnsw/M32/efc200
+[04:57:23] done  ann/glove-100/aether-hnsw/M32/efc200 (269 s)
+[04:57:23] start ann/glove-100/hnswlib/M32/efc200
+[05:00:39] done  ann/glove-100/hnswlib/M32/efc200 (196 s)
+[05:00:39] start ann/glove-100/faiss-hnsw/M32/efc200
+[05:04:56] done  ann/glove-100/faiss-hnsw/M32/efc200 (257 s)
+[05:04:56] start ann/glove-100/hnswlib-fastmath/M32/efc200
+[05:07:28] done  ann/glove-100/hnswlib-fastmath/M32/efc200 (152 s)
+[05:07:28] start ann/glove-100/aether-sq8/M16/efc200
+[05:09:18] done  ann/glove-100/aether-sq8/M16/efc200 (110 s)
+[05:09:18] start ann/glove-100/aether-sq8-lean/M16/efc200
+[05:11:02] done  ann/glove-100/aether-sq8-lean/M16/efc200 (104 s)
+[05:11:02] start ann/glove-100/aether-pq/M16/efc200
+[05:12:58] done  ann/glove-100/aether-pq/M16/efc200 (116 s)
+[05:12:58] start ann/glove-100/faiss-hnsw-sq8/M16/efc200
+[05:16:56] done  ann/glove-100/faiss-hnsw-sq8/M16/efc200 (238 s)
+[05:16:56] start ann/glove-100/faiss-ivfpq-refine
+[05:17:56] done  ann/glove-100/faiss-ivfpq-refine (60 s)
+[05:17:56] start build1/sift1m/aether-hnsw
+[05:24:06] done  build1/sift1m/aether-hnsw (370 s)
+[05:24:06] start build1/sift1m/hnswlib
+[05:30:08] done  build1/sift1m/hnswlib (361 s)
+[05:30:08] start build1/sift1m/faiss-hnsw
+[05:35:56] done  build1/sift1m/faiss-hnsw (348 s)
+[05:35:56] start build1/glove-100/aether-hnsw
+[05:44:48] done  build1/glove-100/aether-hnsw (532 s)
+[05:44:48] start build1/glove-100/hnswlib
+[05:52:31] done  build1/glove-100/hnswlib (463 s)
+[05:52:31] start build1/glove-100/faiss-hnsw
+[06:00:45] done  build1/glove-100/faiss-hnsw (494 s)
+[06:00:45] campaign finished
+[10:42:49] start parity/scifact/bm25-freq
+[10:42:49] done  parity/scifact/bm25-freq (0 s)
+[10:42:49] start parity/scifact/hybrid-freq
+[10:42:50] done  parity/scifact/hybrid-freq (1 s)
+[10:42:50] start parity/scifact/check-freq
+[10:42:50] done  parity/scifact/check-freq (0 s)
+[10:42:50] start parity/nfcorpus/bm25-freq
+[10:42:51] done  parity/nfcorpus/bm25-freq (0 s)
+[10:42:51] start parity/nfcorpus/hybrid-freq
+[10:42:52] done  parity/nfcorpus/hybrid-freq (1 s)
+[10:42:52] start parity/nfcorpus/check-freq
+[10:42:52] done  parity/nfcorpus/check-freq (0 s)
+[10:42:52] start parity/fiqa/bm25-freq
+[10:42:53] done  parity/fiqa/bm25-freq (1 s)
+[10:42:53] start parity/fiqa/hybrid-freq
+[10:43:22] done  parity/fiqa/hybrid-freq (29 s)
+[10:43:22] start parity/fiqa/check-freq
+[10:43:22] done  parity/fiqa/check-freq (0 s)
+[10:43:22] start parity/arguana/bm25-freq
+[10:43:24] done  parity/arguana/bm25-freq (2 s)
+[10:43:24] start parity/arguana/hybrid-freq
+[10:43:28] done  parity/arguana/hybrid-freq (4 s)
+[10:43:28] start parity/arguana/check-freq
+[10:43:29] done  parity/arguana/check-freq (0 s)
+[10:43:29] start parity/trec-covid/bm25-freq
+[10:43:33] done  parity/trec-covid/bm25-freq (5 s)
+[10:43:33] start parity/trec-covid/hybrid-freq
+[10:45:13] done  parity/trec-covid/hybrid-freq (100 s)
+[10:45:13] start parity/trec-covid/check-freq
+[10:45:13] done  parity/trec-covid/check-freq (0 s)
+[10:45:13] start parity/quora/bm25-freq
+[10:45:16] done  parity/quora/bm25-freq (3 s)
+[10:45:16] start parity/quora/hybrid-freq
+[10:51:28] done  parity/quora/hybrid-freq (371 s)
+[10:51:28] start parity/quora/check-freq
+[10:51:30] done  parity/quora/check-freq (2 s)
+[10:51:30] campaign finished
+[10:51:31] start beir/scifact/aether-bm25-english-freq
+[10:51:31] done  beir/scifact/aether-bm25-english-freq (0 s)
+[10:51:31] start beir/scifact/aether-bm25-english-freq-exhaustive
+[10:51:32] done  beir/scifact/aether-bm25-english-freq-exhaustive (1 s)
+[10:51:32] start beir/scifact/aether-bm25-english-freq-k1.2
+[10:51:32] done  beir/scifact/aether-bm25-english-freq-k1.2 (0 s)
+[10:51:32] start beir/scifact/aether-hybrid-freq
+[10:51:33] done  beir/scifact/aether-hybrid-freq (1 s)
+[10:51:33] start beir/nfcorpus/aether-bm25-english-freq
+[10:51:33] done  beir/nfcorpus/aether-bm25-english-freq (0 s)
+[10:51:33] start beir/nfcorpus/aether-bm25-english-freq-exhaustive
+[10:51:33] done  beir/nfcorpus/aether-bm25-english-freq-exhaustive (0 s)
+[10:51:33] start beir/nfcorpus/aether-bm25-english-freq-k1.2
+[10:51:34] done  beir/nfcorpus/aether-bm25-english-freq-k1.2 (0 s)
+[10:51:34] start beir/nfcorpus/aether-hybrid-freq
+[10:51:34] done  beir/nfcorpus/aether-hybrid-freq (1 s)
+[10:51:34] start beir/fiqa/aether-bm25-english-freq
+[10:51:38] done  beir/fiqa/aether-bm25-english-freq (4 s)
+[10:51:38] start beir/fiqa/aether-bm25-english-freq-exhaustive
+[10:51:53] done  beir/fiqa/aether-bm25-english-freq-exhaustive (14 s)
+[10:51:53] start beir/fiqa/aether-bm25-english-freq-k1.2
+[10:51:58] done  beir/fiqa/aether-bm25-english-freq-k1.2 (5 s)
+[10:51:58] start beir/fiqa/aether-hybrid-freq
+[10:52:07] done  beir/fiqa/aether-hybrid-freq (10 s)
+[10:52:07] start beir/arguana/aether-bm25-english-freq
+[10:53:17] done  beir/arguana/aether-bm25-english-freq (70 s)
+[10:53:17] start beir/arguana/aether-bm25-english-freq-exhaustive
+[10:53:27] done  beir/arguana/aether-bm25-english-freq-exhaustive (9 s)
+[10:53:27] start beir/arguana/aether-bm25-english-freq-k1.2
+[10:54:38] done  beir/arguana/aether-bm25-english-freq-k1.2 (72 s)
+[10:54:38] start beir/arguana/aether-hybrid-freq
+[10:55:58] done  beir/arguana/aether-hybrid-freq (80 s)
+[10:55:58] start beir/trec-covid/aether-bm25-english-freq
+[10:56:03] done  beir/trec-covid/aether-bm25-english-freq (6 s)
+[10:56:03] start beir/trec-covid/aether-bm25-english-freq-exhaustive
+[10:56:12] done  beir/trec-covid/aether-bm25-english-freq-exhaustive (8 s)
+[10:56:12] start beir/trec-covid/aether-bm25-english-freq-k1.2
+[10:56:17] done  beir/trec-covid/aether-bm25-english-freq-k1.2 (6 s)
+[10:56:17] start beir/trec-covid/aether-hybrid-freq
+[10:56:35] done  beir/trec-covid/aether-hybrid-freq (18 s)
+[10:56:35] start beir/quora/aether-bm25-english-freq
+[10:56:45] done  beir/quora/aether-bm25-english-freq (10 s)
+[10:56:45] start beir/quora/aether-bm25-english-freq-exhaustive
+[11:01:53] done  beir/quora/aether-bm25-english-freq-exhaustive (309 s)
+[11:01:53] start beir/quora/aether-bm25-english-freq-k1.2
+[11:02:04] done  beir/quora/aether-bm25-english-freq-k1.2 (11 s)
+[11:02:04] start beir/quora/aether-hybrid-freq
+[11:03:12] done  beir/quora/aether-hybrid-freq (68 s)
+[11:03:12] campaign finished

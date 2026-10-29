@@ -1,0 +1,23 @@
+{
+  "system": "aetherindex-bm25",
+  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/trec-covid",
+  "documents": 171332,
+  "queries": 50,
+  "build_type": "Release (NDEBUG)",
+  "bm25": {"k1": 0.9, "b": 0.4, "analyzer": "english-v1", "strategy": "bmw", "build_seconds_single_thread": 3.90061042, "postings_raw_bytes": 110724336, "postings_compressed_bytes": 40569797},
+  "memory_mib": 127.594688,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50,
+  "latency_queries": 50,
+  "repetitions": 5,
+  "lat_p50_ms": 1.487417,
+  "lat_p95_ms": 4.9595,
+  "lat_p99_ms": 10.981917,
+  "lat_mean_ms": 1.91909328,
+  "qps_single": 521.079413,
+  "threads": 10,
+  "qps_batch": 2992.44408,
+  "qps_batch_q1": 2969.49585,
+  "qps_batch_q3": 2999.70009
+}

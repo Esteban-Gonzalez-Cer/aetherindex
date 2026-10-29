@@ -12,7 +12,7 @@ namespace aetherindex::lexical {
 void InvertedIndex::add_document(DocumentId id, std::string_view text) {
     if (ready_) throw std::logic_error("Cannot add documents after build().");
     if (documents_.contains(id)) throw std::invalid_argument("Duplicate DocumentId.");
-    const auto tokens = Tokenizer{}.tokenize(text);
+    const auto tokens = tokenizer_.tokenize(text);
     if (tokens.size() > std::numeric_limits<std::uint32_t>::max() ||
         tokens.size() > std::numeric_limits<std::uint64_t>::max() - total_tokens_) {
         throw std::length_error("Document or corpus token count is too large.");

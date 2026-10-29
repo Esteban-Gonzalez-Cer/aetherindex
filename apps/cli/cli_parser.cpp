@@ -103,6 +103,8 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
     bool have_rerank = false;
     bool have_pq_subspaces = false;
     bool have_bm25_strategy = false;
+    bool have_analyzer = false;
+    bool have_query_weighting = false;
     bool bm25_selected = false;
     for (std::size_t i = 1; i < arguments.size(); ++i) {
         const auto name = arguments[i];
@@ -164,6 +166,10 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
             seen = &have_pq_subspaces;
         } else if (name == "--bm25-strategy") {
             seen = &have_bm25_strategy;
+        } else if (name == "--analyzer") {
+            seen = &have_analyzer;
+        } else if (name == "--bm25-query-weighting") {
+            seen = &have_query_weighting;
         } else if (name == "--algorithm") {
             seen = &have_algorithm;
         } else if (name == "--k") {
@@ -249,6 +255,21 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
             else
                 throw std::invalid_argument(
                     "Invalid --bm25-strategy: use exhaustive, taat, wand or bmw.");
+        } else if (name == "--analyzer") {
+            if (value == "ascii-tech-v1")
+                options.search.bm25_config.analyzer = lexical::Analyzer::AsciiTechV1;
+            else if (value == "english-v1")
+                options.search.bm25_config.analyzer = lexical::Analyzer::EnglishV1;
+            else
+                throw std::invalid_argument("Invalid --analyzer: use ascii-tech-v1 or english-v1.");
+        } else if (name == "--bm25-query-weighting") {
+            if (value == "unique")
+                options.search.bm25_config.query_weighting = lexical::QueryTermWeighting::Unique;
+            else if (value == "frequency")
+                options.search.bm25_config.query_weighting = lexical::QueryTermWeighting::Frequency;
+            else
+                throw std::invalid_argument(
+                    "Invalid --bm25-query-weighting: use unique or frequency.");
         } else if (name == "--candidate-k") {
             options.search.candidate_k = parse_unsigned<std::size_t>(value, name);
         } else if (name == "--algorithm") {
@@ -324,7 +345,8 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
         if (options.search.mode == SearchMode::Lexical && have_metric)
             throw std::invalid_argument(
                 "--metric requires vector or hybrid mode; BM25 returns scores, not distances.");
-        if (options.search.mode == SearchMode::Vector && (have_k1 || have_b || have_bm25_strategy))
+        if (options.search.mode == SearchMode::Vector &&
+            (have_k1 || have_b || have_bm25_strategy || have_analyzer || have_query_weighting))
             throw std::invalid_argument(
                 "BM25 options require lexical or hybrid mode (--mode lexical|hybrid or "
                 "--algorithm bm25).");
@@ -371,6 +393,11 @@ std::string_view help_text() {
            "  --bm25-b NUMBER      BM25 finite length normalization in [0,1] (default: 0.75)\n"
            "  --bm25-strategy NAME exhaustive (default) | taat | wand | bmw (Block-Max WAND);\n"
            "                       identical results, compressed postings except exhaustive\n"
+           "  --analyzer NAME      ascii-tech-v1 (default) | english-v1 (Lucene-style English:\n"
+           "                       stopwords, possessives, Porter stemming)\n"
+           "  --bm25-query-weighting NAME\n"
+           "                       unique (default) | frequency (a repeated query term counts\n"
+           "                       once per occurrence, as in Lucene/Anserini)\n"
            "  --filter F=V[|V2]    Keep documents whose metadata F equals V (or V2); repeatable\n"
            "  --filter-date F=A..B Keep documents whose metadata date F (YYYY-MM-DD) is in [A,B];\n"
            "                       A or B may be empty; all filters must hold (JSONL only)\n"

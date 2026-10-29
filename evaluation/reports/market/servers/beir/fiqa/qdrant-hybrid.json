@@ -1,0 +1,27 @@
+{
+  "system": "qdrant-hybrid",
+  "dataset": "fiqa",
+  "documents": 57638,
+  "queries": 648,
+  "ingest_and_index_seconds": 12.8273816248402,
+  "container_memory_mib": 1176.576,
+  "image": "sha256:9bfc89f9914fc14876a88c05270685921a55b8877b254a98bcc1cc2f0a424cd2",
+  "k1": 0.9,
+  "b": 0.4,
+  "hnsw": {
+    "M": 16,
+    "ef_construction": 200,
+    "ef": 128
+  },
+  "qdrant_indexed_vectors": 115238,
+  "latency_queries": 648,
+  "repetitions": 5,
+  "lat_p50_ms": 1.5484169125556946,
+  "lat_p95_ms": 2.355750184506178,
+  "lat_p99_ms": 2.59766704402864,
+  "lat_mean_ms": 1.5963864236794136,
+  "threads": 10,
+  "qps_batch": 3445.8935689045115,
+  "qps_batch_q1": 3418.4126491713264,
+  "qps_batch_q3": 3451.5589977761906
+}

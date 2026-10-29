@@ -1,0 +1,12 @@
+{
+  "system": "aetherindex-dense",
+  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/trec-covid",
+  "documents": 171332,
+  "queries": 50,
+  "build_type": "Release (NDEBUG)",
+  "dense": {"index": "hnsw", "M": 16, "ef_construction": 200, "ef": 128, "build_threads": 1, "build_seconds": 97.1343206, "dimension": 384},
+  "memory_mib": 281.48465,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50
+}

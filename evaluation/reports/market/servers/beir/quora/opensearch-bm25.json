@@ -1,0 +1,27 @@
+{
+  "system": "opensearch-bm25",
+  "dataset": "quora",
+  "documents": 522931,
+  "queries": 10000,
+  "ingest_and_index_seconds": 447.8056964999996,
+  "container_memory_mib": 5981.184,
+  "image": "sha256:3b55f6b6249cfdb92b52ee59adc8a266203ba9ef9f5d82544fad6f1af2f3609e",
+  "k1": 0.9,
+  "b": 0.4,
+  "hnsw": {
+    "M": 16,
+    "ef_construction": 200,
+    "ef": 128
+  },
+  "qdrant_indexed_vectors": null,
+  "latency_queries": 1000,
+  "repetitions": 5,
+  "lat_p50_ms": 0.9958748705685139,
+  "lat_p95_ms": 1.3459590263664722,
+  "lat_p99_ms": 1.697333063930273,
+  "lat_mean_ms": 1.0319418576546013,
+  "threads": 10,
+  "qps_batch": 5038.7780146513305,
+  "qps_batch_q1": 5021.41581348048,
+  "qps_batch_q3": 5078.354675761419
+}

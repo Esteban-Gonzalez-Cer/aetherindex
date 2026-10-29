@@ -1,0 +1,6 @@
+aether-hnsw ef=16 recall@10=0.997297 p50=0.014583ms qps(batch)=575286
+aether-hnsw ef=32 recall@10=0.999431 p50=0.023625ms qps(batch)=372422
+aether-hnsw ef=64 recall@10=0.999929 p50=0.043042ms qps(batch)=218035
+aether-hnsw ef=128 recall@10=1 p50=0.075583ms qps(batch)=122801
+aether-hnsw ef=256 recall@10=1 p50=0.135792ms qps(batch)=68741
+aether-hnsw build 0.315309 s, memory 20.8594 MiB (Release (NDEBUG))

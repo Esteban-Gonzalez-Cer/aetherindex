@@ -1,0 +1,6 @@
+hnswlib ef=16 recall@10=0.80743 p50=0.049084ms qps(batch)=176877
+hnswlib ef=32 recall@10=0.901238 p50=0.078041ms qps(batch)=115526
+hnswlib ef=64 recall@10=0.956347 p50=0.127667ms qps(batch)=71180.7
+hnswlib ef=128 recall@10=0.98483 p50=0.2115ms qps(batch)=43743.5
+hnswlib ef=256 recall@10=0.995975 p50=0.331ms qps(batch)=27589.7
+hnswlib build 0.128847 s, memory 10.9375 MiB (Release (NDEBUG))

@@ -1,0 +1,23 @@
+{
+  "system": "aetherindex-bm25",
+  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/scifact",
+  "documents": 5183,
+  "queries": 300,
+  "build_type": "Release (NDEBUG)",
+  "bm25": {"k1": 0.9, "b": 0.4, "analyzer": "ascii-tech-v1", "strategy": "bmw", "build_seconds_single_thread": 0.121045792, "postings_raw_bytes": 6157248, "postings_compressed_bytes": 4955280},
+  "memory_mib": 17.9687958,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50,
+  "latency_queries": 300,
+  "repetitions": 5,
+  "lat_p50_ms": 0.091625,
+  "lat_p95_ms": 0.293167,
+  "lat_p99_ms": 0.428375,
+  "lat_mean_ms": 0.115787947,
+  "qps_single": 8636.47753,
+  "threads": 10,
+  "qps_batch": 72895.8964,
+  "qps_batch_q1": 70554.3526,
+  "qps_batch_q3": 73550.4313
+}

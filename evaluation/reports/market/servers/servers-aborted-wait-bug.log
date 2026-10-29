@@ -1,0 +1,36 @@
+[06:01:20] up qdrant
+ Container market-qdrant-1 Starting 
+ Container market-qdrant-1 Started 
+[06:01:33] start qdrant beir scifact
+I1029 06:01:34.694174 32879115 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:01:34.708799 32879150 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:01:34.711738 32879187 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:01:34.714462 32879219 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:01:34.717126 32879237 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+qdrant scifact bm25: p50 0.651 ms, QPS 6197
+qdrant scifact dense: p50 0.788 ms, QPS 5775
+qdrant scifact hybrid: p50 1.011 ms, QPS 4709
+[06:01:42] start qdrant beir nfcorpus
+I1029 06:01:43.080002 32879741 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:01:43.089940 32879776 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:01:43.092428 32879810 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:01:43.094910 32879846 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:01:43.097456 32879879 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+qdrant nfcorpus bm25: p50 0.686 ms, QPS 6541
+qdrant nfcorpus dense: p50 0.854 ms, QPS 6169
+qdrant nfcorpus hybrid: p50 1.028 ms, QPS 4943
+[06:01:50] start qdrant beir fiqa
+I1029 06:01:52.925141 32880367 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:01:52.938977 32880403 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:01:52.944584 32880439 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:01:52.950155 32880474 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:01:52.955898 32880511 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+qdrant fiqa bm25: p50 0.813 ms, QPS 6134
+qdrant fiqa dense: p50 1.390 ms, QPS 4144
+qdrant fiqa hybrid: p50 2.086 ms, QPS 3445
+[06:02:19] start qdrant beir arguana
+I1029 06:02:20.451371 32881188 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:02:20.461772 32881219 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:02:20.464944 32881253 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:02:20.467992 32881290 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)
+I1029 06:02:20.470693 32881324 ev_poll_posix.cc:588] FD from fork parent still in poll list: fd(8, generation: 1)

@@ -1,0 +1,2 @@
+faiss-flat exact=0 recall@10=1 p50=40.1237ms qps(batch)=2752.49
+faiss-flat build 0.0303798 s, memory 451.719 MiB (Release (NDEBUG))

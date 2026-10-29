@@ -89,3 +89,10 @@ option(AETHER_BUILD_BENCHMARKS "Build optional optimization/performance drivers"
 if(AETHER_BUILD_BENCHMARKS)
     add_subdirectory(benchmarks)
 endif()
+
+# Market comparison harnesses. Benchmark-only third-party code (hnswlib fetched at a
+# pinned tag, Homebrew FAISS); the AetherIndex libraries never link it.
+option(AETHER_BUILD_MARKET_BENCH "Build the market comparison harnesses (needs network/FAISS)" OFF)
+if(AETHER_BUILD_MARKET_BENCH)
+    add_subdirectory(benchmarks/market)
+endif()
