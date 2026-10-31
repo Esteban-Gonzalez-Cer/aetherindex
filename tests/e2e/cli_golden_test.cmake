@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 # Optimization regression gate: the default CLI path must stay byte-identical to the
 # outputs captured before the optimization phases (timing lines excluded, since they
 # vary per run). Regenerate deliberately with -DUPDATE_GOLDEN=ON and review the diff.
+# hybrid_q002 was regenerated when convex fusion became the hybrid default; the original
+# RRF output is kept, unchanged, as hybrid_q002_rrf (--fusion rrf).
 file(MAKE_DIRECTORY "${WORK_DIR}")
 execute_process(COMMAND "${GENERATOR_PATH}" "${WORK_DIR}/mvp" RESULT_VARIABLE status
     OUTPUT_QUIET ERROR_VARIABLE errors)
@@ -21,6 +23,7 @@ set(cases
     "lexical_text|search~--algorithm~bm25~--dataset~${D}/corpus.jsonl~--query-text~HNSW grafo vecinos búsqueda~--k~10~--bm25-k1~1.5~--bm25-b~0.5"
     "vector_jsonl|search~--algorithm~brute-force~--dataset~${D}/hybrid/corpus.jsonl~--query~${D}/hybrid/queries.jsonl~--query-id~Q001~--k~5"
     "hybrid_q002|search~--mode~hybrid~--dataset~${D}/hybrid/corpus.jsonl~--query~${D}/hybrid/queries.jsonl~--query-id~Q002~--k~10"
+    "hybrid_q002_rrf|search~--mode~hybrid~--fusion~rrf~--dataset~${D}/hybrid/corpus.jsonl~--query~${D}/hybrid/queries.jsonl~--query-id~Q002~--k~10"
     "hybrid_q017_params|search~--mode~hybrid~--dataset~${D}/hybrid/corpus.jsonl~--query~${D}/hybrid/queries.jsonl~--query-id~Q017~--k~5~--candidate-k~8~--rrf-k~20~--ef-search~16~--metric~squared-euclidean"
 )
 

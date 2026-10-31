@@ -26,7 +26,10 @@ void InvertedIndex::add_document(DocumentId id, std::string_view text) {
     average_length_ = static_cast<double>(total_tokens_) / static_cast<double>(document_count_);
 }
 
-void InvertedIndex::build() {
+void InvertedIndex::build() { build({}, false); }
+
+void InvertedIndex::build(const std::function<void(const InvertedIndex&)>& prepare,
+                          bool release_postings) {
     if (ready_) throw std::logic_error("build() may only succeed once.");
     InvertedIndexData postings;
     std::unordered_map<DocumentId, std::uint32_t> lengths;
@@ -44,11 +47,27 @@ void InvertedIndex::build() {
     const double avgdl = document_count_ == 0 ? 0.0
                                               : static_cast<double>(total_tokens_) /
                                                     static_cast<double>(document_count_);
+    // Stage with nonthrowing swaps; undo them if prepare fails.
     postings_.swap(postings);
     lengths_.swap(lengths);
-    average_length_ = avgdl;
-    documents_.clear();
+    const double collecting_average = std::exchange(average_length_, avgdl);
     ready_ = true;
+    if (prepare) {
+        try {
+            prepare(*this);
+        } catch (...) {
+            ready_ = false;
+            postings_.swap(postings);
+            lengths_.swap(lengths);
+            average_length_ = collecting_average;
+            throw;
+        }
+    }
+    documents_.clear();
+    if (release_postings) {
+        InvertedIndexData().swap(postings_);
+        postings_released_ = true;
+    }
 }
 
 void InvertedIndex::require_built() const {

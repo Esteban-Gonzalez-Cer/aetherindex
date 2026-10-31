@@ -8,6 +8,7 @@
 //   aether_ir_compare dense  --data DIR --out PREFIX [--index hnsw|exact|sq8] [--M 16]
 //                            [--ef-construction 200] [--ef 128]
 //   aether_ir_compare hybrid --data DIR --out PREFIX (BM25 and HNSW options above)
+//                            [--rrf-weight W | --alpha A]
 //   aether_ir_compare tokens --input FILE --out FILE [--analyzer english-v1]
 //
 // Common: [--depth 101] [--latency-k 10] [--candidate-k 50] [--latency-queries 1000]
@@ -17,6 +18,8 @@
 // --candidate-k per retriever), single-threaded over the first --latency-queries
 // queries after one warm-up pass; batch throughput uses --threads over every query.
 // Outputs PREFIX.run, PREFIX.json and PREFIX_latency.csv (per-query median).
+// The harness keeps its own defaults (unique query weighting, classic RRF) instead of the
+// library's (frequency, convex search fusion), so earlier campaign runs keep their meaning.
 #include <cstdint>
 #include <exception>
 #include <fstream>
@@ -123,6 +126,12 @@ int retrieval(const std::string& mode, const Args& args) {
         bm25.analyzer = parse_analyzer(args.get("analyzer", "english-v1"));
         bm25.query_weighting = parse_weighting(args.get("query-weighting", "unique"));
     }
+    hybrid::RrfConfig fusion_config;  // Classic RRF unless --rrf-weight or --alpha.
+    if (args.has("rrf-weight")) fusion_config.dense_weight = args.real("rrf-weight", 0.5);
+    if (args.has("alpha")) {
+        fusion_config.method = hybrid::FusionMethod::Convex;
+        fusion_config.alpha = args.real("alpha", 0.5);
+    }
     if (dense_on) {
         index_kind = args.get("index", "hnsw");
         if (mode == "hybrid" && index_kind != "hnsw")
@@ -170,7 +179,7 @@ int retrieval(const std::string& mode, const Args& args) {
     const double memory_mib = bench::resident_mib() - baseline_mib;
 
     const QueryEngine engine;
-    const hybrid::RrfFusion fusion;
+    const hybrid::RrfFusion fusion(fusion_config);
     VectorDocumentBinding binding;
     if (mode == "hybrid")
         for (VectorId id : store->ids()) binding.emplace(id, static_cast<DocumentId>(id));
@@ -283,6 +292,15 @@ int retrieval(const std::string& mode, const Args& args) {
                 << ", \"ef_construction\": " << hnsw.ef_construction << ", \"ef\": " << ef
                 << ", \"build_threads\": " << build_threads << ", \"build_seconds\": "
                 << dense_seconds << ", \"dimension\": " << store->dimension() << "},\n";
+    }
+    if (mode == "hybrid") {
+        const bool convex = fusion_config.method == hybrid::FusionMethod::Convex;
+        summary << "  \"fusion\": {\"method\": \""
+                << (convex ? "convex" : fusion_config.dense_weight ? "weighted-rrf" : "rrf")
+                << "\", \"k_rrf\": " << fusion_config.k_rrf << ", \"dense_weight\": "
+                << (fusion_config.dense_weight ? std::to_string(*fusion_config.dense_weight) : "null")
+                << ", \"alpha\": " << (convex ? std::to_string(fusion_config.alpha) : "null")
+                << "},\n";
     }
     summary << "  \"memory_mib\": " << memory_mib << ",\n  \"depth\": " << depth
             << ",\n  \"latency_k\": " << latency_k << ",\n  \"candidate_k\": " << candidate_k;

@@ -56,20 +56,23 @@ int main(int argc, char** argv) {
         const SearchService service;
         for (const auto& query : queries) {
             const auto tokens = lexical::Tokenizer{}.tokenize(query.text);
-            const std::set<std::string> terms(tokens.begin(), tokens.end());
+            // Default Frequency weighting: a term counts once per query occurrence.
+            std::map<std::string, int> terms;
+            for (const auto& token : tokens) ++terms[token];
             std::vector<DocumentSearchResult> expected;
             for (std::size_t i = 0; i < docs.size(); ++i) {
                 double score = 0;
                 bool candidate = false;
-                for (const auto& term : terms) {
+                for (const auto& [term, occurrences] : terms) {
                     const auto tf = counts[i].tf.find(term);
                     if (tf == counts[i].tf.end()) continue;
                     candidate = true;
                     const double frequency = tf->second;
                     const double idf =
                         std::log(1.0 + (docs.size() - df.at(term) + 0.5) / (df.at(term) + 0.5));
-                    score += idf * frequency * 2.2 /
-                             (frequency + 1.2 * (0.25 + 0.75 * counts[i].length / avgdl));
+                    score += occurrences * (idf * frequency * 2.2 /
+                                            (frequency + 1.2 * (0.25 + 0.75 * counts[i].length /
+                                                                           avgdl)));
                 }
                 if (candidate) expected.push_back({docs[i].document_id, docs[i].id, score});
             }

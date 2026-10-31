@@ -1,0 +1,6 @@
+scifact: 809 dev queries, RRF 0.7492
+nfcorpus: 324 dev queries, RRF 0.3402
+fiqa: 500 dev queries, RRF 0.3638
+quora: 5000 dev queries, RRF 0.8641
+weighted-rrf: global 0.85 (mean dev nDCG@10 0.5991)
+convex: global 0.65 (mean dev nDCG@10 0.6052)

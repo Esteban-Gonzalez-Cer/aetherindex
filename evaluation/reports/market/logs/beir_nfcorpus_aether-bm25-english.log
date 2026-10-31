@@ -1,1 +1,1 @@
-bm25 /Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/nfcorpus: memory 25.4688 MiB, p50 0.005083 ms, batch QPS 663131
+bm25 /Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/nfcorpus: memory 24.6719 MiB, p50 0.004417 ms, batch QPS 738990

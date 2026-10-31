@@ -1,14 +1,14 @@
-aether-sq8-lean ef=10 recall@10=0.76732 p50=0.022ms qps(batch)=382501
-aether-sq8-lean ef=16 recall@10=0.8443 p50=0.030083ms qps(batch)=291544
-aether-sq8-lean ef=24 recall@10=0.89615 p50=0.041709ms qps(batch)=222100
-aether-sq8-lean ef=32 recall@10=0.92505 p50=0.051541ms qps(batch)=183059
-aether-sq8-lean ef=48 recall@10=0.95453 p50=0.071417ms qps(batch)=134083
-aether-sq8-lean ef=64 recall@10=0.96807 p50=0.08975ms qps(batch)=107214
-aether-sq8-lean ef=96 recall@10=0.97958 p50=0.127041ms qps(batch)=77073
-aether-sq8-lean ef=128 recall@10=0.98373 p50=0.159292ms qps(batch)=60851.8
-aether-sq8-lean ef=192 recall@10=0.9869 p50=0.223792ms qps(batch)=43248.1
-aether-sq8-lean ef=256 recall@10=0.98789 p50=0.289042ms qps(batch)=33995.8
-aether-sq8-lean ef=384 recall@10=0.98868 p50=0.404083ms qps(batch)=24193.8
-aether-sq8-lean ef=512 recall@10=0.98887 p50=0.511833ms qps(batch)=18934.6
-aether-sq8-lean ef=800 recall@10=0.98895 p50=0.742208ms qps(batch)=12966.9
-aether-sq8-lean build 40.4818 s, memory 335.438 MiB (Release (NDEBUG))
+aether-sq8-lean ef=10 recall@10=0.76761 p50=0.012959ms qps(batch)=502192
+aether-sq8-lean ef=16 recall@10=0.84438 p50=0.017958ms qps(batch)=407924
+aether-sq8-lean ef=24 recall@10=0.89621 p50=0.023583ms qps(batch)=281487
+aether-sq8-lean ef=32 recall@10=0.92498 p50=0.029667ms qps(batch)=238548
+aether-sq8-lean ef=48 recall@10=0.95451 p50=0.041417ms qps(batch)=180785
+aether-sq8-lean ef=64 recall@10=0.96801 p50=0.050208ms qps(batch)=153598
+aether-sq8-lean ef=96 recall@10=0.97956 p50=0.075333ms qps(batch)=96996.9
+aether-sq8-lean ef=128 recall@10=0.98375 p50=0.096459ms qps(batch)=80818.6
+aether-sq8-lean ef=192 recall@10=0.98689 p50=0.135833ms qps(batch)=57610.6
+aether-sq8-lean ef=256 recall@10=0.98789 p50=0.176333ms qps(batch)=44128
+aether-sq8-lean ef=384 recall@10=0.98869 p50=0.25325ms qps(batch)=31028.1
+aether-sq8-lean ef=512 recall@10=0.98887 p50=0.33275ms qps(batch)=24066.1
+aether-sq8-lean ef=800 recall@10=0.98895 p50=0.494959ms qps(batch)=16074.9
+aether-sq8-lean build 34.856 s, memory 335.36 MiB (Release (NDEBUG))

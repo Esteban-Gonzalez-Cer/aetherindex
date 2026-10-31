@@ -96,6 +96,10 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
     bool have_b = false;
     bool have_candidate_k = false;
     bool have_rrf_k = false;
+    bool have_rrf_weight = false;
+    bool have_alpha = false;
+    bool have_fusion = false;
+    auto fusion_choice = hybrid::FusionMethod::Convex;
     bool have_vectors = false;
     bool have_build_threads = false;
     bool have_query_threads = false;
@@ -152,6 +156,12 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
             seen = &have_candidate_k;
         } else if (name == "--rrf-k") {
             seen = &have_rrf_k;
+        } else if (name == "--rrf-weight") {
+            seen = &have_rrf_weight;
+        } else if (name == "--alpha") {
+            seen = &have_alpha;
+        } else if (name == "--fusion") {
+            seen = &have_fusion;
         } else if (name == "--vectors") {
             seen = &have_vectors;
         } else if (name == "--build-threads") {
@@ -223,6 +233,17 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
             options.search.bm25_config.b = parse_real(value, name);
         } else if (name == "--rrf-k") {
             options.search.rrf_config.k_rrf = parse_real(value, name);
+        } else if (name == "--rrf-weight") {
+            options.search.rrf_config.dense_weight = parse_real(value, name);
+        } else if (name == "--alpha") {
+            options.search.rrf_config.alpha = parse_real(value, name);
+        } else if (name == "--fusion") {
+            if (value == "convex")
+                fusion_choice = hybrid::FusionMethod::Convex;
+            else if (value == "rrf")
+                fusion_choice = hybrid::FusionMethod::Rrf;
+            else
+                throw std::invalid_argument("Invalid --fusion: use convex or rrf.");
         } else if (name == "--vectors") {
             options.search.vectors_path = std::string(value);
         } else if (name == "--build-threads") {
@@ -353,9 +374,24 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
                 "BM25 options require lexical or hybrid mode (--mode lexical|hybrid or "
                 "--algorithm bm25).");
         if (options.search.mode != SearchMode::Hybrid &&
-            (have_candidate_k || have_rrf_k || have_vectors))
+            (have_candidate_k || have_rrf_k || have_rrf_weight || have_alpha || have_fusion ||
+             have_vectors))
             throw std::invalid_argument(
-                "--candidate-k, --rrf-k and --vectors require --mode hybrid.");
+                "--candidate-k, --fusion, --rrf-k, --rrf-weight, --alpha and --vectors require "
+                "--mode hybrid.");
+        if (have_alpha && (have_rrf_k || have_rrf_weight))
+            throw std::invalid_argument(
+                "--alpha selects convex fusion; it cannot be combined with --rrf-k or "
+                "--rrf-weight.");
+        // Convex is the default; --rrf-k or --rrf-weight alone select RRF.
+        const bool rrf_options = have_rrf_k || have_rrf_weight;
+        if (have_fusion && fusion_choice == hybrid::FusionMethod::Rrf && have_alpha)
+            throw std::invalid_argument("--alpha requires --fusion convex.");
+        if (have_fusion && fusion_choice == hybrid::FusionMethod::Convex && rrf_options)
+            throw std::invalid_argument("--rrf-k and --rrf-weight require --fusion rrf.");
+        if (have_fusion || rrf_options)
+            options.search.rrf_config.method =
+                rrf_options ? hybrid::FusionMethod::Rrf : fusion_choice;
         const bool hnsw_selected = options.search.mode == SearchMode::Hybrid ||
                                    (options.search.mode == SearchMode::Vector &&
                                     options.search.algorithm == SearchAlgorithm::Hnsw);
@@ -387,25 +423,32 @@ std::string_view help_text() {
            "  --query FILE         Query CSV (vector) or JSONL (either mode)\n"
            "  --query-text TEXT    BM25 query text instead of a query file; empty text is valid\n"
            "  --query-id ID        Select exactly one query from a JSONL query file\n"
-           "  --mode NAME          vector (default) | lexical (BM25) | hybrid (HNSW+BM25+RRF)\n"
+           "  --mode NAME          vector (default) | lexical (BM25) | hybrid (HNSW+BM25)\n"
            "  --algorithm NAME     brute-force (exact) | hnsw (approximate) | bm25 (lexical)\n"
            "                       Required in vector mode; bm25 implies lexical mode\n"
            "  --k INTEGER          Positive maximum result count (default: 10)\n"
            "  --bm25-k1 NUMBER     BM25 finite positive term saturation (default: 1.2)\n"
            "  --bm25-b NUMBER      BM25 finite length normalization in [0,1] (default: 0.75)\n"
-           "  --bm25-strategy NAME exhaustive (default) | taat | wand | bmw (Block-Max WAND) |\n"
-           "                       maxscore;\n"
-           "                       identical results, compressed postings except exhaustive\n"
+           "  --bm25-strategy NAME maxscore (default) | bmw (Block-Max WAND) | wand | taat |\n"
+           "                       exhaustive; identical results, compressed postings except\n"
+           "                       exhaustive\n"
            "  --analyzer NAME      ascii-tech-v1 (default) | english-v1 (Lucene-style English:\n"
            "                       stopwords, possessives, Porter stemming)\n"
            "  --bm25-query-weighting NAME\n"
-           "                       unique (default) | frequency (a repeated query term counts\n"
-           "                       once per occurrence, as in Lucene/Anserini)\n"
+           "                       frequency (default; a repeated query term counts once per\n"
+           "                       occurrence, as in Lucene/Anserini) | unique (once)\n"
            "  --filter F=V[|V2]    Keep documents whose metadata F equals V (or V2); repeatable\n"
            "  --filter-date F=A..B Keep documents whose metadata date F (YYYY-MM-DD) is in [A,B];\n"
            "                       A or B may be empty; all filters must hold (JSONL only)\n"
            "  --candidate-k N      Hybrid: candidates per retriever, >= k (default: max(k,50))\n"
-           "  --rrf-k NUMBER       Hybrid: finite positive RRF smoothing constant (default: 60)\n"
+           "  --fusion NAME        Hybrid: convex (default) | rrf (reciprocal rank fusion)\n"
+           "  --alpha A            Hybrid convex: A * dense + (1 - A) * BM25 of min-max\n"
+           "                       normalized scores, A in [0,1] (default: 0.65, tuned on BEIR\n"
+           "                       dev splits)\n"
+           "  --rrf-k NUMBER       Hybrid RRF: finite positive smoothing constant (default: 60);\n"
+           "                       selects RRF\n"
+           "  --rrf-weight W       Hybrid RRF: dense weight W in [0,1], lexical 1 - W (default:\n"
+           "                       both weights 1, classic RRF); selects RRF\n"
            "  --vectors FILE.avec  Hybrid: binary embeddings for the JSONL documents\n"
            "  --all-queries        Run every query of a JSONL --query file with one index build\n"
            "  --query-threads N    Threads for --all-queries (default: 1; output keeps file "
@@ -449,7 +492,9 @@ std::string_view help_text() {
            "execution.\n"
            "Hybrid needs JSONL documents with text and embeddings, and one JSONL query with\n"
            "query_text and embedding. HNSW and BM25 rankings share DocumentIds and are fused\n"
-           "with RRF: score = sum 1/(k_rrf + rank), ranks from 1, ties by DocumentId.\n"
+           "by default as 0.65 * dense + 0.35 * BM25 of min-max normalized candidate scores\n"
+           "(dense score = 1 - distance); --fusion rrf uses score = sum 1/(k_rrf + rank),\n"
+           "ranks from 1. Ties go by DocumentId.\n"
            "Data is loaded and searched in one execution. There is no persistence.\n"
            "Binary .avec embeddings (from convert) load without text parsing: use them as\n"
            "--dataset in vector mode or as --vectors with JSONL documents in hybrid mode.\n\n"

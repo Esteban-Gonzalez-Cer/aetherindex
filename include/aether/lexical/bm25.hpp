@@ -64,18 +64,22 @@ class Bm25Index {
     [[nodiscard]] PostingMemory posting_memory() const noexcept;
 
    private:
+    // A block of up to 128 postings, bit-packed at fixed widths in postings_: the ordinal
+    // deltas (count * doc_bits bits, the first relative to the previous block's last
+    // ordinal), then tf - 1 (count * tf_bits bits; 0 bits when every tf is 1).
     struct Block {
         std::uint32_t last;    // Last document ordinal in the block.
-        std::uint32_t offset;  // Byte offset of the block in TermLayout::bytes.
-        std::uint32_t count;   // Postings in the block (<= 128).
+        std::uint32_t offset;  // Byte offset of the block in postings_.
         float max_score;       // Largest term score in the block, rounded up (a safe bound).
+        std::uint16_t count;   // Postings in the block (<= 128).
+        std::uint8_t doc_bits;
+        std::uint8_t tf_bits;
     };
+    // A term's blocks are blocks_[first_block, first_block + ceil(df / 128)).
     struct TermLayout {
-        double idf = 0;
-        double max_score = 0;
-        std::vector<Block> blocks;
-        // Per posting: varint (delta << 1 | tf==1), then varint tf only when tf != 1.
-        std::vector<std::uint8_t> bytes;
+        std::uint32_t df;
+        std::uint32_t first_block;
+        float max_score;  // Largest block bound of the term (a safe bound).
     };
     struct TermHash {
         using is_transparent = void;
@@ -92,7 +96,7 @@ class Bm25Index {
     };
 
     std::vector<QueryTerm> query_terms(std::string_view query) const;
-    void build_layout();
+    void build_layout(const InvertedIndex& built, PostingMemory& memory);
     using Allow = std::function<bool(DocumentId)>;
     std::vector<RankedResult> search_exhaustive(const std::vector<QueryTerm>& terms,
                                                 std::size_t k, const Allow& allow) const;
@@ -106,6 +110,8 @@ class Bm25Index {
     const Bm25Config config_;
     InvertedIndex index_;
     std::unordered_map<std::string, TermLayout, TermHash, std::equal_to<>> layout_;
+    std::vector<Block> blocks_;
+    std::vector<std::uint8_t> postings_;  // Padded so 8-byte reads never leave it.
     std::vector<DocumentId> document_ids_;  // Ordinal -> DocumentId, ascending.
     std::vector<double> length_norm_;       // Ordinal -> BM25 length normalization.
     PostingMemory memory_;

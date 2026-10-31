@@ -15,6 +15,8 @@ class QuantizedQuery {
    public:
     virtual ~QuantizedQuery() = default;
     virtual float distance(std::size_t position) const noexcept = 0;
+    // Hints the memory distance(position) will read, so HNSW can overlap cache misses.
+    virtual void prefetch(std::size_t /*position*/) const noexcept {}
 };
 
 // Compressed copy of every row of a VectorStore (SQ8, PQ, ...), used by HNSW to

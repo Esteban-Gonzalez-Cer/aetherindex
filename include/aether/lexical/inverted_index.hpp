@@ -40,6 +40,10 @@ class InvertedIndex {
     // Publishes only after all allocations/sorting succeed. A failed build is
     // still collecting and may be retried. Repeated build throws logic_error.
     void build();
+    // Same, but first runs prepare on the staged index (readable as if built). If prepare
+    // throws, nothing is published and the index is still collecting. With
+    // release_postings, the raw postings are then dropped as by release_postings().
+    void build(const std::function<void(const InvertedIndex&)>& prepare, bool release_postings);
 
     // A normalized term, not a query. Requires a built index (logic_error).
     // Missing term: empty view; views remain valid until owner destruction.

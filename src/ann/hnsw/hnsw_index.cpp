@@ -9,23 +9,10 @@
 #include <unordered_set>
 
 #include "aether/core/parallel.hpp"
-
-#if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
-#include <immintrin.h>
-#endif
+#include "aether/core/prefetch.hpp"
 
 namespace aetherindex {
 namespace {
-
-inline void prefetch_read(const float* pointer) noexcept {
-#if defined(__GNUC__) || defined(__clang__)
-    __builtin_prefetch(pointer, 0, 3);
-#elif defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
-    _mm_prefetch(reinterpret_cast<const char*>(pointer), _MM_HINT_T0);
-#else
-    (void)pointer;
-#endif
-}
 
 // Epoch-stamped visited marks reused by every traversal on this thread: preparing a
 // search is O(1) instead of allocating and clearing an N-bit map per layer visit.
@@ -52,6 +39,7 @@ class VisitedTable {
 
 thread_local VisitedTable visited_table;
 thread_local std::vector<InternalId> adjacency_copy;
+thread_local std::vector<InternalId> unvisited_neighbors;
 
 }  // namespace
 
@@ -145,6 +133,10 @@ std::mutex& HnswIndex::stripe(InternalId id) const noexcept {
     return build_stripes_[id & (stripe_count - 1)];
 }
 
+void HnswIndex::prefetch_row(InternalId id) const noexcept {
+    prefetch_bytes(store_.data_by_position(id), store_.padded_dimension() * sizeof(float));
+}
+
 void HnswIndex::require_rows() const {
     if (!store_.has_rows())
         throw std::logic_error("This HNSW operation needs the FP32 rows; they were released.");
@@ -154,14 +146,16 @@ template <bool Concurrent>
 std::vector<HnswIndex::Candidate> HnswIndex::search_layer(const float* query, InternalId entry,
                                                           std::size_t ef, std::size_t level) const {
     return search_layer_with<Concurrent>([&](InternalId id) { return distance_to(query, id); },
-                                         entry, ef, level);
+                                         [&](InternalId id) { prefetch_row(id); }, entry, ef,
+                                         level);
 }
 
 // Concurrent=true is used only by parallel construction: each adjacency list is copied
 // under its stripe lock before traversal. Concurrent=false is the unchanged query path.
-// Prefetching targets the FP32 rows, which is harmless when distances use codes.
-template <bool Concurrent, class Distance, class Admit>
+// prefetch(id) brings in whatever distance(id) reads: FP32 rows or quantized codes.
+template <bool Concurrent, class Distance, class Prefetch, class Admit>
 std::vector<HnswIndex::Candidate> HnswIndex::search_layer_with(const Distance& distance,
+                                                               const Prefetch& prefetch,
                                                                InternalId entry, std::size_t ef,
                                                                std::size_t level,
                                                                const Admit& admit) const {
@@ -194,14 +188,20 @@ std::vector<HnswIndex::Candidate> HnswIndex::search_layer_with(const Distance& d
         } else {
             adjacent = neighbors_internal(current.node, level);
         }
-        const bool rows = store_.has_rows();
-        if (rows && !adjacent.empty()) prefetch_read(store_.data_by_position(adjacent.front()));
-        for (std::size_t i = 0; i < adjacent.size(); ++i) {
-            if (rows && i + 1 < adjacent.size())
-                prefetch_read(store_.data_by_position(adjacent[i + 1]));
-            const InternalId neighbor = adjacent[i];
+        // Two passes: the first drops visited neighbors and prefetches the vectors and IDs
+        // of the rest, so their cache misses overlap; the second scores and inserts them in
+        // adjacency order, so every decision (and the result) matches a one-pass loop.
+        const VectorId* ids = store_.ids().data();
+        auto& fresh = unvisited_neighbors;
+        fresh.clear();
+        for (const InternalId neighbor : adjacent) {
             if (mark_visited(neighbor)) continue;
-            const Candidate next{distance(neighbor), store_.ids()[neighbor], neighbor};
+            fresh.push_back(neighbor);
+            prefetch(neighbor);
+            prefetch_read(ids + neighbor);
+        }
+        for (const InternalId neighbor : fresh) {
+            const Candidate next{distance(neighbor), ids[neighbor], neighbor};
             if (results.size() < ef || next < results.top()) {
                 candidates.push(next);
                 if (admit(neighbor)) {
@@ -522,17 +522,18 @@ std::vector<SearchResult> HnswIndex::search_prepared(const PreparedQuery& query,
 
 // Shared tail of the quantized and filtered searches: greedy descent without filtering,
 // filtered layer-0 search, optional exact FP32 re-rank of the best `rerank` candidates.
-template <class Distance, class Admit>
+template <class Distance, class Prefetch, class Admit>
 std::vector<SearchResult> HnswIndex::search_with(const PreparedQuery& query,
-                                                 const Distance& distance, const Admit& admit,
+                                                 const Distance& distance,
+                                                 const Prefetch& prefetch, const Admit& admit,
                                                  std::size_t k, std::size_t ef_search,
                                                  std::size_t rerank) const {
     if (!entry_point_) return {};
     InternalId current = *entry_point_;
     for (std::size_t level = max_level_; level > 0; --level)
-        current = search_layer_with<false>(distance, current, 1, level).front().node;
+        current = search_layer_with<false>(distance, prefetch, current, 1, level).front().node;
     const std::size_t ef = std::min(size(), std::max(k, ef_search));
-    auto candidates = search_layer_with<false>(distance, current, ef, 0, admit);
+    auto candidates = search_layer_with<false>(distance, prefetch, current, ef, 0, admit);
     if (rerank != 0) {
         candidates.resize(std::min(candidates.size(), rerank));
         for (auto& candidate : candidates)
@@ -576,12 +577,14 @@ std::vector<SearchResult> HnswIndex::search_filtered(const PreparedQuery& query,
     if (codes) {
         const auto approximate = codes->prepare(query);
         const auto distance = [&](InternalId id) { return approximate->distance(id); };
-        return allow ? search_with(query, distance, admit, k, ef_search, rerank)
-                     : search_with(query, distance, admit_all, k, ef_search, rerank);
+        const auto prefetch = [&](InternalId id) { approximate->prefetch(id); };
+        return allow ? search_with(query, distance, prefetch, admit, k, ef_search, rerank)
+                     : search_with(query, distance, prefetch, admit_all, k, ef_search, rerank);
     }
     const auto distance = [&](InternalId id) { return distance_to(query.data(), id); };
-    return allow ? search_with(query, distance, admit, k, ef_search, 0)
-                 : search_with(query, distance, admit_all, k, ef_search, 0);
+    const auto prefetch = [&](InternalId id) { prefetch_row(id); };
+    return allow ? search_with(query, distance, prefetch, admit, k, ef_search, 0)
+                 : search_with(query, distance, prefetch, admit_all, k, ef_search, 0);
 }
 
 std::size_t HnswIndex::size() const noexcept { return successful_insertions_; }

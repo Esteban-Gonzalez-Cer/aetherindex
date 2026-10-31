@@ -1,1 +1,1 @@
-bm25 /Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/arguana: memory 17.1719 MiB, p50 1.29129 ms, batch QPS 6953.73
+bm25 /Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/arguana: memory 17.1719 MiB, p50 1.24175 ms, batch QPS 7128.9

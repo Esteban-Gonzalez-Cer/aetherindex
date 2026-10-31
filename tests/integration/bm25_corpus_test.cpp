@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
         if (argc != 4)
             throw std::invalid_argument(
                 "Usage: aether_bm25_evaluate DOCUMENTS.tsv QUERIES.tsv OUTPUT_DIR");
-        Bm25Index index;
+        Bm25Index index({.strategy = Bm25Strategy::Exhaustive});  // Reports vocabulary_size.
         read_tsv(argv[1], [&](std::string_view line) {
             const auto row = fields(line, 2);
             index.add_document(parse_id(row[0]), row[1]);

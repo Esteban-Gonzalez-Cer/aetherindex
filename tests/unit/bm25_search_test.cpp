@@ -2,6 +2,7 @@
 #include <exception>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <random>
 #include <set>
 #include <string>
@@ -24,7 +25,18 @@ void check_contracts() {
     require(both.size() == 2 && both[0].document_id == 101 && both[1].document_id == 102,
             "T6: score accumulation duplicated a document.");
     requireBm25Near(both[0].score, 0.5665797174 + 0.8142733421, "T6: sum of contributions failed.");
-    requireSameRanking(index.search("e47 motor e47 motor", 10), both);
+    // Default Frequency weighting: each repetition of a query term counts again.
+    const auto twice = index.search("e47 motor e47 motor", 10);
+    require(twice.size() == 2 && twice[0].document_id == 101 && twice[1].document_id == 102,
+            "Repeated query terms changed the ranking.");
+    requireBm25Near(twice[0].score, 2.0 * both[0].score, "Frequency weighting did not double.");
+    requireBm25Near(twice[1].score, 2.0 * both[1].score, "Frequency weighting did not double.");
+    Bm25Config unique_config;
+    unique_config.query_weighting = QueryTermWeighting::Unique;
+    Bm25Index unique(unique_config);
+    addBm25Reference(unique);
+    unique.build();
+    requireSameRanking(unique.search("e47 motor e47 motor", 10), both);
     requireSameRanking(index.search("motor e47 unknown", 10), both);
     requireSameRanking(index.search("E47 MOTOR", 10), both);
     for (std::string_view query : {"", " ", ";[]--!!", "unknown"}) {
@@ -84,18 +96,19 @@ void check_against_scan() {
     index.build();
     const long double mean = static_cast<long double>(total) / corpus.size();
     for (std::size_t q = 0; q < 50; ++q) {
-        std::set<std::string> terms;
+        // Query occurrences per term: the default Frequency weighting multiplies by them.
+        std::map<std::string, int> terms;
         std::string query;
         for (std::size_t i = 0; i < 5; ++i) {
             auto term = "term" + std::to_string(random() % 22);
-            terms.insert(term);
+            terms[term] += 2;
             query += term + " " + term + " ";
         }
         std::vector<RankedResult> expected;
         for (std::size_t d = 0; d < corpus.size(); ++d) {
             long double score = 0;
             bool matched = false;
-            for (const auto& term : terms) {
+            for (const auto& [term, occurrences] : terms) {
                 const auto tf = std::count(corpus[d].begin(), corpus[d].end(), term);
                 if (tf == 0) continue;
                 matched = true;
@@ -104,7 +117,8 @@ void check_against_scan() {
                     if (std::find(other.begin(), other.end(), term) != other.end()) ++df;
                 }
                 const auto idf = std::log(1.0L + (corpus.size() - df + 0.5L) / (df + 0.5L));
-                score += idf * tf * 2.7L / (tf + 1.7L * (0.4L + 0.6L * corpus[d].size() / mean));
+                score += occurrences * idf * tf * 2.7L /
+                         (tf + 1.7L * (0.4L + 0.6L * corpus[d].size() / mean));
             }
             if (matched)
                 expected.push_back(

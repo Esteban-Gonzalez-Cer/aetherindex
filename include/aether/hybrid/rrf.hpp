@@ -27,6 +27,13 @@ class RrfFusion {
     [[nodiscard]] std::vector<RankedResult> fuse(std::span<const DocumentId> dense_ranking,
                                                  std::span<const DocumentId> lexical_ranking,
                                                  std::size_t top_k) const;
+    // Same contract with scored inputs (higher is better within each list, lists in
+    // relevance order). Rrf ignores the scores and equals fuse() on the IDs; Convex
+    // combines the min-max normalized scores (see rrf_config.hpp). Non-finite scores
+    // throw invalid_argument.
+    [[nodiscard]] std::vector<RankedResult> fuse_scored(std::span<const RankedResult> dense,
+                                                        std::span<const RankedResult> lexical,
+                                                        std::size_t top_k) const;
 
     [[nodiscard]] RrfConfig config() const noexcept;
 

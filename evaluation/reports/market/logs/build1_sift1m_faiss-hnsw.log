@@ -1,2 +1,2 @@
-faiss-hnsw ef=128 recall@10=0.99042 p50=0.239ms qps(batch)=26905
-faiss-hnsw build 347.138 s, memory 653.032 MiB (Release (NDEBUG))
+faiss-hnsw ef=128 recall@10=0.99042 p50=0.274291ms qps(batch)=26277.9
+faiss-hnsw build 351.795 s, memory 652.641 MiB (Release (NDEBUG))

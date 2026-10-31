@@ -1,1 +1,1 @@
-bm25 /Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/quora: memory 242.235 MiB, p50 23.2387 ms, batch QPS 376.656
+bm25 /Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/quora: memory 220.328 MiB, p50 23.8315 ms, batch QPS 356.123

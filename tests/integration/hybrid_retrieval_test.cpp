@@ -172,6 +172,21 @@ void service_scenarios(const std::filesystem::path& folder) {
     request.mode = SearchMode::Hybrid;
     request.query_id = "Q1";
     request.k = 10;
+    // Default fusion: convex, 0.65 * dense + 0.35 * BM25 after min-max normalization. Dense
+    // similarities (1 - cosine distance) are D1 1, D2 0.6, D3 0; BM25 ranks the shorter D2
+    // above D1, so the normalized lexical scores are D2 1 and D1 0.
+    require(request.rrf_config.method == hybrid::FusionMethod::Convex &&
+                request.rrf_config.alpha == 0.65,
+            "Hybrid search default is not convex fusion with alpha 0.65.");
+    const auto convex = service.search(request);
+    require(convex.fused.size() == 3 && convex.fused[0].source_id == "D2" &&
+                convex.fused[1].source_id == "D1" && convex.fused[2].source_id == "D3",
+            "Default convex fusion order incorrect.");
+    require(std::abs(convex.fused[0].rrf_score - (0.65 * 0.6 + 0.35)) < 1e-6 &&
+                convex.fused[1].rrf_score == 0.65 && convex.fused[2].rrf_score == 0.0,
+            "Default convex fusion scores incorrect.");
+    // The rest of the scenario checks RRF accounting.
+    request.rrf_config = hybrid::RrfConfig{};
     const auto hybrid = service.search(request);
     require(hybrid.documents_indexed == 3 && hybrid.dimension == 2 && hybrid.candidate_k == 50,
             "Hybrid metadata incorrect.");

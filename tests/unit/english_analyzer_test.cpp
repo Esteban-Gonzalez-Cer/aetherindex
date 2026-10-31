@@ -170,7 +170,7 @@ void check_query_weighting() {
             if (a[i].document_id != b[i].document_id || a[i].score != b[i].score) return false;
         return true;
     };
-    require(Bm25Config{}.query_weighting == QueryTermWeighting::Unique,
+    require(Bm25Config{}.query_weighting == QueryTermWeighting::Frequency,
             "Default query weighting changed.");
     const auto unique = build(Bm25Strategy::Exhaustive, QueryTermWeighting::Unique);
     const auto frequency = build(Bm25Strategy::Exhaustive, QueryTermWeighting::Frequency);

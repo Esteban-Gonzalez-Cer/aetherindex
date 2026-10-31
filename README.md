@@ -180,25 +180,26 @@ ctest --test-dir build-sprint2 --output-on-failure
 ./build-sprint2/aetherindex search --algorithm hnsw --dataset datasets/examples/vectors.csv --query datasets/examples/query.csv --k 2
 # Léxica (BM25) sobre el corpus CP-01
 ./build-sprint2/aetherindex search --mode lexical --dataset datasets/corpus.jsonl --query datasets/queries.jsonl --query-id Q002 --k 5
-# Híbrida (HNSW + BM25 + RRF) sobre el corpus CP-01 con embeddings externos
+# Híbrida (HNSW + BM25, fusión convexa; --fusion rrf para RRF) sobre el corpus CP-01
 ./build-sprint2/aetherindex search --mode hybrid --dataset datasets/hybrid/corpus.jsonl --query datasets/hybrid/queries.jsonl --query-id Q002 --k 5
 ```
 
 | Elemento | Contrato |
 |---|---|
-| Modos | `vector` (`brute-force`/`hnsw`), `lexical` (BM25) e `hybrid` (HNSW + BM25 + RRF) |
+| Modos | `vector` (`brute-force`/`hnsw`), `lexical` (BM25) e `hybrid` (HNSW + BM25, fusión convexa o RRF) |
 | Entradas | CSV numérico para vectores; JSONL de documentos/consultas para BM25 e híbrido ([formatos](docs/cli_bm25.md), [híbrido](docs/cli_hybrid.md)) |
-| Identidad | HNSW y BM25 resuelven a la misma `DocumentId` antes de RRF |
-| Parámetros | HNSW `M=16 M0=32 efConstruction=100 efSearch=50 seed=42`; BM25 `k1=1.2 b=0.75`; RRF `k_rrf=60`, `candidate_k=max(K,50)` |
+| Identidad | HNSW y BM25 resuelven a la misma `DocumentId` antes de la fusión |
+| Parámetros | HNSW `M=16 M0=32 efConstruction=100 efSearch=50 seed=42`; BM25 `k1=1.2 b=0.75`, términos repetidos ponderados por frecuencia; fusión convexa `alpha=0.65` (RRF: `k_rrf=60`), `candidate_k=max(K,50)` |
 | Datasets | `datasets/corpus.jsonl` + `queries.jsonl` (CP-01, 30 documentos, 24 consultas etiquetadas); `datasets/hybrid/` se regenera con `python3 scripts/generate_hashing_embeddings.py` |
 | Evaluación | `ctest -L sprint2` ejecuta KR1.3 y KR1.5; [reportes y procedimiento](evaluation/README.md) |
 
 **Optimización posterior al Sprint 2** ([informe y resultados](docs/reports/OPTIMIZATION_ROADMAP.md)):
 formato binario `.avec` y `convert`, construcción HNSW paralela, consultas en lote
 (`--all-queries`), cuantización SQ8/PQ con reordenamiento exacto, estrategias BM25
-comprimidas (`--bm25-strategy taat|wand|bmw|maxscore`) y filtros por metadatos (`--filter`). Todas son
-opcionales: la salida por defecto se mantiene byte a byte (`e2e.cli_golden`). Ver
-[opciones de la CLI](docs/cli.md).
+comprimidas (`--bm25-strategy maxscore|bmw|wand|taat`) y filtros por metadatos (`--filter`). Desde
+el 30 de octubre de 2026 BM25 usa por defecto `maxscore` (mismos resultados bit a bit que
+`exhaustive`), pondera los términos repetidos de la consulta y el modo híbrido usa fusión
+convexa ([fusión híbrida](docs/cli.md#fusión-híbrida)). Ver [opciones de la CLI](docs/cli.md).
 
 **Comparación con el mercado** ([informe](docs/reports/MARKET_COMPARISON.md)): AetherIndex
 frente a hnswlib, FAISS, Lucene, bm25s, Qdrant y OpenSearch en SIFT1M, GloVe-100 y seis

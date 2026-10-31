@@ -1,14 +1,14 @@
-hnswlib ef=10 recall@10=0.47017 p50=0.030417ms qps(batch)=271985
-hnswlib ef=16 recall@10=0.55693 p50=0.041ms qps(batch)=201364
-hnswlib ef=24 recall@10=0.62475 p50=0.058542ms qps(batch)=149502
-hnswlib ef=32 recall@10=0.66903 p50=0.070667ms qps(batch)=124327
-hnswlib ef=48 recall@10=0.72661 p50=0.098166ms qps(batch)=91730.5
-hnswlib ef=64 recall@10=0.76009 p50=0.124125ms qps(batch)=73664.4
-hnswlib ef=96 recall@10=0.80485 p50=0.177083ms qps(batch)=53204.1
-hnswlib ef=128 recall@10=0.83145 p50=0.225208ms qps(batch)=42032.8
-hnswlib ef=192 recall@10=0.86335 p50=0.315333ms qps(batch)=29827.6
-hnswlib ef=256 recall@10=0.88374 p50=0.41375ms qps(batch)=23289.5
-hnswlib ef=384 recall@10=0.90911 p50=0.588459ms qps(batch)=16250.4
-hnswlib ef=512 recall@10=0.92571 p50=0.776541ms qps(batch)=12336
-hnswlib ef=800 recall@10=0.94583 p50=1.14579ms qps(batch)=8323.62
-hnswlib build 39.7758 s, memory 791.172 MiB (Release (NDEBUG))
+hnswlib ef=10 recall@10=0.46889 p50=0.0315ms qps(batch)=261996
+hnswlib ef=16 recall@10=0.55653 p50=0.043125ms qps(batch)=192391
+hnswlib ef=24 recall@10=0.62374 p50=0.0595ms qps(batch)=137195
+hnswlib ef=32 recall@10=0.67012 p50=0.073167ms qps(batch)=111621
+hnswlib ef=48 recall@10=0.72676 p50=0.101417ms qps(batch)=83188.6
+hnswlib ef=64 recall@10=0.76134 p50=0.128167ms qps(batch)=66560.7
+hnswlib ef=96 recall@10=0.80471 p50=0.175542ms qps(batch)=51139.3
+hnswlib ef=128 recall@10=0.83055 p50=0.22875ms qps(batch)=40410.2
+hnswlib ef=192 recall@10=0.86307 p50=0.324333ms qps(batch)=28650
+hnswlib ef=256 recall@10=0.88367 p50=0.417959ms qps(batch)=22335.2
+hnswlib ef=384 recall@10=0.90874 p50=0.599167ms qps(batch)=15555.1
+hnswlib ef=512 recall@10=0.92508 p50=0.801ms qps(batch)=11958.1
+hnswlib ef=800 recall@10=0.94589 p50=1.17037ms qps(batch)=7950.2
+hnswlib build 42.6135 s, memory 790.797 MiB (Release (NDEBUG))

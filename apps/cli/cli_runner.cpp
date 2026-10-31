@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
 #include <exception>
 #include <iomanip>
 #include <limits>
@@ -131,12 +132,12 @@ void print_lexical(std::ostream& output, const SearchRequest& request,
            << "\nResults returned: " << response.documents.size()
            << "\nBM25 configuration: k1=" << std::setprecision(17) << request.bm25_config.k1
            << " b=" << request.bm25_config.b;
-    if (request.bm25_config.strategy != lexical::Bm25Strategy::Exhaustive)
+    if (request.bm25_config.strategy != lexical::Bm25Strategy::MaxScore)
         output << "\nBM25 strategy: " << strategy_name(request.bm25_config.strategy);
     if (request.bm25_config.analyzer != lexical::Analyzer::AsciiTechV1)
         output << "\nBM25 analyzer: " << lexical::analyzer_name(request.bm25_config.analyzer);
-    if (request.bm25_config.query_weighting != lexical::QueryTermWeighting::Unique)
-        output << "\nBM25 query weighting: frequency";
+    if (request.bm25_config.query_weighting != lexical::QueryTermWeighting::Frequency)
+        output << "\nBM25 query weighting: unique";
     print_filter(output, request, response, false);
     if (!response.selected_query_id.empty())
         output << "\nQuery ID: " << display_id(response.selected_query_id);
@@ -193,11 +194,27 @@ void print_vector(std::ostream& output, const SearchRequest& request,
 
 std::string component_rank(std::size_t rank) { return rank ? std::to_string(rank) : "-"; }
 
+// Shortest decimal that reads back as the same double (0.7, not 0.69999999999999996).
+std::string shortest(double value) {
+    char buffer[32];
+    const auto result = std::to_chars(buffer, buffer + sizeof buffer, value);
+    return std::string(buffer, result.ptr);
+}
+
 void print_hybrid(std::ostream& output, const SearchRequest& request,
                   const SearchResponse& response) {
     const auto& hnsw = request.hnsw_config;
-    output << "Search mode: Hybrid\nFusion: RRF (k_rrf=" << std::setprecision(17)
-           << request.rrf_config.k_rrf << ")\nDense retriever: HNSW ("
+    const auto& fusion = request.rrf_config;
+    const bool convex = fusion.method == hybrid::FusionMethod::Convex;
+    output << "Search mode: Hybrid\nFusion: " << std::setprecision(17);
+    if (convex)
+        output << "convex (alpha=" << shortest(fusion.alpha) << ", min-max normalized scores)";
+    else if (fusion.dense_weight)
+        output << "weighted RRF (k_rrf=" << fusion.k_rrf
+               << ", dense weight=" << shortest(*fusion.dense_weight) << ", lexical weight=1-dense)";
+    else
+        output << "RRF (k_rrf=" << fusion.k_rrf << ")";
+    output << "\nDense retriever: HNSW ("
            << (request.metric == DistanceKind::Cosine ? "Cosine" : "SquaredEuclidean")
            << ")\nLexical retriever: BM25 (title + text, no field boosts)"
            << "\nDocuments indexed: " << response.documents_indexed
@@ -209,15 +226,15 @@ void print_hybrid(std::ostream& output, const SearchRequest& request,
            << "\nResults returned: " << response.fused.size()
            << "\nBM25 configuration: k1=" << request.bm25_config.k1
            << " b=" << request.bm25_config.b
-           << (request.bm25_config.strategy != lexical::Bm25Strategy::Exhaustive
+           << (request.bm25_config.strategy != lexical::Bm25Strategy::MaxScore
                    ? std::string("\nBM25 strategy: ") + strategy_name(request.bm25_config.strategy)
                    : std::string())
            << (request.bm25_config.analyzer != lexical::Analyzer::AsciiTechV1
                    ? std::string("\nBM25 analyzer: ") +
                          lexical::analyzer_name(request.bm25_config.analyzer)
                    : std::string())
-           << (request.bm25_config.query_weighting != lexical::QueryTermWeighting::Unique
-                   ? "\nBM25 query weighting: frequency"
+           << (request.bm25_config.query_weighting != lexical::QueryTermWeighting::Frequency
+                   ? "\nBM25 query weighting: unique"
                    : "")
            << "\nHNSW configuration: M=" << hnsw.m << " M0=" << hnsw.m_max_0
            << " efConstruction=" << hnsw.ef_construction << " efSearch=" << hnsw.ef_search
@@ -232,8 +249,8 @@ void print_hybrid(std::ostream& output, const SearchRequest& request,
     print_quantization(output, request, response);
     print_filter(output, request, response, true);
     output << "\nQuery time (ms): " << number(response.query_time.count(), 6)
-           << "\nQuery time scope: HNSW + BM25 + RRF (excludes input loading, index builds and "
-              "output)\n\n";
+           << "\nQuery time scope: HNSW + BM25 + " << (convex ? "fusion" : "RRF")
+           << " (excludes input loading, index builds and output)\n\n";
     std::vector<Row> rows;
     rows.reserve(response.fused.size());
     for (std::size_t i = 0; i < response.fused.size(); ++i) {
@@ -241,7 +258,10 @@ void print_hybrid(std::ostream& output, const SearchRequest& request,
         rows.push_back({std::to_string(i + 1), display_id(row.source_id), number(row.rrf_score, 12),
                         component_rank(row.dense_rank), component_rank(row.lexical_rank)});
     }
-    print_table(output, {"Rank", "Document ID", "RRF Score", "Dense Rank", "Lexical Rank"}, rows);
+    print_table(output,
+                {"Rank", "Document ID", convex ? "Fused Score" : "RRF Score", "Dense Rank",
+                 "Lexical Rank"},
+                rows);
     if (response.lexical_candidates == 0)
         output << "\nNo lexical matches; the fused ranking uses the dense candidates only.\n";
 }

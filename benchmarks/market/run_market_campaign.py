@@ -6,7 +6,7 @@ evaluation/reports/market/done.txt and skipped on a rerun, so the campaign can r
 Run nothing else on the machine while it measures. Docker servers are a separate step
 (run_servers.py). Usage (repository root, after building build-market in Release):
 
-  python3 benchmarks/market/run_market_campaign.py [--only ann|build1|beir|beir-ann|parity]
+  python3 benchmarks/market/run_market_campaign.py [--only ann|build1|beir|beir-ann|parity|fusion]
 """
 
 import argparse
@@ -270,15 +270,69 @@ def manifest():
     (OUT / "manifest.json").write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
 
+DEV = ["scifact", "nfcorpus", "fiqa", "quora"]  # Datasets with dev (SciFact: train) judgments.
+
+
+def fusion_steps():
+    """Weighted RRF and convex fusion: tuned on dev splits, then run once on the test sets.
+
+    Dev runs (fusion/dev/<ds>/) feed tune_fusion.py; its global values are applied to all
+    six test sets and its per-dataset values to the four datasets with dev judgments.
+    Deterministic (1-thread HNSW) runs check the engine against fuse_rrf.py."""
+    dev_runs = OUT / "fusion" / "dev"
+    for dataset in DEV:
+        data = ROOT / "datasets/market/beir-dev" / dataset
+        folder = dev_runs / dataset
+        folder.mkdir(parents=True, exist_ok=True)
+        run(f"fusion/dev/{dataset}/dense", [IR, "dense", "--index", "hnsw", "--data", data,
+                                            "--out", folder / "dense", "--timing", 0])
+        run(f"fusion/dev/{dataset}/bm25",
+            [IR, "bm25", "--analyzer", "english-v1", "--strategy", "maxscore",
+             "--query-weighting", "frequency", "--data", data, "--out", folder / "bm25",
+             "--timing", 0])
+    tuning = OUT / "fusion" / "fusion_tuning.json"
+    run("fusion/tune", [sys.executable, "-I", "benchmarks/market/tune_fusion.py", "--dev-root",
+                        ROOT / "datasets/market/beir-dev", "--runs", dev_runs, "--out", tuning,
+                        *DEV])
+    tuned = json.loads(tuning.read_text(encoding="utf-8"))
+    base = ["--analyzer", "english-v1", "--strategy", "maxscore", "--query-weighting", "frequency"]
+    options = {"wrrf": lambda v: ["--rrf-weight", v], "convex": lambda v: ["--alpha", v]}
+    methods = {"wrrf": "weighted-rrf", "convex": "convex"}
+    for dataset in BEIR:
+        data = ROOT / "datasets/market/beir" / dataset
+        folder = OUT / "beir" / dataset
+        for short, method in methods.items():
+            variants = {"": tuned[method]["global"]["value"]}
+            if dataset in DEV:
+                variants["-dev"] = tuned[method]["per_dataset"][dataset]["value"]
+            for suffix, value in variants.items():
+                name = f"aether-hybrid-freq-{short}{suffix}"
+                run(f"beir/{dataset}/{name}", [IR, "hybrid", *base, *options[short](value),
+                                               "--data", data, "--out", folder / name])
+        parity = OUT / "parity" / dataset
+        for short, method in methods.items():
+            value = tuned[method]["global"]["value"]
+            run(f"parity/{dataset}/hybrid-freq-{short}",
+                [IR, "hybrid", *base, *options[short](value), "--data", data, "--out",
+                 parity / f"hybrid-freq-{short}", "--build-threads", 1, "--timing", 0])
+            reference = ["--dense-weight", value] if short == "wrrf" else ["--alpha", value]
+            run(f"parity/{dataset}/check-freq-{short}",
+                [sys.executable, "-I", "benchmarks/market/fuse_rrf.py", "--dense",
+                 parity / "dense.run", "--lexical", parity / "bm25-freq.run", "--doc-ids",
+                 data / "doc_ids.txt", "--out", parity / f"refused-freq-{short}.run",
+                 *reference, "--check", parity / f"hybrid-freq-{short}.run"])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--only", choices=["ann", "build1", "beir", "beir-ann", "parity"])
+    parser.add_argument("--only",
+                        choices=["ann", "build1", "beir", "beir-ann", "parity", "fusion"])
     args = parser.parse_args()
     (OUT / "logs").mkdir(parents=True, exist_ok=True)
     manifest()
     steps = {"parity": parity_steps, "beir": beir_steps, "beir-ann": beir_ann_steps,
-             "ann": ann_steps, "build1": build1_steps}
+             "ann": ann_steps, "build1": build1_steps, "fusion": fusion_steps}
     for name, function in steps.items():
         if args.only in (None, name):
             function()

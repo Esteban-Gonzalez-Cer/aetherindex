@@ -1,6 +1,6 @@
 # Comparación de AetherIndex con productos del mercado
 
-**Fecha local:** 29 de octubre de 2026 · **Base:** `ff80080` con los cambios de la rama
+**Fecha local:** 30 de octubre de 2026 · **Base:** `ff80080` con los cambios de la rama
 `feature/market-benchmarks` (sin commit) · **Máquina:** Apple M4 Pro (10 núcleos de
 rendimiento + 4 de eficiencia, 24 GB), macOS 26.5, Apple clang 17.
 
@@ -11,37 +11,53 @@ perdemos. Todas las tablas salen de
 `scripts/summarize_market.py` regenera a partir de los archivos crudos; los arneses y el modo
 de reproducirlos están en [`benchmarks/market/`](../../benchmarks/market/README.md).
 
+**Valores por defecto.** A raíz de estos resultados, desde el 30 de octubre de 2026 BM25 usa
+por defecto la estrategia `maxscore` y pondera los términos repetidos de la consulta
+(`frequency`), y el modo híbrido usa por defecto la fusión convexa con alpha = 0.65
+(`--fusion rrf` recupera RRF clásico). Las mediciones de este informe nombran siempre la
+configuración explícita; donde dice «por defecto» se refiere a los valores anteriores
+(`exhaustive`, `unique` y RRF clásico).
+
 ## Resumen
 
 - **Calidad léxica igual a Lucene en los 6 datasets.** Con el analizador opt-in
-  `english-v1` (99.993 % de tokens idénticos a Lucene) y la ponderación opt-in
-  `--bm25-query-weighting frequency`, el nDCG@10 medio de BM25 es 0.5030 frente a 0.5024 de
-  Lucene, sin diferencia significativa en 5 datasets y +0.003 en ArguAna. Con la ponderación
-  por defecto (cada término una vez) empatamos en 5 datasets y perdemos 0.079 en ArguAna,
-  cuyas consultas son argumentos completos. Ver
+  `english-v1` (99.993 % de tokens idénticos a Lucene) y la ponderación `frequency` (ahora
+  por defecto), el nDCG@10 medio de BM25 es 0.5030 frente a 0.5024 de Lucene, sin diferencia
+  significativa en 5 datasets y +0.003 en ArguAna. Con la ponderación anterior, `unique`
+  (cada término una vez), empatamos en 5 datasets y perdemos 0.079 en ArguAna, cuyas
+  consultas son argumentos completos. Ver
   [Ponderación de la consulta](#ponderación-de-términos-repetidos-en-la-consulta).
-- **HNSW más rápido que hnswlib y FAISS con la misma calidad.** En SIFT1M, a Recall@10 ≥
-  0.95, AetherIndex sirve 94.5 K QPS frente a 81.6 K de hnswlib compilado con
-  `-ffast-math` (su mejor caso), 61.1 K de hnswlib estándar y 50.4 K de FAISS HNSWFlat.
-  En GloVe-100 ganamos a 0.90 (20.6 K frente a 18.4 K) pero hnswlib con `-ffast-math` nos
-  supera a 0.95 (10.0 K frente a 8.1 K).
+- **HNSW más rápido que hnswlib y FAISS con la misma calidad, sin `-ffast-math`.** En
+  SIFT1M, a Recall@10 ≥ 0.95, AetherIndex sirve 159.1 K QPS frente a 80.1 K de hnswlib
+  compilado con `-ffast-math` (su mejor caso), 57.3 K de hnswlib estándar y 47.5 K de FAISS
+  HNSWFlat. En GloVe-100 a 0.95 sirve 12.6 K frente a 9.0 K de hnswlib con `-ffast-math`,
+  que antes nos superaba. También construimos con un hilo más rápido que ambos (SIFT1M:
+  258 s frente a 352 s de FAISS y 366 s de hnswlib). La mejora viene de un perfilado: el
+  coste estaba en los fallos de caché, no en el kernel de distancia. Ver
+  [Perfilado de HNSW](#perfilado-de-hnsw-y-prefetch-por-lotes).
 - **Búsqueda densa sin pérdida.** Sobre los embeddings bge-small de BEIR, HNSW de AetherIndex
   iguala la búsqueda exacta en nDCG@10 (media 0.6174 frente a 0.6178, sin diferencia
   significativa) y la cuantización SQ8 no cambia la calidad (0.6173).
-- **Híbrido RRF correcto y útil.** La fusión reproduce exactamente una RRF de referencia
-  sobre los mismos runs (6 de 6 datasets). El híbrido mejora a BM25 en los 6 datasets
-  (+0.04 a +0.21 de nDCG@10, todos significativos). Con ponderación por frecuencia iguala a
-  la referencia Lucene + exacto + RRF (media 0.6086 frente a 0.6088) y a OpenSearch.
+- **Híbrido mejor que cada recuperador por separado.** La fusión reproduce exactamente una
+  RRF de referencia sobre los mismos runs (6 de 6 datasets). Con RRF clásico iguala a la
+  referencia Lucene + exacto + RRF (media 0.6086 frente a 0.6088) y a OpenSearch, pero queda
+  por debajo de la búsqueda densa sola en FiQA, ArguAna y Quora. La fusión convexa, ahora
+  la fusión por defecto, con un valor elegido solo en las particiones dev, sube la media a
+  0.6313 y supera a la búsqueda densa exacta en 5 de 6 datasets (empata en ArguAna). Ver
+  [Fusión ponderada](#fusión-ponderada-ajustada-en-dev).
 - **Búsqueda densa en proceso de 4 a 11 veces más rápida que los servidores.** HNSW de
   AetherIndex responde en 0.08–0.38 ms frente a 0.58–2.38 ms de Qdrant y OpenSearch medidos
   desde el cliente. Esa diferencia incluye la red local y la serialización, así que no es
   una comparación de motores.
-- **BM25 con MaxScore: a la par de Lucene en consultas largas, todavía detrás en colecciones
-  grandes.** La nueva estrategia `maxscore` reduce la latencia de BMW de 7.90 a 0.54 ms en
-  ArguAna (Lucene 0.55 ms) y de 1.49 a 0.67 ms en TREC-COVID, con los mismos resultados bit a
-  bit. Ganamos en SciFact y NFCorpus y empatamos en ArguAna; Lucene sigue siendo de 1.2 a 1.8
-  veces más rápido con un hilo en FiQA, TREC-COVID y Quora. Ver
-  [Estrategia MaxScore](#estrategia-maxscore).
+- **BM25 más rápido que Lucene, con los mismos resultados bit a bit.** Con la estrategia
+  `maxscore`, los postings empaquetados por bits y dos cambios guiados por un perfilado,
+  AetherIndex responde antes que Lucene con un hilo en los 6 datasets (FiQA 0.119 frente a
+  0.165 ms, TREC-COVID 0.292 frente a 0.384 ms, Quora 0.174 frente a 0.214 ms) y da de 1.2 a
+  1.7 veces su throughput con 10 hilos en FiQA, ArguAna, TREC-COVID y Quora. Con BMW la
+  diferencia era de 1.7 a 14 veces a favor de Lucene. El índice ocupa entre 0.94 y 1.5 veces
+  el de Lucene. Ver [Estrategia MaxScore](#estrategia-maxscore),
+  [Postings empaquetados por bits](#postings-empaquetados-por-bits) y
+  [Ventanas sin ordenación](#ventanas-sin-ordenación-y-desempaquetado-por-grupos).
 
 ## Protocolo de equidad
 
@@ -121,7 +137,7 @@ Diferencia con Lucene (prueba pareada, en el orden de la tabla):
 
 | AetherIndex | SciFact | NFCorpus | FiQA | ArguAna | TREC-COVID | Quora |
 |---|---:|---:|---:|---:|---:|---:|
-| `unique` (por defecto) | +0.0006 (p = 0.85) | +0.0002 (p = 0.86) | +0.0018 (p = 0.46) | **−0.0792 (p < 0.001)** | +0.0029 (p = 0.44) | +0.0009 (p = 0.09) |
+| `unique` | +0.0006 (p = 0.85) | +0.0002 (p = 0.86) | +0.0018 (p = 0.46) | **−0.0792 (p < 0.001)** | +0.0029 (p = 0.44) | +0.0009 (p = 0.09) |
 | `frequency` | −0.0012 (p = 0.20) | −0.0003 (p = 0.60) | −0.0007 (p = 0.54) | **+0.0033 (p = 0.001)** | +0.0025 (p = 0.46) | +0.0000 (p = 0.12) |
 
 Dos controles cruzados confirman que la fórmula BM25 es la misma y que la única diferencia
@@ -141,21 +157,24 @@ Latencia p50 con un hilo y QPS con 10 hilos (k = 10):
 
 | Dataset | AetherIndex BMW | AetherIndex MaxScore | Lucene | bm25s |
 |---|---|---|---|---|
-| SciFact | **0.064 ms** · 102 K | 0.068 ms · **113 K** | 0.077 ms · 45 K | 0.125 ms · 10 K |
-| NFCorpus | **0.005 ms · 663 K** | 0.006 ms · 511 K | 0.024 ms · 76 K | 0.086 ms · 21 K |
-| FiQA | 0.519 ms · 13.9 K | 0.278 ms · 26.8 K | **0.165 ms · 46.5 K** | 0.458 ms · 6.9 K |
-| ArguAna | 7.901 ms · 0.9 K | 0.544 ms · 14.5 K | 0.553 ms · **15.4 K** | **0.347 ms** · 1.3 K |
-| TREC-COVID | 1.487 ms · 3.0 K | 0.667 ms · 9.4 K | **0.375 ms · 14.1 K** | 1.399 ms · 3.4 K |
-| Quora | 0.339 ms · 17.6 K | 0.248 ms · 28.4 K | **0.205 ms · 40.1 K** | 2.550 ms · 3.1 K |
+| SciFact | 0.055 ms · 106 K | **0.022 ms · 291 K** | 0.091 ms · 32 K | 0.125 ms · 10 K |
+| NFCorpus | 0.004 ms · 739 K | **0.003 ms · 753 K** | 0.029 ms · 17 K | 0.086 ms · 21 K |
+| FiQA | 0.446 ms · 14.5 K | **0.119 ms · 65.2 K** | 0.165 ms · 45.6 K | 0.458 ms · 6.9 K |
+| ArguAna | 7.853 ms · 0.9 K | **0.315 ms · 26.5 K** | 0.541 ms · 15.4 K | 0.347 ms · 1.3 K |
+| TREC-COVID | 1.210 ms · 3.2 K | **0.292 ms · 21.0 K** | 0.384 ms · 15.7 K | 1.399 ms · 3.4 K |
+| Quora | 0.320 ms · 19.0 K | **0.174 ms · 44.1 K** | 0.214 ms · 37.8 K | 2.550 ms · 3.1 K |
 
-Ambas columnas de AetherIndex usan la ponderación por defecto; con `frequency` las cifras son
-prácticamente iguales (`summary.md`).
+Las columnas de AetherIndex usan la ponderación `unique` y los postings empaquetados por bits;
+con `frequency` las cifras son prácticamente iguales (`summary.md`). AetherIndex y Lucene se
+midieron en la misma sesión (octava pasada, ver [Limitaciones](#limitaciones)); bm25s es de la
+primera. En SciFact y NFCorpus el throughput de Lucene en esta sesión es menor que en la
+primera pasada (45 K y 76 K QPS); con esas cifras AetherIndex también da más.
 
 Construcción con un hilo: AetherIndex indexa de 1.5 a 6.4 veces más rápido que Lucene
 (TREC-COVID 3.9 s frente a 6.0 s; el tiempo de Lucene incluye el arranque de la JVM y la
 fusión a un segmento) y a la par de bm25s. Los postings comprimidos de AetherIndex ocupan
-de 1.2 a 3.0 veces lo que el índice de Lucene (TREC-COVID 40.6 MB frente a 26.5 MB) y
-menos que bm25s (104.6 MB).
+de 0.94 a 1.5 veces lo que el índice de Lucene (TREC-COVID 28.0 MB frente a 26.5 MB; Quora
+14.8 MB frente a 15.8 MB) y mucho menos que bm25s (104.6 MB en TREC-COVID).
 
 ## Resultados ANN
 
@@ -163,30 +182,36 @@ Mejor QPS (10 hilos) de cada sistema con Recall@10 ≥ objetivo, sobre toda la r
 
 | Sistema | SIFT1M @0.90 | @0.95 | @0.99 | GloVe-100 @0.90 | @0.95 |
 |---|---:|---:|---:|---:|---:|
-| **AetherIndex HNSW** | **149.9 K** | **94.5 K** | **44.3 K** | **20.6 K** | 8.1 K |
-| hnswlib 0.8.0 | 97.5 K | 61.1 K | 29.1 K | 14.8 K | 8.0 K |
-| hnswlib 0.8.0 (`-ffast-math`) | 134.2 K | 81.6 K | 42.2 K | 18.4 K | **10.0 K** |
-| FAISS HNSWFlat | 81.8 K | 50.4 K | 25.9 K | 10.0 K | 5.3 K |
-| AetherIndex SQ8 + re-rank | 202.9 K | 121.2 K | 53.7 K | 16.9 K | 8.5 K |
-| FAISS HNSWSQ8 | 119.2 K | 67.7 K | — | 5.1 K | — |
-| AetherIndex PQ + re-rank | 129.1 K | 97.5 K | 45.9 K | 15.1 K | — |
-| FAISS IVFPQ + refine | 58.2 K | 32.9 K | — | — | — |
+| **AetherIndex HNSW** | **215.0 K** | **159.1 K** | **75.7 K** | **32.7 K** | **12.6 K** |
+| hnswlib 0.8.0 | 93.2 K | 57.3 K | 29.2 K | 14.3 K | 7.8 K |
+| hnswlib 0.8.0 (`-ffast-math`) | 127.1 K | 80.1 K | 41.2 K | 16.8 K | 9.0 K |
+| FAISS HNSWFlat | 80.2 K | 47.5 K | 25.5 K | 9.8 K | 5.2 K |
+| AetherIndex SQ8 + re-rank | 277.6 K | 163.8 K | 80.0 K | 19.3 K | 10.3 K |
+| AetherIndex SQ8 sin FP32 | 238.5 K | 180.8 K | — | 24.3 K | — |
+| FAISS HNSWSQ8 | 117.4 K | 67.3 K | — | 5.0 K | — |
+| AetherIndex PQ + re-rank | 181.2 K | 114.9 K | 70.6 K | 20.4 K | — |
+| FAISS IVFPQ + refine | 58.1 K | 33.2 K | — | — | — |
+
+Todos los sistemas se midieron en la misma sesión (pasadas 6 y 7, ver
+[Limitaciones](#limitaciones)). Frente a la primera pasada, hnswlib y FAISS quedan hasta un
+10 % más lentos por la carga de fondo de la máquina; AetherIndex HNSW es de 1.4 a 1.7
+veces más rápido por los cambios de la sección de perfilado.
 
 Curvas completas: [SIFT1M](../../evaluation/reports/market/plots/sift1m_qps.svg),
 [GloVe-100](../../evaluation/reports/market/plots/glove-100_qps.svg) (10 hilos) y sus
 versiones con un hilo (`*_qps1.svg`). Ningún sistema alcanza 0.99 en GloVe-100 con esta
-rejilla; el máximo de AetherIndex es 0.9859 y el de hnswlib 0.9798.
+rejilla; el máximo de AetherIndex es 0.9859 y el de hnswlib 0.9799.
 
 Construcción (M = 16, efConstruction = 200) y memoria:
 
 | Sistema | SIFT1M 10 hilos | 1 hilo | GloVe 10 hilos | 1 hilo | Estructura SIFT1M |
 |---|---:|---:|---:|---:|---:|
-| AetherIndex HNSW | 42.2 s | 369 s | 62.6 s | 531 s | 624 MiB |
-| hnswlib 0.8.0 | 41.1 s | 360 s | 53.3 s | 462 s | 626 MiB |
-| hnswlib (`-ffast-math`) | 28.9 s | — | 39.8 s | — | 626 MiB |
-| FAISS HNSWFlat | 53.9 s | 347 s | 75.9 s | 492 s | 626 MiB |
-| AetherIndex SQ8 sin FP32 | 40.5 s | — | 58.8 s | — | 262 MiB |
-| FAISS HNSWSQ8 | 46.5 s | — | 106.1 s | — | 260 MiB |
+| AetherIndex HNSW | 34.5 s | **258 s** | 45.7 s | **355 s** | 624 MiB |
+| hnswlib 0.8.0 | 43.9 s | 366 s | 56.1 s | 459 s | 626 MiB |
+| hnswlib (`-ffast-math`) | **30.5 s** | — | **42.6 s** | — | 626 MiB |
+| FAISS HNSWFlat | 56.3 s | 352 s | 82.2 s | 485 s | 626 MiB |
+| AetherIndex SQ8 sin FP32 | 34.9 s | — | 47.8 s | — | 262 MiB |
+| FAISS HNSWSQ8 | 46.8 s | — | 113.6 s | — | 260 MiB |
 
 La memoria de las estructuras es equivalente. La memoria del proceso (`phys_footprint`)
 también se publica en `summary.md`; en FAISS IVFPQ incluye 294 MiB de temporales de
@@ -219,23 +244,24 @@ por rama):
 | Qdrant híbrido | 0.7302 | 0.3626 | 0.3545 | 0.4800 | 0.8007 | 0.8669 | 0.5991 |
 | OpenSearch híbrido | 0.7286 | 0.3607 | 0.3588 | 0.5349 | 0.7986 | 0.8652 | 0.6078 |
 
-- Con la ponderación por defecto, el híbrido de AetherIndex no difiere significativamente de
+- Con la ponderación `unique`, el híbrido de AetherIndex no difiere significativamente de
   la referencia salvo en ArguAna (−0.052), donde hereda la pérdida léxica; Qdrant, que también
   cuenta cada término una vez, muestra lo mismo (0.4800). Con `frequency` la diferencia con la
   referencia es como mucho de 0.002 en cada dataset (ArguAna 0.5372 frente a 0.5354) y la
   fusión sigue reproduciendo exactamente la RRF de referencia (6 de 6 datasets).
-- El híbrido supera al denso exacto en NFCorpus y TREC-COVID (significativo; en SciFact la
-  ventaja no lo es) y queda por debajo en FiQA, ArguAna y Quora: con un modelo denso fuerte,
-  RRF con pesos iguales puede diluir la rama mejor. Es una propiedad de RRF, no de nuestra implementación, y la referencia y los
-  servidores se comportan igual.
+- Con RRF clásico, el híbrido supera al denso exacto en NFCorpus y TREC-COVID (significativo;
+  en SciFact la ventaja no lo es) y queda por debajo en FiQA, ArguAna y Quora: con un modelo
+  denso fuerte, RRF con pesos iguales puede diluir la rama mejor. Es una propiedad de RRF,
+  no de nuestra implementación, y la referencia y los servidores se comportan igual. La
+  fusión ponderada de la sección siguiente lo corrige.
 - En SciFact, NFCorpus y ArguAna, Qdrant no construye HNSW para los vectores densos porque la
   colección queda por debajo de su `indexing_threshold` por defecto, y busca de forma exacta.
   Se dejó así porque es su comportamiento estándar.
 
 Sobre los mismos vectores bge-small, a igual ef, HNSW de AetherIndex obtiene recall igual o
-mayor que hnswlib y FAISS en todos los puntos medidos y más QPS en todos salvo uno (TREC-COVID
-con ef = 64, donde FAISS empata en recall y es un 3 % más rápido). Por ejemplo, FiQA con
-ef = 64: 0.978 y 66 K QPS frente a 0.962 y 43 K de hnswlib y 0.963 y 57 K de FAISS.
+mayor que hnswlib y FAISS en los 18 puntos medidos y de 1.3 a 2.4 veces el QPS del más rápido
+de los dos. Por ejemplo, FiQA con ef = 64: 0.978 y 97 K QPS frente a 0.962 y 30 K de hnswlib
+y 0.963 y 48 K de FAISS.
 
 ## Ponderación de términos repetidos en la consulta
 
@@ -246,14 +272,16 @@ fórmula: AetherIndex contaba una vez cada término distinto de la consulta, mie
 consultas de ArguAna son argumentos completos (mediana de 174 palabras), así que la
 repetición pesa; en los demás datasets las consultas son cortas y no había diferencia.
 
-Se añadió `Bm25Config::query_weighting` (`QueryTermWeighting::Unique` por defecto o
-`Frequency`) y la opción `--bm25-query-weighting unique|frequency` de la CLI. Con
+Se añadió `Bm25Config::query_weighting` (`QueryTermWeighting::Unique`, entonces por
+defecto, o `Frequency`) y la opción `--bm25-query-weighting unique|frequency` de la CLI. Con
 `frequency`, la contribución de cada término se multiplica por sus apariciones en la consulta
 analizada; las cuatro estrategias aplican el peso también a sus cotas superiores y siguen
 devolviendo scores idénticos bit a bit (pruebas unitarias con consultas de hasta 25 términos
-repetidos y k ∈ {1, 10, 100}). El valor por defecto no cambia la salida: los runs BM25 por
-defecto de SciFact, ArguAna y Quora, en BMW y exhaustivo, son idénticos byte a byte a los de
-la primera pasada. La ponderación no cambia la latencia (ArguAna BMW 7.47 ms frente a 7.90 ms).
+repetidos y k ∈ {1, 10, 100}). Al añadirla, el valor por defecto no cambiaba la salida: los
+runs BM25 con `unique` de SciFact, ArguAna y Quora, en BMW y exhaustivo, son idénticos byte a
+byte a los de la primera pasada. La ponderación no cambia la latencia (ArguAna BMW 7.47 ms
+frente a 7.90 ms). Desde el 30 de octubre de 2026 `Frequency` es el valor por defecto; las
+consultas sin términos repetidos dan exactamente los mismos resultados con ambos valores.
 
 ## Estrategia MaxScore
 
@@ -290,33 +318,209 @@ byte a byte a los de `bmw` en los 6 datasets y con las dos ponderaciones, y el h
 El híbrido se beneficia igual: con `frequency`, ArguAna pasa de 8.73 a 0.79 ms y TREC-COVID de
 2.22 a 1.29 ms.
 
+## Fusión ponderada ajustada en dev
+
+RRF da el mismo peso a las dos listas. Con bge-small, la lista densa es mucho mejor que BM25
+en FiQA, ArguAna y Quora, y la fusión con pesos iguales la diluye. Se añadieron dos fusiones.
+Desde el 30 de octubre de 2026 la convexa con A = 0.65 es la fusión por defecto del modo
+híbrido; `--fusion rrf` recupera RRF clásico:
+
+- **RRF ponderado** (`--rrf-weight W`): `W/(60 + rango denso) + (1 - W)/(60 + rango léxico)`.
+- **Fusión convexa** (`--alpha A`): `A · denso + (1 - A) · BM25`, con cada lista normalizada
+  min-max sobre sus candidatos (similitud densa `1 - distancia`; un documento ausente de una
+  lista aporta 0; una lista de scores iguales se normaliza a 1).
+
+**Protocolo sin sobreajuste.** Los parámetros se eligieron solo con las particiones dev de
+BEIR (SciFact no tiene dev y se usó su partición train; ArguAna y TREC-COVID no tienen
+ninguna). `tune_fusion.py` fusiona fuera de línea los runs densos y BM25 de las consultas dev
+con la misma aritmética que el motor, recorre W y A de 0 a 1 en pasos de 0.05 y elige el
+valor que maximiza el nDCG@10 medio de dev en los cuatro datasets. Las consultas dev son
+disjuntas de las de prueba (se comprueba al prepararlas) y los juicios de prueba no se leen
+en el ajuste. Ese valor global se aplica a los 6 datasets de prueba; los valores por dataset
+se aplican solo a los 4 con dev.
+
+| Dataset (dev) | Consultas | RRF | Denso | BM25 | W (nDCG@10) | A (nDCG@10) |
+|---|---:|---:|---:|---:|---:|---:|
+| SciFact (train) | 809 | 0.7492 | 0.7469 | 0.6971 | 0.75 (0.7598) | 0.65 (0.7706) |
+| NFCorpus | 324 | 0.3402 | 0.3276 | 0.2876 | 0.75 (0.3426) | 0.50 (0.3405) |
+| FiQA | 500 | 0.3638 | 0.4079 | 0.2576 | 0.95 (0.4120) | 0.75 (0.4174) |
+| Quora | 5,000 | 0.8641 | 0.8834 | 0.7888 | 0.90 (0.8864) | 0.75 (0.8951) |
+| **Global** | | 0.5793 | | | **0.85** (0.5991) | **0.65** (0.6052) |
+
+Resultados en prueba (nDCG@10; BM25 con ponderación por frecuencia; valores globales):
+
+| Sistema | SciFact | NFCorpus | FiQA | ArguAna | TREC-COVID | Quora | Media |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Denso exacto | 0.7127 | 0.3430 | 0.4035 | 0.6035 | 0.7578 | 0.8864 | 0.6178 |
+| AetherIndex RRF | 0.7292 | 0.3612 | 0.3586 | 0.5372 | 0.7994 | 0.8662 | 0.6086 |
+| AetherIndex RRF ponderado (W = 0.85) | 0.7239 | 0.3531 | 0.4080 | 0.6025 | 0.8007 | 0.8886 | 0.6295 |
+| **AetherIndex convexo (A = 0.65)** | **0.7318** | 0.3603 | **0.4137** | 0.6005 | 0.7861 | **0.8955** | **0.6313** |
+| OpenSearch RRF | 0.7286 | 0.3607 | 0.3588 | 0.5349 | 0.7986 | 0.8652 | 0.6078 |
+| Qdrant RRF | 0.7302 | 0.3626 | 0.3545 | 0.4800 | 0.8007 | 0.8669 | 0.5991 |
+
+- La fusión convexa mejora a RRF de forma significativa en FiQA (+0.055), ArguAna (+0.063)
+  y Quora (+0.029), sin diferencia significativa en los otros tres.
+- Frente a la búsqueda densa exacta gana de forma significativa en SciFact, NFCorpus, FiQA,
+  TREC-COVID y Quora, y empata en ArguAna (−0.003, p = 0.41). Con RRF clásico perdía en
+  FiQA, ArguAna y Quora.
+- Los valores por dataset apenas mejoran a los globales (convexo: NFCorpus 0.3641, FiQA
+  0.4153, Quora 0.8976), así que un único valor global es suficiente.
+- El motor reproduce exactamente la fusión de referencia de Python en los 6 datasets con
+  ambas fusiones (runs deterministas con HNSW de un hilo).
+- Recall@100 no cambia de forma apreciable (convexo 0.6812 frente a 0.6809 de RRF): la
+  ganancia está en el orden de los primeros resultados.
+
+## Postings empaquetados por bits
+
+Con MaxScore, la diferencia que quedaba con Lucene estaba en el formato de los postings. Cada
+posting se guardaba como varint (lectura byte a byte con un salto por byte) y cada término
+tenía su propia estructura de 64 bytes con dos vectores, es decir, dos reservas de memoria.
+Medido sobre los índices, la estructura por término pesaba más que los propios postings en
+las colecciones pequeñas (SciFact: 1.85 MB frente a 0.79 MB de postings) y la mitad del
+vocabulario aparece en un solo documento.
+
+El nuevo formato:
+
+- empaqueta cada bloque de 128 postings con un ancho fijo de bits para las diferencias de
+  ordinal y otro para `tf - 1` (0 bits si todos los `tf` valen 1);
+- decodifica con funciones especializadas por ancho, con una lectura de 8 bytes por valor y
+  sin saltos;
+- guarda todos los bloques y bytes en dos arreglos compartidos; cada término ocupa 12 bytes
+  (frecuencia documental, primer bloque y cota) y su idf se recalcula con la misma función,
+  así que da el mismo valor.
+
+Los resultados no cambian: los runs BM25 de `bmw` y `maxscore` son idénticos byte a byte a los
+anteriores en los 6 datasets y `quality.csv` (todas las configuraciones y métricas) no cambia.
+
+| Dataset | Índice antes | Índice ahora | Lucene | `maxscore` p50 antes | ahora |
+|---|---:|---:|---:|---:|---:|
+| SciFact | 3.2 MB | 1.6 MB | 1.1 MB | 0.068 ms | 0.060 ms |
+| NFCorpus | 2.4 MB | 1.2 MB | 0.8 MB | 0.006 ms | 0.006 ms |
+| FiQA | 11.9 MB | 7.9 MB | 6.9 MB | 0.278 ms | 0.219 ms |
+| ArguAna | 3.1 MB | 1.8 MB | 1.7 MB | 0.544 ms | 0.475 ms |
+| TREC-COVID | 40.6 MB | 28.0 MB | 26.5 MB | 0.667 ms | 0.519 ms |
+| Quora | 18.9 MB | 14.8 MB | 15.8 MB | 0.248 ms | 0.254 ms |
+
+El throughput con 10 hilos de `maxscore` sube un 33 % en FiQA, 32 % en ArguAna y 29 % en
+TREC-COVID. En Quora la latencia con un hilo queda igual dentro del ruido y el throughput sube
+un 2 %.
+
+## Ventanas sin ordenación y desempaquetado por grupos
+
+Con `maxscore` y postings empaquetados, Lucene seguía respondiendo de 1.2 a 1.4 veces antes
+en FiQA, TREC-COVID y Quora. Un perfilado de `maxscore` (`sample` de macOS, un hilo, consultas
+de cada dataset en bucle) mostró dos costes evitables:
+
+- **Ordenar los documentos de cada ventana (24–34 % del tiempo).** Los documentos tocados por
+  los términos esenciales se guardaban en una lista y se ordenaban antes de consultar los no
+  esenciales, cuyos cursores solo avanzan. Ahora se marcan en un mapa de 4,096 bits por
+  ventana y se recorren en orden con `countr_zero`, sin ordenar.
+- **Desempaquetar los bloques (13–18 %).** Con anchos de hasta 8 bits, ocho valores ocupan
+  exactamente ese número de bytes, así que cada grupo de ocho sale de una sola lectura de 8
+  bytes con desplazamientos constantes, en lugar de una lectura por valor.
+
+Se probaron y descartaron, por no mejorar más allá del ruido, la decodificación perezosa de
+las frecuencias (solo cuando el documento coincide) y comprobar la cota del bloque antes de
+consultar un término no esencial. En el arnés de perfilado (p50 con un hilo, ponderación
+`frequency`) los dos cambios llevan FiQA de 0.206 a 0.109 ms, TREC-COVID de 0.472 a 0.263 ms y
+Quora de 0.210 a 0.154 ms.
+
+Los resultados no cambian: en la octava pasada, los 72 runs BM25 de AetherIndex y Lucene son
+idénticos byte a byte a los anteriores, y la prueba que compara todas las estrategias exige
+scores idénticos bit a bit. Resultado en la campaña (`maxscore`, `unique`):
+
+| Dataset | p50 antes | ahora | QPS 10 hilos antes | ahora | Lucene p50 · QPS |
+|---|---:|---:|---:|---:|---:|
+| SciFact | 0.060 ms | 0.022 ms | 127 K | 291 K | 0.091 ms · 32 K |
+| NFCorpus | 0.006 ms | 0.003 ms | 520 K | 753 K | 0.029 ms · 17 K |
+| FiQA | 0.219 ms | 0.119 ms | 35.6 K | 65.2 K | 0.165 ms · 45.6 K |
+| ArguAna | 0.475 ms | 0.315 ms | 19.3 K | 26.5 K | 0.541 ms · 15.4 K |
+| TREC-COVID | 0.519 ms | 0.292 ms | 12.2 K | 21.0 K | 0.384 ms · 15.7 K |
+| Quora | 0.254 ms | 0.174 ms | 29.1 K | 44.1 K | 0.214 ms · 37.8 K |
+
+Los dos cambios también aceleran BMW, que usa el mismo desempaquetado (TREC-COVID de 1.260 a
+1.210 ms). Desde el 30 de octubre de 2026 `maxscore` es la estrategia por defecto.
+
+Al hacerla la ruta por defecto, las pruebas de fallos de asignación (que ahora recorren las
+cinco estrategias) encontraron dos defectos previos de las estrategias comprimidas, ya
+corregidos: `build()` publicaba el índice antes de construir los bloques, así que un fallo
+en ese paso dejaba un índice marcado como construido sin bloques, y un fallo a mitad de una
+búsqueda `maxscore` o `taat` dejaba sucios los acumuladores por hilo para la siguiente. Ahora
+los bloques se construyen antes de publicar nada y los acumuladores se limpian ante cualquier
+excepción. Además, un corpus formado solo por documentos vacíos (longitud media 0) ya no
+falla al construir los bloques.
+
+## Perfilado de HNSW y prefetch por lotes
+
+La primera pasada dejó dos huecos en ANN: hnswlib con `-ffast-math` era más rápido en
+GloVe-100 a Recall@10 ≥ 0.95, y hnswlib y FAISS construían algo más rápido con un hilo. Antes
+de cambiar nada se perfiló la búsqueda (`sample` de macOS, GloVe-100, ef = 256, 10 hilos):
+
+- **El kernel de distancia no era la causa.** Los kernels de L2 y producto interno ya son
+  explícitos (`src/distance/scalar_distance.cpp`: NEON con cuatro acumuladores de 4 floats y
+  AVX2 + FMA con cuatro de 8) y suponían solo un ~20 % del tiempo. Un kernel más rápido no
+  podía cerrar la diferencia.
+- **El coste estaba en los fallos de caché.** El bucle de búsqueda ocupaba el 62 % del
+  tiempo, casi todo esperando las filas de los vecinos. Solo se precargaba la primera línea
+  de 64 bytes del vecino siguiente, y una fila de GloVe ocupa 400 bytes (7 líneas). Los
+  accesores de `VectorStore` (no inline, en otra unidad de compilación) sumaban otro 10 % y
+  el heap de candidatos un 8 %.
+
+Cambios, sin `-ffast-math` y sin tocar los kernels:
+
+1. Los accesores `ids()`, `padded_dimension()` y `data_by_position()` pasan a ser inline.
+2. Cada lista de adyacencia se recorre en dos pasadas. La primera descarta los visitados y
+   precarga todas las líneas de la fila y el ID de cada vecino nuevo, de modo que sus fallos
+   de caché se solapan. La segunda calcula las distancias e inserta en el orden de
+   adyacencia, así que las decisiones y los resultados son los mismos que con el bucle
+   anterior. La construcción usa la misma búsqueda y también se beneficia.
+3. La precarga sigue a lo que lee la distancia. Con SQ8 y PQ se precargan los códigos (128 y
+   32 bytes por fila en SIFT1M) mediante `QuantizedQuery::prefetch`, no las filas FP32. La
+   primera versión precargaba las filas FP32 también en ese camino y SQ8 y PQ con re-rank
+   salían un ~25 % más lentos. Se detectó en la sexta pasada, se corrigió y esos seis pasos
+   se volvieron a medir (séptima pasada).
+
+Comparación intercalada con `HEAD` en la misma sesión (M = 16, efConstruction = 200, 10
+hilos; QPS por lotes, p50 con un hilo; el recall coincide salvo variaciones de ±0.0002
+debidas a la construcción paralela):
+
+| Caso | `HEAD` | Con los cambios |
+|---|---:|---:|
+| SIFT1M, ef = 64 | 67 K QPS · p50 0.140 ms | 106 K QPS · p50 0.079 ms |
+| SIFT1M, ef = 256 | 21.5 K QPS | 34.8 K QPS |
+| GloVe-100, ef = 256 | 13 K QPS · p50 0.528 ms | 28 K QPS · p50 0.281 ms |
+| GloVe-100, ef = 512 | 6.3 K QPS | 15.0 K QPS |
+| SIFT1M SQ8 + re-rank, ef = 128 | 53.1 K QPS · p50 0.175 ms | 81.3 K QPS · p50 0.101 ms |
+| SIFT1M PQ + re-rank, ef = 128 | 45.3 K QPS | 71.6 K QPS |
+| GloVe-100 SQ8 + re-rank, ef = 128 | 43.9 K QPS | 55.5 K QPS |
+| Construcción SIFT1M, 10 hilos | 44 s | 33 s |
+
+En la campaña completa, AetherIndex HNSW pasa a superar a hnswlib con `-ffast-math` en todos
+los objetivos de recall de los dos datasets y a construir con un hilo más rápido que hnswlib
+y FAISS (ver [Resultados ANN](#resultados-ann)).
+
 ## Dónde perdemos y por qué
 
-1. **Ponderación por defecto en consultas largas.** Sin `--bm25-query-weighting frequency`,
-   BM25 pierde 0.079 de nDCG@10 frente a Lucene en ArguAna (ver la sección anterior). El
-   valor por defecto se mantiene para no cambiar resultados existentes.
-2. **Latencia léxica en colecciones grandes.** Incluso con `maxscore`, Lucene responde de 1.2
-   a 1.8 veces más rápido con un hilo en FiQA, TREC-COVID y Quora, y su throughput con 10
-   hilos es de 1.4 a 1.7 veces mayor. La diferencia que queda está sobre todo en la
-   decodificación de postings: Lucene empaqueta bloques de bits con SIMD y AetherIndex usa
-   varint. En TREC-COVID, Qdrant (con la red incluida) todavía responde algo antes con un hilo
-   (0.61 ms frente a 0.67 ms), aunque nuestro throughput ya es mayor (9.4 K frente a 5.8 K
-   QPS). Con BMW, la estrategia recomendada antes, la diferencia con Lucene era de 1.7 a 14
-   veces.
-3. **Índice léxico más grande.** Nuestros postings comprimidos ocupan de 1.2 a 3.0 veces el
-   índice de Lucene.
-4. **GloVe-100 a alto recall.** hnswlib compilado con `-ffast-math` nos supera a Recall@10 ≥
-   0.95 (10.0 K frente a 8.1 K QPS) y construye más rápido (39.8 s frente a 62.6 s). Con las
-   opciones estándar de hnswlib empatamos a 0.95 y ganamos a 0.90.
-5. **Construcción con un hilo.** FAISS (347 s) y hnswlib (360 s) construyen SIFT1M algo más
-   rápido que AetherIndex (369 s); en GloVe-100 hnswlib es un 13 % más rápido.
-6. **`ascii-tech-v1` en texto natural.** Sin stopwords ni stemming pierde frente a Lucene sin
+1. **Índice léxico algo más grande en colecciones pequeñas.** Ocupamos 1.5 veces el índice de
+   Lucene en SciFact y NFCorpus y 1.06–1.14 veces en FiQA, ArguAna y TREC-COVID; en Quora
+   ocupamos menos (0.94). En colecciones pequeñas pesan las cabeceras de bloque (16 bytes) y
+   los arreglos por documento (12 bytes).
+2. **Construcción paralela frente a hnswlib con `-ffast-math`.** Con 10 hilos, hnswlib
+   compilado con `-ffast-math` construye SIFT1M en 30.5 s y GloVe-100 en 42.6 s, frente a
+   34.5 s y 45.7 s de AetherIndex. Con las opciones estándar de hnswlib, y con un hilo,
+   construimos más rápido. Los antiguos puntos de GloVe-100 a alto recall y de construcción
+   con un hilo quedaron resueltos (ver
+   [Perfilado de HNSW](#perfilado-de-hnsw-y-prefetch-por-lotes)).
+3. **`ascii-tech-v1` en texto natural.** Sin stopwords ni stemming pierde frente a Lucene sin
    stemming en los 6 datasets; para texto en inglés debe usarse `english-v1`.
 
 ## Limitaciones
 
 - Una sola máquina (Apple Silicon); los resultados x86 con AVX pueden diferir, sobre todo
-  para hnswlib y FAISS, que tienen kernels x86 más maduros.
+  para hnswlib y FAISS, que tienen kernels x86 más maduros. El kernel AVX2 de AetherIndex se
+  elige al compilar (`AETHER_NATIVE_SIMD=ON` o `-mavx2 -mfma`); no hay selección en tiempo de
+  ejecución, así que un binario x86 genérico usa el camino escalar. No se pudo probar en esta
+  máquina.
 - AetherIndex no tiene modo servidor, así que no hay comparación de latencia de servidor a
   servidor. Las cifras de Qdrant y OpenSearch incluyen la red local de Docker.
 - La latencia con un hilo de los servidores varía de forma apreciable entre ejecuciones (por
@@ -328,12 +532,33 @@ El híbrido se beneficia igual: con `frequency`, ArguAna pasa de 8.73 a 0.79 ms 
   provienen del código corregido, salvo GloVe-100, que terminó sin error con el código
   previo; el cambio solo afecta a qué canal se usa. El log de la ejecución abortada se
   conserva en `servers/servers-aborted-wait-bug.log`.
-- La campaña tiene tres pasadas. La primera (`manifest-pass1.json`) produjo todos los
-  resultados salvo los de ponderación por frecuencia y MaxScore; la segunda
-  (`manifest-pass2.json`, binario con `QueryTermWeighting`) añadió los runs `*-freq` y sus
-  controles; la tercera (`manifest.json`, binario con `MaxScore`) añadió los runs
-  `*-maxscore`. Antes de cada pasada se comprobó que el nuevo binario reproduce byte a byte
-  los runs por defecto de la primera.
+- La campaña tiene ocho pasadas:
+  - **Primera** (`manifest-pass1.json`): todos los resultados salvo los de ponderación por
+    frecuencia, MaxScore y postings empaquetados.
+  - **Segunda** (`manifest-pass2.json`, binario con `QueryTermWeighting`): los runs `*-freq`
+    y sus controles.
+  - **Tercera** (`manifest-pass3.json`, binario con `MaxScore`): los runs `*-maxscore`.
+  - **Cuarta** (`manifest-pass4.json`, postings empaquetados): todos los runs BM25 de
+    AetherIndex.
+  - **Quinta** (`manifest-pass5.json`): los runs dev y de prueba de la fusión ponderada.
+  - **Sexta** (`manifest-pass6.json`, prefetch por lotes): todos los pasos ANN, de
+    construcción con un hilo y HNSW sobre BEIR, para todos los sistemas.
+  - **Séptima** (`manifest-pass7.json`, precarga de códigos): los seis pasos de SQ8 y PQ de
+    AetherIndex.
+  - **Octava** (`manifest.json`, ventanas sin ordenación y desempaquetado por grupos): todos
+    los runs BM25 de AetherIndex y las tres configuraciones de búsqueda de Lucene, en la
+    misma sesión. Los 72 runs son idénticos byte a byte a los anteriores.
+
+  Antes de las pasadas segunda a cuarta se comprobó que el nuevo binario reproduce byte a
+  byte los runs BM25 por defecto de la primera. Los runs híbridos de AetherIndex con RRF
+  clásico no se repitieron en pasadas posteriores (su HNSW paralelo no es determinista y
+  cambiaría las tablas de calidad), así que su latencia corresponde al formato varint y al
+  HNSW anterior.
+- Durante las pasadas sexta a octava la máquina tenía carga de fondo de macOS (indexado de
+  almacenamiento, WebKit y otra aplicación; unos 3.4 de 14 núcleos ocupados). Afecta a todos
+  los sistemas por igual porque se midieron en la misma sesión, pero los QPS absolutos son
+  algo menores que en la primera pasada (hnswlib y FAISS, hasta un 10 %). Las comparaciones
+  intercaladas con `HEAD` se hicieron en las mismas condiciones.
 - Qdrant no se volvió a medir con ponderación por frecuencia; sus vectores dispersos de
   consulta admiten pesos, así que el mismo cambio aplicaría allí. OpenSearch ya pondera por
   repetición (su consulta `match` repite la cláusula de cada término) y por eso coincide con
@@ -356,4 +581,6 @@ python3 benchmarks/market/run_market_campaign.py
 
 Los pasos de datos, Anserini y servidores están en
 [`benchmarks/market/README.md`](../../benchmarks/market/README.md). La campaña en proceso
-tarda unas 3 h 10 min (más unos 20 min de la segunda pasada y 3 de la tercera) y los servidores unos 55 min.
+tarda unas 3 h 10 min (más unos 20 min de la segunda pasada, 3 de la tercera, 22 de la
+cuarta, 20 de la quinta, 2 h 20 min de la sexta, 7 de la séptima y 22 de la octava) y los servidores unos
+55 min.

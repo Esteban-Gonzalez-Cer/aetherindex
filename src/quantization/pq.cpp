@@ -8,6 +8,7 @@
 #include <stdexcept>
 
 #include "aether/core/parallel.hpp"
+#include "aether/core/prefetch.hpp"
 
 namespace aetherindex {
 namespace {
@@ -125,6 +126,10 @@ class PqVectors::Query final : public QuantizedQuery {
         for (std::size_t s = 0; s < owner_.subspaces_; ++s) sum += table_[s * 256 + code[s]];
         if (owner_.metric_ == DistanceKind::Cosine) return 1.0f - std::clamp(sum, -1.0f, 1.0f);
         return sum;
+    }
+
+    void prefetch(std::size_t position) const noexcept override {
+        prefetch_bytes(owner_.codes(position), owner_.subspaces_);
     }
 
    private:

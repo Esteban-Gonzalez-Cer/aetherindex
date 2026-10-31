@@ -147,6 +147,7 @@ int evaluate_hybrid(const std::filesystem::path& corpus, const std::filesystem::
         base.k = kTopK;
         SearchRequest hybrid = base;
         hybrid.mode = SearchMode::Hybrid;
+        hybrid.rrf_config = hybrid::RrfConfig{};  // KR1.5 is defined on classic RRF, k = 60.
         const std::size_t depth = effective_candidate_k(hybrid);
         HybridCheck check;
         SearchResponse fused, dense, lexical;

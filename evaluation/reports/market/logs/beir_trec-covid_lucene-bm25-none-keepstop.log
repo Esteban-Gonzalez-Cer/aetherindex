@@ -1,4 +1,4 @@
 WARNING: Using incubator modules: jdk.incubator.vector
-oct 29, 2026 3:18:00 A.M. org.apache.lucene.internal.vectorization.PanamaVectorizationProvider <init>
+oct 30, 2026 1:08:40 P.M. org.apache.lucene.internal.vectorization.PanamaVectorizationProvider <init>
 INFO: Java vector incubator API enabled; uses preferredBitSize=128
-lucene /Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/indexes/trec-covid-none-keepstop: p50 0.4163 ms, batch QPS 14479.5
+lucene /Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/indexes/trec-covid-none-keepstop: p50 0.3913 ms, batch QPS 14912.9

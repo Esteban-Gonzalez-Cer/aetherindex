@@ -7,7 +7,10 @@ using namespace aetherindex::lexical;
 
 int main() {
     try {
-        Bm25Index index;
+        // Raw postings (document_frequency, vocabulary_size) are kept only by Exhaustive;
+        // the default compressed strategy releases them after build().
+        const Bm25Config raw{.strategy = Bm25Strategy::Exhaustive};
+        Bm25Index index(raw);
         require(index.document_count() == 0 && index.average_document_length() == 0.0,
                 "New statistics must be zero.");
         addBm25Reference(index);
@@ -26,13 +29,13 @@ int main() {
                 "T3: DF confused with TF.");
         requireBm25Near(index.average_document_length(), 2.0, "T3: avgdl failed.");
 
-        Bm25Index empty;
+        Bm25Index empty(raw);
         empty.build();
         require(empty.document_count() == 0 && empty.average_document_length() == 0 &&
                     empty.inverted_index().vocabulary_size() == 0 &&
                     empty.search("motor", 10).empty(),
                 "Empty corpus divided by zero or produced candidates.");
-        Bm25Index zero;
+        Bm25Index zero;  // Default strategy: builds its layout with avgdl = 0.
         zero.add_document(0, "");
         zero.add_document(1, " -- !!! ");
         zero.build();

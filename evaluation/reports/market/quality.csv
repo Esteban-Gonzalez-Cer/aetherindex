@@ -18,6 +18,10 @@ scifact,qdrant-dense,Qdrant HNSW,Denso,0.712707,0.941667,0.682193
 scifact,opensearch-dense,OpenSearch k-NN,Denso,0.712707,0.945,0.682193
 scifact,aether-hybrid,AetherIndex híbrido RRF,Híbrido,0.730349,0.968333,0.694255
 scifact,aether-hybrid-freq,"AetherIndex híbrido RRF, frecuencia",Híbrido,0.729179,0.968333,0.693519
+scifact,aether-hybrid-wrrf,"AetherIndex RRF ponderado (global, dev)",Híbrido,0.723919,0.945,0.694989
+scifact,aether-hybrid-convex,"AetherIndex convexo (global, dev)",Híbrido,0.731829,0.966667,0.698591
+scifact,aether-hybrid-wrrf-dev,"AetherIndex RRF ponderado (por dataset, dev)",Híbrido,0.726497,0.945,0.695434
+scifact,aether-hybrid-convex-dev,"AetherIndex convexo (por dataset, dev)",Híbrido,0.731829,0.966667,0.698591
 scifact,reference-hybrid,Referencia: Lucene + exacto + RRF,Híbrido,0.727342,0.968333,0.691866
 scifact,qdrant-hybrid,Qdrant híbrido RRF,Híbrido,0.730203,0.968333,0.694089
 scifact,opensearch-hybrid,OpenSearch híbrido RRF,Híbrido,0.728595,0.968333,0.692474
@@ -40,6 +44,10 @@ nfcorpus,qdrant-dense,Qdrant HNSW,Denso,0.343012,0.311007,0.526855
 nfcorpus,opensearch-dense,OpenSearch k-NN,Denso,0.342503,0.312407,0.52689
 nfcorpus,aether-hybrid,AetherIndex híbrido RRF,Híbrido,0.36204,0.313854,0.571871
 nfcorpus,aether-hybrid-freq,"AetherIndex híbrido RRF, frecuencia",Híbrido,0.361166,0.312607,0.569162
+nfcorpus,aether-hybrid-wrrf,"AetherIndex RRF ponderado (global, dev)",Híbrido,0.353113,0.310925,0.553789
+nfcorpus,aether-hybrid-convex,"AetherIndex convexo (global, dev)",Híbrido,0.360334,0.314978,0.553075
+nfcorpus,aether-hybrid-wrrf-dev,"AetherIndex RRF ponderado (por dataset, dev)",Híbrido,0.357788,0.311227,0.562955
+nfcorpus,aether-hybrid-convex-dev,"AetherIndex convexo (por dataset, dev)",Híbrido,0.364078,0.311095,0.572031
 nfcorpus,reference-hybrid,Referencia: Lucene + exacto + RRF,Híbrido,0.361776,0.311316,0.56842
 nfcorpus,qdrant-hybrid,Qdrant híbrido RRF,Híbrido,0.362555,0.31273,0.569213
 nfcorpus,opensearch-hybrid,OpenSearch híbrido RRF,Híbrido,0.360737,0.311634,0.565293
@@ -62,6 +70,10 @@ fiqa,qdrant-dense,Qdrant HNSW,Denso,0.398874,0.68622,0.483232
 fiqa,opensearch-dense,OpenSearch k-NN,Denso,0.400481,0.690372,0.483845
 fiqa,aether-hybrid,AetherIndex híbrido RRF,Híbrido,0.35685,0.685548,0.430942
 fiqa,aether-hybrid-freq,"AetherIndex híbrido RRF, frecuencia",Híbrido,0.358569,0.688598,0.431668
+fiqa,aether-hybrid-wrrf,"AetherIndex RRF ponderado (global, dev)",Híbrido,0.407966,0.68852,0.488574
+fiqa,aether-hybrid-convex,"AetherIndex convexo (global, dev)",Híbrido,0.4137,0.685814,0.494136
+fiqa,aether-hybrid-wrrf-dev,"AetherIndex RRF ponderado (por dataset, dev)",Híbrido,0.410139,0.68852,0.496617
+fiqa,aether-hybrid-convex-dev,"AetherIndex convexo (por dataset, dev)",Híbrido,0.415314,0.694513,0.496024
 fiqa,reference-hybrid,Referencia: Lucene + exacto + RRF,Híbrido,0.360855,0.689539,0.433559
 fiqa,qdrant-hybrid,Qdrant híbrido RRF,Híbrido,0.354454,0.68546,0.427396
 fiqa,opensearch-hybrid,OpenSearch híbrido RRF,Híbrido,0.358828,0.689228,0.430191
@@ -84,6 +96,8 @@ arguana,qdrant-dense,Qdrant HNSW,Denso,0.603478,0.987909,0.522482
 arguana,opensearch-dense,OpenSearch k-NN,Denso,0.603478,0.98862,0.522482
 arguana,aether-hybrid,AetherIndex híbrido RRF,Híbrido,0.483099,0.984353,0.397724
 arguana,aether-hybrid-freq,"AetherIndex híbrido RRF, frecuencia",Híbrido,0.537234,0.986486,0.447544
+arguana,aether-hybrid-wrrf,"AetherIndex RRF ponderado (global, dev)",Híbrido,0.60248,0.987909,0.518013
+arguana,aether-hybrid-convex,"AetherIndex convexo (global, dev)",Híbrido,0.600517,0.989331,0.515996
 arguana,reference-hybrid,Referencia: Lucene + exacto + RRF,Híbrido,0.535379,0.987198,0.446017
 arguana,qdrant-hybrid,Qdrant híbrido RRF,Híbrido,0.480028,0.983642,0.393687
 arguana,opensearch-hybrid,OpenSearch híbrido RRF,Híbrido,0.53488,0.987198,0.445339
@@ -106,6 +120,8 @@ trec-covid,qdrant-dense,Qdrant HNSW,Denso,0.755717,0.133294,0.930667
 trec-covid,opensearch-dense,OpenSearch k-NN,Denso,0.757783,0.134311,0.930667
 trec-covid,aether-hybrid,AetherIndex híbrido RRF,Híbrido,0.80263,0.13369,0.976667
 trec-covid,aether-hybrid-freq,"AetherIndex híbrido RRF, frecuencia",Híbrido,0.799395,0.133855,0.976667
+trec-covid,aether-hybrid-wrrf,"AetherIndex RRF ponderado (global, dev)",Híbrido,0.80074,0.134367,0.99
+trec-covid,aether-hybrid-convex,"AetherIndex convexo (global, dev)",Híbrido,0.786059,0.135002,0.970667
 trec-covid,reference-hybrid,Referencia: Lucene + exacto + RRF,Híbrido,0.800877,0.133105,0.976667
 trec-covid,qdrant-hybrid,Qdrant híbrido RRF,Híbrido,0.800744,0.133399,0.963333
 trec-covid,opensearch-hybrid,OpenSearch híbrido RRF,Híbrido,0.79859,0.133706,0.976667
@@ -128,6 +144,10 @@ quora,qdrant-dense,Qdrant HNSW,Denso,0.886273,0.995101,0.878133
 quora,opensearch-dense,OpenSearch k-NN,Denso,0.885518,0.994265,0.877333
 quora,aether-hybrid,AetherIndex híbrido RRF,Híbrido,0.86617,0.995512,0.85997
 quora,aether-hybrid-freq,"AetherIndex híbrido RRF, frecuencia",Híbrido,0.866209,0.995462,0.860152
+quora,aether-hybrid-wrrf,"AetherIndex RRF ponderado (global, dev)",Híbrido,0.888599,0.994956,0.881308
+quora,aether-hybrid-convex,"AetherIndex convexo (global, dev)",Híbrido,0.895539,0.995424,0.890411
+quora,aether-hybrid-wrrf-dev,"AetherIndex RRF ponderado (por dataset, dev)",Híbrido,0.889569,0.994956,0.88188
+quora,aether-hybrid-convex-dev,"AetherIndex convexo (por dataset, dev)",Híbrido,0.897648,0.995794,0.892162
 quora,reference-hybrid,Referencia: Lucene + exacto + RRF,Híbrido,0.866308,0.995448,0.86024
 quora,qdrant-hybrid,Qdrant híbrido RRF,Híbrido,0.866889,0.995448,0.86085
 quora,opensearch-hybrid,OpenSearch híbrido RRF,Híbrido,0.865211,0.995498,0.859214

@@ -1,14 +1,14 @@
-aether-sq8 ef=10 recall@10=0.51187 p50=0.02575ms qps(batch)=302892
-aether-sq8 ef=16 recall@10=0.59689 p50=0.036083ms qps(batch)=222880
-aether-sq8 ef=24 recall@10=0.6618 p50=0.0485ms qps(batch)=168278
-aether-sq8 ef=32 recall@10=0.70337 p50=0.060833ms qps(batch)=137195
-aether-sq8 ef=48 recall@10=0.75684 p50=0.084916ms qps(batch)=100567
-aether-sq8 ef=64 recall@10=0.79028 p50=0.108291ms qps(batch)=80091.7
-aether-sq8 ef=96 recall@10=0.82806 p50=0.154541ms qps(batch)=57607.4
-aether-sq8 ef=128 recall@10=0.85249 p50=0.201417ms qps(batch)=44955.9
-aether-sq8 ef=192 recall@10=0.8815 p50=0.292333ms qps(batch)=31552
-aether-sq8 ef=256 recall@10=0.89855 p50=0.371041ms qps(batch)=24526
-aether-sq8 ef=384 recall@10=0.92134 p50=0.546917ms qps(batch)=16928.5
-aether-sq8 ef=512 recall@10=0.93503 p50=0.705333ms qps(batch)=13003
-aether-sq8 ef=800 recall@10=0.95366 p50=1.08238ms qps(batch)=8508.92
-aether-sq8 build 58.5817 s, memory 887.266 MiB (Release (NDEBUG))
+aether-sq8 ef=10 recall@10=0.51197 p50=0.020209ms qps(batch)=355248
+aether-sq8 ef=16 recall@10=0.59662 p50=0.027958ms qps(batch)=258348
+aether-sq8 ef=24 recall@10=0.66149 p50=0.036333ms qps(batch)=207945
+aether-sq8 ef=32 recall@10=0.70329 p50=0.047958ms qps(batch)=157196
+aether-sq8 ef=48 recall@10=0.75656 p50=0.067584ms qps(batch)=114776
+aether-sq8 ef=64 recall@10=0.7901 p50=0.08725ms qps(batch)=90947.9
+aether-sq8 ef=96 recall@10=0.82816 p50=0.120792ms qps(batch)=66679.7
+aether-sq8 ef=128 recall@10=0.85248 p50=0.157167ms qps(batch)=51989.2
+aether-sq8 ef=192 recall@10=0.88109 p50=0.217167ms qps(batch)=36504.5
+aether-sq8 ef=256 recall@10=0.89858 p50=0.290084ms qps(batch)=28362.8
+aether-sq8 ef=384 recall@10=0.92109 p50=0.417709ms qps(batch)=19310.2
+aether-sq8 ef=512 recall@10=0.93482 p50=0.582334ms qps(batch)=14679.9
+aether-sq8 ef=800 recall@10=0.9539 p50=0.857625ms qps(batch)=10298.9
+aether-sq8 build 47.5261 s, memory 887.11 MiB (Release (NDEBUG))

@@ -501,6 +501,8 @@ int run_bm25(const Options& o) {
         const auto start = Clock::now();
         lexical::Bm25Config bm25;
         bm25.strategy = o.bm25_strategy;
+        // Pinned to the original default so results stay comparable across commits.
+        bm25.query_weighting = lexical::QueryTermWeighting::Unique;
         lexical::Bm25Index index(bm25);
         for (const auto& [id, text] : w.documents) index.add_document(id, text);
         index.build();
@@ -571,11 +573,12 @@ int run_hybrid(const Options& o) {
         start = Clock::now();
         lexical::Bm25Config bm25;
         bm25.strategy = o.bm25_strategy;
+        bm25.query_weighting = lexical::QueryTermWeighting::Unique;  // As above.
         lexical::Bm25Index lexical(bm25);
         for (const auto& [id, body] : text.documents) lexical.add_document(id, body);
         lexical.build();
         const double lexical_ms = elapsed_ms(start);
-        const hybrid::RrfFusion fusion;
+        const hybrid::RrfFusion fusion;  // Classic RRF, k = 60.
         const QueryEngine engine;
         std::map<std::string, std::vector<double>> latency;
         for (std::size_t q = 0; q < o.warmup + text.queries.size(); ++q) {

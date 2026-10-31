@@ -45,6 +45,9 @@ javac -cp tools/anserini/anserini-2.3.0-fatjar.jar -d build-market/java benchmar
 python3 -I benchmarks/market/prepare_beir.py
 .venv-bench/bin/python -I benchmarks/market/embed_beir.py scifact nfcorpus arguana fiqa trec-covid quora
 .venv-bench/bin/python -I benchmarks/market/prepare_ann.py
+# Particiones dev (solo para ajustar la fusión híbrida; nunca se evalúa en ellas).
+python3 -I benchmarks/market/prepare_beir.py --split dev
+.venv-bench/bin/python -I benchmarks/market/embed_beir.py --data datasets/market/beir-dev --queries-only scifact nfcorpus fiqa quora
 
 # Campaña en proceso (reanudable) y servidores, uno a la vez.
 python3 benchmarks/market/run_market_campaign.py
@@ -66,6 +69,7 @@ docker compose -f benchmarks/market/docker-compose.yml stop qdrant   # y lo mism
 | `java/LuceneTokens.java` | Tokens que indexa Anserini, para la paridad del analizador |
 | `run_bm25s.py`, `run_servers.py` | bm25s; Qdrant y OpenSearch |
 | `prepare_beir.py`, `embed_beir.py`, `prepare_ann.py` | Conversión de datos y embeddings bge-small |
-| `dense_reference.py`, `fuse_rrf.py` | Búsqueda densa exacta y RRF de referencia |
+| `dense_reference.py`, `fuse_rrf.py` | Búsqueda densa exacta y fusión de referencia (RRF, RRF ponderado y convexa) |
+| `tune_fusion.py` | Ajuste del peso de RRF y del alpha convexo sobre las particiones dev |
 | `evaluate.py`, `compare_tokens.py` | Métricas, significancia y paridad de tokens |
 | `run_market_campaign.py` | Orquestación reanudable y manifiesto |

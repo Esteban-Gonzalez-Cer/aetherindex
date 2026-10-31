@@ -1,0 +1,12 @@
+{
+  "system": "aetherindex-dense",
+  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir-dev/scifact",
+  "documents": 5183,
+  "queries": 809,
+  "build_type": "Release (NDEBUG)",
+  "dense": {"index": "hnsw", "M": 16, "ef_construction": 200, "ef": 128, "build_threads": 10, "build_seconds": 0.175254042, "dimension": 384},
+  "memory_mib": 14.3906708,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50
+}

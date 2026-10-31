@@ -1,0 +1,4 @@
+dataset,system,variant,base_rows,dimension,metric,M,ef_construction,param_name,param,build_threads,build_seconds,memory_mib,library_mib,recall10,latency_queries,lat_p50_ms,lat_p95_ms,lat_p99_ms,lat_mean_ms,qps_single,query_threads,qps_batch,qps_batch_q1,qps_batch_q3,repetitions
+sift1m,aether-hnsw,default,1000000,128,l2,16,200,ef,128,1,369.147576,677.375504,624.127373,0.99335,100,0.225625,0.274,0.282917,0.2174046,4599.71868,10,41154.5638,41154.5638,41154.5638,1
+sift1m,hnswlib,default,1000000,128,l2,16,200,ef,128,1,360.200365,762.203674,626.105186,0.98929,100,0.293625,0.363042,0.38175,0.28520751,3506.21903,10,32889.5077,32889.5077,32889.5077,1
+sift1m,faiss-hnsw,default,1000000,128,l2,16,200,ef,128,1,347.138399,653.031731,625.856514,0.99042,100,0.239,0.275417,0.281625,0.23156916,4318.36433,10,26904.979,26904.979,26904.979,1

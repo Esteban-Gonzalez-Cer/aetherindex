@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 # CP-04 / KR1.5 through the executable: every checked-in hybrid query must complete the
-# CLI -> SearchService -> QueryEngine (HNSW + BM25 + RRF) path and print a valid Top-K.
+# CLI -> SearchService -> QueryEngine (HNSW + BM25 + fusion) path and print a valid Top-K,
+# with the default convex fusion and with classic RRF.
 file(MAKE_DIRECTORY "${WORK_DIR}")
 set(corpus "${DATA_DIR}/corpus.jsonl")
 set(queries "${DATA_DIR}/queries.jsonl")
@@ -29,7 +30,7 @@ function(require_text text)
     endif()
 endfunction()
 
-# Parse the fused table and check rank sequence, unique IDs and non-increasing RRF scores.
+# Parse the fused table and check rank sequence, unique IDs and non-increasing scores.
 function(check_fused expected_rows)
     string(REPLACE "\n" ";" lines "${cli_output}")
     set(rows 0)
@@ -50,7 +51,7 @@ function(check_fused expected_rows)
             endif()
             # Fixed 12-decimal scores compare correctly as version strings.
             if(NOT previous STREQUAL "" AND CMAKE_MATCH_3 VERSION_GREATER previous)
-                message(FATAL_ERROR "RRF scores are not sorted descending: ${line}")
+                message(FATAL_ERROR "Fused scores are not sorted descending: ${line}")
             endif()
             set(previous "${CMAKE_MATCH_3}")
         endif()
@@ -69,8 +70,14 @@ foreach(line IN LISTS query_lines)
     set(id "${CMAKE_MATCH_1}")
     run_cli(0 search --mode hybrid --dataset "${corpus}" --query "${queries}" --query-id "${id}" --k 10)
     require_text("Search mode: Hybrid")
-    require_text("Fusion: RRF (k_rrf=60)")
+    require_text("Fusion: convex (alpha=0.65, min-max normalized scores)")
     require_text("Query ID: ${id}")
+    require_text("Results returned: 10")
+    require_text("| Rank | Document ID | Fused Score")
+    check_fused(10)
+    run_cli(0 search --mode hybrid --dataset "${corpus}" --query "${queries}" --query-id "${id}" --k 10
+        --fusion rrf)
+    require_text("Fusion: RRF (k_rrf=60)")
     require_text("Results returned: 10")
     require_text("| Rank | Document ID | RRF Score")
     check_fused(10)

@@ -1,1 +1,1 @@
-bm25 /Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/scifact: memory 33.2813 MiB, p50 0.26225 ms, batch QPS 26765.5
+bm25 /Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/scifact: memory 33.1875 MiB, p50 0.24275 ms, batch QPS 26753.9

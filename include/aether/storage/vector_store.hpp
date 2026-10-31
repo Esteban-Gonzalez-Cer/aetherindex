@@ -38,14 +38,16 @@ class VectorStore {
     std::size_t dimension() const noexcept;
     DistanceKind distance_kind() const noexcept;
     bool contains(VectorId id) const;
-    std::span<const VectorId> ids() const noexcept;
+    std::span<const VectorId> ids() const noexcept { return ids_; }
 
     // Logical dimensions are unchanged. Physical rows have zero padding and
     // start on 64-byte boundaries. Positions are dense, in insertion order.
-    std::size_t padded_dimension() const noexcept;
+    std::size_t padded_dimension() const noexcept { return stride_; }
     std::optional<std::size_t> position_of(VectorId id) const;
     // Precondition: position < size(). Read-only hot path, no hash lookup.
-    const float* data_by_position(std::size_t position) const noexcept;
+    const float* data_by_position(std::size_t position) const noexcept {
+        return data_.data() + position * stride_;
+    }
     void reserve(std::size_t count);
 
     // Frees the FP32 rows while keeping IDs, positions, dimension and metric, so a

@@ -4,7 +4,8 @@ La CLI de Sprint 1 permite cargar embeddings proporcionados externamente y
 ejecutar Top-K exacto con fuerza bruta o aproximado con HNSW. La actualización del
 28 de octubre de 2026 incorpora [búsqueda BM25 sobre documentos JSONL](cli_bm25.md),
 con consultas de texto y selección por query_id, sin requerir embeddings, y la
-[búsqueda híbrida HNSW + BM25 + RRF](cli_hybrid.md). Toda la operación
+[búsqueda híbrida HNSW + BM25](cli_hybrid.md) (fusión convexa por defecto desde el 30 de
+octubre de 2026, RRF con `--fusion rrf`). Toda la operación
 ocurre en memoria dentro de un proceso; no se guardan índices ni datos entre
 ejecuciones. No hay modo interactivo, modelos de embeddings, servidor ni
 comparación automática de Recall@K dentro del comando de búsqueda. Los tests
@@ -51,14 +52,17 @@ Las pruebas de un generador de múltiples configuraciones requieren
 | `--query FILE` | CSV vectorial o JSONL de consultas; excluyente con `--query-text` |
 | `--query-text TEXT` | Texto literal de BM25; admite cadena vacía |
 | `--query-id ID` | Selección exacta en JSONL; obligatoria si hay varias consultas |
-| `--mode NAME` | `vector` por defecto, `lexical` (BM25) o `hybrid` ([HNSW + BM25 + RRF](cli_hybrid.md)) |
+| `--mode NAME` | `vector` por defecto, `lexical` (BM25) o `hybrid` ([HNSW + BM25](cli_hybrid.md)) |
 | `--candidate-k N` | Solo híbrido: candidatos por recuperador, ≥ K; default `max(K,50)` |
-| `--rrf-k NUMBER` | Solo híbrido: constante RRF finita y positiva; default 60 |
+| `--fusion NAME` | Solo híbrido: `convex` (por defecto) o `rrf` (ver abajo) |
+| `--alpha A` | Solo híbrido, convexa: peso denso `A` en [0,1]; default 0.65 (ver abajo) |
+| `--rrf-k NUMBER` | Solo híbrido, RRF: constante finita y positiva; default 60; selecciona RRF |
+| `--rrf-weight W` | Solo híbrido, RRF ponderado: peso denso `W` en [0,1] y léxico `1 - W`; selecciona RRF |
 | `--algorithm NAME` | Vector: `brute-force` o `hnsw`; `bm25` selecciona modo léxico |
 | `--bm25-k1 NUMBER` | Solo BM25: finito y positivo, default 1.2 |
 | `--bm25-b NUMBER` | Solo BM25: finito en [0,1], default 0.75 |
 | `--analyzer NAME` | Solo BM25: `ascii-tech-v1` (por defecto) o `english-v1` (ver abajo) |
-| `--bm25-query-weighting NAME` | Solo BM25: `unique` (por defecto) o `frequency` (ver abajo) |
+| `--bm25-query-weighting NAME` | Solo BM25: `frequency` (por defecto) o `unique` (ver abajo) |
 | `--k INTEGER` | Entero decimal positivo dentro del rango de `size_t`; por defecto 10 |
 | `--metric NAME` | `cosine` (por defecto) o `squared-euclidean` |
 | `--m INTEGER` | Solo HNSW: vecinos máximos en capas superiores, al menos 2; por defecto 16 |
@@ -196,17 +200,20 @@ con ef=128 y a 0.90 con ef=64.
 
 ## Estrategias BM25 a escala (optimización, fase 5)
 
-`--bm25-strategy exhaustive|taat|wand|bmw|maxscore` (modo léxico o híbrido). Todas
+`--bm25-strategy maxscore|bmw|wand|taat|exhaustive` (modo léxico o híbrido; `maxscore` por
+defecto desde el 30 de octubre de 2026, antes `exhaustive`). Todas
 devuelven los mismos documentos con scores idénticos bit a bit; `unit.bm25_strategies`
 compara 18,960 consultas/estrategias contra la ruta exhaustiva, incluyendo empates masivos y
 consultas de hasta 150 términos.
 
-- `exhaustive` (por defecto): la implementación original sobre postings sin comprimir.
+- `exhaustive`: la implementación original sobre postings sin comprimir; es la única que
+  conserva `InvertedIndex::find`. La salida lo indica con `BM25 strategy: exhaustive`.
 - `taat`, `wand`, `bmw`, `maxscore`: ordinales densos por DocumentId, normalización por longitud
-  precalculada y postings comprimidos en bloques de 128 (delta + varint, `tf=1` en un bit),
-  con la cota máxima de cada bloque redondeada hacia arriba. Liberan los postings crudos
-  (`InvertedIndex::find` deja de estar disponible). En un corpus Zipf de 1.07 millones de
-  postings ocupan 4.35 MB frente a 9.25 MB (2.13×).
+  precalculada y postings comprimidos en bloques de 128, empaquetados por bits con un ancho
+  fijo por bloque (deltas de ordinal y `tf - 1`; 0 bits si todos los `tf` valen 1), con la
+  cota máxima de cada bloque redondeada hacia arriba. Todos los bloques y bytes viven en dos
+  arreglos compartidos y cada término ocupa 12 bytes. Liberan los postings crudos
+  (`InvertedIndex::find` deja de estar disponible).
 - `wand`/`bmw` omiten documentos o bloques cuya cota (inflada en 1e-9 para que el redondeo
   nunca pode un resultado válido) no alcanza el K-ésimo score; un empate con el umbral
   siempre se evalúa, así que el desempate por DocumentId no cambia.
@@ -215,8 +222,9 @@ consultas de hasta 150 términos.
   bloque que la solapa; los términos cuya suma de cotas no alcanza el umbral son no
   esenciales. Los esenciales se acumulan término a término y los no esenciales solo se
   consultan mientras el documento aún puede entrar en el Top-K. No reordena cursores en cada
-  paso, así que es la estrategia recomendada para consultas largas: en ArguAna (93 términos
-  por consulta) responde en 0.48 ms frente a 7.5 ms de `bmw`.
+  paso. Es la estrategia por defecto y la más rápida en todas las colecciones medidas: en ArguAna (93 términos
+  por consulta) responde en 0.32 ms frente a 7.9 ms de `bmw`; en FiQA, TREC-COVID y Quora
+  responde antes que Lucene ([informe](reports/MARKET_COMPARISON.md)).
 
 ## Analizador inglés `english-v1` (comparación con el mercado)
 
@@ -237,13 +245,37 @@ que indexa Anserini/Lucene; las diferencias restantes son símbolos como `®`, `
 Lucene emite como tokens. Resultados y protocolo de la comparación:
 [informe de comparación con el mercado](reports/MARKET_COMPARISON.md).
 
-`--bm25-query-weighting unique|frequency` decide cuánto cuenta un término repetido en la
-consulta analizada. Con `unique` (por defecto, salida sin cambios) cada término distinto
-cuenta una vez. Con `frequency` su contribución se multiplica por las veces que aparece, como
-en las consultas *bag of words* de Lucene/Anserini; la salida añade
-`BM25 query weighting: frequency`. Las cuatro estrategias siguen devolviendo los mismos
+`--bm25-query-weighting frequency|unique` decide cuánto cuenta un término repetido en la
+consulta analizada. Con `frequency` (por defecto desde el 30 de octubre de 2026) su
+contribución se multiplica por las veces que aparece, como en las consultas *bag of words* de
+Lucene/Anserini. Con `unique` (el comportamiento anterior) cada término distinto cuenta una
+vez y la salida añade `BM25 query weighting: unique`. Las consultas sin términos repetidos
+dan exactamente los mismos resultados con ambas, y todas las estrategias devuelven los mismos
 resultados con scores idénticos. Importa en consultas largas: en ArguAna (mediana de 174
 palabras por consulta) es lo que separa a BM25 del resultado de Lucene.
+
+## Fusión híbrida
+
+Desde el 30 de octubre de 2026 el modo híbrido usa por defecto la fusión convexa con
+`alpha = 0.65`; antes usaba RRF clásico.
+
+- **Convexa** (por defecto, `--fusion convex`, `--alpha A`): `A · denso + (1 - A) · BM25`,
+  donde cada lista se normaliza min-max sobre sus propios candidatos (la similitud densa es
+  `1 - distancia`). Un documento ausente de una lista aporta 0 en ella; una lista cuyos
+  scores son todos iguales se normaliza a 1. La salida muestra
+  `Fusion: convex (alpha=A, min-max normalized scores)` y la columna `Fused Score`.
+- **RRF** (`--fusion rrf`, o `--rrf-k` / `--rrf-weight` solos): `1/(k_rrf + rango)` por
+  cada lista, la salida anterior byte a byte. `--rrf-weight W` da RRF ponderado,
+  `W/(k_rrf + rango denso) + (1 - W)/(k_rrf + rango léxico)`, y la salida muestra
+  `Fusion: weighted RRF (k_rrf=…, dense weight=W, lexical weight=1-dense)`.
+
+`--alpha` no se combina con `--rrf-k`, `--rrf-weight` ni `--fusion rrf`, y `--fusion convex`
+no se combina con las opciones de RRF. El valor 0.65 se eligió solo con las particiones dev de
+BEIR, nunca con las de prueba; con él la fusión convexa supera a RRF clásico en FiQA, ArguAna
+y Quora y no pierde en ningún dataset: ver el
+[informe de comparación con el mercado](reports/MARKET_COMPARISON.md). En la biblioteca,
+`SearchRequest` usa `hybrid::kDefaultSearchFusion`; `RrfConfig{}` sigue siendo RRF clásico,
+porque `RrfFusion::fuse` (rankings sin scores) solo admite RRF.
 
 ## Filtros por metadatos (optimización, fase 6)
 

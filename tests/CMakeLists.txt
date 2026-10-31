@@ -68,6 +68,12 @@ add_test(NAME unit.rrf.properties COMMAND aether_rrf_tests properties
     "${CMAKE_CURRENT_BINARY_DIR}/rrf-evidence/$<CONFIG>/properties.json")
 set_tests_properties(unit.rrf.properties PROPERTIES TIMEOUT 60 LABELS "hybrid;rrf;cp03")
 
+# Opt-in weighted RRF and convex fusion (market comparison).
+add_executable(aether_fusion_weights_tests unit/fusion_weights_test.cpp)
+target_link_libraries(aether_fusion_weights_tests PRIVATE aether_hybrid)
+add_test(NAME unit.fusion_weights COMMAND aether_fusion_weights_tests)
+set_tests_properties(unit.fusion_weights PROPERTIES TIMEOUT 60 LABELS "hybrid;fusion;market")
+
 add_executable(aether_rrf_contract_tests integration/rrf_contract_test.cpp)
 target_link_libraries(aether_rrf_contract_tests PRIVATE aether_hybrid)
 add_test(NAME integration.rrf_contract COMMAND aether_rrf_contract_tests)
@@ -318,6 +324,11 @@ add_test(NAME e2e.cli_analyzer COMMAND "${CMAKE_COMMAND}"
     "-DSOURCE_DIR=${PROJECT_SOURCE_DIR}"
     -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_analyzer_test.cmake")
 set_tests_properties(e2e.cli_analyzer PROPERTIES TIMEOUT 120 LABELS "lexical;market")
+add_test(NAME e2e.cli_fusion COMMAND "${CMAKE_COMMAND}"
+    "-DCLI_PATH=$<TARGET_FILE:aetherindex>"
+    "-DSOURCE_DIR=${PROJECT_SOURCE_DIR}"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_fusion_test.cmake")
+set_tests_properties(e2e.cli_fusion PROPERTIES TIMEOUT 120 LABELS "hybrid;fusion;market")
 
 # Optimization phase 6: metadata filtering (dense exact/graph, BM25 strategies, hybrid).
 add_executable(aether_filter_tests integration/filter_test.cpp)

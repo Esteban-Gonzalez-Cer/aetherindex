@@ -45,11 +45,11 @@ bool inject(std::ptrdiff_t point, Function action) {
     return failed;
 }
 
-void check_insert() {
+void check_insert(const Bm25Config& config) {
     std::size_t failures = 0;
     bool success = false;
     for (std::ptrdiff_t point = 0; point < 256; ++point) {
-        Bm25Index index;
+        Bm25Index index(config);
         addBm25Reference(index);
         const bool failed = inject(point, [&] {
             index.add_document(999,
@@ -74,11 +74,11 @@ void check_insert() {
     std::cout << "insert allocation failure points=" << failures << '\n';
 }
 
-void check_build() {
+void check_build(const Bm25Config& config) {
     std::size_t failures = 0;
     bool success = false;
     for (std::ptrdiff_t point = 0; point < 256; ++point) {
-        Bm25Index index;
+        Bm25Index index(config);
         addBm25Reference(index);
         const bool failed = inject(point, [&] { index.build(); });
         if (failed) {
@@ -102,12 +102,14 @@ void check_build() {
     std::cout << "build allocation failure points=" << failures << '\n';
 }
 
-void check_search() {
-    Bm25Index index;
+void check_search(const Bm25Config& config) {
+    Bm25Index index(config);
     addBm25Reference(index);
     index.build();
     const auto expected = index.search("motor e47", 10);
-    const auto* view = index.inverted_index().find("motor").data();
+    // Only Exhaustive keeps the raw postings whose views must stay stable.
+    const bool raw = config.strategy == Bm25Strategy::Exhaustive;
+    const auto* view = raw ? index.inverted_index().find("motor").data() : nullptr;
     std::size_t failures = 0;
     bool success = false;
     for (std::ptrdiff_t point = 0; point < 256; ++point) {
@@ -117,7 +119,7 @@ void check_search() {
             ++failures;
         else
             success = true;
-        require(index.is_built() && index.inverted_index().find("motor").data() == view,
+        require(index.is_built() && (!raw || index.inverted_index().find("motor").data() == view),
                 "Failed search mutated index or views.");
         requireSameRanking(index.search("motor e47", 10), expected);
         if (!failed) break;
@@ -129,9 +131,16 @@ void check_search() {
 
 int main() {
     try {
-        check_insert();
-        check_build();
-        check_search();
+        // Every strategy: a failed build() publishes nothing, and a failed search leaves the
+        // per-thread scratch clean for the next one.
+        for (const auto strategy :
+             {Bm25Strategy::MaxScore, Bm25Strategy::Exhaustive, Bm25Strategy::TermAtATime,
+              Bm25Strategy::Wand, Bm25Strategy::BlockMaxWand}) {
+            const Bm25Config config{.strategy = strategy};
+            check_insert(config);
+            check_build(config);
+            check_search(config);
+        }
     } catch (const std::exception& error) {
         allocations_left = -1;
         std::cerr << error.what() << '\n';

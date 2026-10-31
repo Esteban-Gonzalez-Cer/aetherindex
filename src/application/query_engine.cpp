@@ -87,8 +87,9 @@ HybridRankings QueryEngine::search(const HnswIndex& dense_index,
                        : query.quantized ? search(dense_index, *query.quantized, query.embedding,
                                                   query.candidate_k, query.rerank)
                                          : search(dense_index, query.embedding, query.candidate_k);
-    std::vector<DocumentId> dense_ids;
-    dense_ids.reserve(dense.size());
+    // Dense similarity for fusion: 1 - distance (higher is better); RRF uses only the order.
+    std::vector<RankedResult> dense_scored;
+    dense_scored.reserve(dense.size());
     rankings.dense.reserve(dense.size());
     for (const auto& hit : dense) {
         const auto found = binding.find(hit.id);
@@ -96,15 +97,12 @@ HybridRankings QueryEngine::search(const HnswIndex& dense_index,
             throw std::logic_error("HNSW returned VectorId " + std::to_string(hit.id) +
                                    " without a DocumentId binding.");
         rankings.dense.push_back({found->second, hit.distance});
-        dense_ids.push_back(found->second);
+        dense_scored.push_back({found->second, 1.0 - static_cast<double>(hit.distance)});
     }
     rankings.lexical = query.parallel_retrievers ? lexical_future.get() : lexical_search();
-    std::vector<DocumentId> lexical_ids;
-    lexical_ids.reserve(rankings.lexical.size());
-    for (const auto& hit : rankings.lexical) lexical_ids.push_back(hit.document_id);
-    // RRF rejects a DocumentId repeated within one ranking, which also exposes a
+    // Fusion rejects a DocumentId repeated within one ranking, which also exposes a
     // non-injective binding instead of silently merging two vectors.
-    rankings.fused = fusion.fuse(dense_ids, lexical_ids, query.k);
+    rankings.fused = fusion.fuse_scored(dense_scored, rankings.lexical, query.k);
     return rankings;
 }
 

@@ -37,9 +37,10 @@ struct SearchRequest {
     std::optional<std::string> query_text{};
     std::optional<std::string> query_id{};
     lexical::Bm25Config bm25_config{};
-    // Hybrid only: depth requested from HNSW and BM25 (>= k) and RRF smoothing constant.
+    // Hybrid only: depth requested from HNSW and BM25 (>= k) and the fusion (default:
+    // convex, alpha = hybrid::kTunedConvexAlpha).
     std::optional<std::size_t> candidate_k{};
-    hybrid::RrfConfig rrf_config{};
+    hybrid::RrfConfig rrf_config = hybrid::kDefaultSearchFusion;
     // Hybrid only: binary .avec embeddings for the JSONL documents (IDs = DocumentIds).
     // When set, document embeddings are read from this file instead of the JSONL text.
     std::filesystem::path vectors_path{};

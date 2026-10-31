@@ -1,1 +1,1 @@
-bm25 /Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/trec-covid: memory 336.345 MiB, p50 1.82254 ms, batch QPS 3749.96
+bm25 /Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/trec-covid: memory 316.626 MiB, p50 1.47687 ms, batch QPS 4027.63

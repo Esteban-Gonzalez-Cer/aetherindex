@@ -1,0 +1,12 @@
+{
+  "system": "aetherindex-dense",
+  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir-dev/nfcorpus",
+  "documents": 3633,
+  "queries": 324,
+  "build_type": "Release (NDEBUG)",
+  "dense": {"index": "hnsw", "M": 16, "ef_construction": 200, "ef": 128, "build_threads": 10, "build_seconds": 0.120118834, "dimension": 384},
+  "memory_mib": 11.2968979,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50
+}

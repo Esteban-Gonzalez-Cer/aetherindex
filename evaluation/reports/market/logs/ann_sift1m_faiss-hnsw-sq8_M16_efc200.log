@@ -1,14 +1,14 @@
-faiss-hnsw-sq8 ef=10 recall@10=0.71373 p50=0.036667ms qps(batch)=254526
-faiss-hnsw-sq8 ef=16 recall@10=0.80515 p50=0.049083ms qps(batch)=193308
-faiss-hnsw-sq8 ef=24 recall@10=0.8679 p50=0.0655ms qps(batch)=145186
-faiss-hnsw-sq8 ef=32 recall@10=0.90395 p50=0.081291ms qps(batch)=119182
-faiss-hnsw-sq8 ef=48 recall@10=0.93987 p50=0.114791ms qps(batch)=85883.1
-faiss-hnsw-sq8 ef=64 recall@10=0.95787 p50=0.147ms qps(batch)=67714.5
-faiss-hnsw-sq8 ef=96 recall@10=0.97282 p50=0.211791ms qps(batch)=47366.8
-faiss-hnsw-sq8 ef=128 recall@10=0.97877 p50=0.278625ms qps(batch)=36369.3
-faiss-hnsw-sq8 ef=192 recall@10=0.98329 p50=0.40175ms qps(batch)=24831.3
-faiss-hnsw-sq8 ef=256 recall@10=0.98501 p50=0.528917ms qps(batch)=18857.9
-faiss-hnsw-sq8 ef=384 recall@10=0.98618 p50=0.811709ms qps(batch)=12307.5
-faiss-hnsw-sq8 ef=512 recall@10=0.98656 p50=1.09987ms qps(batch)=8997.23
-faiss-hnsw-sq8 ef=800 recall@10=0.98669 p50=1.86454ms qps(batch)=5330.59
-faiss-hnsw-sq8 build 46.5488 s, memory 296.016 MiB (Release (NDEBUG))
+faiss-hnsw-sq8 ef=10 recall@10=0.71373 p50=0.037875ms qps(batch)=249697
+faiss-hnsw-sq8 ef=16 recall@10=0.80515 p50=0.050667ms qps(batch)=189538
+faiss-hnsw-sq8 ef=24 recall@10=0.8679 p50=0.067708ms qps(batch)=143715
+faiss-hnsw-sq8 ef=32 recall@10=0.90395 p50=0.086625ms qps(batch)=117410
+faiss-hnsw-sq8 ef=48 recall@10=0.93987 p50=0.11825ms qps(batch)=84973.1
+faiss-hnsw-sq8 ef=64 recall@10=0.95787 p50=0.148292ms qps(batch)=67313.3
+faiss-hnsw-sq8 ef=96 recall@10=0.97282 p50=0.213167ms qps(batch)=47041.1
+faiss-hnsw-sq8 ef=128 recall@10=0.97877 p50=0.2745ms qps(batch)=36077
+faiss-hnsw-sq8 ef=192 recall@10=0.98329 p50=0.406292ms qps(batch)=24602.2
+faiss-hnsw-sq8 ef=256 recall@10=0.98501 p50=0.542208ms qps(batch)=18623
+faiss-hnsw-sq8 ef=384 recall@10=0.98618 p50=0.806958ms qps(batch)=12220.4
+faiss-hnsw-sq8 ef=512 recall@10=0.98656 p50=1.11033ms qps(batch)=8946.75
+faiss-hnsw-sq8 ef=800 recall@10=0.98669 p50=1.8785ms qps(batch)=5303.23
+faiss-hnsw-sq8 build 46.7774 s, memory 296.828 MiB (Release (NDEBUG))

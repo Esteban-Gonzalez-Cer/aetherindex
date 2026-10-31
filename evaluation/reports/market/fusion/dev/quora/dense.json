@@ -1,0 +1,12 @@
+{
+  "system": "aetherindex-dense",
+  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir-dev/quora",
+  "documents": 522931,
+  "queries": 5000,
+  "build_type": "Release (NDEBUG)",
+  "dense": {"index": "hnsw", "M": 16, "ef_construction": 200, "ef": 128, "build_threads": 10, "build_seconds": 37.6390159, "dimension": 384},
+  "memory_mib": 862.125641,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50
+}

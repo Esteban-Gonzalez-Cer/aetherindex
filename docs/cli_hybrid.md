@@ -5,6 +5,12 @@ CLI → SearchService → QueryEngine → {HNSW, BM25} → RRF → resultados do
 en un único proceso y sin persistencia. Se conservan los modos
 [vectorial](cli.md) y [léxico](cli_bm25.md).
 
+**Actualización del 30 de octubre de 2026:** la fusión por defecto es ahora convexa
+(`0.65 · denso + 0.35 · BM25` sobre scores normalizados min-max; columna `Fused Score`) y
+BM25 pondera los términos repetidos de la consulta. Este documento describe la ruta RRF de
+CP-04, disponible con `--fusion rrf`; ver
+[Fusión híbrida](cli.md#fusión-híbrida).
+
 ## Ejecutar
 
 ```sh
@@ -53,12 +59,13 @@ CLI (--mode hybrid)
 | `--query-id ID` | Obligatoria si el archivo tiene varias consultas. |
 | `--k N` | Top-K final (default 10). |
 | `--candidate-k N` | Candidatos pedidos a cada recuperador, ≥ K. Default `max(K, 50)`. |
-| `--rrf-k X` | Constante RRF finita y positiva; default 60. |
+| `--fusion convex\|rrf` | Fusión; `convex` por defecto (con `--alpha A`, default 0.65). |
+| `--rrf-k X` | Constante RRF finita y positiva; default 60. Selecciona RRF. |
 | `--vectors FILE.avec` | Embeddings binarios de los documentos (de `convert`); el JSONL puede omitir `embedding`. Debe haber exactamente un vector por DocumentId. |
 | `--metric`, `--m`, `--m0`, `--ef-construction`, `--ef-search`, `--seed`, `--neighbor-selection` | Configuración HNSW, como en modo vectorial. |
 | `--bm25-k1`, `--bm25-b` | Configuración BM25, como en modo léxico. |
 
-`--candidate-k` y `--rrf-k` se rechazan fuera del modo híbrido. Códigos de salida:
+`--candidate-k`, `--fusion`, `--alpha` y `--rrf-k` se rechazan fuera del modo híbrido. Códigos de salida:
 0 éxito, 2 argumentos/configuración, 3 datos de entrada (archivo inexistente,
 JSON inválido, embedding nulo o de dimensión incorrecta, consulta sin texto) y 4
 error interno. Los errores no imprimen resultados parciales.

@@ -1,0 +1,12 @@
+{
+  "system": "aetherindex-dense",
+  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir-dev/fiqa",
+  "documents": 57638,
+  "queries": 500,
+  "build_type": "Release (NDEBUG)",
+  "dense": {"index": "hnsw", "M": 16, "ef_construction": 200, "ef": 128, "build_threads": 10, "build_seconds": 3.04632742, "dimension": 384},
+  "memory_mib": 104.109489,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50
+}

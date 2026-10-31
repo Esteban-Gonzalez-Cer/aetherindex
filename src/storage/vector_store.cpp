@@ -75,17 +75,9 @@ DistanceKind VectorStore::distance_kind() const noexcept { return metric_; }
 
 bool VectorStore::contains(VectorId id) const { return positions_.contains(id); }
 
-std::span<const VectorId> VectorStore::ids() const noexcept { return ids_; }
-
-std::size_t VectorStore::padded_dimension() const noexcept { return stride_; }
-
 std::optional<std::size_t> VectorStore::position_of(VectorId id) const {
     const auto it = positions_.find(id);
     return it == positions_.end() ? std::nullopt : std::optional<std::size_t>(it->second);
-}
-
-const float* VectorStore::data_by_position(std::size_t position) const noexcept {
-    return data_.data() + position * stride_;
 }
 
 void VectorStore::release_rows() {

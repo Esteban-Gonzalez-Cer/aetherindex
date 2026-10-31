@@ -1,0 +1,46 @@
+AetherIndex Search
+
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 18
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q002
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D012 | 0.031513647643 |          2 |            5 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D019 | 0.031280547410 |          6 |            2 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D002 | 0.031099324976 |          8 |            1 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D009 | 0.031009615385 |          5 |            4 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D018 | 0.030117753623 |          4 |            9 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D013 | 0.030092072760 |          1 |           13 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D007 | 0.028850145289 |         13 |            6 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D027 | 0.028693528694 |         18 |            3 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D003 | 0.028571428571 |         10 |           10 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D011 | 0.028438886648 |         14 |            7 |
++------+-------------+----------------+------------+--------------+
+
+Search completed successfully.

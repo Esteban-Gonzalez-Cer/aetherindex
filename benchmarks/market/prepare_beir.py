@@ -12,6 +12,12 @@ For each dataset under --downloads/<name>.zip it writes datasets/market/beir/<na
   anserini/docs.jsonl  Anserini JsonCollection: {"id", "contents": title + "\\n" + text}.
   manifest.json     Zip SHA-256, counts and output hashes.
 
+With --split dev it writes datasets/market/beir-dev/<name>/ instead: queries.jsonl,
+topics.tsv and qrels.tsv from qrels/dev.tsv (qrels/train.tsv when a dataset has no dev
+split, as SciFact), plus links to the test folder's corpus.jsonl, doc_ids.txt and
+corpus.fvecs (run the test split first). Datasets without dev or train judgments
+(ArguAna, TREC-COVID) are skipped. Dev queries are used only to tune hybrid fusion.
+
 Every system indexes the same "title\\ntext" string, which is also what the AetherIndex
 CLI indexes (title + text, no field boosts).
 """
@@ -57,19 +63,78 @@ def read_jsonl(stream):
                 raise ValueError(f"Invalid JSON on line {line_number}: {error}") from error
 
 
+def read_qrels(archive, name, split):
+    qrels = {}
+    with member(archive, name, f"qrels/{split}.tsv") as stream:
+        for index, raw in enumerate(stream):
+            fields = raw.decode("utf-8").rstrip("\n").split("\t")
+            if index == 0 and fields[0] == "query-id":
+                continue
+            qid, docid, score = fields[0], fields[1], int(fields[2])
+            qrels.setdefault(qid, {})[docid] = score
+    return qrels
+
+
+def write_queries(out, query_ids, queries, qrels, known):
+    with (out / "queries.jsonl").open("w", encoding="utf-8") as stream, \
+            (out / "topics.tsv").open("w", encoding="utf-8") as topics:
+        for qid in query_ids:
+            text = " ".join(queries[qid].split())  # TSV-safe; whitespace only.
+            relevant = sorted(d for d, s in qrels[qid].items() if s > 0 and d in known)
+            stream.write(json.dumps({"query_id": qid, "query_text": text,
+                                     "relevant_document_ids": relevant},
+                                    ensure_ascii=False) + "\n")
+            topics.write(f"{qid}\t{text}\n")
+    with (out / "qrels.tsv").open("w", encoding="utf-8") as stream:
+        for qid in query_ids:
+            for docid, score in sorted(qrels[qid].items()):
+                stream.write(f"{qid} 0 {docid} {score}\n")
+
+
+def prepare_dev(name, downloads, test_root, output):
+    zip_path = downloads / f"{name}.zip"
+    with zipfile.ZipFile(zip_path) as archive:
+        names = set(archive.namelist())
+        split = next((s for s in ("dev", "train") if f"{name}/qrels/{s}.tsv" in names), None)
+        if split is None:
+            print(f"{name}: no dev or train judgments; skipped")
+            return
+        qrels = read_qrels(archive, name, split)
+        with member(archive, name, "queries.jsonl") as stream:
+            queries = {str(q["_id"]): q["text"] for q in read_jsonl(stream)}
+        test_qrels = read_qrels(archive, name, "test")
+    source = test_root / name
+    doc_ids = (source / "doc_ids.txt").read_text(encoding="utf-8").split("\n")
+    known = {d for d in doc_ids if d}
+    query_ids = sorted(qid for qid in qrels if qid in queries)
+    overlap = set(query_ids) & set(test_qrels)
+    if overlap:
+        raise ValueError(f"{name}: {len(overlap)} {split} queries are also test queries")
+    out = output / name
+    out.mkdir(parents=True, exist_ok=True)
+    for linked in ("corpus.jsonl", "doc_ids.txt", "corpus.fvecs"):
+        target = out / linked
+        if target.is_symlink() or target.exists():
+            target.unlink()
+        target.symlink_to((source / linked).resolve())
+    write_queries(out, query_ids, queries, qrels, known)
+    manifest = {
+        "dataset": f"BEIR {name}", "split": split, "zip_sha256": sha256(zip_path),
+        "queries": len(query_ids), "judgments": sum(len(qrels[q]) for q in query_ids),
+        "corpus": f"linked from {source}",
+        "outputs": {p.name: sha256(p) for p in sorted(out.glob("*"))
+                    if p.is_file() and not p.is_symlink() and p.name != "manifest.json"},
+    }
+    (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    print(f"{name}: {len(query_ids)} {split} queries")
+
+
 def prepare(name, downloads, output):
     zip_path = downloads / f"{name}.zip"
     out = output / name
     (out / "anserini").mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(zip_path) as archive:
-        with member(archive, name, "qrels/test.tsv") as stream:
-            qrels = {}
-            for index, raw in enumerate(stream):
-                fields = raw.decode("utf-8").rstrip("\n").split("\t")
-                if index == 0 and fields[0] == "query-id":
-                    continue
-                qid, docid, score = fields[0], fields[1], int(fields[2])
-                qrels.setdefault(qid, {})[docid] = score
+        qrels = read_qrels(archive, name, "test")
         with member(archive, name, "queries.jsonl") as stream:
             queries = {str(q["_id"]): q["text"] for q in read_jsonl(stream)}
         doc_ids = []
@@ -92,19 +157,7 @@ def prepare(name, downloads, output):
     if missing:
         raise ValueError(f"{name}: {len(missing)} judged queries have no text")
     (out / "doc_ids.txt").write_text("\n".join(doc_ids) + "\n", encoding="utf-8")
-    with (out / "queries.jsonl").open("w", encoding="utf-8") as stream, \
-            (out / "topics.tsv").open("w", encoding="utf-8") as topics:
-        for qid in test_ids:
-            text = " ".join(queries[qid].split())  # TSV-safe; whitespace only.
-            relevant = sorted(d for d, s in qrels[qid].items() if s > 0 and d in known)
-            stream.write(json.dumps({"query_id": qid, "query_text": text,
-                                     "relevant_document_ids": relevant},
-                                    ensure_ascii=False) + "\n")
-            topics.write(f"{qid}\t{text}\n")
-    with (out / "qrels.tsv").open("w", encoding="utf-8") as stream:
-        for qid in test_ids:
-            for docid, score in sorted(qrels[qid].items()):
-                stream.write(f"{qid} 0 {docid} {score}\n")
+    write_queries(out, test_ids, queries, qrels, known)
     manifest = {
         "dataset": f"BEIR {name}",
         "source": f"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{name}.zip",
@@ -125,13 +178,19 @@ def main():
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--downloads", type=Path,
                         default=ROOT / "datasets/market/downloads/beir")
-    parser.add_argument("--output", type=Path, default=ROOT / "datasets/market/beir")
+    parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument("--split", choices=["test", "dev"], default="test")
     parser.add_argument("datasets", nargs="*", default=DATASETS)
     args = parser.parse_args()
+    test_root = ROOT / "datasets/market/beir"
+    output = args.output or (test_root if args.split == "test" else ROOT / "datasets/market/beir-dev")
     for name in args.datasets:
         if name not in DATASETS:
             sys.exit(f"Unknown dataset {name}; choose from {', '.join(DATASETS)}")
-        prepare(name, args.downloads, args.output)
+        if args.split == "test":
+            prepare(name, args.downloads, output)
+        else:
+            prepare_dev(name, args.downloads, test_root, output)
 
 
 if __name__ == "__main__":

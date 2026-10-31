@@ -173,14 +173,18 @@ class HnswIndex {
         constexpr bool operator()(InternalId) const noexcept { return true; }
     };
     // Admit decides which visited nodes may enter the result set; all are traversed.
-    template <bool Concurrent, class Distance, class Admit = AdmitAll>
-    std::vector<Candidate> search_layer_with(const Distance& distance, InternalId entry_point,
-                                             std::size_t ef, std::size_t level,
-                                             const Admit& admit = {}) const;
-    template <class Distance, class Admit>
+    // prefetch(id) hints the memory that distance(id) will read.
+    template <bool Concurrent, class Distance, class Prefetch, class Admit = AdmitAll>
+    std::vector<Candidate> search_layer_with(const Distance& distance, const Prefetch& prefetch,
+                                             InternalId entry_point, std::size_t ef,
+                                             std::size_t level, const Admit& admit = {}) const;
+    template <class Distance, class Prefetch, class Admit>
     std::vector<SearchResult> search_with(const PreparedQuery& query, const Distance& distance,
-                                          const Admit& admit, std::size_t k, std::size_t ef_search,
+                                          const Prefetch& prefetch, const Admit& admit,
+                                          std::size_t k, std::size_t ef_search,
                                           std::size_t rerank) const;
+    // Prefetches every cache line of the FP32 row at position id.
+    void prefetch_row(InternalId id) const noexcept;
     void require_rows() const;
     std::mutex& stripe(InternalId id) const noexcept;
     void insert_concurrent(InternalId node, std::size_t level);

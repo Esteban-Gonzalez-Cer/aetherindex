@@ -5,6 +5,8 @@
 #include <limits>
 #include <stdexcept>
 
+#include "aether/core/prefetch.hpp"
+
 #if defined(__aarch64__) || defined(_M_ARM64)
 #include <arm_neon.h>
 #endif
@@ -73,6 +75,11 @@ class Sq8Vectors::Query final : public QuantizedQuery {
         if (owner_.metric_ == DistanceKind::Cosine)
             return 1.0f - std::clamp(constant_ + sum, -1.0f, 1.0f);
         return std::max(0.0f, constant_ + sum + owner_.row_terms_[position]);
+    }
+
+    void prefetch(std::size_t position) const noexcept override {
+        prefetch_bytes(owner_.codes_.data() + position * owner_.stride_, owner_.stride_);
+        if (owner_.metric_ != DistanceKind::Cosine) prefetch_read(&owner_.row_terms_[position]);
     }
 
    private:

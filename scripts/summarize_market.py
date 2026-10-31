@@ -45,6 +45,14 @@ QUALITY_RUNS = [
     ("opensearch-dense", "OpenSearch k-NN", "Denso", "servers:opensearch-dense"),
     ("aether-hybrid", "AetherIndex híbrido RRF", "Híbrido", "aether-hybrid"),
     ("aether-hybrid-freq", "AetherIndex híbrido RRF, frecuencia", "Híbrido", "aether-hybrid-freq"),
+    ("aether-hybrid-wrrf", "AetherIndex RRF ponderado (global, dev)", "Híbrido",
+     "aether-hybrid-freq-wrrf"),
+    ("aether-hybrid-convex", "AetherIndex convexo (global, dev)", "Híbrido",
+     "aether-hybrid-freq-convex"),
+    ("aether-hybrid-wrrf-dev", "AetherIndex RRF ponderado (por dataset, dev)", "Híbrido",
+     "aether-hybrid-freq-wrrf-dev"),
+    ("aether-hybrid-convex-dev", "AetherIndex convexo (por dataset, dev)", "Híbrido",
+     "aether-hybrid-freq-convex-dev"),
     ("reference-hybrid", "Referencia: Lucene + exacto + RRF", "Híbrido", "reference-hybrid"),
     ("qdrant-hybrid", "Qdrant híbrido RRF", "Híbrido", "servers:qdrant-hybrid"),
     ("opensearch-hybrid", "OpenSearch híbrido RRF", "Híbrido", "servers:opensearch-hybrid"),
@@ -54,7 +62,9 @@ COMPARISONS = [("aether-bm25", "lucene"), ("aether-bm25-freq", "lucene"),
                ("aether-bm25-ascii", "lucene-plain"),
                ("aether-hybrid", "reference-hybrid"), ("aether-hybrid-freq", "reference-hybrid"),
                ("aether-hybrid", "aether-bm25"), ("aether-hybrid", "exact"),
-               ("aether-dense", "exact")]
+               ("aether-hybrid-convex", "aether-hybrid-freq"),
+               ("aether-hybrid-wrrf", "aether-hybrid-freq"), ("aether-hybrid-convex", "exact"),
+               ("aether-hybrid-convex", "reference-hybrid"), ("aether-dense", "exact")]
 
 
 def run_path(dataset, relative):
@@ -128,6 +138,32 @@ def quality():
     return lines
 
 
+def fusion_tuning():
+    tuning = load_json(MARKET / "fusion/fusion_tuning.json")
+    if not tuning:
+        return []
+    datasets = list(tuning["baselines"])
+    lines = ["### Ajuste de la fusión en dev (nunca en test)", "",
+             f"{tuning['protocol']}. Rejilla {tuning['grid'][0]}–{tuning['grid'][-1]} en pasos de "
+             f"{tuning['grid'][1]}; {tuning['candidates']} candidatos por recuperador.", "",
+             "| Dataset | Consultas dev | nDCG@10 dev RRF | Denso | BM25 | Peso denso W (nDCG@10) | "
+             "alpha convexo (nDCG@10) |", "|---|---:|---:|---:|---:|---:|---:|"]
+    for name in datasets:
+        base = tuning["baselines"][name]
+        w = tuning["weighted-rrf"]["per_dataset"][name]
+        a = tuning["convex"]["per_dataset"][name]
+        lines.append(f"| {name} | {base['queries']:,} | {base['rrf']:.4f} | {base['dense']:.4f} | "
+                     f"{base['bm25']:.4f} | {w['value']:.2f} ({w['dev_ndcg@10']:.4f}) | "
+                     f"{a['value']:.2f} ({a['dev_ndcg@10']:.4f}) |")
+    w, a = tuning["weighted-rrf"]["global"], tuning["convex"]["global"]
+    mean_rrf = sum(tuning["baselines"][n]["rrf"] for n in datasets) / len(datasets)
+    lines += [f"| **Global** (media) | | {mean_rrf:.4f} | | | {w['value']:.2f} "
+              f"({w['mean_dev_ndcg@10']:.4f}) | {a['value']:.2f} ({a['mean_dev_ndcg@10']:.4f}) |", "",
+              "Los valores globales se aplican a los 6 datasets de prueba (ArguAna y TREC-COVID no "
+              "tienen dev); los valores por dataset, solo a los 4 con dev.", ""]
+    return lines
+
+
 def trec_eval_check():
     """Our evaluator against Anserini's bundled trec_eval on the Lucene and AetherIndex runs."""
     jar = ROOT / "tools/anserini/anserini-2.3.0-fatjar.jar"
@@ -178,6 +214,8 @@ def latency():
                ("aether-hybrid", "AetherIndex híbrido"),
                ("aether-hybrid-freq", "AetherIndex híbrido, frecuencia"),
                ("aether-hybrid-freq-maxscore", "AetherIndex híbrido, frecuencia (MaxScore)"),
+               ("aether-hybrid-freq-wrrf", "AetherIndex RRF ponderado"),
+               ("aether-hybrid-freq-convex", "AetherIndex convexo"),
                ("servers:qdrant-bm25", "Qdrant BM25 †"), ("servers:qdrant-dense", "Qdrant HNSW †"),
                ("servers:qdrant-hybrid", "Qdrant híbrido †"),
                ("servers:opensearch-bm25", "OpenSearch BM25 †"),
@@ -374,13 +412,16 @@ def main():
     done = (MARKET / "done.txt").read_text().split() if (MARKET / "done.txt").exists() else []
     checks = [d for d in done if d.startswith("parity/") and d.endswith("/check")]
     checks_freq = [d for d in done if d.startswith("parity/") and d.endswith("/check-freq")]
+    checks_wrrf = [d for d in done if d.startswith("parity/") and d.endswith("/check-freq-wrrf")]
+    checks_convex = [d for d in done if d.startswith("parity/") and d.endswith("/check-freq-convex")]
     lines += ["## Controles", "",
               f"- Fusión RRF: {len(checks)} de {len(BEIR)} datasets reproducen exactamente el run "
               "híbrido de AetherIndex al fusionar sus propios runs BM25 y densos (`fuse_rrf.py --check`); "
-              f"con ponderación por frecuencia, {len(checks_freq)} de {len(BEIR)}.",
+              f"con ponderación por frecuencia, {len(checks_freq)} de {len(BEIR)}; RRF ponderado, "
+              f"{len(checks_wrrf)} de {len(BEIR)}; fusión convexa, {len(checks_convex)} de {len(BEIR)}.",
               ""]
     lines += trec_eval_check()
-    lines += ["## Calidad en BEIR", ""] + quality() + [""]
+    lines += ["## Calidad en BEIR", ""] + quality() + [""] + fusion_tuning()
     lines += ["## Coste en BEIR", ""] + latency() + build_costs()
     lines += ["## ANN", ""] + ann() + beir_ann()
     (MARKET / "summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")

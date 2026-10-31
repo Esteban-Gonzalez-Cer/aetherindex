@@ -12,6 +12,9 @@ fvecs is the TEXMEX layout (int32 dimension, then float32 components, per row).
 Vectors are L2-normalized, so cosine, inner product and L2 rankings agree. Documents
 are embedded as "title\\ntext" (the same string BM25 indexes); queries carry the BGE
 retrieval instruction, as recommended for bge-*-en-v1.5.
+
+--queries-only embeds only queries.jsonl (for the dev folders, whose corpus.fvecs links to
+the test folder's) and records it in embedding.json.
 """
 
 import argparse
@@ -52,6 +55,7 @@ def main():
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--data", type=Path, default=ROOT / "datasets/market/beir")
     parser.add_argument("--batch-size", type=int, default=128)
+    parser.add_argument("--queries-only", action="store_true")
     parser.add_argument("datasets", nargs="+")
     args = parser.parse_args()
 
@@ -75,22 +79,26 @@ def main():
             raise ValueError(f"{name}: document ids are not ordinals")
         queries = [json.loads(line) for line in (folder / "queries.jsonl").open(encoding="utf-8")]
         start = time.time()
-        doc_vectors = model.encode([f"{d['title']}\n{d['text']}" for d in docs],
-                                   batch_size=args.batch_size, normalize_embeddings=True,
-                                   convert_to_numpy=True, show_progress_bar=False)
+        doc_vectors = None
+        if not args.queries_only:
+            doc_vectors = model.encode([f"{d['title']}\n{d['text']}" for d in docs],
+                                       batch_size=args.batch_size, normalize_embeddings=True,
+                                       convert_to_numpy=True, show_progress_bar=False)
         doc_seconds = time.time() - start
         query_vectors = model.encode([QUERY_PREFIX + q["query_text"] for q in queries],
                                      batch_size=args.batch_size, normalize_embeddings=True,
                                      convert_to_numpy=True, show_progress_bar=False)
         for matrix in (doc_vectors, query_vectors):
-            if not np.isfinite(matrix).all():
+            if matrix is not None and not np.isfinite(matrix).all():
                 raise ValueError(f"{name}: non-finite embedding")
-        write_fvecs(folder / "corpus.fvecs", doc_vectors.astype(np.float32))
+        if doc_vectors is not None:
+            write_fvecs(folder / "corpus.fvecs", doc_vectors.astype(np.float32))
         write_fvecs(folder / "queries.fvecs", query_vectors.astype(np.float32))
         info = {
             "model": MODEL, "revision": revision, "device": device,
             "torch": torch.__version__, "max_seq_length": model.max_seq_length,
-            "dimension": int(doc_vectors.shape[1]), "normalized": True,
+            "dimension": int(query_vectors.shape[1]), "normalized": True,
+            "queries_only": args.queries_only,
             "document_text": "title + '\\n' + text", "query_prefix": QUERY_PREFIX,
             "documents": len(docs), "queries": len(queries),
             "document_seconds": round(doc_seconds, 1),
