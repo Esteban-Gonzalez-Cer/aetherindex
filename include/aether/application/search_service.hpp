@@ -146,6 +146,9 @@ struct SearchResponse {
     std::size_t filter_matches = 0;
     std::size_t filter_population = 0;
     bool exact_filter = false;
+    // Set when the indexes were opened from a saved snapshot instead of built.
+    bool loaded_index = false;
+    std::chrono::duration<double, std::milli> index_load_time{};
 };
 
 // A malformed or unreadable input file. Presentation layers choose how to report it.
@@ -156,6 +159,10 @@ class InputDataError : public std::runtime_error {
 
 // Throws invalid_argument before file access for an invalid request/configuration.
 void validate_search_request(const SearchRequest& request);
+
+// Validates only the build-time fields (dataset, mode, metric, HNSW, BM25, quantization),
+// for building an index that is queried later. Throws invalid_argument.
+void validate_build_request(const SearchRequest& request);
 
 // Loads, validates and searches within one call. No index or embedding survives the call.
 // File parsing and storage orchestration live here so other interfaces can reuse the flow.

@@ -75,8 +75,8 @@ target_link_libraries(aether_hnsw
 # Component snapshots (vectors, HNSW, BM25, SQ8/PQ codes) as checksummed section files.
 add_library(aether_persistence STATIC src/persistence/snapshot.cpp)
 target_link_libraries(aether_persistence
-    PUBLIC aether_core aether_storage aether_hnsw aether_lexical aether_quantization
-    PRIVATE aether_io
+    PUBLIC aether_core
+    PRIVATE aether_io aether_storage aether_hnsw aether_lexical aether_quantization
 )
 
 add_library(aether_application STATIC
@@ -86,10 +86,12 @@ add_library(aether_application STATIC
     src/application/json_loader.cpp
     src/application/json_value.cpp
     src/application/filter.cpp
+    src/application/collection.cpp
 )
 target_link_libraries(aether_application
     PUBLIC aether_core aether_storage
-    PRIVATE aether_brute_force aether_hnsw aether_lexical aether_hybrid aether_quantization
+    PRIVATE aether_persistence aether_brute_force aether_hnsw aether_lexical aether_hybrid
+            aether_quantization aether_io
 )
 if(MSVC)
     target_compile_options(aether_application PUBLIC /utf-8)

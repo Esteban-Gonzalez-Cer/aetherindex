@@ -3,7 +3,9 @@
 #include <algorithm>
 #include <array>
 #include <charconv>
+#include <chrono>
 #include <exception>
+#include <filesystem>
 #include <iomanip>
 #include <limits>
 #include <locale>
@@ -13,7 +15,10 @@
 #include <string>
 #include <vector>
 
+#include "aether/application/collection.hpp"
+#include "aether/application/json_loader.hpp"
 #include "aether/application/search_service.hpp"
+#include "aether/io/binary_io.hpp"
 #include "cli_parser.hpp"
 
 namespace aetherindex::cli {
@@ -74,6 +79,13 @@ void print_table(std::ostream& output, const Row& headings, const std::vector<Ro
 }
 
 std::string mib(std::size_t bytes) { return number(static_cast<double>(bytes) / 1048576.0, 3); }
+
+// Searches on a saved index report how long opening it took; build times are the saved ones.
+std::string load_line(const SearchResponse& response) {
+    if (!response.loaded_index) return {};
+    return "\nIndex load time (ms): " + number(response.index_load_time.count(), 6) +
+           "\nIndex load time scope: reading and validating the saved index";
+}
 
 // Printed only for quantized searches, so the default reports are unchanged.
 void print_quantization(std::ostream& output, const SearchRequest& request,
@@ -143,7 +155,7 @@ void print_lexical(std::ostream& output, const SearchRequest& request,
         output << "\nQuery ID: " << display_id(response.selected_query_id);
     output << "\nIndex build time (ms): " << number(response.index_build_time.count(), 6)
            << "\nIndex build time scope: lexical indexing (excludes input loading)"
-           << "\nQuery time (ms): " << number(response.query_time.count(), 6)
+           << load_line(response) << "\nQuery time (ms): " << number(response.query_time.count(), 6)
            << "\nQuery time scope: BM25 search only (excludes input loading, index build and "
               "output)\n\n";
     std::vector<Row> rows;
@@ -178,7 +190,7 @@ void print_vector(std::ostream& output, const SearchRequest& request,
         print_quantization(output, request, response);
     }
     print_filter(output, request, response, true);
-    output << "\nQuery time (ms): " << number(response.query_time.count(), 6)
+    output << load_line(response) << "\nQuery time (ms): " << number(response.query_time.count(), 6)
            << "\nQuery time scope: search only (excludes input loading)\n\n";
     // JSONL vectors are stored under their DocumentId; show the source document identity.
     const bool documents = !response.neighbor_source_ids.empty();
@@ -248,7 +260,7 @@ void print_hybrid(std::ostream& output, const SearchRequest& request,
            << "\nIndex build time scope: HNSW graph and BM25 index (excludes input loading)";
     print_quantization(output, request, response);
     print_filter(output, request, response, true);
-    output << "\nQuery time (ms): " << number(response.query_time.count(), 6)
+    output << load_line(response) << "\nQuery time (ms): " << number(response.query_time.count(), 6)
            << "\nQuery time scope: HNSW + BM25 + " << (convex ? "fusion" : "RRF")
            << " (excludes input loading, index builds and output)\n\n";
     std::vector<Row> rows;
@@ -264,6 +276,113 @@ void print_hybrid(std::ostream& output, const SearchRequest& request,
                 rows);
     if (response.lexical_candidates == 0)
         output << "\nNo lexical matches; the fused ranking uses the dense candidates only.\n";
+}
+
+const char* mode_label(SearchMode mode) {
+    return mode == SearchMode::Lexical ? "Lexical" : mode == SearchMode::Hybrid ? "Hybrid" : "Vector";
+}
+
+// Index summary shared by index build, info and verify.
+void print_index(std::ostream& output, const Collection& collection) {
+    const auto& config = collection.configuration();
+    const auto& stats = collection.stats();
+    output << "Search mode: " << mode_label(config.mode);
+    if (config.mode == SearchMode::Vector)
+        output << "\nAlgorithm: "
+               << (config.algorithm == SearchAlgorithm::Hnsw ? "HNSW" : "BruteForce");
+    if (config.mode != SearchMode::Lexical)
+        output << "\nDistance metric: "
+               << (config.metric == DistanceKind::Cosine ? "Cosine" : "SquaredEuclidean")
+               << "\nVectors indexed: " << stats.vectors << "\nDimensions: " << stats.dimension;
+    if (stats.documents) output << "\nDocuments indexed: " << stats.documents;
+    const bool dense = config.mode == SearchMode::Hybrid ||
+                       (config.mode == SearchMode::Vector && config.algorithm == SearchAlgorithm::Hnsw);
+    if (dense) {
+        const auto& hnsw = config.hnsw_config;
+        output << "\nHNSW configuration: M=" << hnsw.m << " M0=" << hnsw.m_max_0
+               << " efConstruction=" << hnsw.ef_construction << " efSearch=" << hnsw.ef_search
+               << " seed=" << hnsw.random_seed;
+    }
+    if (config.mode != SearchMode::Vector) {
+        const auto& bm25 = config.bm25_config;
+        output << "\nBM25 configuration: k1=" << std::setprecision(17) << bm25.k1 << " b=" << bm25.b
+               << " strategy=" << strategy_name(bm25.strategy)
+               << " analyzer=" << lexical::analyzer_name(bm25.analyzer);
+    }
+    if (config.quantization != Quantization::None)
+        output << "\nQuantization: " << (config.quantization == Quantization::Sq8 ? "SQ8" : "PQ")
+               << " (FP32 rows " << (stats.fp32_released ? "released" : "kept") << ")";
+}
+
+int build_index(const CliOptions& options, std::ostream& output) {
+    namespace fs = std::filesystem;
+    std::error_code error;
+    if (fs::exists(options.index_path, error) &&
+        !(fs::is_directory(options.index_path, error) && fs::is_empty(options.index_path, error)))
+        throw std::invalid_argument("--out " + options.index_path.string() +
+                                    " already exists; choose a new or empty directory.");
+    auto collection = Collection::load(options.search);
+    collection->build_indexes();
+    const auto start = std::chrono::steady_clock::now();
+    collection->save(options.index_path);
+    const std::chrono::duration<double, std::milli> save_time =
+        std::chrono::steady_clock::now() - start;
+    const auto reopened = Collection::open(options.index_path, {.verify_checksums = false});
+    const auto& stats = collection->stats();
+    std::ostringstream formatted;
+    formatted.imbue(std::locale::classic());
+    formatted << "AetherIndex Index Build\n\n";
+    print_index(formatted, *collection);
+    if (stats.index_build_time.count() > 0)
+        formatted << "\n" << (collection->configuration().mode == SearchMode::Hybrid ? "Dense index"
+                                                                                    : "Index")
+                  << " build time (ms): " << number(stats.index_build_time.count(), 6);
+    if (stats.lexical_build_time.count() > 0)
+        formatted << "\nLexical index build time (ms): "
+                  << number(stats.lexical_build_time.count(), 6);
+    if (stats.quantization_time.count() > 0)
+        formatted << "\nQuantization time (ms): " << number(stats.quantization_time.count(), 6);
+    formatted << "\nSave time (ms): " << number(save_time.count(), 6)
+              << "\nSnapshot: " << reopened->stats().snapshot_sequence << " ("
+              << mib(reopened->stats().snapshot_bytes) << " MiB)\n\nIndex built successfully.\n";
+    output << formatted.str();
+    return 0;
+}
+
+int index_info(const CliOptions& options, std::ostream& output, bool verify) {
+    const auto collection =
+        Collection::open(options.index_path, {.verify_checksums = verify});
+    std::ostringstream formatted;
+    formatted.imbue(std::locale::classic());
+    formatted << (verify ? "AetherIndex Index Verify\n\n" : "AetherIndex Index Info\n\n");
+    print_index(formatted, *collection);
+    const auto& stats = collection->stats();
+    formatted << "\nSnapshot: " << stats.snapshot_sequence << " (" << mib(stats.snapshot_bytes)
+              << " MiB)\nIndex load time (ms): " << number(stats.load_time.count(), 6) << "\n";
+    if (!verify) {
+        output << formatted.str();
+        return 0;
+    }
+    std::string report;
+    const bool valid = collection->validate(report);
+    formatted << "\n" << report;
+    formatted << (valid ? "\nIndex verified: checksums and structure are valid.\n"
+                        : "\nIndex verification FAILED.\n");
+    output << formatted.str();
+    return valid ? 0 : 3;
+}
+
+// Query options that only some index modes accept, checked once the mode is known.
+void check_index_query_options(const CliOptions& options, const SearchRequest& request) {
+    const auto given = [&](std::string_view name) {
+        return std::find(options.index_query_options.begin(), options.index_query_options.end(),
+                         name) != options.index_query_options.end();
+    };
+    if (request.mode != SearchMode::Hybrid &&
+        (given("--candidate-k") || given("--rrf-k") || given("--rrf-weight") || given("--alpha") ||
+         given("--fusion")))
+        throw std::invalid_argument(
+            "--candidate-k, --fusion, --rrf-k, --rrf-weight and --alpha require a hybrid index.");
 }
 
 }  // namespace
@@ -297,7 +416,46 @@ int run(std::span<const std::string_view> arguments, std::ostream& output, std::
             output << formatted.str();
             return 0;
         }
-        const auto response = SearchService{}.search(options.search);
+        if (options.command == Command::IndexBuild) {
+            try {
+                return build_index(options, output);
+            } catch (const std::invalid_argument& error) {
+                errors << "Error: " << error.what() << "\nUse aetherindex --help for usage.\n";
+                return 2;
+            }
+        }
+        if (options.command == Command::IndexInfo || options.command == Command::IndexVerify)
+            return index_info(options, output, options.command == Command::IndexVerify);
+        SearchResponse response;
+        if (!options.index_path.empty()) {
+            OpenOptions open;
+            open.verify_checksums = options.verify_checksums;
+            const auto given = [&](std::string_view name) {
+                return std::find(options.index_query_options.begin(),
+                                 options.index_query_options.end(),
+                                 name) != options.index_query_options.end();
+            };
+            if (given("--ef-search")) open.ef_search = options.search.hnsw_config.ef_search;
+            if (given("--bm25-strategy")) open.bm25_strategy = options.search.bm25_config.strategy;
+            if (given("--bm25-query-weighting"))
+                open.bm25_query_weighting = options.search.bm25_config.query_weighting;
+            std::unique_ptr<Collection> collection;
+            try {
+                collection = Collection::open(options.index_path, open);
+                options.search = collection->merged_request(options.search);
+                check_index_query_options(options, options.search);
+                validate_search_request(options.search);
+            } catch (const std::invalid_argument& error) {
+                errors << "Error: " << error.what() << "\nUse aetherindex --help for usage.\n";
+                return 2;
+            }
+            auto queries = collection->load_queries(options.search);
+            response = collection->search(options.search, queries);
+            response.loaded_index = true;
+            response.index_load_time = collection->stats().load_time;
+        } else {
+            response = SearchService{}.search(options.search);
+        }
         std::ostringstream formatted;
         formatted.imbue(std::locale::classic());
         formatted << "AetherIndex Search\n\n";
@@ -335,6 +493,8 @@ int run(std::span<const std::string_view> arguments, std::ostream& output, std::
                 view.filter_matches = response.filter_matches;
                 view.filter_population = response.filter_population;
                 view.exact_filter = response.exact_filter;
+                view.loaded_index = response.loaded_index;
+                view.index_load_time = response.index_load_time;
                 formatted << "\n=== Query " << i + 1 << "/" << response.batch.size() << " ===\n";
                 print(view);
             }
@@ -345,6 +505,9 @@ int run(std::span<const std::string_view> arguments, std::ostream& output, std::
         output << formatted.str();
         return 0;
     } catch (const InputDataError& error) {
+        errors << "Error: " << error.what() << '\n';
+        return 3;
+    } catch (const io::IoError& error) {
         errors << "Error: " << error.what() << '\n';
         return 3;
     } catch (const std::exception& error) {

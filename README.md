@@ -104,6 +104,16 @@ Lexical retriever: BM25 (title + text, no field boosts)
 +------+-------------+----------------+------------+--------------+
 ```
 
+Build an index once and query it as often as needed. A saved index answers exactly like a
+one-shot search; on SIFT1M it turns a 37 s rebuild into a 0.35 s load
+([persistence](docs/persistence.md)):
+
+```sh
+./build/release/aetherindex index build --out idx --mode hybrid --dataset datasets/hybrid/corpus.jsonl
+./build/release/aetherindex search --index idx --query datasets/hybrid/queries.jsonl --query-id Q002 --k 5
+./build/release/aetherindex index verify --index idx
+```
+
 `aetherindex --help` lists every option. The most useful ones:
 
 | Option | Purpose |
@@ -117,6 +127,7 @@ Lexical retriever: BM25 (title + text, no field boosts)
 | `--filter F=V`, `--filter-date F=A..B` | Metadata filters |
 | `--all-queries --query-threads N` | Batch mode with one index build |
 | `convert --out FILE.avec` | Convert CSV/JSONL vectors to a memory-mapped binary format |
+| `index build --out DIR`, `search --index DIR` | Save an index once, then search it without rebuilding |
 
 ## Architecture
 
@@ -126,6 +137,9 @@ see the CLI, and the CLI never touches storage.
 ```mermaid
 graph TD
     CLI[aetherindex CLI] --> APP[aether_application<br/>SearchService, loaders, filters]
+    APP --> PERSIST[aether_persistence<br/>snapshots, aether_io]
+    PERSIST --> HNSW
+    PERSIST --> LEX
     APP --> HNSW[aether_hnsw]
     APP --> BF[aether_brute_force]
     APP --> LEX[aether_lexical<br/>tokenizer, inverted index, BM25]
@@ -141,6 +155,7 @@ graph TD
 | Module | Path | What it does |
 |---|---|---|
 | Storage | [`src/storage`](src/storage) | Contiguous, 64-byte-aligned FP32 rows with zero-copy access; memory-mapped `.avec` files |
+| Persistence | [`src/persistence`](src/persistence), [`src/io`](src/io) | Checksummed, crash-safe snapshots of every index; validated before use |
 | Distance | [`src/distance`](src/distance) | Cosine and squared-Euclidean kernels: NEON, AVX2+FMA and a scalar fallback |
 | HNSW | [`src/ann/hnsw`](src/ann/hnsw) | Flat adjacency graph, heuristic neighbor selection (Algorithm 4 of the paper), parallel build |
 | Quantization | [`src/quantization`](src/quantization) | Scalar (SQ8) and product quantization with exact re-ranking |
@@ -213,7 +228,7 @@ not stored in the repository.
 | Milestone | Status |
 |---|---|
 | Objective and scoreboard: every benchmark cell tracked, won or not | Done |
-| Snapshot persistence: save and load indexes with checksums and memory-mapped loading | Planned |
+| Snapshot persistence: crash-safe save and load, checksummed and validated ([design](docs/persistence.md)) | Done |
 | Deletes, updates and compaction, with results bit-identical to a fresh build after compaction | Planned |
 | Concurrent updates: searches keep running while other threads insert and delete | Planned |
 | Write-ahead log: inserts and deletes survive a crash | Planned |
@@ -221,7 +236,6 @@ not stored in the repository.
 
 ## Limitations
 
-- No persistence yet: every run loads the data and rebuilds the indexes.
 - No deletes or concurrent updates yet, and no server mode.
 - The engine does not produce embeddings. The vectors in `datasets/hybrid/` are a
   reproducible lexical hashing, useful for testing but not a semantic model.
@@ -243,6 +257,7 @@ team.
 | [Vector store and distances](docs/algorithms/vector_store_and_distances.md) | Storage layout and kernel contracts |
 | [CLI reference](docs/cli.md) | Every option, input formats and exit codes |
 | [Architecture](docs/architecture/README.md) | Module responsibilities and dependency rules |
+| [Persistence](docs/persistence.md) (English) | Snapshot format, crash safety, validation and load cost |
 
 ## Team
 

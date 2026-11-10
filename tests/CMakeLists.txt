@@ -24,8 +24,7 @@ set_tests_properties(integration.bm25_cli_corpus PROPERTIES TIMEOUT 60 LABELS "a
 
 # CP-04: hybrid HNSW + BM25 + RRF orchestration (DoD level 2 scenarios).
 add_executable(aether_hybrid_retrieval_tests integration/hybrid_retrieval_test.cpp)
-target_link_libraries(aether_hybrid_retrieval_tests PRIVATE aether_application aether_hnsw
-    aether_lexical aether_hybrid)
+target_link_libraries(aether_hybrid_retrieval_tests PRIVATE aether_application aether_hybrid)
 add_test(NAME integration.hybrid_retrieval COMMAND aether_hybrid_retrieval_tests
     "${CMAKE_CURRENT_BINARY_DIR}/hybrid-retrieval/$<CONFIG>")
 set_tests_properties(integration.hybrid_retrieval PROPERTIES TIMEOUT 60 LABELS "hybrid;cp04")
@@ -348,3 +347,13 @@ target_link_libraries(aether_snapshot_tests PRIVATE aether_persistence)
 add_test(NAME unit.snapshot COMMAND aether_snapshot_tests
     "${CMAKE_CURRENT_BINARY_DIR}/snapshot/$<CONFIG>")
 set_tests_properties(unit.snapshot PROPERTIES TIMEOUT 120 LABELS "persistence;snapshot")
+
+# Saved indexes: index build + search --index reproduce every golden output.
+add_test(NAME e2e.cli_index COMMAND "${CMAKE_COMMAND}"
+    "-DCLI_PATH=$<TARGET_FILE:aetherindex>"
+    "-DGENERATOR_PATH=$<TARGET_FILE:aether_cli_fixture_generator>"
+    "-DSOURCE_DIR=${PROJECT_SOURCE_DIR}"
+    "-DGOLDEN_DIR=${CMAKE_CURRENT_SOURCE_DIR}/e2e/golden"
+    "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/index-cli/$<CONFIG>"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_index_test.cmake")
+set_tests_properties(e2e.cli_index PROPERTIES TIMEOUT 300 LABELS "persistence;e2e")

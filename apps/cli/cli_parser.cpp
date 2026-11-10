@@ -1,5 +1,6 @@
 #include "cli_parser.hpp"
 
+#include <algorithm>
 #include <charconv>
 #include <cmath>
 #include <cstdint>
@@ -66,18 +67,32 @@ CliOptions parse_convert(std::span<const std::string_view> arguments) {
     return options;
 }
 
-}  // namespace
+// Who reads the options: a one-shot search, an index build, or a search on a saved index.
+enum class Purpose { Search, Build, IndexQuery };
 
-CliOptions parse_arguments(std::span<const std::string_view> arguments) {
-    CliOptions options;
-    if (arguments.empty() || (arguments.size() == 1 && arguments[0] == "--help")) {
-        options.show_help = true;
-        return options;
-    }
-    if (arguments[0] == "convert") return parse_convert(arguments);
-    if (arguments[0] != "search") {
-        throw std::invalid_argument("Unknown command: " + std::string(arguments[0]) + ".");
-    }
+bool is_query_option(std::string_view name) {
+    for (std::string_view option :
+         {"--query", "--query-text", "--query-id", "--k", "--candidate-k", "--rrf-k", "--rrf-weight",
+          "--alpha", "--fusion", "--all-queries", "--query-threads", "--parallel-retrievers",
+          "--rerank", "--filter", "--filter-date"})
+        if (name == option) return true;
+    return false;
+}
+
+bool is_build_option(std::string_view name) {
+    for (std::string_view option :
+         {"--dataset", "--vectors", "--algorithm", "--mode", "--metric", "--m", "--m0",
+          "--ef-construction", "--seed", "--neighbor-selection", "--bm25-k1", "--bm25-b",
+          "--analyzer", "--quantization", "--pq-subspaces", "--drop-fp32", "--build-threads"})
+        if (name == option) return true;
+    return false;
+}
+
+// Search-style options, from arguments[first] on. Search: dataset + query (the original
+// one-shot command). Build: dataset and build options only. IndexQuery: query options
+// only; the build options come from the saved index.
+CliOptions parse_search(std::span<const std::string_view> arguments, std::size_t first,
+                        Purpose purpose, CliOptions options) {
     bool have_dataset = false;
     bool have_query = false;
     bool have_algorithm = false;
@@ -110,7 +125,9 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
     bool have_analyzer = false;
     bool have_query_weighting = false;
     bool bm25_selected = false;
-    for (std::size_t i = 1; i < arguments.size(); ++i) {
+    bool have_index = false;
+    bool have_out = false;
+    for (std::size_t i = first; i < arguments.size(); ++i) {
         const auto name = arguments[i];
         if (name == "--help") {
             if (options.show_help) {
@@ -119,6 +136,38 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
             options.show_help = true;
             continue;
         }
+        if (purpose == Purpose::Build && is_query_option(name))
+            throw std::invalid_argument(std::string(name) +
+                                        " is a query option; pass it to search --index DIR.");
+        if (purpose == Purpose::IndexQuery && is_build_option(name))
+            throw std::invalid_argument(std::string(name) +
+                                        " is fixed when the index is built (index build).");
+        if (purpose == Purpose::IndexQuery && is_query_option(name))
+            options.index_query_options.emplace_back(name);
+        if (name == "--no-verify") {
+            if (purpose != Purpose::IndexQuery)
+                throw std::invalid_argument("--no-verify requires search --index DIR.");
+            if (!options.verify_checksums)
+                throw std::invalid_argument("Repeated option: --no-verify.");
+            options.verify_checksums = false;
+            continue;
+        }
+        if (name == "--index" || name == "--out") {
+            const bool index = name == "--index";
+            if (index ? purpose != Purpose::IndexQuery : purpose != Purpose::Build)
+                throw std::invalid_argument(std::string(name) + (index ? " requires search." : " requires index build."));
+            bool& seen = index ? have_index : have_out;
+            if (seen) throw std::invalid_argument("Repeated option: " + std::string(name) + ".");
+            seen = true;
+            if (i + 1 == arguments.size() || arguments[i + 1].empty() ||
+                arguments[i + 1].starts_with("--"))
+                throw std::invalid_argument("Missing value for " + std::string(name) + ".");
+            options.index_path = std::string(arguments[++i]);
+            continue;
+        }
+        if (purpose == Purpose::IndexQuery &&
+            (name == "--ef-search" || name == "--bm25-strategy" || name == "--bm25-query-weighting"))
+            options.index_query_options.emplace_back(name);
         // Valueless switches.
         if (name == "--all-queries" || name == "--parallel-retrievers" || name == "--drop-fp32") {
             bool& flag = name == "--all-queries"           ? options.search.all_queries
@@ -340,13 +389,33 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
                 config.ef_search = parameter;
         }
     }
-    if (!options.show_help) {
-        if (!have_dataset) {
-            throw std::invalid_argument("Missing required option: --dataset.");
-        }
-        if (!have_query && !have_query_text) {
-            throw std::invalid_argument("Missing required option: --query.");
-        }
+    if (options.show_help) return options;
+    if (purpose == Purpose::Build && !have_out)
+        throw std::invalid_argument("Missing required option: --out DIR.");
+    if (purpose != Purpose::IndexQuery && !have_dataset) {
+        throw std::invalid_argument("Missing required option: --dataset.");
+    }
+    if (purpose != Purpose::Build && !have_query && !have_query_text) {
+        throw std::invalid_argument("Missing required option: --query.");
+    }
+    if (purpose == Purpose::IndexQuery) {
+        if (have_alpha && (have_rrf_k || have_rrf_weight))
+            throw std::invalid_argument(
+                "--alpha selects convex fusion; it cannot be combined with --rrf-k or "
+                "--rrf-weight.");
+        const bool rrf_options = have_rrf_k || have_rrf_weight;
+        if (have_fusion && fusion_choice == hybrid::FusionMethod::Rrf && have_alpha)
+            throw std::invalid_argument("--alpha requires --fusion convex.");
+        if (have_fusion && fusion_choice == hybrid::FusionMethod::Convex && rrf_options)
+            throw std::invalid_argument("--rrf-k and --rrf-weight require --fusion rrf.");
+        if (have_fusion || rrf_options)
+            options.search.rrf_config.method =
+                rrf_options ? hybrid::FusionMethod::Rrf : fusion_choice;
+        if (have_query_threads && !options.search.all_queries)
+            throw std::invalid_argument("--query-threads requires --all-queries.");
+        return options;
+    }
+    {
         const auto mode = options.search.mode;
         if (!have_mode && bm25_selected) options.search.mode = SearchMode::Lexical;
         if (options.search.mode == SearchMode::Vector && !have_algorithm) {
@@ -401,9 +470,71 @@ CliOptions parse_arguments(std::span<const std::string_view> arguments) {
         }
         if (have_query_threads && !options.search.all_queries)
             throw std::invalid_argument("--query-threads requires --all-queries.");
-        validate_search_request(options.search);
+        if (purpose == Purpose::Build)
+            validate_build_request(options.search);
+        else
+            validate_search_request(options.search);
     }
     return options;
+}
+
+CliOptions parse_index(std::span<const std::string_view> arguments) {
+    CliOptions options;
+    if (arguments.size() < 2)
+        throw std::invalid_argument("Missing index command: use index build, info or verify.");
+    if (arguments[1] == "--help") {
+        options.show_help = true;
+        return options;
+    }
+    const auto sub = arguments[1];
+    if (sub == "build") {
+        options.command = Command::IndexBuild;
+        return parse_search(arguments, 2, Purpose::Build, std::move(options));
+    }
+    if (sub != "info" && sub != "verify")
+        throw std::invalid_argument("Unknown index command: " + std::string(sub) +
+                                    ". Use build, info or verify.");
+    options.command = sub == "info" ? Command::IndexInfo : Command::IndexVerify;
+    bool have_index = false;
+    for (std::size_t i = 2; i < arguments.size(); ++i) {
+        if (arguments[i] == "--help") {
+            options.show_help = true;
+            continue;
+        }
+        if (arguments[i] != "--index")
+            throw std::invalid_argument("Unknown option: " + std::string(arguments[i]) + ".");
+        if (have_index) throw std::invalid_argument("Repeated option: --index.");
+        if (i + 1 == arguments.size() || arguments[i + 1].empty() ||
+            arguments[i + 1].starts_with("--"))
+            throw std::invalid_argument("Missing value for --index.");
+        have_index = true;
+        options.index_path = std::string(arguments[++i]);
+    }
+    if (!options.show_help && !have_index)
+        throw std::invalid_argument("Missing required option: --index DIR.");
+    return options;
+}
+
+}  // namespace
+
+CliOptions parse_arguments(std::span<const std::string_view> arguments) {
+    CliOptions options;
+    if (arguments.empty() || (arguments.size() == 1 && arguments[0] == "--help")) {
+        options.show_help = true;
+        return options;
+    }
+    if (arguments[0] == "convert") {
+        options = parse_convert(arguments);
+        options.command = Command::Convert;
+        return options;
+    }
+    if (arguments[0] == "index") return parse_index(arguments);
+    if (arguments[0] != "search") {
+        throw std::invalid_argument("Unknown command: " + std::string(arguments[0]) + ".");
+    }
+    const bool on_index = std::find(arguments.begin(), arguments.end(), "--index") != arguments.end();
+    return parse_search(arguments, 1, on_index ? Purpose::IndexQuery : Purpose::Search,
+                        std::move(options));
 }
 
 std::string_view help_text() {
@@ -417,7 +548,21 @@ std::string_view help_text() {
            "[options]\n"
            "  aetherindex convert --dataset FILE.(csv|jsonl) --out FILE.avec "
            "[--documents-out FILE.jsonl]\n"
+           "  aetherindex index build --out DIR --dataset FILE [build options]\n"
+           "  aetherindex search --index DIR --query FILE [query options]\n"
+           "  aetherindex index info|verify --index DIR\n"
            "  aetherindex --help\n\n"
+           "Saved indexes:\n"
+           "  index build --out DIR  Build once and save to a new or empty DIR. Takes the\n"
+           "                       dataset and build options (--mode, --algorithm, --metric,\n"
+           "                       HNSW, BM25, --quantization, --vectors, --build-threads).\n"
+           "  search --index DIR   Search a saved index. Takes query options only (--query,\n"
+           "                       --k, fusion, filters, --rerank, batching); --ef-search,\n"
+           "                       --bm25-strategy (compressed strategies) and\n"
+           "                       --bm25-query-weighting override the saved defaults.\n"
+           "  --no-verify          search --index: skip payload checksums while loading\n"
+           "  index info           Summarize a saved index\n"
+           "  index verify         Check every checksum and the graph structure\n\n"
            "Options:\n"
            "  --dataset FILE       Required: vector CSV/JSONL, or document JSONL for BM25\n"
            "  --query FILE         Query CSV (vector) or JSONL (either mode)\n"
@@ -488,14 +633,15 @@ std::string_view help_text() {
            "HNSW graph construction is reported separately and excluded from query time.\n"
            "HNSW uses max(efSearch,k), capped by index size; sparse graphs may return fewer "
            "neighbors.\n"
-           "HNSW options require --algorithm hnsw or --mode hybrid; the graph is rebuilt in each "
-           "execution.\n"
+           "HNSW options require --algorithm hnsw or --mode hybrid; search without --index\n"
+           "rebuilds the graph in each execution.\n"
            "Hybrid needs JSONL documents with text and embeddings, and one JSONL query with\n"
            "query_text and embedding. HNSW and BM25 rankings share DocumentIds and are fused\n"
            "by default as 0.65 * dense + 0.35 * BM25 of min-max normalized candidate scores\n"
            "(dense score = 1 - distance); --fusion rrf uses score = sum 1/(k_rrf + rank),\n"
            "ranks from 1. Ties go by DocumentId.\n"
-           "Data is loaded and searched in one execution. There is no persistence.\n"
+           "Without --index, data is loaded, indexed and searched in one execution; use\n"
+           "index build once and search --index to reuse an index across executions.\n"
            "Binary .avec embeddings (from convert) load without text parsing: use them as\n"
            "--dataset in vector mode or as --vectors with JSONL documents in hybrid mode.\n\n"
            "Exit codes: 0 success/help, 2 arguments, 3 input data, 4 "
