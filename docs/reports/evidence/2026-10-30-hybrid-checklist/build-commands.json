@@ -1,0 +1,42 @@
+[
+  {
+    "id": "00-configure",
+    "command": [
+      "cmake",
+      "-S",
+      ".",
+      "-B",
+      "build-testing-hybrid-2026-10-30",
+      "-G",
+      "Ninja",
+      "-DCMAKE_BUILD_TYPE=Debug",
+      "-DCMAKE_OSX_SYSROOT=macosx",
+      "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+      "-DBUILD_TESTING=ON",
+      "-DAETHER_BUILD_BENCHMARKS=OFF",
+      "-DAETHER_BUILD_MARKET_BENCH=OFF"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 0.6879412499256432,
+    "stdout": "00-configure.stdout.log",
+    "stderr": "00-configure.stderr.log"
+  },
+  {
+    "id": "00-build",
+    "command": [
+      "cmake",
+      "--build",
+      "build-testing-hybrid-2026-10-30",
+      "--target",
+      "aetherindex",
+      "aether_hybrid_retrieval_tests",
+      "aether_cli_parser_tests",
+      "--parallel",
+      "4"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 3.2164064161479473,
+    "stdout": "00-build.stdout.log",
+    "stderr": "00-build.stderr.log"
+  }
+]

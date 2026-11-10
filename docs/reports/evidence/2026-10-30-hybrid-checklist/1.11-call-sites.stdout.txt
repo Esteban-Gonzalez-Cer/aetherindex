@@ -1,0 +1,13 @@
+CMakeLists.txt:76:add_library(aether_cli STATIC apps/cli/cli_parser.cpp apps/cli/cli_runner.cpp)
+CMakeLists.txt:78:target_link_libraries(aether_cli PUBLIC aether_application)
+src/application/search_service.cpp:179:            const auto ranked = filter ? engine.search(index, query.text, request.k, filter->filter)
+src/application/search_service.cpp:180:                                       : engine.search(index, query.text, request.k);
+src/application/search_service.cpp:302:                engine.search(dense_index, binding, lexical_index, fusion, hybrid_query);
+src/application/search_service.cpp:377:                    index ? engine.search(*index, query.vector, request.k, filter->filter,
+src/application/search_service.cpp:379:                          : engine.search(*store, query.vector, request.k, filter->filter);
+src/application/search_service.cpp:382:                                    ? engine.search(*index, *codes, query.vector, request.k, rerank)
+src/application/search_service.cpp:383:                                : index ? engine.search(*index, query.vector, request.k)
+src/application/search_service.cpp:384:                                        : engine.search(*store, query.vector, request.k);
+src/application/search_service.cpp:503:SearchResponse SearchService::search(const SearchRequest& request) const {
+src/application/query_engine.cpp:105:    rankings.fused = fusion.fuse_scored(dense_scored, rankings.lexical, query.k);
+apps/cli/cli_runner.cpp:300:        const auto response = SearchService{}.search(options.search);

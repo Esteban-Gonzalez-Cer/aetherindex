@@ -1,0 +1,2 @@
+Error: Missing required option: --dataset.
+Use aetherindex --help for usage.

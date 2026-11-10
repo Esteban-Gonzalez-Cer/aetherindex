@@ -42,6 +42,10 @@ endif()
 add_executable(aether_hnsw_parameter_sweep hnsw_parameter_sweep.cpp)
 target_link_libraries(aether_hnsw_parameter_sweep PRIVATE aether_hnsw aether_brute_force)
 
+# OKR 3 (KR3.4, KR3.5, KR3.6): SIMD vs scalar distance kernels. Release only.
+add_executable(aether_distance_kernel_benchmark distance_kernel_benchmark.cpp)
+target_link_libraries(aether_distance_kernel_benchmark PRIVATE aether_distance)
+
 # Optimization roadmap: baseline and before/after measurements (Release only).
 add_executable(aether_optimization_suite optimization_suite.cpp)
 target_include_directories(aether_optimization_suite PRIVATE "${PROJECT_SOURCE_DIR}/src/application")

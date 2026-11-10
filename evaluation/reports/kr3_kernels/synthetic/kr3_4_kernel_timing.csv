@@ -1,0 +1,21 @@
+dataset,metric,dimension,variant,backend,rows,repetitions,executions,mean_ns,median_ns,p95_ns,min_ns,max_ns,stddev_ns
+synthetic-gaussian,cosine,100,scalar,Scalar FP32 (sequential),10000,50,500000,55.881744,56.5229,65.3583,49.9833,84.1708,6.23579553
+synthetic-gaussian,cosine,100,simd,NEON/FMA FP32,10000,50,500000,6.544252,6.07085,8.2917,5.2292,35.9542,4.26767481
+synthetic-gaussian,squared_euclidean,100,scalar,Scalar FP32 (sequential),10000,50,500000,59.74125,60.2271,65.2041,52.4125,71.4833,3.24992995
+synthetic-gaussian,squared_euclidean,100,simd,NEON/FMA FP32,10000,50,500000,6.392838,6.4229,6.95,5.6333,7.1208,0.32695282
+synthetic-gaussian,cosine,128,scalar,Scalar FP32 (sequential),10000,50,500000,68.564088,69.0292,73.4083,60.4958,77.6542,3.26662157
+synthetic-gaussian,cosine,128,simd,NEON/FMA FP32,10000,50,500000,6.898424,6.9354,7.5417,6.0916,7.9209,0.379108594
+synthetic-gaussian,squared_euclidean,128,scalar,Scalar FP32 (sequential),10000,50,500000,68.839506,69.9854,77.4709,61.7416,82.0125,5.26348291
+synthetic-gaussian,squared_euclidean,128,simd,NEON/FMA FP32,10000,50,500000,7.343922,7.375,8.1875,6.2541,12.8334,0.976220726
+synthetic-gaussian,cosine,384,scalar,Scalar FP32 (sequential),10000,50,500000,249.015912,249.76245,273.2,224.4708,278.1125,15.9169114
+synthetic-gaussian,cosine,384,simd,NEON/FMA FP32,10000,50,500000,22.305744,21.9229,25.8542,19.5917,30.2625,2.11137424
+synthetic-gaussian,squared_euclidean,384,scalar,Scalar FP32 (sequential),10000,50,500000,263.958248,268.30835,278.1375,234.2416,293.2417,13.1318434
+synthetic-gaussian,squared_euclidean,384,simd,NEON/FMA FP32,10000,50,500000,21.832842,22.11665,23.8917,18.7167,26.5125,1.4746349
+synthetic-gaussian,cosine,768,scalar,Scalar FP32 (sequential),10000,50,500000,572.085918,571.1354,611.875,514.7417,654.6083,28.6684431
+synthetic-gaussian,cosine,768,simd,NEON/FMA FP32,10000,50,500000,51.590748,49.09375,72.1,40.0792,85.3958,9.8690688
+synthetic-gaussian,squared_euclidean,768,scalar,Scalar FP32 (sequential),10000,50,500000,584.602494,587.54585,620.5833,534,633.8708,26.1388403
+synthetic-gaussian,squared_euclidean,768,simd,NEON/FMA FP32,10000,50,500000,50.046246,47.0146,65.5875,40.8833,75.15,7.56690737
+synthetic-gaussian,cosine,1024,scalar,Scalar FP32 (sequential),10000,50,500000,800.955666,803.0354,848.8542,709.9417,871.5875,34.7187977
+synthetic-gaussian,cosine,1024,simd,NEON/FMA FP32,10000,50,500000,66.25574,62.3354,84.0667,55.2583,110.7375,10.5070933
+synthetic-gaussian,squared_euclidean,1024,scalar,Scalar FP32 (sequential),10000,50,500000,840.500666,843.56875,885.4375,784.925,898.9083,26.9707594
+synthetic-gaussian,squared_euclidean,1024,simd,NEON/FMA FP32,10000,50,500000,64.977086,60.81465,84.0958,56.1459,109.2917,10.5156862

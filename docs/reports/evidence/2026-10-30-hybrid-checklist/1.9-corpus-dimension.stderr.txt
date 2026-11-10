@@ -1,0 +1,1 @@
+Error: docs/reports/evidence/2026-10-30-hybrid-checklist/fixtures/wrong-corpus-dimension.jsonl:document 'D002': invalid vector dimension or embedding.

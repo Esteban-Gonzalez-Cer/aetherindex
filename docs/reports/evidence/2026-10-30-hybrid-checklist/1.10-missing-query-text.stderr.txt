@@ -1,0 +1,1 @@
+Error: docs/reports/evidence/2026-10-30-hybrid-checklist/fixtures/missing-query-text.jsonl: hybrid search requires 'query_text', 'query' or 'text' (query Q001).

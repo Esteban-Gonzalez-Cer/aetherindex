@@ -1,0 +1,12 @@
+Working directory: <repo>
+Command: <repo>/build-testing-hybrid-2026-10-30/hybrid_checklist_probe bindings
+Started UTC: 2026-10-30T16:33:43.820536+00:00
+Expected exit: 0
+Actual exit: 0
+Test verdict: PASS
+
+--- stdout ---
+{"check":"1.5","passed":true,"corpus_documents":4,"dense_vectors":4,"explicit_bindings":[[9010,101],[7000,102],[42,103],[11,104]],"fused_document_ids":[102,101,104,103],"missing_binding_rejected":true,"non_injective_binding_rejected":true}
+
+--- stderr ---
+(empty)

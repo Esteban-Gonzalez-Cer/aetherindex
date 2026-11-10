@@ -1,0 +1,1 @@
+Error: docs/reports/evidence/2026-10-30-hybrid-checklist/fixtures/missing-query-embedding.jsonl: query dimension mismatch or missing embedding.

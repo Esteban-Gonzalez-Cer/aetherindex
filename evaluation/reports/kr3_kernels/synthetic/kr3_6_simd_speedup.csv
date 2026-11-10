@@ -1,0 +1,11 @@
+dataset,metric,dimension,scalar_mean_ns,simd_mean_ns,scalar_median_ns,simd_median_ns,mean_reduction_pct,speedup,meets_kr3_6
+synthetic-gaussian,cosine,100,55.881744,6.544252,56.5229,6.07085,88.2891057,8.53905748,true
+synthetic-gaussian,squared_euclidean,100,59.74125,6.392838,60.2271,6.4229,89.2991225,9.34502798,true
+synthetic-gaussian,cosine,128,68.564088,6.898424,69.0292,6.9354,89.9387213,9.93909449,true
+synthetic-gaussian,squared_euclidean,128,68.839506,7.343922,69.9854,7.375,89.3318206,9.37367064,true
+synthetic-gaussian,cosine,384,249.015912,22.305744,249.76245,21.9229,91.0424423,11.1637573,true
+synthetic-gaussian,squared_euclidean,384,263.958248,21.832842,268.30835,22.11665,91.728676,12.0899628,true
+synthetic-gaussian,cosine,768,572.085918,51.590748,571.1354,49.09375,90.981993,11.0889247,true
+synthetic-gaussian,squared_euclidean,768,584.602494,50.046246,587.54585,47.0146,91.4392692,11.6812457,true
+synthetic-gaussian,cosine,1024,800.955666,66.25574,803.0354,62.3354,91.7279142,12.0888494,true
+synthetic-gaussian,squared_euclidean,1024,840.500666,64.977086,843.56875,60.81465,92.2692404,12.9353395,true

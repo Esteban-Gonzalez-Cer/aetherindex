@@ -1,0 +1,402 @@
+ M apps/cli/cli_parser.cpp
+ M apps/cli/cli_runner.cpp
+ M benchmarks/market/README.md
+ M benchmarks/market/embed_beir.py
+ M benchmarks/market/fuse_rrf.py
+ M benchmarks/market/ir_compare.cpp
+ M benchmarks/market/prepare_beir.py
+ M benchmarks/market/run_market_campaign.py
+ M docs/cli.md
+ M docs/reports/MARKET_COMPARISON.md
+R  evaluation/reports/market/ann/glove-100.csv -> evaluation/reports/market/ann-pass1/glove-100.csv
+R  evaluation/reports/market/ann/glove-100_build1.csv -> evaluation/reports/market/ann-pass1/glove-100_build1.csv
+R  evaluation/reports/market/ann/glove-100_latency.csv -> evaluation/reports/market/ann-pass1/glove-100_latency.csv
+R  evaluation/reports/market/ann/sift1m.csv -> evaluation/reports/market/ann-pass1/sift1m.csv
+R  evaluation/reports/market/ann/sift1m_build1.csv -> evaluation/reports/market/ann-pass1/sift1m_build1.csv
+R  evaluation/reports/market/ann/sift1m_latency.csv -> evaluation/reports/market/ann-pass1/sift1m_latency.csv
+ M evaluation/reports/market/ann_targets.csv
+R  evaluation/reports/market/beir-ann/beir_ann.csv -> evaluation/reports/market/beir-ann-pass1/beir_ann.csv
+ M evaluation/reports/market/beir/arguana/aether-bm25-ascii.json
+ M evaluation/reports/market/beir/arguana/aether-bm25-ascii_latency.csv
+ M evaluation/reports/market/beir/arguana/aether-bm25-english-exhaustive.json
+ M evaluation/reports/market/beir/arguana/aether-bm25-english-exhaustive_latency.csv
+ M evaluation/reports/market/beir/arguana/aether-bm25-english-freq-exhaustive.json
+ M evaluation/reports/market/beir/arguana/aether-bm25-english-freq-exhaustive_latency.csv
+ M evaluation/reports/market/beir/arguana/aether-bm25-english-freq-k1.2.json
+ M evaluation/reports/market/beir/arguana/aether-bm25-english-freq-k1.2_latency.csv
+ M evaluation/reports/market/beir/arguana/aether-bm25-english-freq-maxscore.json
+ M evaluation/reports/market/beir/arguana/aether-bm25-english-freq-maxscore_latency.csv
+ M evaluation/reports/market/beir/arguana/aether-bm25-english-freq.json
+ M evaluation/reports/market/beir/arguana/aether-bm25-english-freq_latency.csv
+ M evaluation/reports/market/beir/arguana/aether-bm25-english-k1.2.json
+ M evaluation/reports/market/beir/arguana/aether-bm25-english-k1.2_latency.csv
+ M evaluation/reports/market/beir/arguana/aether-bm25-english-maxscore.json
+ M evaluation/reports/market/beir/arguana/aether-bm25-english-maxscore_latency.csv
+ M evaluation/reports/market/beir/arguana/aether-bm25-english.json
+ M evaluation/reports/market/beir/arguana/aether-bm25-english_latency.csv
+ M evaluation/reports/market/beir/fiqa/aether-bm25-ascii.json
+ M evaluation/reports/market/beir/fiqa/aether-bm25-ascii_latency.csv
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english-exhaustive.json
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english-exhaustive_latency.csv
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english-freq-exhaustive.json
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english-freq-exhaustive_latency.csv
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english-freq-k1.2.json
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english-freq-k1.2_latency.csv
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english-freq-maxscore.json
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english-freq-maxscore_latency.csv
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english-freq.json
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english-freq_latency.csv
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english-k1.2.json
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english-k1.2_latency.csv
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english-maxscore.json
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english-maxscore_latency.csv
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english.json
+ M evaluation/reports/market/beir/fiqa/aether-bm25-english_latency.csv
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-ascii.json
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-ascii_latency.csv
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english-exhaustive.json
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english-exhaustive_latency.csv
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english-freq-exhaustive.json
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english-freq-exhaustive_latency.csv
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english-freq-k1.2.json
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english-freq-k1.2_latency.csv
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english-freq-maxscore.json
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english-freq-maxscore_latency.csv
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english-freq.json
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english-freq_latency.csv
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english-k1.2.json
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english-k1.2_latency.csv
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english-maxscore.json
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english-maxscore_latency.csv
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english.json
+ M evaluation/reports/market/beir/nfcorpus/aether-bm25-english_latency.csv
+ M evaluation/reports/market/beir/quora/aether-bm25-ascii.json
+ M evaluation/reports/market/beir/quora/aether-bm25-ascii_latency.csv
+ M evaluation/reports/market/beir/quora/aether-bm25-english-exhaustive.json
+ M evaluation/reports/market/beir/quora/aether-bm25-english-exhaustive_latency.csv
+ M evaluation/reports/market/beir/quora/aether-bm25-english-freq-exhaustive.json
+ M evaluation/reports/market/beir/quora/aether-bm25-english-freq-exhaustive_latency.csv
+ M evaluation/reports/market/beir/quora/aether-bm25-english-freq-k1.2.json
+ M evaluation/reports/market/beir/quora/aether-bm25-english-freq-k1.2_latency.csv
+ M evaluation/reports/market/beir/quora/aether-bm25-english-freq-maxscore.json
+ M evaluation/reports/market/beir/quora/aether-bm25-english-freq-maxscore_latency.csv
+ M evaluation/reports/market/beir/quora/aether-bm25-english-freq.json
+ M evaluation/reports/market/beir/quora/aether-bm25-english-freq_latency.csv
+ M evaluation/reports/market/beir/quora/aether-bm25-english-k1.2.json
+ M evaluation/reports/market/beir/quora/aether-bm25-english-k1.2_latency.csv
+ M evaluation/reports/market/beir/quora/aether-bm25-english-maxscore.json
+ M evaluation/reports/market/beir/quora/aether-bm25-english-maxscore_latency.csv
+ M evaluation/reports/market/beir/quora/aether-bm25-english.json
+ M evaluation/reports/market/beir/quora/aether-bm25-english_latency.csv
+ M evaluation/reports/market/beir/scifact/aether-bm25-ascii.json
+ M evaluation/reports/market/beir/scifact/aether-bm25-ascii_latency.csv
+ M evaluation/reports/market/beir/scifact/aether-bm25-english-exhaustive.json
+ M evaluation/reports/market/beir/scifact/aether-bm25-english-exhaustive_latency.csv
+ M evaluation/reports/market/beir/scifact/aether-bm25-english-freq-exhaustive.json
+ M evaluation/reports/market/beir/scifact/aether-bm25-english-freq-exhaustive_latency.csv
+ M evaluation/reports/market/beir/scifact/aether-bm25-english-freq-k1.2.json
+ M evaluation/reports/market/beir/scifact/aether-bm25-english-freq-k1.2_latency.csv
+ M evaluation/reports/market/beir/scifact/aether-bm25-english-freq-maxscore.json
+ M evaluation/reports/market/beir/scifact/aether-bm25-english-freq-maxscore_latency.csv
+ M evaluation/reports/market/beir/scifact/aether-bm25-english-freq.json
+ M evaluation/reports/market/beir/scifact/aether-bm25-english-freq_latency.csv
+ M evaluation/reports/market/beir/scifact/aether-bm25-english-k1.2.json
+ M evaluation/reports/market/beir/scifact/aether-bm25-english-k1.2_latency.csv
+ M evaluation/reports/market/beir/scifact/aether-bm25-english-maxscore.json
+ M evaluation/reports/market/beir/scifact/aether-bm25-english-maxscore_latency.csv
+ M evaluation/reports/market/beir/scifact/aether-bm25-english.json
+ M evaluation/reports/market/beir/scifact/aether-bm25-english_latency.csv
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-ascii.json
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-ascii_latency.csv
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english-exhaustive.json
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english-exhaustive_latency.csv
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english-freq-exhaustive.json
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english-freq-exhaustive_latency.csv
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english-freq-k1.2.json
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english-freq-k1.2_latency.csv
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english-freq-maxscore.json
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english-freq-maxscore_latency.csv
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english-freq.json
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english-freq_latency.csv
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english-k1.2.json
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english-k1.2_latency.csv
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english-maxscore.json
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english-maxscore_latency.csv
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english.json
+ M evaluation/reports/market/beir/trec-covid/aether-bm25-english_latency.csv
+ M evaluation/reports/market/campaign.log
+ M evaluation/reports/market/done.txt
+ M evaluation/reports/market/logs/ann_glove-100_aether-hnsw_M16_efc100.log
+ M evaluation/reports/market/logs/ann_glove-100_aether-hnsw_M16_efc200.log
+ M evaluation/reports/market/logs/ann_glove-100_aether-hnsw_M32_efc100.log
+ M evaluation/reports/market/logs/ann_glove-100_aether-hnsw_M32_efc200.log
+ M evaluation/reports/market/logs/ann_glove-100_aether-pq_M16_efc200.log
+ M evaluation/reports/market/logs/ann_glove-100_aether-sq8-lean_M16_efc200.log
+ M evaluation/reports/market/logs/ann_glove-100_aether-sq8_M16_efc200.log
+ M evaluation/reports/market/logs/ann_glove-100_faiss-flat.log
+ M evaluation/reports/market/logs/ann_glove-100_faiss-hnsw-sq8_M16_efc200.log
+ M evaluation/reports/market/logs/ann_glove-100_faiss-hnsw_M16_efc100.log
+ M evaluation/reports/market/logs/ann_glove-100_faiss-hnsw_M16_efc200.log
+ M evaluation/reports/market/logs/ann_glove-100_faiss-hnsw_M32_efc100.log
+ M evaluation/reports/market/logs/ann_glove-100_faiss-hnsw_M32_efc200.log
+ M evaluation/reports/market/logs/ann_glove-100_faiss-ivfpq-refine.log
+ M evaluation/reports/market/logs/ann_glove-100_hnswlib-fastmath_M16_efc100.log
+ M evaluation/reports/market/logs/ann_glove-100_hnswlib-fastmath_M16_efc200.log
+ M evaluation/reports/market/logs/ann_glove-100_hnswlib-fastmath_M32_efc100.log
+ M evaluation/reports/market/logs/ann_glove-100_hnswlib-fastmath_M32_efc200.log
+ M evaluation/reports/market/logs/ann_glove-100_hnswlib_M16_efc100.log
+ M evaluation/reports/market/logs/ann_glove-100_hnswlib_M16_efc200.log
+ M evaluation/reports/market/logs/ann_glove-100_hnswlib_M32_efc100.log
+ M evaluation/reports/market/logs/ann_glove-100_hnswlib_M32_efc200.log
+ M evaluation/reports/market/logs/ann_sift1m_aether-hnsw_M16_efc100.log
+ M evaluation/reports/market/logs/ann_sift1m_aether-hnsw_M16_efc200.log
+ M evaluation/reports/market/logs/ann_sift1m_aether-hnsw_M32_efc100.log
+ M evaluation/reports/market/logs/ann_sift1m_aether-hnsw_M32_efc200.log
+ M evaluation/reports/market/logs/ann_sift1m_aether-pq_M16_efc200.log
+ M evaluation/reports/market/logs/ann_sift1m_aether-sq8-lean_M16_efc200.log
+ M evaluation/reports/market/logs/ann_sift1m_aether-sq8_M16_efc200.log
+ M evaluation/reports/market/logs/ann_sift1m_faiss-flat.log
+ M evaluation/reports/market/logs/ann_sift1m_faiss-hnsw-sq8_M16_efc200.log
+ M evaluation/reports/market/logs/ann_sift1m_faiss-hnsw_M16_efc100.log
+ M evaluation/reports/market/logs/ann_sift1m_faiss-hnsw_M16_efc200.log
+ M evaluation/reports/market/logs/ann_sift1m_faiss-hnsw_M32_efc100.log
+ M evaluation/reports/market/logs/ann_sift1m_faiss-hnsw_M32_efc200.log
+ M evaluation/reports/market/logs/ann_sift1m_faiss-ivfpq-refine.log
+ M evaluation/reports/market/logs/ann_sift1m_hnswlib-fastmath_M16_efc100.log
+ M evaluation/reports/market/logs/ann_sift1m_hnswlib-fastmath_M16_efc200.log
+ M evaluation/reports/market/logs/ann_sift1m_hnswlib-fastmath_M32_efc100.log
+ M evaluation/reports/market/logs/ann_sift1m_hnswlib-fastmath_M32_efc200.log
+ M evaluation/reports/market/logs/ann_sift1m_hnswlib_M16_efc100.log
+ M evaluation/reports/market/logs/ann_sift1m_hnswlib_M16_efc200.log
+ M evaluation/reports/market/logs/ann_sift1m_hnswlib_M32_efc100.log
+ M evaluation/reports/market/logs/ann_sift1m_hnswlib_M32_efc200.log
+ M evaluation/reports/market/logs/beir-ann_arguana_aether-hnsw.log
+ M evaluation/reports/market/logs/beir-ann_arguana_faiss-hnsw.log
+ M evaluation/reports/market/logs/beir-ann_arguana_hnswlib.log
+ M evaluation/reports/market/logs/beir-ann_fiqa_aether-hnsw.log
+ M evaluation/reports/market/logs/beir-ann_fiqa_faiss-hnsw.log
+ M evaluation/reports/market/logs/beir-ann_fiqa_hnswlib.log
+ M evaluation/reports/market/logs/beir-ann_nfcorpus_aether-hnsw.log
+ M evaluation/reports/market/logs/beir-ann_nfcorpus_faiss-hnsw.log
+ M evaluation/reports/market/logs/beir-ann_nfcorpus_hnswlib.log
+ M evaluation/reports/market/logs/beir-ann_quora_aether-hnsw.log
+ M evaluation/reports/market/logs/beir-ann_quora_faiss-hnsw.log
+ M evaluation/reports/market/logs/beir-ann_quora_hnswlib.log
+ M evaluation/reports/market/logs/beir-ann_scifact_aether-hnsw.log
+ M evaluation/reports/market/logs/beir-ann_scifact_faiss-hnsw.log
+ M evaluation/reports/market/logs/beir-ann_scifact_hnswlib.log
+ M evaluation/reports/market/logs/beir-ann_trec-covid_aether-hnsw.log
+ M evaluation/reports/market/logs/beir-ann_trec-covid_faiss-hnsw.log
+ M evaluation/reports/market/logs/beir-ann_trec-covid_hnswlib.log
+ M evaluation/reports/market/logs/beir_arguana_aether-bm25-ascii.log
+ M evaluation/reports/market/logs/beir_arguana_aether-bm25-english-exhaustive.log
+ M evaluation/reports/market/logs/beir_arguana_aether-bm25-english-freq-exhaustive.log
+ M evaluation/reports/market/logs/beir_arguana_aether-bm25-english-freq-k1.2.log
+ M evaluation/reports/market/logs/beir_arguana_aether-bm25-english-freq-maxscore.log
+ M evaluation/reports/market/logs/beir_arguana_aether-bm25-english-freq.log
+ M evaluation/reports/market/logs/beir_arguana_aether-bm25-english-k1.2.log
+ M evaluation/reports/market/logs/beir_arguana_aether-bm25-english-maxscore.log
+ M evaluation/reports/market/logs/beir_arguana_aether-bm25-english.log
+ M evaluation/reports/market/logs/beir_fiqa_aether-bm25-ascii.log
+ M evaluation/reports/market/logs/beir_fiqa_aether-bm25-english-exhaustive.log
+ M evaluation/reports/market/logs/beir_fiqa_aether-bm25-english-freq-exhaustive.log
+ M evaluation/reports/market/logs/beir_fiqa_aether-bm25-english-freq-k1.2.log
+ M evaluation/reports/market/logs/beir_fiqa_aether-bm25-english-freq-maxscore.log
+ M evaluation/reports/market/logs/beir_fiqa_aether-bm25-english-freq.log
+ M evaluation/reports/market/logs/beir_fiqa_aether-bm25-english-k1.2.log
+ M evaluation/reports/market/logs/beir_fiqa_aether-bm25-english-maxscore.log
+ M evaluation/reports/market/logs/beir_fiqa_aether-bm25-english.log
+ M evaluation/reports/market/logs/beir_nfcorpus_aether-bm25-ascii.log
+ M evaluation/reports/market/logs/beir_nfcorpus_aether-bm25-english-exhaustive.log
+ M evaluation/reports/market/logs/beir_nfcorpus_aether-bm25-english-freq-exhaustive.log
+ M evaluation/reports/market/logs/beir_nfcorpus_aether-bm25-english-freq-k1.2.log
+ M evaluation/reports/market/logs/beir_nfcorpus_aether-bm25-english-freq-maxscore.log
+ M evaluation/reports/market/logs/beir_nfcorpus_aether-bm25-english-freq.log
+ M evaluation/reports/market/logs/beir_nfcorpus_aether-bm25-english-k1.2.log
+ M evaluation/reports/market/logs/beir_nfcorpus_aether-bm25-english-maxscore.log
+ M evaluation/reports/market/logs/beir_nfcorpus_aether-bm25-english.log
+ M evaluation/reports/market/logs/beir_quora_aether-bm25-ascii.log
+ M evaluation/reports/market/logs/beir_quora_aether-bm25-english-exhaustive.log
+ M evaluation/reports/market/logs/beir_quora_aether-bm25-english-freq-exhaustive.log
+ M evaluation/reports/market/logs/beir_quora_aether-bm25-english-freq-k1.2.log
+ M evaluation/reports/market/logs/beir_quora_aether-bm25-english-freq-maxscore.log
+ M evaluation/reports/market/logs/beir_quora_aether-bm25-english-freq.log
+ M evaluation/reports/market/logs/beir_quora_aether-bm25-english-k1.2.log
+ M evaluation/reports/market/logs/beir_quora_aether-bm25-english-maxscore.log
+ M evaluation/reports/market/logs/beir_quora_aether-bm25-english.log
+ M evaluation/reports/market/logs/beir_scifact_aether-bm25-ascii.log
+ M evaluation/reports/market/logs/beir_scifact_aether-bm25-english-exhaustive.log
+ M evaluation/reports/market/logs/beir_scifact_aether-bm25-english-freq-exhaustive.log
+ M evaluation/reports/market/logs/beir_scifact_aether-bm25-english-freq-k1.2.log
+ M evaluation/reports/market/logs/beir_scifact_aether-bm25-english-freq-maxscore.log
+ M evaluation/reports/market/logs/beir_scifact_aether-bm25-english-freq.log
+ M evaluation/reports/market/logs/beir_scifact_aether-bm25-english-k1.2.log
+ M evaluation/reports/market/logs/beir_scifact_aether-bm25-english-maxscore.log
+ M evaluation/reports/market/logs/beir_scifact_aether-bm25-english.log
+ M evaluation/reports/market/logs/beir_trec-covid_aether-bm25-ascii.log
+ M evaluation/reports/market/logs/beir_trec-covid_aether-bm25-english-exhaustive.log
+ M evaluation/reports/market/logs/beir_trec-covid_aether-bm25-english-freq-exhaustive.log
+ M evaluation/reports/market/logs/beir_trec-covid_aether-bm25-english-freq-k1.2.log
+ M evaluation/reports/market/logs/beir_trec-covid_aether-bm25-english-freq-maxscore.log
+ M evaluation/reports/market/logs/beir_trec-covid_aether-bm25-english-freq.log
+ M evaluation/reports/market/logs/beir_trec-covid_aether-bm25-english-k1.2.log
+ M evaluation/reports/market/logs/beir_trec-covid_aether-bm25-english-maxscore.log
+ M evaluation/reports/market/logs/beir_trec-covid_aether-bm25-english.log
+ M evaluation/reports/market/logs/build1_glove-100_aether-hnsw.log
+ M evaluation/reports/market/logs/build1_glove-100_faiss-hnsw.log
+ M evaluation/reports/market/logs/build1_glove-100_hnswlib.log
+ M evaluation/reports/market/logs/build1_sift1m_aether-hnsw.log
+ M evaluation/reports/market/logs/build1_sift1m_faiss-hnsw.log
+ M evaluation/reports/market/logs/build1_sift1m_hnswlib.log
+ M evaluation/reports/market/manifest.json
+ M evaluation/reports/market/plots/glove-100_qps.svg
+ M evaluation/reports/market/plots/glove-100_qps1.svg
+ M evaluation/reports/market/plots/sift1m_qps.svg
+ M evaluation/reports/market/plots/sift1m_qps1.svg
+ M evaluation/reports/market/quality.csv
+ M evaluation/reports/market/summary.md
+ M include/aether/ann/hnsw/hnsw_index.hpp
+ M include/aether/hybrid/rrf.hpp
+ M include/aether/hybrid/rrf_config.hpp
+ M include/aether/lexical/bm25.hpp
+ M include/aether/quantization/quantized_vectors.hpp
+ M include/aether/storage/vector_store.hpp
+ M scripts/summarize_market.py
+ M src/ann/hnsw/hnsw_index.cpp
+ M src/application/query_engine.cpp
+ M src/hybrid/rrf.cpp
+ M src/lexical/bm25.cpp
+ M src/quantization/pq.cpp
+ M src/quantization/sq8.cpp
+ M src/storage/vector_store.cpp
+ M tests/CMakeLists.txt
+?? benchmarks/market/tune_fusion.py
+?? evaluation/reports/market/ann/glove-100.csv
+?? evaluation/reports/market/ann/glove-100_build1.csv
+?? evaluation/reports/market/ann/glove-100_latency.csv
+?? evaluation/reports/market/ann/sift1m.csv
+?? evaluation/reports/market/ann/sift1m_build1.csv
+?? evaluation/reports/market/ann/sift1m_latency.csv
+?? evaluation/reports/market/beir-ann/beir_ann.csv
+?? evaluation/reports/market/beir/arguana/aether-hybrid-freq-convex.json
+?? evaluation/reports/market/beir/arguana/aether-hybrid-freq-convex_latency.csv
+?? evaluation/reports/market/beir/arguana/aether-hybrid-freq-wrrf.json
+?? evaluation/reports/market/beir/arguana/aether-hybrid-freq-wrrf_latency.csv
+?? evaluation/reports/market/beir/fiqa/aether-hybrid-freq-convex-dev.json
+?? evaluation/reports/market/beir/fiqa/aether-hybrid-freq-convex-dev_latency.csv
+?? evaluation/reports/market/beir/fiqa/aether-hybrid-freq-convex.json
+?? evaluation/reports/market/beir/fiqa/aether-hybrid-freq-convex_latency.csv
+?? evaluation/reports/market/beir/fiqa/aether-hybrid-freq-wrrf-dev.json
+?? evaluation/reports/market/beir/fiqa/aether-hybrid-freq-wrrf-dev_latency.csv
+?? evaluation/reports/market/beir/fiqa/aether-hybrid-freq-wrrf.json
+?? evaluation/reports/market/beir/fiqa/aether-hybrid-freq-wrrf_latency.csv
+?? evaluation/reports/market/beir/nfcorpus/aether-hybrid-freq-convex-dev.json
+?? evaluation/reports/market/beir/nfcorpus/aether-hybrid-freq-convex-dev_latency.csv
+?? evaluation/reports/market/beir/nfcorpus/aether-hybrid-freq-convex.json
+?? evaluation/reports/market/beir/nfcorpus/aether-hybrid-freq-convex_latency.csv
+?? evaluation/reports/market/beir/nfcorpus/aether-hybrid-freq-wrrf-dev.json
+?? evaluation/reports/market/beir/nfcorpus/aether-hybrid-freq-wrrf-dev_latency.csv
+?? evaluation/reports/market/beir/nfcorpus/aether-hybrid-freq-wrrf.json
+?? evaluation/reports/market/beir/nfcorpus/aether-hybrid-freq-wrrf_latency.csv
+?? evaluation/reports/market/beir/quora/aether-hybrid-freq-convex-dev.json
+?? evaluation/reports/market/beir/quora/aether-hybrid-freq-convex-dev_latency.csv
+?? evaluation/reports/market/beir/quora/aether-hybrid-freq-convex.json
+?? evaluation/reports/market/beir/quora/aether-hybrid-freq-convex_latency.csv
+?? evaluation/reports/market/beir/quora/aether-hybrid-freq-wrrf-dev.json
+?? evaluation/reports/market/beir/quora/aether-hybrid-freq-wrrf-dev_latency.csv
+?? evaluation/reports/market/beir/quora/aether-hybrid-freq-wrrf.json
+?? evaluation/reports/market/beir/quora/aether-hybrid-freq-wrrf_latency.csv
+?? evaluation/reports/market/beir/scifact/aether-hybrid-freq-convex-dev.json
+?? evaluation/reports/market/beir/scifact/aether-hybrid-freq-convex-dev_latency.csv
+?? evaluation/reports/market/beir/scifact/aether-hybrid-freq-convex.json
+?? evaluation/reports/market/beir/scifact/aether-hybrid-freq-convex_latency.csv
+?? evaluation/reports/market/beir/scifact/aether-hybrid-freq-wrrf-dev.json
+?? evaluation/reports/market/beir/scifact/aether-hybrid-freq-wrrf-dev_latency.csv
+?? evaluation/reports/market/beir/scifact/aether-hybrid-freq-wrrf.json
+?? evaluation/reports/market/beir/scifact/aether-hybrid-freq-wrrf_latency.csv
+?? evaluation/reports/market/beir/trec-covid/aether-hybrid-freq-convex.json
+?? evaluation/reports/market/beir/trec-covid/aether-hybrid-freq-convex_latency.csv
+?? evaluation/reports/market/beir/trec-covid/aether-hybrid-freq-wrrf.json
+?? evaluation/reports/market/beir/trec-covid/aether-hybrid-freq-wrrf_latency.csv
+?? evaluation/reports/market/fusion/dev/fiqa/bm25.json
+?? evaluation/reports/market/fusion/dev/fiqa/dense.json
+?? evaluation/reports/market/fusion/dev/nfcorpus/bm25.json
+?? evaluation/reports/market/fusion/dev/nfcorpus/dense.json
+?? evaluation/reports/market/fusion/dev/quora/bm25.json
+?? evaluation/reports/market/fusion/dev/quora/dense.json
+?? evaluation/reports/market/fusion/dev/scifact/bm25.json
+?? evaluation/reports/market/fusion/dev/scifact/dense.json
+?? evaluation/reports/market/fusion/fusion_tuning.csv
+?? evaluation/reports/market/fusion/fusion_tuning.json
+?? evaluation/reports/market/logs/beir_arguana_aether-hybrid-freq-convex.log
+?? evaluation/reports/market/logs/beir_arguana_aether-hybrid-freq-wrrf.log
+?? evaluation/reports/market/logs/beir_fiqa_aether-hybrid-freq-convex-dev.log
+?? evaluation/reports/market/logs/beir_fiqa_aether-hybrid-freq-convex.log
+?? evaluation/reports/market/logs/beir_fiqa_aether-hybrid-freq-wrrf-dev.log
+?? evaluation/reports/market/logs/beir_fiqa_aether-hybrid-freq-wrrf.log
+?? evaluation/reports/market/logs/beir_nfcorpus_aether-hybrid-freq-convex-dev.log
+?? evaluation/reports/market/logs/beir_nfcorpus_aether-hybrid-freq-convex.log
+?? evaluation/reports/market/logs/beir_nfcorpus_aether-hybrid-freq-wrrf-dev.log
+?? evaluation/reports/market/logs/beir_nfcorpus_aether-hybrid-freq-wrrf.log
+?? evaluation/reports/market/logs/beir_quora_aether-hybrid-freq-convex-dev.log
+?? evaluation/reports/market/logs/beir_quora_aether-hybrid-freq-convex.log
+?? evaluation/reports/market/logs/beir_quora_aether-hybrid-freq-wrrf-dev.log
+?? evaluation/reports/market/logs/beir_quora_aether-hybrid-freq-wrrf.log
+?? evaluation/reports/market/logs/beir_scifact_aether-hybrid-freq-convex-dev.log
+?? evaluation/reports/market/logs/beir_scifact_aether-hybrid-freq-convex.log
+?? evaluation/reports/market/logs/beir_scifact_aether-hybrid-freq-wrrf-dev.log
+?? evaluation/reports/market/logs/beir_scifact_aether-hybrid-freq-wrrf.log
+?? evaluation/reports/market/logs/beir_trec-covid_aether-hybrid-freq-convex.log
+?? evaluation/reports/market/logs/beir_trec-covid_aether-hybrid-freq-wrrf.log
+?? evaluation/reports/market/logs/fusion_dev_fiqa_bm25.log
+?? evaluation/reports/market/logs/fusion_dev_fiqa_dense.log
+?? evaluation/reports/market/logs/fusion_dev_nfcorpus_bm25.log
+?? evaluation/reports/market/logs/fusion_dev_nfcorpus_dense.log
+?? evaluation/reports/market/logs/fusion_dev_quora_bm25.log
+?? evaluation/reports/market/logs/fusion_dev_quora_dense.log
+?? evaluation/reports/market/logs/fusion_dev_scifact_bm25.log
+?? evaluation/reports/market/logs/fusion_dev_scifact_dense.log
+?? evaluation/reports/market/logs/fusion_tune.log
+?? evaluation/reports/market/logs/parity_arguana_check-freq-convex.log
+?? evaluation/reports/market/logs/parity_arguana_check-freq-wrrf.log
+?? evaluation/reports/market/logs/parity_arguana_hybrid-freq-convex.log
+?? evaluation/reports/market/logs/parity_arguana_hybrid-freq-wrrf.log
+?? evaluation/reports/market/logs/parity_fiqa_check-freq-convex.log
+?? evaluation/reports/market/logs/parity_fiqa_check-freq-wrrf.log
+?? evaluation/reports/market/logs/parity_fiqa_hybrid-freq-convex.log
+?? evaluation/reports/market/logs/parity_fiqa_hybrid-freq-wrrf.log
+?? evaluation/reports/market/logs/parity_nfcorpus_check-freq-convex.log
+?? evaluation/reports/market/logs/parity_nfcorpus_check-freq-wrrf.log
+?? evaluation/reports/market/logs/parity_nfcorpus_hybrid-freq-convex.log
+?? evaluation/reports/market/logs/parity_nfcorpus_hybrid-freq-wrrf.log
+?? evaluation/reports/market/logs/parity_quora_check-freq-convex.log
+?? evaluation/reports/market/logs/parity_quora_check-freq-wrrf.log
+?? evaluation/reports/market/logs/parity_quora_hybrid-freq-convex.log
+?? evaluation/reports/market/logs/parity_quora_hybrid-freq-wrrf.log
+?? evaluation/reports/market/logs/parity_scifact_check-freq-convex.log
+?? evaluation/reports/market/logs/parity_scifact_check-freq-wrrf.log
+?? evaluation/reports/market/logs/parity_scifact_hybrid-freq-convex.log
+?? evaluation/reports/market/logs/parity_scifact_hybrid-freq-wrrf.log
+?? evaluation/reports/market/logs/parity_trec-covid_check-freq-convex.log
+?? evaluation/reports/market/logs/parity_trec-covid_check-freq-wrrf.log
+?? evaluation/reports/market/logs/parity_trec-covid_hybrid-freq-convex.log
+?? evaluation/reports/market/logs/parity_trec-covid_hybrid-freq-wrrf.log
+?? evaluation/reports/market/manifest-pass3.json
+?? evaluation/reports/market/manifest-pass4.json
+?? evaluation/reports/market/manifest-pass5.json
+?? evaluation/reports/market/manifest-pass6.json
+?? evaluation/reports/market/parity/arguana/hybrid-freq-convex.json
+?? evaluation/reports/market/parity/arguana/hybrid-freq-wrrf.json
+?? evaluation/reports/market/parity/fiqa/hybrid-freq-convex.json
+?? evaluation/reports/market/parity/fiqa/hybrid-freq-wrrf.json
+?? evaluation/reports/market/parity/nfcorpus/hybrid-freq-convex.json
+?? evaluation/reports/market/parity/nfcorpus/hybrid-freq-wrrf.json
+?? evaluation/reports/market/parity/quora/hybrid-freq-convex.json
+?? evaluation/reports/market/parity/quora/hybrid-freq-wrrf.json
+?? evaluation/reports/market/parity/scifact/hybrid-freq-convex.json
+?? evaluation/reports/market/parity/scifact/hybrid-freq-wrrf.json
+?? evaluation/reports/market/parity/trec-covid/hybrid-freq-convex.json
+?? evaluation/reports/market/parity/trec-covid/hybrid-freq-wrrf.json
+?? include/aether/core/prefetch.hpp
+?? tests/e2e/cli_fusion_test.cmake
+?? tests/unit/fusion_weights_test.cpp

@@ -1,0 +1,85 @@
+Working directory: <repo>
+Command: python3 docs/reports/evidence/2026-10-30-hybrid-checklist/audit_cli.py --build-dir build-testing-hybrid-2026-10-30
+Started UTC: 2026-10-30T16:35:53.179929+00:00
+Expected exit: 0
+Actual exit: 0
+Test verdict: PASS
+
+--- stdout ---
+{
+  "check": "1.11",
+  "passed": true,
+  "cli_sources": [
+    {
+      "path": "apps/cli/cli_parser.cpp",
+      "sha256": "8c068d7a4ab23fa88aff405104d3bfe226158b8224e18ca2c0f1f3cf46559ad5"
+    },
+    {
+      "path": "apps/cli/cli_parser.hpp",
+      "sha256": "622afc0d064215054f37e9f9baf48f5fc623b9a9fbcc04d30bd8b1456cecf24d"
+    },
+    {
+      "path": "apps/cli/cli_runner.cpp",
+      "sha256": "d11744de008b749e27e1fc78b781024fd9b736dcc92056620c062b483ad9fcd4"
+    },
+    {
+      "path": "apps/cli/cli_runner.hpp",
+      "sha256": "dd81bfab593141d9aeb66d532e0a239875e0aef0ec9c911a6033f2a0b908b235"
+    },
+    {
+      "path": "apps/cli/main.cpp",
+      "sha256": "f3b3a4032f1b1a4e983692e0b8067272af84fa0b6cc73335bb7e543ffefab7af"
+    }
+  ],
+  "libraries": {
+    "cli": {
+      "command": [
+        "/opt/homebrew/opt/llvm/bin/llvm-nm",
+        "--demangle",
+        "--defined-only",
+        "--extern-only",
+        "<repo>/build-testing-hybrid-2026-10-30/libaether_cli.a"
+      ],
+      "library": "libaether_cli.a",
+      "symbols_file": "1.11-cli-defined-symbols.txt"
+    },
+    "hnsw": {
+      "command": [
+        "/opt/homebrew/opt/llvm/bin/llvm-nm",
+        "--demangle",
+        "--defined-only",
+        "--extern-only",
+        "<repo>/build-testing-hybrid-2026-10-30/libaether_hnsw.a"
+      ],
+      "library": "libaether_hnsw.a",
+      "symbols_file": "1.11-hnsw-defined-symbols.txt"
+    },
+    "bm25": {
+      "command": [
+        "/opt/homebrew/opt/llvm/bin/llvm-nm",
+        "--demangle",
+        "--defined-only",
+        "--extern-only",
+        "<repo>/build-testing-hybrid-2026-10-30/libaether_lexical.a"
+      ],
+      "library": "libaether_lexical.a",
+      "symbols_file": "1.11-bm25-defined-symbols.txt"
+    },
+    "rrf": {
+      "command": [
+        "/opt/homebrew/opt/llvm/bin/llvm-nm",
+        "--demangle",
+        "--defined-only",
+        "--extern-only",
+        "<repo>/build-testing-hybrid-2026-10-30/libaether_hybrid.a"
+      ],
+      "library": "libaether_hybrid.a",
+      "symbols_file": "1.11-rrf-defined-symbols.txt"
+    }
+  },
+  "review_scope": "Manual review of the retained CLI source plus defined-symbol and build-dependency evidence. Help strings may state the RRF formula; they do not execute it.",
+  "conclusion": "CLI parses/formats and calls SearchService. Implementations live in their respective libraries."
+}
+
+--- stderr ---
+(empty)

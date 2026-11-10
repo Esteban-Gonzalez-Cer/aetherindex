@@ -44,6 +44,22 @@ cmake --build build-bench --target aether_hnsw_parameter_sweep --parallel 4
 Sin DBpedia, omitir `--dbpedia ...` para usar la mezcla gaussiana sintética con semilla fija.
 No ejecutar compilaciones u otras cargas en paralelo durante la medición.
 
+KR3.3–KR3.7 (escalas 10K/100K/1M sobre SIFT1M, en `datasets/real/sift1m/sift/`, y kernels
+SIMD contra la referencia escalar):
+
+```sh
+cmake --build build-bench --target aether_hnsw_parameter_sweep aether_distance_kernel_benchmark --parallel 4
+S=./build-bench/benchmarks/aether_hnsw_parameter_sweep; D=datasets/real/sift1m/sift
+$S evaluation/reports/kr3_sift/10k  --fvecs $D/sift_base.fvecs $D/sift_query.fvecs --limit 10000 --metric l2
+$S evaluation/reports/kr3_sift/100k --fvecs $D/sift_base.fvecs $D/sift_query.fvecs --limit 100000 --metric l2
+$S evaluation/reports/kr3_sift/1m   --fvecs $D/sift_base.fvecs $D/sift_query.fvecs --limit 1000000 --metric l2 \
+    --build-threads 10 --ef-search-only
+K=./build-bench/benchmarks/aether_distance_kernel_benchmark
+$K evaluation/reports/kr3_kernels/synthetic
+$K evaluation/reports/kr3_kernels/sift1m --fvecs $D/sift_base.fvecs
+python3 scripts/summarize_kr3.py   # evaluation/reports/kr3_summary.md + docs/reports/assets/kr3_recall_latency.*
+```
+
 ## Archivos
 
 | Archivo | KR | Contenido |
@@ -60,6 +76,12 @@ No ejecutar compilaciones u otras cargas en paralelo durante la medición.
 | `reports/kr3_dbpedia/kr3_8_latency_percentiles.csv` | KR3.8 | p50/p95/p99 por configuración |
 | `reports/kr3_dbpedia/raw_latencies.csv` | KR3 | Latencia y Recall@10 de cada consulta medida |
 | `reports/kr3_dbpedia/workload.json` | KR3 | Dataset, división, semillas, warm-up, alcance del tiempo, compilador |
+| `reports/kr3_sift/{10k,100k,1m}/` | KR3.1–3.3, KR3.7, KR3.8 | Los mismos archivos que `kr3_dbpedia/` sobre prefijos de SIFT1M (L2); 1M solo barre efSearch |
+| `reports/kr3_kernels/*/kr3_4_kernel_timing.csv` | KR3.4 | ns por llamada (media, mediana, p95) de coseno y L2 escalar/SIMD |
+| `reports/kr3_kernels/*/kr3_5_numeric_validation.csv` | KR3.5 | Diferencias SIMD–escalar–long double frente a la cota de error FP32 |
+| `reports/kr3_kernels/*/kr3_6_simd_speedup.csv` | KR3.6 | Reducción del tiempo medio SIMD frente al escalar |
+| `reports/kr3_kernels/distance_kernels_disassembly.txt` | KR3.5 | Desensamblado: NEON (`fmla.4s`) en SIMD, `fmadd s` escalar en la referencia |
+| `reports/kr3_summary.md` | KR3 | Tablas generadas por `scripts/summarize_kr3.py` |
 
 Para registrar una reproducción de KR1.7, cada integrante ejecuta el inicio rápido del
 README en su máquina y cambia su fila `member-N` de `PENDING` a `PASS`/`FAIL`,

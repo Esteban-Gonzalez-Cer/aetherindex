@@ -1,19 +1,28 @@
 // Sprint 2 / CP-06: HNSW parameter, recall-latency and latency-percentile experiments.
 //
-//   aether_hnsw_parameter_sweep OUTPUT_DIR [--quick | --dbpedia VECTORS_CSV]
+//   aether_hnsw_parameter_sweep OUTPUT_DIR [--quick | --dbpedia VECTORS_CSV |
+//       --fvecs BASE.fvecs QUERIES.fvecs [--limit N] [--metric l2|cosine]
+//       [--queries N] [--build-threads N] [--ef-search-only]]
 //
 // Default workload: seeded synthetic Gaussian mixture (no download). --dbpedia uses the
 // prepared real embeddings (datasets/real/dbpedia/vectors.csv, 10,000 x 1,024): every
 // 10th row (row % 10 == 9) is held out as one of 1,000 independent queries and the
 // remaining 9,000 rows are indexed. Queries are therefore never indexed vectors.
+// --fvecs (KR3.3, KR3.7) indexes the first --limit rows of a TEXMEX base file (e.g. SIFT1M
+// at 10K, 100K and 1M) and measures the first --queries rows (default 1,000) of the
+// separate query file; ground truth is recomputed by BruteForce over exactly the indexed
+// prefix. --ef-search-only skips the KR3.1 grid (one graph instead of five; use it at 1M).
+// --build-threads > 1 builds with insert_parallel: faster, but the topology then depends
+// on thread scheduling (search timing is always one thread).
 //
 // KR3.1  M in {8,16,32} x efSearch in {10,50,100} (efConstruction=100), plus
 //        efConstruction in {50,200} at M=16 to show it is configurable and effective.
-// KR3.2  M=16, efConstruction=100, efSearch in {10,25,50,100,200}.
+// KR3.2  M=16, efConstruction=100, efSearch in {10,25,50,100,200} (plus 400 with --fvecs).
 // KR3.8  p50/p95/p99 (nearest rank) for every configuration.
 //
 // Every configuration measures the same 1,000 independent queries after 100 warm-up
-// searches, one thread, against one fixed seeded dataset. Ground truth is the exact
+// searches, one thread, against one fixed dataset. Each (M, efConstruction) graph is built
+// once and serves every efSearch value of that pair. Ground truth is the exact
 // BruteForce Top-10. Timing covers only HnswIndex::search (query preparation + graph
 // search); dataset generation, ground truth and index construction are timed apart.
 // Raw per-query latencies are written for reproducibility. --quick shrinks the run
@@ -37,6 +46,7 @@
 
 #include "aether/ann/brute_force/brute_force_index.hpp"
 #include "aether/ann/hnsw/hnsw_index.hpp"
+#include "aether/core/parallel.hpp"
 #include "aether/storage/vector_store.hpp"
 
 using namespace aetherindex;
@@ -57,6 +67,15 @@ struct Workload {
     std::uint64_t dataset_seed = 42;
     std::uint64_t query_seed = 4242;
     std::uint64_t graph_seed = 42;
+    std::size_t build_threads = 1;
+    DistanceKind metric = DistanceKind::Cosine;
+};
+
+struct Options {
+    bool quick = false, ef_search_only = false;
+    std::filesystem::path dbpedia, base, query_file;
+    std::size_t limit = 0, queries = 1000, build_threads = 1;
+    DistanceKind metric = DistanceKind::SquaredEuclidean;
 };
 
 struct Experiment {
@@ -85,6 +104,25 @@ std::vector<std::vector<float>> generate(const Workload& w, std::size_t count,
         const auto& center = centers[pick(engine)];
         for (std::size_t d = 0; d < w.dimension; ++d) row[d] = center[d] + noise(engine);
     }
+    return rows;
+}
+
+// fvecs: per row an int32 dimension followed by that many float32 values. limit 0 = all.
+std::vector<std::vector<float>> read_fvecs(const std::filesystem::path& path, std::size_t limit) {
+    std::ifstream input(path, std::ios::binary);
+    if (!input) throw std::runtime_error("Cannot open " + path.string());
+    std::vector<std::vector<float>> rows;
+    std::int32_t dimension = 0;
+    while ((limit == 0 || rows.size() < limit) &&
+           input.read(reinterpret_cast<char*>(&dimension), 4)) {
+        if (dimension <= 0 || (!rows.empty() && rows[0].size() != static_cast<std::size_t>(dimension)))
+            throw std::runtime_error("Malformed fvecs file " + path.string());
+        auto& row = rows.emplace_back(static_cast<std::size_t>(dimension));
+        if (!input.read(reinterpret_cast<char*>(row.data()), 4 * static_cast<std::streamsize>(dimension)))
+            throw std::runtime_error("Truncated fvecs file " + path.string());
+    }
+    if (limit != 0 && rows.size() < limit)
+        throw std::runtime_error(path.string() + " has fewer rows than requested");
     return rows;
 }
 
@@ -126,22 +164,33 @@ double percentile(std::vector<double> sorted, double p) {
     return sorted[std::max<std::size_t>(rank, 1) - 1];
 }
 
-Measurement run(const Workload& w, const VectorStore& store, const Experiment& experiment,
-                const std::vector<std::vector<float>>& queries,
-                const std::vector<std::unordered_set<VectorId>>& truth) {
+std::unique_ptr<HnswIndex> build(const Workload& w, const VectorStore& store, std::size_t m,
+                                 std::size_t ef_construction, double& build_ms) {
     HnswConfig config;
-    config.m = experiment.m;
-    config.m_max_0 = 2 * experiment.m;
-    config.ef_construction = experiment.ef_construction;
-    config.ef_search = experiment.ef_search;
+    config.m = m;
+    config.m_max_0 = 2 * m;
+    config.ef_construction = ef_construction;
     config.random_seed = w.graph_seed;
-    Measurement result{experiment};
     const auto build_start = Clock::now();
-    HnswIndex index(store, config);
-    for (VectorId id : store.ids()) index.insert(id);
-    result.build_ms =
-        std::chrono::duration<double, std::milli>(Clock::now() - build_start).count();
-    if (!index.validate_graph().valid()) throw std::runtime_error("HNSW graph invariants violated.");
+    auto index = std::make_unique<HnswIndex>(store, config);
+    index->reserve(store.size());
+    const auto ids = store.ids();
+    if (w.build_threads > 1)
+        index->insert_parallel(ids, w.build_threads);
+    else
+        for (VectorId id : ids) index->insert(id);
+    build_ms = std::chrono::duration<double, std::milli>(Clock::now() - build_start).count();
+    if (!index->validate_graph().valid()) throw std::runtime_error("HNSW graph invariants violated.");
+    std::cout << "built M=" << m << " efC=" << ef_construction << " in " << build_ms << " ms\n";
+    return index;
+}
+
+Measurement run(const Workload& w, const HnswIndex& index, double build_ms,
+                const Experiment& experiment, const std::vector<std::vector<float>>& queries,
+                const std::vector<std::unordered_set<VectorId>>& truth) {
+    Measurement result;
+    result.experiment = experiment;
+    result.build_ms = build_ms;
     for (std::size_t i = 0; i < w.warmup; ++i)
         static_cast<void>(index.search(queries[i % queries.size()], w.k, experiment.ef_search));
     result.latencies_ms.reserve(queries.size());
@@ -188,16 +237,48 @@ void write_summary(std::ofstream& file, const Measurement& m) {
 
 }  // namespace
 
+Options parse(int argc, char** argv) {
+    const auto usage = std::invalid_argument(
+        "Usage: aether_hnsw_parameter_sweep OUTPUT_DIR [--quick | --dbpedia VECTORS_CSV | "
+        "--fvecs BASE.fvecs QUERIES.fvecs [--limit N] [--metric l2|cosine] [--queries N] "
+        "[--build-threads N] [--ef-search-only]]");
+    if (argc < 2) throw usage;
+    Options options;
+    for (int i = 2; i < argc; ++i) {
+        const std::string name = argv[i];
+        const auto value = [&]() -> std::string {
+            if (++i >= argc) throw usage;
+            return argv[i];
+        };
+        if (name == "--quick") options.quick = true;
+        else if (name == "--dbpedia") options.dbpedia = value();
+        else if (name == "--fvecs") {
+            options.base = value();
+            options.query_file = value();
+        } else if (name == "--limit") options.limit = std::stoul(value());
+        else if (name == "--queries") options.queries = std::stoul(value());
+        else if (name == "--build-threads") options.build_threads = std::stoul(value());
+        else if (name == "--ef-search-only") options.ef_search_only = true;
+        else if (name == "--metric") {
+            const std::string metric = value();
+            if (metric == "l2") options.metric = DistanceKind::SquaredEuclidean;
+            else if (metric == "cosine") options.metric = DistanceKind::Cosine;
+            else throw usage;
+        } else throw usage;
+    }
+    const int modes = options.quick + !options.dbpedia.empty() + !options.base.empty();
+    if (modes > 1 || options.queries == 0) throw usage;
+    return options;
+}
+
 int main(int argc, char** argv) {
     try {
-        const std::string option = argc >= 3 ? argv[2] : "";
-        const bool quick = option == "--quick";
-        const bool dbpedia = option == "--dbpedia";
-        if (argc < 2 || argc > 4 || (argc >= 3 && !quick && !dbpedia) || (quick && argc != 3) ||
-            (dbpedia && argc != 4))
-            throw std::invalid_argument(
-                "Usage: aether_hnsw_parameter_sweep OUTPUT_DIR [--quick | --dbpedia VECTORS_CSV]");
+        const Options options = parse(argc, argv);
+        const bool quick = options.quick;
+        const bool dbpedia = !options.dbpedia.empty();
+        const bool fvecs = !options.base.empty();
         Workload w;
+        w.build_threads = options.build_threads;
         if (quick) {
             w.vectors = 2000;
             w.queries = 200;
@@ -210,7 +291,24 @@ int main(int argc, char** argv) {
         VectorStore* store_ptr = nullptr;
         std::vector<std::vector<float>> queries;
         if (dbpedia) {
-            load_dbpedia(argv[3], w, store_ptr, queries, owner);
+            load_dbpedia(options.dbpedia, w, store_ptr, queries, owner);
+        } else if (fvecs) {
+            auto base = read_fvecs(options.base, options.limit);
+            queries = read_fvecs(options.query_file, options.queries);
+            w.metric = options.metric;
+            w.dimension = base.front().size();
+            w.vectors = base.size();
+            w.queries = queries.size();
+            w.clusters = 0;
+            w.spread = 0;
+            owner = std::make_unique<VectorStore>(w.dimension, w.metric);
+            owner->reserve(base.size());
+            for (std::size_t i = 0; i < base.size(); ++i) {
+                if (owner->insert(static_cast<VectorId>(i), base[i]) != InsertStatus::Success)
+                    throw std::runtime_error("fvecs row rejected: " + std::to_string(i));
+                std::vector<float>().swap(base[i]);
+            }
+            store_ptr = owner.get();
         } else {
             std::mt19937_64 center_engine(w.dataset_seed ^ 0x9e3779b97f4a7c15ULL);
             std::normal_distribution<float> unit(0.0f, 1.0f);
@@ -230,25 +328,40 @@ int main(int argc, char** argv) {
         const VectorStore& store = *store_ptr;
 
         const auto truth_start = Clock::now();
-        std::vector<std::unordered_set<VectorId>> truth;
-        truth.reserve(queries.size());
-        for (const auto& query : queries) {
-            std::unordered_set<VectorId> ids;
-            for (const auto& hit : bruteForceSearch(store, query, w.k)) ids.insert(hit.id);
-            truth.push_back(std::move(ids));
-        }
+        // Exact search is read-only, so queries run on every hardware thread.
+        std::vector<std::unordered_set<VectorId>> truth(queries.size());
+        parallel_for(queries.size(), hardware_threads(), [&](std::size_t q) {
+            for (const auto& hit : bruteForceSearch(store, queries[q], w.k)) truth[q].insert(hit.id);
+        });
         const double truth_ms =
             std::chrono::duration<double, std::milli>(Clock::now() - truth_start).count();
 
         std::vector<Experiment> experiments;
-        for (std::size_t m : {8, 16, 32})
-            for (std::size_t ef : {10, 50, 100}) experiments.push_back({"kr3_1", m, 100, ef});
-        for (std::size_t efc : {50, 200}) experiments.push_back({"kr3_1_efc", 16, efc, 50});
+        if (!options.ef_search_only) {
+            for (std::size_t m : {8, 16, 32})
+                for (std::size_t ef : {10, 50, 100}) experiments.push_back({"kr3_1", m, 100, ef});
+            for (std::size_t efc : {50, 200}) experiments.push_back({"kr3_1_efc", 16, efc, 50});
+        }
         for (std::size_t ef : {10, 25, 50, 100, 200}) experiments.push_back({"kr3_2", 16, 100, ef});
+        if (fvecs) experiments.push_back({"kr3_2", 16, 100, 400});
 
+        // One graph per (M, efConstruction); search never mutates it, so every efSearch of
+        // that pair reuses it and its build time is reported on each of its rows.
         std::vector<Measurement> results;
-        for (const auto& experiment : experiments)
-            results.push_back(run(w, store, experiment, queries, truth));
+        std::vector<bool> done(experiments.size(), false);
+        for (std::size_t i = 0; i < experiments.size(); ++i) {
+            if (done[i]) continue;
+            double build_ms = 0;
+            const auto index =
+                build(w, store, experiments[i].m, experiments[i].ef_construction, build_ms);
+            for (std::size_t j = i; j < experiments.size(); ++j) {
+                if (done[j] || experiments[j].m != experiments[i].m ||
+                    experiments[j].ef_construction != experiments[i].ef_construction)
+                    continue;
+                results.push_back(run(w, *index, build_ms, experiments[j], queries, truth));
+                done[j] = true;
+            }
+        }
 
         const char* header =
             "group,m,m0,ef_construction,ef_search,queries,mean_recall_at_10,build_ms,"
@@ -273,18 +386,24 @@ int main(int argc, char** argv) {
         auto meta = open(output / "workload.json");
         meta << "{\"quick\":" << (quick ? "true" : "false") << ",\"dataset\":\""
              << (dbpedia ? "dbpedia vectors.csv; rows with row%10==9 held out as queries"
-                         : "synthetic Gaussian mixture")
-             << "\",\"vectors\":" << w.vectors
-             << ",\"dimension\":" << w.dimension << ",\"metric\":\"cosine\",\"clusters\":"
+                 : fvecs ? "fvecs base " + options.base.filename().string() + " (first rows) + " +
+                               options.query_file.filename().string() + " (first rows)"
+                         : std::string("synthetic Gaussian mixture"))
+             << "\",\"vectors\":" << w.vectors << ",\"dimension\":" << w.dimension
+             << ",\"metric\":\""
+             << (w.metric == DistanceKind::Cosine ? "cosine" : "squared_euclidean")
+             << "\",\"clusters\":"
              << w.clusters << ",\"cluster_spread_stddev\":" << w.spread
              << ",\"queries_per_configuration\":" << w.queries << ",\"warmup_searches\":"
              << w.warmup << ",\"k\":" << w.k << ",\"dataset_seed\":" << w.dataset_seed
              << ",\"query_seed\":" << w.query_seed << ",\"graph_seed\":" << w.graph_seed
-             << ",\"m0_rule\":\"2*M\",\"threads\":1,\"ground_truth\":\"BruteForce exact Top-10\","
+             << ",\"m0_rule\":\"2*M\",\"threads\":1,\"build_threads\":" << w.build_threads
+             << ",\"build_reproducible\":" << (w.build_threads > 1 ? "false" : "true") << ",\"ground_truth\":\"BruteForce exact Top-10\","
                 "\"ground_truth_ms\":"
              << truth_ms
              << ",\"timing_scope\":\"HnswIndex::search only (query preparation + graph search); "
-                "excludes data generation, ground truth and index build\",\"percentile\":"
+                "excludes data generation, ground truth and index build; one graph per (M, "
+                "efConstruction) serves all its efSearch values\",\"percentile\":"
                 "\"nearest-rank ceil(p*N)\",\"configurations\":"
              << results.size() << ",\"measured_searches\":" << results.size() * w.queries
              << ",\"build_type\":\""

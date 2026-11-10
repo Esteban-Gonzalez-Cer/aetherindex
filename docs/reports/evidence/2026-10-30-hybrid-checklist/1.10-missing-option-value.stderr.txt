@@ -1,0 +1,2 @@
+Error: Missing value for --k.
+Use aetherindex --help for usage.

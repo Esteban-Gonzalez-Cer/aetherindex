@@ -1,0 +1,12 @@
+Working directory: <repo>
+Command: build-testing-hybrid-2026-10-30/aetherindex search --mode hybrid --dataset datasets/hybrid/corpus.jsonl --query datasets/hybrid/queries.jsonl
+Started UTC: 2026-10-30T16:42:11.059245+00:00
+Expected exit: 3
+Actual exit: 3
+Test verdict: PASS
+
+--- stdout ---
+(empty)
+
+--- stderr ---
+Error: datasets/hybrid/queries.jsonl: expected exactly one query; use --query-id to select from a multi-query file.

@@ -93,7 +93,49 @@ float accumulate(const float* a, const float* b, std::size_t length) {
     return sum;
 }
 
+template <bool Squared>
+float accumulate_scalar(const float* a, const float* b, std::size_t length) {
+    float sum = 0.0f;
+    // GCC never vectorizes an FP reduction without -fassociative-math, so it needs no pragma.
+#if defined(__clang__)
+#pragma clang loop vectorize(disable) interleave(disable)
+#elif defined(_MSC_VER)
+#pragma loop(no_vector)
+#endif
+    for (std::size_t i = 0; i < length; ++i) {
+        if constexpr (Squared) {
+            const float d = a[i] - b[i];
+            sum = std::fma(d, d, sum);
+        } else {
+            sum = std::fma(a[i], b[i], sum);
+        }
+    }
+    return sum;
+}
+
 }  // namespace
+
+float cosine_unit_kernel_scalar(const float* a, const float* b, std::size_t length) {
+    return 1.0f - std::clamp(accumulate_scalar<false>(a, b, length), -1.0f, 1.0f);
+}
+
+float squared_euclidean_kernel_scalar(const float* a, const float* b, std::size_t length) {
+    const float result = accumulate_scalar<true>(a, b, length);
+    if (!std::isfinite(result)) {
+        throw std::overflow_error("La distancia al cuadrado excede el rango de float.");
+    }
+    return result;
+}
+
+DistanceKernel scalar_distance_kernel(DistanceKind metric) {
+    switch (metric) {
+        case DistanceKind::Cosine:
+            return cosine_unit_kernel_scalar;
+        case DistanceKind::SquaredEuclidean:
+            return squared_euclidean_kernel_scalar;
+    }
+    throw std::invalid_argument("Metrica de distancia no soportada.");
+}
 
 float cosine_unit_kernel(const float* a, const float* b, std::size_t length) {
     return 1.0f - std::clamp(accumulate<false>(a, b, length), -1.0f, 1.0f);

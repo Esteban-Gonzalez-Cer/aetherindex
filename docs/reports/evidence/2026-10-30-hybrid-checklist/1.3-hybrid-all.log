@@ -1,0 +1,1148 @@
+Working directory: <repo>
+Command: build-testing-hybrid-2026-10-30/aetherindex search --mode hybrid --dataset datasets/hybrid/corpus.jsonl --query datasets/hybrid/queries.jsonl --all-queries --query-threads 1 --k 10 --candidate-k 50 --rrf-k 60 --seed 42 --ef-search 50 --bm25-k1 1.2 --bm25-b 0.75
+Started UTC: 2026-10-30T16:35:53.822104+00:00
+Expected exit: 0
+Actual exit: 0
+Test verdict: PASS
+
+--- stdout ---
+AetherIndex Search
+
+Batch queries: 24
+Query threads: 1
+Batch time (ms): 2.011709
+Throughput (queries/s): 11930.2
+Batch time scope: all queries, excluding input loading, index builds and output
+
+=== Query 1/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 26
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q001
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.097208
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D001 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D015 | 0.032002048131 |          3 |            2 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D030 | 0.030776515152 |          4 |            6 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D012 | 0.030309988519 |          7 |            5 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D021 | 0.029670329670 |          5 |           10 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D007 | 0.029040404040 |          6 |           12 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D003 | 0.029009880177 |         11 |            7 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D022 | 0.028958333333 |         15 |            4 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D004 | 0.028033794163 |          2 |           24 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D028 | 0.027650648360 |         16 |            9 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 2/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 18
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q002
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.059042
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D012 | 0.031513647643 |          2 |            5 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D019 | 0.031280547410 |          6 |            2 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D002 | 0.031099324976 |          8 |            1 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D009 | 0.031009615385 |          5 |            4 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D018 | 0.030117753623 |          4 |            9 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D013 | 0.030092072760 |          1 |           13 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D007 | 0.028850145289 |         13 |            6 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D027 | 0.028693528694 |         18 |            3 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D003 | 0.028571428571 |         10 |           10 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D011 | 0.028438886648 |         14 |            7 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 3/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 9
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q003
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.054542
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D027 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D003 | 0.032258064516 |          2 |            2 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D019 | 0.031746031746 |          3 |            3 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D026 | 0.031009615385 |          5 |            4 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D024 | 0.029644268775 |          6 |            9 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D018 | 0.029631255487 |          7 |            8 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D025 | 0.027583600982 |         19 |            7 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D007 | 0.027149321267 |         25 |            5 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D015 | 0.026645768025 |         27 |            6 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D028 | 0.015625000000 |          4 |            - |
++------+-------------+----------------+------------+--------------+
+
+=== Query 4/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 23
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q004
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.062667
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D004 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D019 | 0.031498015873 |          3 |            4 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D024 | 0.031280547410 |          2 |            6 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D021 | 0.029877369008 |          5 |            9 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D011 | 0.029462365591 |         15 |            2 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D018 | 0.029386529387 |         14 |            3 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D022 | 0.028612012987 |          4 |           17 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D009 | 0.028370221328 |         10 |           11 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D027 | 0.028370221328 |         11 |           10 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D010 | 0.028205128205 |         18 |            5 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 5/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 27
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q005
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.065500
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D024 | 0.031754032258 |          2 |            4 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D001 | 0.030769230769 |          5 |            5 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D005 | 0.030477949665 |         11 |            1 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D022 | 0.030414746544 |         10 |            2 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D006 | 0.030365769496 |          9 |            3 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D018 | 0.029380455610 |          1 |           17 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D023 | 0.028991596639 |          8 |           10 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D013 | 0.028850145289 |          6 |           13 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D010 | 0.028624003271 |         13 |            7 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D015 | 0.028083267871 |          7 |           16 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 6/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 30
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q006
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.074375
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D013 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D012 | 0.032258064516 |          2 |            2 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D014 | 0.031746031746 |          3 |            3 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D025 | 0.030550373134 |          7 |            4 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D028 | 0.029273504274 |         12 |            5 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D015 | 0.028850145289 |          6 |           13 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D018 | 0.028790389395 |          8 |           11 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D019 | 0.028782894737 |          4 |           16 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D029 | 0.028484848485 |         15 |            6 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D005 | 0.027799227799 |         14 |           10 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 7/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 30
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q007
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.071417
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D013 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D012 | 0.032002048131 |          3 |            2 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D014 | 0.032002048131 |          2 |            3 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D015 | 0.030769230769 |          5 |            5 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D028 | 0.030330882353 |          8 |            4 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D029 | 0.030303030303 |          6 |            6 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D018 | 0.030117753623 |          4 |            9 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D003 | 0.028577260665 |          9 |           11 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D005 | 0.028571428571 |         10 |           10 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D024 | 0.028258706468 |          7 |           15 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 8/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 28
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q008
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.065833
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D014 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D007 | 0.031250000000 |          4 |            4 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D019 | 0.030621785881 |          9 |            2 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D016 | 0.030536130536 |          5 |            6 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D005 | 0.030017921147 |          2 |           12 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D018 | 0.029957522915 |          3 |           11 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D029 | 0.029957522915 |         11 |            3 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D006 | 0.029857397504 |          6 |            8 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D001 | 0.029631255487 |          8 |            7 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D023 | 0.027106227106 |         18 |           10 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 9/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 29
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q009
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.073291
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D009 | 0.032266458496 |          1 |            3 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D008 | 0.031257631258 |          3 |            5 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D019 | 0.031054405392 |          7 |            2 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D025 | 0.031054405392 |          2 |            7 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D017 | 0.030477949665 |         11 |            1 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D016 | 0.029644268775 |          6 |            9 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D002 | 0.029513888889 |         12 |            4 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D011 | 0.029513888889 |          4 |           12 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D005 | 0.028778467909 |          9 |           10 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D012 | 0.028717948718 |          5 |           15 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 10/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 21
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q010
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.065333
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D009 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D024 | 0.031280547410 |          2 |            6 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D010 | 0.030536130536 |          6 |            5 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D008 | 0.030365769496 |          3 |            9 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D030 | 0.029670329670 |          5 |           10 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D007 | 0.028612012987 |          4 |           17 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D015 | 0.028594771242 |          8 |           12 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D002 | 0.028404512490 |         13 |            8 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D013 | 0.028373015873 |         20 |            3 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D029 | 0.027799227799 |         10 |           14 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 11/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 21
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q011
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.063958
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D011 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D004 | 0.031746031746 |          3 |            3 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D024 | 0.031280547410 |          2 |            6 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D002 | 0.029877369008 |          5 |            9 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D006 | 0.029437229437 |          6 |           10 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D016 | 0.029211087420 |         10 |            7 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D022 | 0.028790389395 |         11 |            8 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D030 | 0.028258706468 |          7 |           15 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D010 | 0.027970679012 |         21 |            4 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D013 | 0.027526395173 |          8 |           18 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 12/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 29
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q012
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.068167
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D010 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D004 | 0.031280547410 |          6 |            2 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D024 | 0.030834914611 |          2 |            8 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D007 | 0.029957522915 |         11 |            3 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D016 | 0.029857397504 |          8 |            6 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D002 | 0.029273504274 |          5 |           12 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D015 | 0.028782894737 |         16 |            4 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D026 | 0.028778467909 |         10 |            9 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D027 | 0.028717948718 |         15 |            5 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D001 | 0.028612012987 |          4 |           17 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 13/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 25
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q013
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.067333
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D005 | 0.032522474881 |          1 |            2 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D006 | 0.032266458496 |          3 |            1 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D007 | 0.032002048131 |          2 |            3 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D017 | 0.030117753623 |          9 |            4 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D001 | 0.030090497738 |          8 |            5 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D021 | 0.029236022194 |          6 |           11 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D023 | 0.029040404040 |         12 |            6 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D022 | 0.028958333333 |          4 |           15 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D016 | 0.027863777090 |         16 |            8 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D012 | 0.027783137179 |         11 |           13 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 14/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 9
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q014
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.051584
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D007 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D005 | 0.029198635976 |          8 |            9 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D025 | 0.028717948718 |         15 |            5 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D006 | 0.028125000000 |         20 |            4 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D022 | 0.028033794163 |         24 |            2 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D011 | 0.027972027972 |         18 |            6 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D010 | 0.027271052147 |         21 |            7 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D003 | 0.026984126984 |         30 |            3 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D012 | 0.026333789330 |         26 |            8 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D028 | 0.016129032258 |          2 |            - |
++------+-------------+----------------+------------+--------------+
+
+=== Query 15/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 29
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q015
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.064958
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D016 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D008 | 0.031754032258 |          2 |            4 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D015 | 0.031513647643 |          5 |            2 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D017 | 0.031498015873 |          4 |            3 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D001 | 0.031257631258 |          3 |            5 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D025 | 0.029850746269 |          7 |            7 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D007 | 0.028850145289 |         13 |            6 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D005 | 0.028594771242 |         12 |            8 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D010 | 0.028191383760 |          9 |           13 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D024 | 0.027826086957 |         15 |            9 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 16/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 30
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q016
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.065833
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D017 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D001 | 0.032002048131 |          3 |            2 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D030 | 0.031754032258 |          2 |            4 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D016 | 0.031257631258 |          5 |            3 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D010 | 0.030330882353 |          4 |            8 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D015 | 0.030309988519 |          7 |            5 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D014 | 0.029236022194 |          6 |           11 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D024 | 0.029211087420 |         10 |            7 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D029 | 0.028594771242 |          8 |           12 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D007 | 0.026943942134 |         19 |           10 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 17/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 30
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q017
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.068209
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D023 | 0.031318815757 |          7 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D019 | 0.031280547410 |          6 |            2 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D018 | 0.030798389007 |          3 |            7 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D011 | 0.030330882353 |          8 |            4 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D013 | 0.029670329670 |          5 |           10 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D030 | 0.029236022194 |         11 |            6 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D022 | 0.029051670471 |          1 |           19 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D005 | 0.028445512821 |          4 |           18 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D012 | 0.028404512490 |         13 |            8 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D015 | 0.028373015873 |         20 |            3 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 18/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 28
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q018
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.070416
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D022 | 0.032002048131 |          3 |            2 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D021 | 0.031778058008 |          5 |            1 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D023 | 0.030536130536 |          6 |            5 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D017 | 0.030414746544 |          2 |           10 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D001 | 0.030117753623 |          4 |            9 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D006 | 0.030092072760 |          1 |           13 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D004 | 0.029761904762 |         12 |            3 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D018 | 0.029198635976 |          9 |            8 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D019 | 0.029138513514 |         14 |            4 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D030 | 0.029009880177 |          7 |           11 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 19/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 22
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q019
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.057500
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D025 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D006 | 0.030550373134 |          7 |            4 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D024 | 0.030365769496 |          3 |            9 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D001 | 0.030303030303 |          6 |            6 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D016 | 0.030017921147 |          2 |           12 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D018 | 0.029957522915 |         11 |            3 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D004 | 0.029198635976 |          9 |            8 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D017 | 0.028624003271 |         13 |            7 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D005 | 0.028371628372 |         17 |            5 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D008 | 0.027799227799 |         14 |           10 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 20/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 22
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q020
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.059833
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D028 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D012 | 0.032258064516 |          2 |            2 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D013 | 0.031498015873 |          3 |            4 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D014 | 0.030550373134 |          4 |            7 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D023 | 0.029957522915 |         11 |            3 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D011 | 0.029644268775 |          9 |            6 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D029 | 0.029437229437 |          6 |           10 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D024 | 0.029273504274 |          5 |           12 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D015 | 0.028898128898 |         14 |            5 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D007 | 0.028404512490 |         13 |            8 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 21/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 24
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q021
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.068458
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D024 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D013 | 0.031257631258 |          3 |            5 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D025 | 0.031257631258 |          5 |            3 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D011 | 0.031054405392 |          2 |            7 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D010 | 0.030621785881 |          9 |            2 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D004 | 0.029709507042 |         11 |            4 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D002 | 0.029040404040 |          6 |           12 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D012 | 0.028778467909 |         10 |            9 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D014 | 0.028445512821 |          4 |           18 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D019 | 0.027912386121 |          7 |           17 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 22/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 30
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q022
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.079417
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D026 | 0.032786885246 |          1 |            1 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D003 | 0.032002048131 |          3 |            2 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D002 | 0.031498015873 |          4 |            3 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D011 | 0.031054405392 |          2 |            7 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D018 | 0.030769230769 |          5 |            5 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D009 | 0.029709507042 |         11 |            4 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D012 | 0.028790389395 |          8 |           11 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D019 | 0.028778467909 |         10 |            9 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D006 | 0.027583600982 |          7 |           19 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D029 | 0.027397260274 |         13 |           13 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 23/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 28
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q023
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.069459
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D008 | 0.032258064516 |          2 |            2 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D025 | 0.032018442623 |          1 |            4 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D030 | 0.031778058008 |          5 |            1 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D009 | 0.030365769496 |          9 |            3 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D001 | 0.030090497738 |          8 |            5 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D016 | 0.029644268775 |          6 |            9 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D022 | 0.029323630137 |          4 |           13 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D005 | 0.029009880177 |         11 |            7 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D026 | 0.028814262023 |          7 |           12 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D002 | 0.028665028665 |         14 |            6 |
++------+-------------+----------------+------------+--------------+
+
+=== Query 24/24 ===
+Search mode: Hybrid
+Fusion: RRF (k_rrf=60)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+Documents indexed: 30
+Dimensions: 128
+Requested K: 10
+Candidate K per retriever: 50
+Dense candidates: 30
+Lexical candidates: 24
+Fused candidates (union): 30
+Results returned: 10
+BM25 configuration: k1=1.2 b=0.75
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Query ID: Q024
+Dense index build time (ms): 0.513375
+Lexical index build time (ms): 0.649750
+Index build time scope: HNSW graph and BM25 index (excludes input loading)
+Query time (ms): 0.070750
+Query time scope: HNSW + BM25 + RRF (excludes input loading, index builds and output)
+
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | RRF Score      | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D013 | 0.032002048131 |          2 |            3 |
++------+-------------+----------------+------------+--------------+
+|    2 |        D012 | 0.031778058008 |          5 |            1 |
++------+-------------+----------------+------------+--------------+
+|    3 |        D009 | 0.031754032258 |          4 |            2 |
++------+-------------+----------------+------------+--------------+
+|    4 |        D029 | 0.030282331512 |          1 |           12 |
++------+-------------+----------------+------------+--------------+
+|    5 |        D025 | 0.030076888286 |          7 |            6 |
++------+-------------+----------------+------------+--------------+
+|    6 |        D008 | 0.029670329670 |         10 |            5 |
++------+-------------+----------------+------------+--------------+
+|    7 |        D018 | 0.029513888889 |         12 |            4 |
++------+-------------+----------------+------------+--------------+
+|    8 |        D019 | 0.029206349206 |          3 |           15 |
++------+-------------+----------------+------------+--------------+
+|    9 |        D011 | 0.028624003271 |         13 |            7 |
++------+-------------+----------------+------------+--------------+
+|   10 |        D006 | 0.028006267137 |         14 |            9 |
++------+-------------+----------------+------------+--------------+
+
+Search completed successfully.
+
+--- stderr ---
+(empty)

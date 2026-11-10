@@ -1,0 +1,3 @@
+dataset,metric,dimension,pairs,max_abs_simd_vs_scalar,max_rel_simd_vs_scalar,max_abs_simd_vs_longdouble,max_abs_scalar_vs_longdouble,max_error_over_bound,pass
+sift_base.fvecs,cosine,128,80000,5.36441803e-07,3.30916418e-06,1.03052841e-07,5.15162604e-07,0.0372459531,true
+sift_base.fvecs,squared_euclidean,128,80000,0,0,0,0,0,true

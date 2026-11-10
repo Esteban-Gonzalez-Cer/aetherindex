@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "source_and_input_hashes_unchanged": true,
+  "verified_source_input_files": 119,
+  "recorded_commands_expected_exit_codes_matched": 25,
+  "selected_ctests_debug": 3,
+  "selected_ctests_asan_ubsan": 3,
+  "report_links_checked": 39,
+  "production_code_modified_by_this_task": false
+}
