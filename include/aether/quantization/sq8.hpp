@@ -34,6 +34,8 @@ class Sq8Vectors final : public QuantizedVectors {
     float scale(std::size_t dimension) const { return scale_.at(dimension); }
 
    private:
+    friend struct SnapshotAccess;  // Index snapshots (aether_persistence).
+    Sq8Vectors() = default;  // Filled by SnapshotAccess.
     class Query;
     std::size_t dimension_;
     std::size_t stride_;

@@ -58,6 +58,7 @@ class VectorStore {
     bool has_rows() const noexcept { return !rows_released_; }
 
    private:
+    friend struct SnapshotAccess;  // Index snapshots (aether_persistence).
     const std::size_t dimension_;
     const std::size_t stride_;
     const DistanceKind metric_;

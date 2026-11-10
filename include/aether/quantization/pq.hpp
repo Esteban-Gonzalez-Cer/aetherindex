@@ -48,6 +48,8 @@ class PqVectors final : public QuantizedVectors {
     }
 
    private:
+    friend struct SnapshotAccess;  // Index snapshots (aether_persistence).
+    PqVectors() = default;  // Filled by SnapshotAccess.
     class Query;
     std::size_t dimension_;
     std::size_t rows_;

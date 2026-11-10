@@ -13,6 +13,10 @@
 #include "aether/core/types.hpp"
 #include "aether/lexical/tokenizer.hpp"
 
+namespace aetherindex {
+struct SnapshotAccess;
+}  // namespace aetherindex
+
 namespace aetherindex::lexical {
 
 struct Posting {
@@ -69,6 +73,7 @@ class InvertedIndex {
     [[nodiscard]] bool has_postings() const noexcept { return !postings_released_; }
 
    private:
+    friend struct ::aetherindex::SnapshotAccess;  // Index snapshots (aether_persistence).
     struct TermHash {
         using is_transparent = void;
         std::size_t operator()(std::string_view value) const noexcept {

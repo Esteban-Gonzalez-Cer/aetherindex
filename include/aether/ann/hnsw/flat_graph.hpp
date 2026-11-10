@@ -11,6 +11,7 @@
 
 namespace aetherindex {
 
+struct SnapshotAccess;
 using InternalId = std::uint32_t;
 
 // Fixed stride [degree, neighbor ...] in one 64-byte aligned allocation. Slots
@@ -65,6 +66,7 @@ class FlatGraphLayer {
     }
 
    private:
+    friend struct ::aetherindex::SnapshotAccess;  // Index snapshots (aether_persistence).
     std::size_t max_neighbors_;
     std::size_t stride_;
     AlignedVector<std::uint32_t> buffer_;

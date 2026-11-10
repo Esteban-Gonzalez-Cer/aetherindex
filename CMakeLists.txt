@@ -24,8 +24,12 @@ target_include_directories(aether_core INTERFACE "${PROJECT_SOURCE_DIR}/include"
 target_compile_features(aether_core INTERFACE cxx_std_20)
 target_link_libraries(aether_core INTERFACE aether_sanitizers aether_warnings Threads::Threads)
 
+# Checksummed binary files and memory-mapped reads, shared by .avec and index snapshots.
+add_library(aether_io STATIC src/io/binary_io.cpp)
+target_link_libraries(aether_io PUBLIC aether_core)
+
 add_library(aether_storage STATIC src/storage/vector_store.cpp src/storage/vector_file.cpp)
-target_link_libraries(aether_storage PUBLIC aether_core)
+target_link_libraries(aether_storage PUBLIC aether_core PRIVATE aether_io)
 
 add_library(aether_hybrid STATIC src/hybrid/rrf.cpp)
 target_link_libraries(aether_hybrid PUBLIC aether_core)
@@ -66,6 +70,13 @@ add_library(aether_hnsw STATIC src/ann/hnsw/hnsw_index.cpp)
 target_link_libraries(aether_hnsw
     PUBLIC aether_core aether_storage
     PRIVATE aether_distance
+)
+
+# Component snapshots (vectors, HNSW, BM25, SQ8/PQ codes) as checksummed section files.
+add_library(aether_persistence STATIC src/persistence/snapshot.cpp)
+target_link_libraries(aether_persistence
+    PUBLIC aether_core aether_storage aether_hnsw aether_lexical aether_quantization
+    PRIVATE aether_io
 )
 
 add_library(aether_application STATIC

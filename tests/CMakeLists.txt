@@ -342,3 +342,9 @@ add_test(NAME e2e.cli_filter COMMAND "${CMAKE_COMMAND}"
     "-DSOURCE_DIR=${PROJECT_SOURCE_DIR}"
     -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_filter_test.cmake")
 set_tests_properties(e2e.cli_filter PROPERTIES TIMEOUT 120 LABELS "filter;optimization")
+
+add_executable(aether_snapshot_tests unit/snapshot_test.cpp)
+target_link_libraries(aether_snapshot_tests PRIVATE aether_persistence)
+add_test(NAME unit.snapshot COMMAND aether_snapshot_tests
+    "${CMAKE_CURRENT_BINARY_DIR}/snapshot/$<CONFIG>")
+set_tests_properties(unit.snapshot PROPERTIES TIMEOUT 120 LABELS "persistence;snapshot")

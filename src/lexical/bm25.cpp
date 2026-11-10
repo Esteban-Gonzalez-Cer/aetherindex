@@ -402,6 +402,49 @@ void Bm25Index::build_layout(const InvertedIndex& built, PostingMemory& memory) 
     length_norm_.swap(length_norm);
 }
 
+bool Bm25Index::layout_is_consistent() const {
+    // Furthest byte one unpack call reads: whole 8-byte loads per value or group of 8.
+    const auto read_end = [](std::uint64_t start, std::uint64_t count, unsigned bits) {
+        if (bits == 0) return start;
+        const std::uint64_t last = bits <= 8 ? (count - 1) / 8 * bits : (count - 1) * bits / 8;
+        return start + last + sizeof(std::uint64_t);
+    };
+    std::array<std::uint32_t, kBlockSize> docs{}, tfs{};
+    for (const auto& [term, layout] : layout_) {
+        const std::uint64_t count = (std::uint64_t{layout.df} + kBlockSize - 1) / kBlockSize;
+        if (layout.df == 0 || layout.df > document_ids_.size() ||
+            std::uint64_t{layout.first_block} + count > blocks_.size())
+            return false;
+        std::uint64_t remaining = layout.df;
+        std::uint32_t previous = 0;
+        bool first = true;
+        for (std::uint64_t b = layout.first_block; b < layout.first_block + count; ++b) {
+            const Block& block = blocks_[b];
+            const std::uint64_t expected = std::min<std::uint64_t>(remaining, kBlockSize);
+            remaining -= expected;
+            if (block.count != expected || block.doc_bits > 32 || block.tf_bits > 32) return false;
+            const std::uint64_t tf_start =
+                std::uint64_t{block.offset} + (expected * block.doc_bits + 7) / 8;
+            if (read_end(block.offset, expected, block.doc_bits) > postings_.size() ||
+                read_end(tf_start, expected, block.tf_bits) > postings_.size())
+                return false;
+            const std::uint8_t* in = postings_.data() + block.offset;
+            kUnpack[block.doc_bits](in, docs.data(), block.count);
+            kUnpack[block.tf_bits](postings_.data() + tf_start, tfs.data(), block.count);
+            for (std::uint32_t i = 0; i < block.count; ++i) {
+                const std::uint64_t current = std::uint64_t{previous} + docs[i];
+                if (current >= document_ids_.size() || (!first && current <= previous) ||
+                    tfs[i] == std::numeric_limits<std::uint32_t>::max())
+                    return false;
+                previous = static_cast<std::uint32_t>(current);
+                first = false;
+            }
+            if (block.last != previous) return false;
+        }
+    }
+    return true;
+}
+
 std::vector<RankedResult> Bm25Index::search(std::string_view query, std::size_t k) const {
     return search(query, k, {});
 }

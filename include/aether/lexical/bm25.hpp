@@ -12,6 +12,10 @@
 #include "aether/lexical/bm25_config.hpp"
 #include "aether/lexical/inverted_index.hpp"
 
+namespace aetherindex {
+struct SnapshotAccess;
+}  // namespace aetherindex
+
 namespace aetherindex::lexical {
 
 // Pure scoring functions, also usable for independent mathematical checks.
@@ -64,6 +68,7 @@ class Bm25Index {
     [[nodiscard]] PostingMemory posting_memory() const noexcept;
 
    private:
+    friend struct ::aetherindex::SnapshotAccess;  // Index snapshots (aether_persistence).
     // A block of up to 128 postings, bit-packed at fixed widths in postings_: the ordinal
     // deltas (count * doc_bits bits, the first relative to the previous block's last
     // ordinal), then tf - 1 (count * tf_bits bits; 0 bits when every tf is 1).
@@ -96,6 +101,9 @@ class Bm25Index {
     };
 
     std::vector<QueryTerm> query_terms(std::string_view query) const;
+    // Decodes every block of the compressed layout and checks that all reads stay inside
+    // postings_ and every ordinal indexes document_ids_ in ascending order (snapshots).
+    bool layout_is_consistent() const;
     void build_layout(const InvertedIndex& built, PostingMemory& memory);
     using Allow = std::function<bool(DocumentId)>;
     std::vector<RankedResult> search_exhaustive(const std::vector<QueryTerm>& terms,

@@ -131,6 +131,7 @@ class HnswIndex {
     HnswGraphValidation validate_graph() const;
 
    private:
+    friend struct ::aetherindex::SnapshotAccess;  // Index snapshots (aether_persistence).
     struct Candidate {
         float distance;
         VectorId id;
