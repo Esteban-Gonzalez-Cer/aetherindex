@@ -17,11 +17,11 @@
         "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
         "-mmacosx-version-min=26.5",
         "-I",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/include",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/scalar_distance.cpp",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/docs/benchmarks/hardware-reference/2026-10-21/kernel_probe.cpp",
+        "<repo>/include",
+        "<repo>/src/distance/scalar_distance.cpp",
+        "<repo>/docs/benchmarks/hardware-reference/2026-10-21/kernel_probe.cpp",
         "-o",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-probes-20261021/appleclang-arm64"
+        "<repo>/build-hardware-probes-20261021/appleclang-arm64"
       ],
       "environment": {
         "SDKROOT": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
@@ -56,11 +56,11 @@
         "-mmacosx-version-min=26.5",
         "-march=native",
         "-I",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/include",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/scalar_distance.cpp",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/docs/benchmarks/hardware-reference/2026-10-21/kernel_probe.cpp",
+        "<repo>/include",
+        "<repo>/src/distance/scalar_distance.cpp",
+        "<repo>/docs/benchmarks/hardware-reference/2026-10-21/kernel_probe.cpp",
         "-o",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-probes-20261021/appleclang-native"
+        "<repo>/build-hardware-probes-20261021/appleclang-native"
       ],
       "environment": {
         "SDKROOT": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
@@ -95,11 +95,11 @@
         "-mmacosx-version-min=26.5",
         "-march=native",
         "-I",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/include",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/scalar_distance.cpp",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/docs/benchmarks/hardware-reference/2026-10-21/kernel_probe.cpp",
+        "<repo>/include",
+        "<repo>/src/distance/scalar_distance.cpp",
+        "<repo>/docs/benchmarks/hardware-reference/2026-10-21/kernel_probe.cpp",
         "-o",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-probes-20261021/homebrew-native"
+        "<repo>/build-hardware-probes-20261021/homebrew-native"
       ],
       "environment": {
         "SDKROOT": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"

@@ -5,10 +5,10 @@
     "-O3",
     "-S",
     "-I",
-    "/Users/estebangonzalezcervantes/Documents/aetherindex/include",
-    "/Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/scalar_distance.cpp",
+    "<repo>/include",
+    "<repo>/src/distance/scalar_distance.cpp",
     "-o",
-    "/Users/estebangonzalezcervantes/Documents/aetherindex/docs/benchmarks/hardware-reference/2026-10-21/appleclang-arm64/distance-kernels.s"
+    "<repo>/docs/benchmarks/hardware-reference/2026-10-21/appleclang-arm64/distance-kernels.s"
   ],
   "machine": "arm64",
   "packed_fp32_fma_count": 8,

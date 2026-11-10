@@ -1,5 +1,5 @@
-Command: ctest --test-dir /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-debug-20261018 -C Debug --output-on-failure --no-tests=error --parallel 4
-Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-debug-20261018
+Command: ctest --test-dir <repo>/build-judge-debug-20261018 -C Debug --output-on-failure --no-tests=error --parallel 4
+Test project <repo>/build-judge-debug-20261018
       Start 16: integration.sprint1_okr1
       Start  1: unit.vector_store
       Start  2: unit.vector_store_allocation

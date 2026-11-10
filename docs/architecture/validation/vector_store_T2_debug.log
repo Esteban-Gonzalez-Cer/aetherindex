@@ -98,7 +98,7 @@ Test Passed.
 
 7/7 Testing: e2e.cli_demo
 7/7 Test: e2e.cli_demo
-Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-t2-debug-01a12e3a/aetherindex" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_demo_test.cmake"
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-t2-debug-01a12e3a/aetherindex" "-P" "<repo>/tests/e2e/cli_demo_test.cmake"
 Directory: /private/tmp/aetherindex-t2-debug-01a12e3a/tests
 "e2e.cli_demo" start time: Oct 11 22:49 CST
 Output:

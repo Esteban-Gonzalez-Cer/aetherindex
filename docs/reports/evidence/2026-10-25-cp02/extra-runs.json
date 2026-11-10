@@ -9,7 +9,7 @@
         ".",
         "-B",
         "build-cp02-debug",
-        "-DAETHER_BM25_CORPUS_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/tests/fixtures/bm25"
+        "-DAETHER_BM25_CORPUS_DIR=<repo>/tests/fixtures/bm25"
       ],
       "returncode": 0
     },
@@ -51,7 +51,7 @@
         "-DCMAKE_OSX_SYSROOT=macosx",
         "-DCMAKE_CXX_COMPILER=/Library/Developer/CommandLineTools/usr/bin/clang++",
         "-DBUILD_TESTING=ON",
-        "-DAETHER_BM25_CORPUS_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-missing-corpus/absent"
+        "-DAETHER_BM25_CORPUS_DIR=<repo>/build-cp02-missing-corpus/absent"
       ],
       "returncode": 1
     },
@@ -63,18 +63,18 @@
         "-isysroot",
         "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
         "-I",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/include",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-no-tests-final/consumer.cpp",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-no-tests-final/libaether_lexical.a",
+        "<repo>/include",
+        "<repo>/build-cp02-no-tests-final/consumer.cpp",
+        "<repo>/build-cp02-no-tests-final/libaether_lexical.a",
         "-o",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-no-tests-final/bm25_consumer"
+        "<repo>/build-cp02-no-tests-final/bm25_consumer"
       ],
       "returncode": 0
     },
     {
       "name": "standalone-consumer-run",
       "command": [
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-no-tests-final/bm25_consumer"
+        "<repo>/build-cp02-no-tests-final/bm25_consumer"
       ],
       "returncode": 0
     },
@@ -82,9 +82,9 @@
       "name": "numerical-reference-search",
       "command": [
         "build-cp02-release-final/tests/aether_bm25_evaluate",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/math-fixture/documents.tsv",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/math-fixture/queries.tsv",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final/math-fixture/output"
+        "<repo>/build-cp02-release-final/math-fixture/documents.tsv",
+        "<repo>/build-cp02-release-final/math-fixture/queries.tsv",
+        "<repo>/build-cp02-release-final/math-fixture/output"
       ],
       "returncode": 0
     }

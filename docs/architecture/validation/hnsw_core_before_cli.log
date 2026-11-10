@@ -128,7 +128,7 @@ Test Passed.
 
 9/15 Testing: e2e.cli_search
 9/15 Test: e2e.cli_search
-Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-hnsw-core-debug-20261012/aetherindex" "-DWORK_DIR=/private/tmp/aetherindex-hnsw-core-debug-20261012/tests/cli-fixtures/Debug" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_search_test.cmake"
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-hnsw-core-debug-20261012/aetherindex" "-DWORK_DIR=/private/tmp/aetherindex-hnsw-core-debug-20261012/tests/cli-fixtures/Debug" "-P" "<repo>/tests/e2e/cli_search_test.cmake"
 Directory: /private/tmp/aetherindex-hnsw-core-debug-20261012/tests
 "e2e.cli_search" start time: Oct 12 23:48 CST
 Output:
@@ -144,7 +144,7 @@ Test Passed.
 
 10/15 Testing: e2e.cli_mvp
 10/15 Test: e2e.cli_mvp
-Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-hnsw-core-debug-20261012/aetherindex" "-DGENERATOR_PATH=/private/tmp/aetherindex-hnsw-core-debug-20261012/tests/aether_cli_fixture_generator" "-DWORK_DIR=/private/tmp/aetherindex-hnsw-core-debug-20261012/tests/mvp-fixtures/Debug" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_mvp_test.cmake"
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-hnsw-core-debug-20261012/aetherindex" "-DGENERATOR_PATH=/private/tmp/aetherindex-hnsw-core-debug-20261012/tests/aether_cli_fixture_generator" "-DWORK_DIR=/private/tmp/aetherindex-hnsw-core-debug-20261012/tests/mvp-fixtures/Debug" "-P" "<repo>/tests/e2e/cli_mvp_test.cmake"
 Directory: /private/tmp/aetherindex-hnsw-core-debug-20261012/tests
 "e2e.cli_mvp" start time: Oct 12 23:48 CST
 Output:

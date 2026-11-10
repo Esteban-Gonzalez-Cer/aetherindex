@@ -1,4 +1,0 @@
-WARNING: Using incubator modules: jdk.incubator.vector
-oct 30, 2026 1:00:24 P.M. org.apache.lucene.internal.vectorization.PanamaVectorizationProvider <init>
-INFO: Java vector incubator API enabled; uses preferredBitSize=128
-lucene /Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/indexes/fiqa-none-keepstop: p50 0.1784 ms, batch QPS 41891.0

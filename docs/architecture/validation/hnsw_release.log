@@ -128,7 +128,7 @@ Test Passed.
 
 9/18 Testing: e2e.cli_search
 9/18 Test: e2e.cli_search
-Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-hnsw-release-20261012/aetherindex" "-DWORK_DIR=/private/tmp/aetherindex-hnsw-release-20261012/tests/cli-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_search_test.cmake"
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-hnsw-release-20261012/aetherindex" "-DWORK_DIR=/private/tmp/aetherindex-hnsw-release-20261012/tests/cli-fixtures/Release" "-P" "<repo>/tests/e2e/cli_search_test.cmake"
 Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
 "e2e.cli_search" start time: Oct 13 00:01 CST
 Output:
@@ -144,7 +144,7 @@ Test Passed.
 
 10/18 Testing: e2e.cli_mvp
 10/18 Test: e2e.cli_mvp
-Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-hnsw-release-20261012/aetherindex" "-DGENERATOR_PATH=/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_cli_fixture_generator" "-DWORK_DIR=/private/tmp/aetherindex-hnsw-release-20261012/tests/mvp-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_mvp_test.cmake"
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-hnsw-release-20261012/aetherindex" "-DGENERATOR_PATH=/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_cli_fixture_generator" "-DWORK_DIR=/private/tmp/aetherindex-hnsw-release-20261012/tests/mvp-fixtures/Release" "-P" "<repo>/tests/e2e/cli_mvp_test.cmake"
 Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
 "e2e.cli_mvp" start time: Oct 13 00:01 CST
 Output:
@@ -253,7 +253,7 @@ Test Passed.
 
 16/18 Testing: e2e.cli_hnsw
 16/18 Test: e2e.cli_hnsw
-Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-hnsw-release-20261012/aetherindex" "-DGENERATOR_PATH=/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_cli_fixture_generator" "-DWORK_DIR=/private/tmp/aetherindex-hnsw-release-20261012/tests/hnsw-cli-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_hnsw_test.cmake"
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/private/tmp/aetherindex-hnsw-release-20261012/aetherindex" "-DGENERATOR_PATH=/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_cli_fixture_generator" "-DWORK_DIR=/private/tmp/aetherindex-hnsw-release-20261012/tests/hnsw-cli-fixtures/Release" "-P" "<repo>/tests/e2e/cli_hnsw_test.cmake"
 Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
 "e2e.cli_hnsw" start time: Oct 13 00:01 CST
 Output:
@@ -269,7 +269,7 @@ Test Passed.
 
 17/18 Testing: e2e.cli_real_dataset
 17/18 Test: e2e.cli_real_dataset
-Command: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13" "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/validate_real_dataset.py" "--cli" "/private/tmp/aetherindex-hnsw-release-20261012/aetherindex" "--data-dir" "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia" "--k" "100" "--report" "/private/tmp/aetherindex-hnsw-release-20261012/tests/real-data-Release.json"
+Command: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13" "<repo>/scripts/validate_real_dataset.py" "--cli" "/private/tmp/aetherindex-hnsw-release-20261012/aetherindex" "--data-dir" "<repo>/datasets/real/dbpedia" "--k" "100" "--report" "/private/tmp/aetherindex-hnsw-release-20261012/tests/real-data-Release.json"
 Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
 "e2e.cli_real_dataset" start time: Oct 13 00:01 CST
 Output:
@@ -343,7 +343,7 @@ Test Passed.
 
 18/18 Testing: integration.hnsw_real_dataset
 18/18 Test: integration.hnsw_real_dataset
-Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_hnsw_real_dataset_tests" "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia" "/private/tmp/aetherindex-hnsw-release-20261012/tests/hnsw-real-data-Release.csv"
+Command: "/private/tmp/aetherindex-hnsw-release-20261012/tests/aether_hnsw_real_dataset_tests" "<repo>/datasets/real/dbpedia" "/private/tmp/aetherindex-hnsw-release-20261012/tests/hnsw-real-data-Release.csv"
 Directory: /private/tmp/aetherindex-hnsw-release-20261012/tests
 "integration.hnsw_real_dataset" start time: Oct 13 00:02 CST
 Output:

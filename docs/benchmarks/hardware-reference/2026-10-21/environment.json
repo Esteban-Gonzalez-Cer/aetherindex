@@ -108,7 +108,7 @@
     "sdk_resolved_path": "/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk"
   },
   "reference_build": {
-    "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-reference-20261021",
+    "directory": "<repo>/build-hardware-reference-20261021",
     "cache": {
       "AETHER_BUILD_BENCHMARKS": "ON",
       "AETHER_ENABLE_SANITIZERS": "OFF",
@@ -136,35 +136,35 @@
     },
     "selected_compile_commands": [
       {
-        "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-reference-20261021",
-        "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -mmacosx-version-min=26.5 -march=native -o CMakeFiles/aether_distance.dir/src/distance/scalar_distance.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/scalar_distance.cpp",
-        "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/scalar_distance.cpp",
-        "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-reference-20261021/CMakeFiles/aether_distance.dir/src/distance/scalar_distance.cpp.o"
+        "directory": "<repo>/build-hardware-reference-20261021",
+        "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I<repo>/include -O3 -DNDEBUG -std=c++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -mmacosx-version-min=26.5 -march=native -o CMakeFiles/aether_distance.dir/src/distance/scalar_distance.cpp.o -c <repo>/src/distance/scalar_distance.cpp",
+        "file": "<repo>/src/distance/scalar_distance.cpp",
+        "output": "<repo>/build-hardware-reference-20261021/CMakeFiles/aether_distance.dir/src/distance/scalar_distance.cpp.o"
       },
       {
-        "directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-reference-20261021",
-        "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -mmacosx-version-min=26.5 -o CMakeFiles/aether_hnsw.dir/src/ann/hnsw/hnsw_index.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/ann/hnsw/hnsw_index.cpp",
-        "file": "/Users/estebangonzalezcervantes/Documents/aetherindex/src/ann/hnsw/hnsw_index.cpp",
-        "output": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-reference-20261021/CMakeFiles/aether_hnsw.dir/src/ann/hnsw/hnsw_index.cpp.o"
+        "directory": "<repo>/build-hardware-reference-20261021",
+        "command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I<repo>/include -O3 -DNDEBUG -std=c++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -mmacosx-version-min=26.5 -o CMakeFiles/aether_hnsw.dir/src/ann/hnsw/hnsw_index.cpp.o -c <repo>/src/ann/hnsw/hnsw_index.cpp",
+        "file": "<repo>/src/ann/hnsw/hnsw_index.cpp",
+        "output": "<repo>/build-hardware-reference-20261021/CMakeFiles/aether_hnsw.dir/src/ann/hnsw/hnsw_index.cpp.o"
       }
     ],
     "binary_architecture": {
       "command": [
         "file",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-reference-20261021/aetherindex"
+        "<repo>/build-hardware-reference-20261021/aetherindex"
       ],
       "returncode": 0,
-      "stdout": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-reference-20261021/aetherindex: Mach-O 64-bit executable arm64",
+      "stdout": "<repo>/build-hardware-reference-20261021/aetherindex: Mach-O 64-bit executable arm64",
       "stderr": ""
     },
     "linked_libraries": {
       "command": [
         "otool",
         "-L",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-reference-20261021/aetherindex"
+        "<repo>/build-hardware-reference-20261021/aetherindex"
       ],
       "returncode": 0,
-      "stdout": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-reference-20261021/aetherindex:\n\t/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2000.67.0)\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)",
+      "stdout": "<repo>/build-hardware-reference-20261021/aetherindex:\n\t/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2000.67.0)\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)",
       "stderr": ""
     },
     "cli_sha256": "58ba3319229b957126931f86c72089563e065ef9e0bd56838d9405d1d9be5a58",
@@ -184,9 +184,9 @@
         "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
         "-framework",
         "Foundation",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/docs/benchmarks/hardware-reference/2026-10-21/thermal_probe.mm",
+        "<repo>/docs/benchmarks/hardware-reference/2026-10-21/thermal_probe.mm",
         "-o",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-probes-20261021/thermal_probe"
+        "<repo>/build-hardware-probes-20261021/thermal_probe"
       ],
       "state": {
         "thermal_state": 0,

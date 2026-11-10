@@ -1,4 +1,4 @@
-Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-release-final
+Test project <repo>/build-cp02-release-final
       Start  1: unit.tokenizer
  1/27 Test  #1: unit.tokenizer .......................   Passed    0.19 sec
       Start  2: unit.inverted_index

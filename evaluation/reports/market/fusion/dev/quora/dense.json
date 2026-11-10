@@ -1,6 +1,6 @@
 {
   "system": "aetherindex-dense",
-  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir-dev/quora",
+  "data": "<repo>/datasets/market/beir-dev/quora",
   "documents": 522931,
   "queries": 5000,
   "build_type": "Release (NDEBUG)",

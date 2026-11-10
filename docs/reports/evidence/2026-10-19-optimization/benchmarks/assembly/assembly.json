@@ -5,10 +5,10 @@
     "-O3",
     "-S",
     "-I",
-    "/Users/estebangonzalezcervantes/Documents/aetherindex/include",
-    "/Users/estebangonzalezcervantes/Documents/aetherindex/src/distance/scalar_distance.cpp",
+    "<repo>/include",
+    "<repo>/src/distance/scalar_distance.cpp",
     "-o",
-    "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/assembly/distance-kernels.s",
+    "<repo>/build-optimization-release/benchmarks/evidence/assembly/distance-kernels.s",
     "-march=native"
   ],
   "machine": "arm64",

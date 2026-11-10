@@ -8,9 +8,9 @@
     "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
     "-framework",
     "Foundation",
-    "/Users/estebangonzalezcervantes/Documents/aetherindex/docs/benchmarks/hardware-reference/2026-10-21/thermal_probe.mm",
+    "<repo>/docs/benchmarks/hardware-reference/2026-10-21/thermal_probe.mm",
     "-o",
-    "/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-probes-20261021/thermal_probe"
+    "<repo>/build-hardware-probes-20261021/thermal_probe"
   ],
   "state": {
     "thermal_state": 0,

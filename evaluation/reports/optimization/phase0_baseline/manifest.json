@@ -3,7 +3,7 @@
     "vec_synth_10k_128": {
       "command": [
         "vectors",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase0_baseline/vec_synth_10k_128",
+        "<repo>/evaluation/reports/optimization/phase0_baseline/vec_synth_10k_128",
         "--synthetic",
         "10000",
         "128"
@@ -14,7 +14,7 @@
     "vec_synth_100k_128": {
       "command": [
         "vectors",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase0_baseline/vec_synth_100k_128",
+        "<repo>/evaluation/reports/optimization/phase0_baseline/vec_synth_100k_128",
         "--synthetic",
         "100000",
         "128"
@@ -25,9 +25,9 @@
     "vec_dbpedia_10k": {
       "command": [
         "vectors",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase0_baseline/vec_dbpedia_10k",
+        "<repo>/evaluation/reports/optimization/phase0_baseline/vec_dbpedia_10k",
         "--csv",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia/vectors.csv"
+        "<repo>/datasets/real/dbpedia/vectors.csv"
       ],
       "returncode": 0,
       "wall_seconds": 22.2
@@ -35,7 +35,7 @@
     "load_synth_10k_1024": {
       "command": [
         "load",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase0_baseline/load_synth_10k_1024",
+        "<repo>/evaluation/reports/optimization/phase0_baseline/load_synth_10k_1024",
         "--synthetic",
         "10000",
         "1024"
@@ -46,7 +46,7 @@
     "load_synth_100k_128": {
       "command": [
         "load",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase0_baseline/load_synth_100k_128",
+        "<repo>/evaluation/reports/optimization/phase0_baseline/load_synth_100k_128",
         "--synthetic",
         "100000",
         "128"
@@ -57,7 +57,7 @@
     "bm25_cp01": {
       "command": [
         "bm25",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase0_baseline/bm25_cp01",
+        "<repo>/evaluation/reports/optimization/phase0_baseline/bm25_cp01",
         "--corpus",
         "datasets/corpus.jsonl",
         "datasets/queries.jsonl"
@@ -68,7 +68,7 @@
     "bm25_zipf_100k": {
       "command": [
         "bm25",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase0_baseline/bm25_zipf_100k",
+        "<repo>/evaluation/reports/optimization/phase0_baseline/bm25_zipf_100k",
         "--zipf",
         "100000"
       ],
@@ -78,7 +78,7 @@
     "hybrid_zipf_100k_128": {
       "command": [
         "hybrid",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase0_baseline/hybrid_zipf_100k_128",
+        "<repo>/evaluation/reports/optimization/phase0_baseline/hybrid_zipf_100k_128",
         "--zipf",
         "100000",
         "--dimension",

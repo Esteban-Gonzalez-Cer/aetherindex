@@ -43,7 +43,7 @@
     "name": "independent-matrix-verification",
     "command": [
       "python3",
-      "/Users/estebangonzalezcervantes/Documents/aetherindex/docs/reports/evidence/2026-10-26-cp03/verify_matrix.py"
+      "<repo>/docs/reports/evidence/2026-10-26-cp03/verify_matrix.py"
     ],
     "returncode": 0
   },
@@ -55,7 +55,7 @@
       "-isysroot",
       "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
       "-Iinclude",
-      "/Users/estebangonzalezcervantes/Documents/aetherindex/docs/reports/evidence/2026-10-26-cp03/standalone_consumer.cpp",
+      "<repo>/docs/reports/evidence/2026-10-26-cp03/standalone_consumer.cpp",
       "build-cp03-no-tests-final/libaether_hybrid.a",
       "-o",
       "build-cp03-no-tests-final/rrf_standalone_consumer"

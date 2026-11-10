@@ -182,7 +182,7 @@ escalar, que acumula en `double` y devuelve `float`.
 Ejecuta en macOS Terminal:
 
 ```sh
-cd /Users/estebangonzalezcervantes/Documents/aetherindex
+cd aetherindex
 cmake -S . -B build-showcase -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
 cmake --build build-showcase --parallel 4
 mkdir -p build-showcase/evidence

@@ -3,7 +3,7 @@
     "hybrid_zipf_100k_128": {
       "command": [
         "hybrid",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase5_hybrid_bmw/hybrid_zipf_100k_128",
+        "<repo>/evaluation/reports/optimization/phase5_hybrid_bmw/hybrid_zipf_100k_128",
         "--zipf",
         "100000",
         "--dimension",

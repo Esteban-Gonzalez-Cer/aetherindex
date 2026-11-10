@@ -1,6 +1,6 @@
 {
   "system": "aetherindex-dense",
-  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir-dev/nfcorpus",
+  "data": "<repo>/datasets/market/beir-dev/nfcorpus",
   "documents": 3633,
   "queries": 324,
   "build_type": "Release (NDEBUG)",

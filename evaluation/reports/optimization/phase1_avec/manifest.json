@@ -3,7 +3,7 @@
     "load_synth_10k_1024": {
       "command": [
         "load",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase1_avec/load_synth_10k_1024",
+        "<repo>/evaluation/reports/optimization/phase1_avec/load_synth_10k_1024",
         "--synthetic",
         "10000",
         "1024"
@@ -14,7 +14,7 @@
     "load_synth_100k_128": {
       "command": [
         "load",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase1_avec/load_synth_100k_128",
+        "<repo>/evaluation/reports/optimization/phase1_avec/load_synth_100k_128",
         "--synthetic",
         "100000",
         "128"

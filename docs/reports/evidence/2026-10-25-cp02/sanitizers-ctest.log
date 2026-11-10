@@ -1,4 +1,4 @@
-Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-cp02-sanitizers-final
+Test project <repo>/build-cp02-sanitizers-final
       Start  1: unit.tokenizer
  1/27 Test  #1: unit.tokenizer .......................   Passed    0.28 sec
       Start  2: unit.inverted_index

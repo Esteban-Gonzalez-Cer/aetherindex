@@ -175,7 +175,7 @@
     "protocol.json": "2ecbb95fdba5a123f44f9c0092f03569424bd86dee7b258a652ed49dfa37a2cc",
     "query_results.csv": "5050fb6c57606a6ba73577e37d0a543a929810990602b9f4c3988d7f9b1206b2"
   },
-  "build_directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018",
+  "build_directory": "<repo>/build-judge-release-20261018",
   "configuration": "Release",
   "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
   "machine": "arm64",

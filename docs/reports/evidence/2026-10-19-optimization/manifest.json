@@ -36,7 +36,7 @@
         "AETHER_BUILD_BENCHMARKS:BOOL": "ON",
         "AETHER_ENABLE_SANITIZERS:BOOL": "OFF",
         "AETHER_NATIVE_SIMD:BOOL": "ON",
-        "AETHER_REAL_DATA_DIR:PATH": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia",
+        "AETHER_REAL_DATA_DIR:PATH": "<repo>/datasets/real/dbpedia",
         "AETHER_REGISTER_PERFORMANCE_TESTS:BOOL": "ON",
         "BUILD_TESTING:BOOL": "ON",
         "CMAKE_BUILD_TYPE:STRING": "Release",
@@ -60,7 +60,7 @@
         "AETHER_BUILD_BENCHMARKS:BOOL": "OFF",
         "AETHER_ENABLE_SANITIZERS:BOOL": "ON",
         "AETHER_NATIVE_SIMD:BOOL": "OFF",
-        "AETHER_REAL_DATA_DIR:PATH": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia",
+        "AETHER_REAL_DATA_DIR:PATH": "<repo>/datasets/real/dbpedia",
         "BUILD_TESTING:BOOL": "ON",
         "CMAKE_BUILD_TYPE:STRING": "Debug",
         "CMAKE_CXX_COMPILER:UNINITIALIZED": "/opt/homebrew/opt/llvm/bin/clang++",
@@ -180,13 +180,13 @@
     "cluster_vectors.f32": {
       "sha256": "133d3ff85e87cd9552873f6156ac43d6c40f502d392aac5931d4308ed6fce6b9",
       "bytes": 5120000,
-      "local_path": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/clustered/cluster_vectors.f32",
+      "local_path": "<repo>/build-optimization-release/benchmarks/evidence/clustered/cluster_vectors.f32",
       "format": "native-endian IEEE-754 FP32 row-major"
     },
     "cluster_queries.f32": {
       "sha256": "cf5a080d72541cd8441ced3f59baa803ecae40f9022f77a9192eb18c17ac0207",
       "bytes": 512000,
-      "local_path": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-release/benchmarks/evidence/clustered/cluster_queries.f32",
+      "local_path": "<repo>/build-optimization-release/benchmarks/evidence/clustered/cluster_queries.f32",
       "format": "native-endian IEEE-754 FP32 row-major"
     }
   },

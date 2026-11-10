@@ -1,4 +1,4 @@
-Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-debug
+Test project <repo>/build-optimization-debug
       Start  1: unit.vector_store
  1/19 Test  #1: unit.vector_store ................   Passed    0.01 sec
       Start  2: unit.vector_store_allocation

@@ -3,7 +3,7 @@
     "vec_synth_100k_128": {
       "command": [
         "vectors",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase2_default/vec_synth_100k_128",
+        "<repo>/evaluation/reports/optimization/phase2_default/vec_synth_100k_128",
         "--synthetic",
         "100000",
         "128"
@@ -14,9 +14,9 @@
     "vec_dbpedia_10k": {
       "command": [
         "vectors",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase2_default/vec_dbpedia_10k",
+        "<repo>/evaluation/reports/optimization/phase2_default/vec_dbpedia_10k",
         "--csv",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia/vectors.csv"
+        "<repo>/datasets/real/dbpedia/vectors.csv"
       ],
       "returncode": 0,
       "wall_seconds": 25.3
@@ -24,7 +24,7 @@
     "hybrid_zipf_100k_128": {
       "command": [
         "hybrid",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase2_default/hybrid_zipf_100k_128",
+        "<repo>/evaluation/reports/optimization/phase2_default/hybrid_zipf_100k_128",
         "--zipf",
         "100000",
         "--dimension",
@@ -36,11 +36,11 @@
     "vec_sift1m": {
       "command": [
         "vectors",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase2_default/vec_sift1m",
+        "<repo>/evaluation/reports/optimization/phase2_default/vec_sift1m",
         "--fvecs",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/sift1m/sift/sift_base.fvecs",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/sift1m/sift/sift_query.fvecs",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/sift1m/sift/sift_groundtruth.ivecs",
+        "<repo>/datasets/real/sift1m/sift/sift_base.fvecs",
+        "<repo>/datasets/real/sift1m/sift/sift_query.fvecs",
+        "<repo>/datasets/real/sift1m/sift/sift_groundtruth.ivecs",
         "--repeat",
         "1"
       ],
@@ -50,9 +50,9 @@
     "vec_dbpedia_100k": {
       "command": [
         "vectors",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase2_default/vec_dbpedia_100k",
+        "<repo>/evaluation/reports/optimization/phase2_default/vec_dbpedia_100k",
         "--csv",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia-100k/vectors.csv",
+        "<repo>/datasets/real/dbpedia-100k/vectors.csv",
         "--repeat",
         "1"
       ],
@@ -62,7 +62,7 @@
     "vec_synth_1m_128": {
       "command": [
         "vectors",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase2_default/vec_synth_1m_128",
+        "<repo>/evaluation/reports/optimization/phase2_default/vec_synth_1m_128",
         "--synthetic",
         "1000000",
         "128",

@@ -175,7 +175,7 @@
     "protocol.json": "bd8ef63dede7edf0849812a2e73f065d08a8ada92117bf39073a9a7567e17e08",
     "query_results.csv": "5050fb6c57606a6ba73577e37d0a543a929810990602b9f4c3988d7f9b1206b2"
   },
-  "build_directory": "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-debug-20261018",
+  "build_directory": "<repo>/build-judge-debug-20261018",
   "configuration": "Debug",
   "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
   "machine": "arm64",

@@ -1,6 +1,6 @@
 {
   "system": "aetherindex-dense",
-  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/trec-covid",
+  "data": "<repo>/datasets/market/beir/trec-covid",
   "documents": 171332,
   "queries": 50,
   "build_type": "Release (NDEBUG)",

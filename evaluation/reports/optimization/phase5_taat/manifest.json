@@ -3,7 +3,7 @@
     "bm25_zipf_100k": {
       "command": [
         "bm25",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase5_taat/bm25_zipf_100k",
+        "<repo>/evaluation/reports/optimization/phase5_taat/bm25_zipf_100k",
         "--zipf",
         "100000",
         "--bm25-strategy",
@@ -15,7 +15,7 @@
     "bm25_zipf_1m": {
       "command": [
         "bm25",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase5_taat/bm25_zipf_1m",
+        "<repo>/evaluation/reports/optimization/phase5_taat/bm25_zipf_1m",
         "--zipf",
         "1000000",
         "--repeat",
@@ -29,7 +29,7 @@
     "bm25_cp01": {
       "command": [
         "bm25",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase5_taat/bm25_cp01",
+        "<repo>/evaluation/reports/optimization/phase5_taat/bm25_cp01",
         "--corpus",
         "datasets/corpus.jsonl",
         "datasets/queries.jsonl",

@@ -1,4 +1,4 @@
-/Users/estebangonzalezcervantes/Documents/aetherindex/build-hardware-reference-20261021/CMakeFiles/aether_distance.dir/src/distance/scalar_distance.cpp.o:
+<repo>/build-hardware-reference-20261021/CMakeFiles/aether_distance.dir/src/distance/scalar_distance.cpp.o:
 (__TEXT,__text) section
 __ZN11aetherindex6detail18cosine_unit_kernelEPKfS2_m:
 0000000000000000	cmp	x2, #0x10

@@ -1,6 +1,6 @@
 {
   "system": "aetherindex-dense",
-  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir-dev/fiqa",
+  "data": "<repo>/datasets/market/beir-dev/fiqa",
   "documents": 57638,
   "queries": 500,
   "build_type": "Release (NDEBUG)",

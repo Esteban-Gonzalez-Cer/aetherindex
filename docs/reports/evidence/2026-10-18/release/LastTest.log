@@ -2,8 +2,8 @@ Start testing: Oct 18 23:56 CST
 ----------------------------------------------------------
 1/20 Testing: unit.vector_store
 1/20 Test: unit.vector_store
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_vector_store_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "<repo>/build-judge-release-20261018/tests/aether_vector_store_tests"
+Directory: <repo>/build-judge-release-20261018/tests
 "unit.vector_store" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -18,8 +18,8 @@ Test Passed.
 
 2/20 Testing: unit.vector_store_allocation
 2/20 Test: unit.vector_store_allocation
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_vector_store_allocation_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "<repo>/build-judge-release-20261018/tests/aether_vector_store_allocation_tests"
+Directory: <repo>/build-judge-release-20261018/tests
 "unit.vector_store_allocation" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -38,8 +38,8 @@ Test Passed.
 
 3/20 Testing: unit.distance
 3/20 Test: unit.distance
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_distance_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "<repo>/build-judge-release-20261018/tests/aether_distance_tests"
+Directory: <repo>/build-judge-release-20261018/tests
 "unit.distance" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -53,8 +53,8 @@ Test Passed.
 
 16/20 Testing: integration.sprint1_okr1
 16/20 Test: integration.sprint1_okr1
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_sprint1_okr1_tests" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/okr1-Release"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "<repo>/build-judge-release-20261018/tests/aether_sprint1_okr1_tests" "<repo>/build-judge-release-20261018/tests/okr1-Release"
+Directory: <repo>/build-judge-release-20261018/tests
 "integration.sprint1_okr1" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -72,8 +72,8 @@ Test Passed.
 
 4/20 Testing: unit.brute_force
 4/20 Test: unit.brute_force
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_brute_force_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "<repo>/build-judge-release-20261018/tests/aether_brute_force_tests"
+Directory: <repo>/build-judge-release-20261018/tests
 "unit.brute_force" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -87,8 +87,8 @@ Test Passed.
 
 5/20 Testing: integration.storage_distance
 5/20 Test: integration.storage_distance
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_storage_distance_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "<repo>/build-judge-release-20261018/tests/aether_storage_distance_tests"
+Directory: <repo>/build-judge-release-20261018/tests
 "integration.storage_distance" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -102,8 +102,8 @@ Test Passed.
 
 6/20 Testing: integration.dense_retrieval
 6/20 Test: integration.dense_retrieval
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_query_engine_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "<repo>/build-judge-release-20261018/tests/aether_query_engine_tests"
+Directory: <repo>/build-judge-release-20261018/tests
 "integration.dense_retrieval" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -117,8 +117,8 @@ Test Passed.
 
 7/20 Testing: unit.cli_parser
 7/20 Test: unit.cli_parser
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_cli_parser_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "<repo>/build-judge-release-20261018/tests/aether_cli_parser_tests"
+Directory: <repo>/build-judge-release-20261018/tests
 "unit.cli_parser" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -132,8 +132,8 @@ Test Passed.
 
 8/20 Testing: integration.search_service
 8/20 Test: integration.search_service
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_search_service_tests" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/service-fixtures/Release"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "<repo>/build-judge-release-20261018/tests/aether_search_service_tests" "<repo>/build-judge-release-20261018/tests/service-fixtures/Release"
+Directory: <repo>/build-judge-release-20261018/tests
 "integration.search_service" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -147,8 +147,8 @@ Test Passed.
 
 9/20 Testing: e2e.cli_search
 9/20 Test: e2e.cli_search
-Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/aetherindex" "-DWORK_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/cli-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_search_test.cmake"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=<repo>/build-judge-release-20261018/aetherindex" "-DWORK_DIR=<repo>/build-judge-release-20261018/tests/cli-fixtures/Release" "-P" "<repo>/tests/e2e/cli_search_test.cmake"
+Directory: <repo>/build-judge-release-20261018/tests
 "e2e.cli_search" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -163,8 +163,8 @@ Test Passed.
 
 11/20 Testing: unit.hnsw_node
 11/20 Test: unit.hnsw_node
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_hnsw_node_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "<repo>/build-judge-release-20261018/tests/aether_hnsw_node_tests"
+Directory: <repo>/build-judge-release-20261018/tests
 "unit.hnsw_node" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -182,8 +182,8 @@ Test Passed.
 
 10/20 Testing: e2e.cli_mvp
 10/20 Test: e2e.cli_mvp
-Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/aetherindex" "-DGENERATOR_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_cli_fixture_generator" "-DWORK_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/mvp-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_mvp_test.cmake"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=<repo>/build-judge-release-20261018/aetherindex" "-DGENERATOR_PATH=<repo>/build-judge-release-20261018/tests/aether_cli_fixture_generator" "-DWORK_DIR=<repo>/build-judge-release-20261018/tests/mvp-fixtures/Release" "-P" "<repo>/tests/e2e/cli_mvp_test.cmake"
+Directory: <repo>/build-judge-release-20261018/tests
 "e2e.cli_mvp" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -198,8 +198,8 @@ Test Passed.
 
 12/20 Testing: unit.hnsw_insert
 12/20 Test: unit.hnsw_insert
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_hnsw_insert_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "<repo>/build-judge-release-20261018/tests/aether_hnsw_insert_tests"
+Directory: <repo>/build-judge-release-20261018/tests
 "unit.hnsw_insert" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -214,8 +214,8 @@ Test Passed.
 
 13/20 Testing: unit.hnsw_search
 13/20 Test: unit.hnsw_search
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_hnsw_search_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "<repo>/build-judge-release-20261018/tests/aether_hnsw_search_tests"
+Directory: <repo>/build-judge-release-20261018/tests
 "unit.hnsw_search" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -230,8 +230,8 @@ Test Passed.
 
 14/20 Testing: unit.hnsw_graph
 14/20 Test: unit.hnsw_graph
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_hnsw_graph_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "<repo>/build-judge-release-20261018/tests/aether_hnsw_graph_tests"
+Directory: <repo>/build-judge-release-20261018/tests
 "unit.hnsw_graph" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -246,8 +246,8 @@ Test Passed.
 
 17/20 Testing: e2e.sprint1_okr1
 17/20 Test: e2e.sprint1_okr1
-Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/aetherindex" "-DEVIDENCE_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/okr1-Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/sprint1_okr1_test.cmake"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=<repo>/build-judge-release-20261018/aetherindex" "-DEVIDENCE_DIR=<repo>/build-judge-release-20261018/tests/okr1-Release" "-P" "<repo>/tests/e2e/sprint1_okr1_test.cmake"
+Directory: <repo>/build-judge-release-20261018/tests
 "e2e.sprint1_okr1" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -262,8 +262,8 @@ Test Passed.
 
 15/20 Testing: integration.hnsw_recall
 15/20 Test: integration.hnsw_recall
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_hnsw_recall_tests" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/hnsw-recall-Release.csv"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "<repo>/build-judge-release-20261018/tests/aether_hnsw_recall_tests" "<repo>/build-judge-release-20261018/tests/hnsw-recall-Release.csv"
+Directory: <repo>/build-judge-release-20261018/tests
 "integration.hnsw_recall" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -288,8 +288,8 @@ Test Passed.
 
 18/20 Testing: e2e.cli_hnsw
 18/20 Test: e2e.cli_hnsw
-Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/aetherindex" "-DGENERATOR_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_cli_fixture_generator" "-DWORK_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/hnsw-cli-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_hnsw_test.cmake"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=<repo>/build-judge-release-20261018/aetherindex" "-DGENERATOR_PATH=<repo>/build-judge-release-20261018/tests/aether_cli_fixture_generator" "-DWORK_DIR=<repo>/build-judge-release-20261018/tests/hnsw-cli-fixtures/Release" "-P" "<repo>/tests/e2e/cli_hnsw_test.cmake"
+Directory: <repo>/build-judge-release-20261018/tests
 "e2e.cli_hnsw" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -304,8 +304,8 @@ Test Passed.
 
 20/20 Testing: integration.hnsw_real_dataset
 20/20 Test: integration.hnsw_real_dataset
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/aether_hnsw_real_dataset_tests" "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/hnsw-real-data-Release.csv"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "<repo>/build-judge-release-20261018/tests/aether_hnsw_real_dataset_tests" "<repo>/datasets/real/dbpedia" "<repo>/build-judge-release-20261018/tests/hnsw-real-data-Release.csv"
+Directory: <repo>/build-judge-release-20261018/tests
 "integration.hnsw_real_dataset" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------
@@ -374,8 +374,8 @@ Test Passed.
 
 19/20 Testing: e2e.cli_real_dataset
 19/20 Test: e2e.cli_real_dataset
-Command: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13" "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/validate_real_dataset.py" "--cli" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/aetherindex" "--data-dir" "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia" "--k" "100" "--report" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests/real-data-Release.json"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-judge-release-20261018/tests
+Command: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13" "<repo>/scripts/validate_real_dataset.py" "--cli" "<repo>/build-judge-release-20261018/aetherindex" "--data-dir" "<repo>/datasets/real/dbpedia" "--k" "100" "--report" "<repo>/build-judge-release-20261018/tests/real-data-Release.json"
+Directory: <repo>/build-judge-release-20261018/tests
 "e2e.cli_real_dataset" start time: Oct 18 23:56 CST
 Output:
 ----------------------------------------------------------

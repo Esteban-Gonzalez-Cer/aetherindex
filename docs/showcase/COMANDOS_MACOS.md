@@ -12,7 +12,7 @@ opcionales; el caso principal utiliza la consulta 0.
 ## Antes de presentar
 
 ```sh
-cd /Users/estebangonzalezcervantes/Documents/aetherindex
+cd aetherindex
 cmake -S . -B build-showcase -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
 cmake --build build-showcase --parallel 4
 mkdir -p build-showcase/evidence

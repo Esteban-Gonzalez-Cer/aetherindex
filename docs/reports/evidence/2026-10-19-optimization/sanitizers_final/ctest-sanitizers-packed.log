@@ -1,4 +1,4 @@
-Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-sanitizers
+Test project <repo>/build-optimization-sanitizers
       Start  2: unit.vector_store_allocation
  1/12 Test  #2: unit.vector_store_allocation .....   Passed    1.65 sec
       Start  5: unit.optimization_contracts

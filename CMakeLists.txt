@@ -1,17 +1,28 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(AetherIndex LANGUAGES CXX)
+project(AetherIndex
+    VERSION 0.3.0
+    DESCRIPTION "Hybrid search engine: HNSW vector search, BM25 lexical retrieval and rank fusion"
+    LANGUAGES CXX
+)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
 include(cmake/Sanitizers.cmake)
+include(cmake/Warnings.cmake)
+
+find_package(Threads REQUIRED)
 
 add_library(aether_core INTERFACE)
 target_include_directories(aether_core INTERFACE "${PROJECT_SOURCE_DIR}/include")
 target_compile_features(aether_core INTERFACE cxx_std_20)
-target_link_libraries(aether_core INTERFACE aether_sanitizers)
+target_link_libraries(aether_core INTERFACE aether_sanitizers aether_warnings Threads::Threads)
 
 add_library(aether_storage STATIC src/storage/vector_store.cpp src/storage/vector_file.cpp)
 target_link_libraries(aether_storage PUBLIC aether_core)

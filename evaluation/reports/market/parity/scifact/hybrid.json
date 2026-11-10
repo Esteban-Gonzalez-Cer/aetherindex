@@ -1,6 +1,6 @@
 {
   "system": "aetherindex-hybrid",
-  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/scifact",
+  "data": "<repo>/datasets/market/beir/scifact",
   "documents": 5183,
   "queries": 300,
   "build_type": "Release (NDEBUG)",

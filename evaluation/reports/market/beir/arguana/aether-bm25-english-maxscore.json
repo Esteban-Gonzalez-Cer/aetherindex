@@ -1,6 +1,6 @@
 {
   "system": "aetherindex-bm25",
-  "data": "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/market/beir/arguana",
+  "data": "<repo>/datasets/market/beir/arguana",
   "documents": 8674,
   "queries": 1406,
   "build_type": "Release (NDEBUG)",

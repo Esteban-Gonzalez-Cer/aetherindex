@@ -82,7 +82,7 @@
     ],
     "ctest_elapsed_seconds": 38.91,
     "timing_scope": "Full correctness/regression suite; not a query latency benchmark.",
-    "hybrid_compile_command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -g -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_hybrid.dir/src/hybrid/rrf.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/hybrid/rrf.cpp",
+    "hybrid_compile_command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I<repo>/include -g -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_hybrid.dir/src/hybrid/rrf.cpp.o -c <repo>/src/hybrid/rrf.cpp",
     "sha256": {
       "CMakeCache.txt": "e981232eb477c66644cc6a0feb420c35c8b3dd5d73f0cfaf14a18ac75b8bc390",
       "compile_commands.json": "30d7e57792fa678e9ecfaa2887f2ae037c543aa7615ecc55d0c7b441e1b47838",
@@ -173,7 +173,7 @@
     ],
     "ctest_elapsed_seconds": 8.2,
     "timing_scope": "Full correctness/regression suite; not a query latency benchmark.",
-    "hybrid_compile_command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_hybrid.dir/src/hybrid/rrf.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/hybrid/rrf.cpp",
+    "hybrid_compile_command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I<repo>/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_hybrid.dir/src/hybrid/rrf.cpp.o -c <repo>/src/hybrid/rrf.cpp",
     "sha256": {
       "CMakeCache.txt": "2fc6e09cfbe85d9c60579b361b6845c6d696b4e1d9657f192c8c5f881f80248c",
       "compile_commands.json": "471229d7d868c4be8f7d070cc536a66d428187e3d422ec3d085d9cc339ac4fc6",
@@ -264,7 +264,7 @@
     ],
     "ctest_elapsed_seconds": 114.73,
     "timing_scope": "Full correctness/regression suite; not a query latency benchmark.",
-    "hybrid_compile_command": "/opt/homebrew/opt/llvm/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -g -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -o CMakeFiles/aether_hybrid.dir/src/hybrid/rrf.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/hybrid/rrf.cpp",
+    "hybrid_compile_command": "/opt/homebrew/opt/llvm/bin/clang++ -I<repo>/include -g -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -o CMakeFiles/aether_hybrid.dir/src/hybrid/rrf.cpp.o -c <repo>/src/hybrid/rrf.cpp",
     "sha256": {
       "CMakeCache.txt": "9a524133be73cfebd904a574d913cb7880d4aa4054fd0b21386368d3967e441e",
       "compile_commands.json": "53fc43f9d0b5bf57777713aebcfc73b7370ad9cf172e70e9cdbe5ce33f1a1401",
@@ -287,7 +287,7 @@
     "tests": [],
     "ctest_elapsed_seconds": 0.0,
     "timing_scope": "Full correctness/regression suite; not a query latency benchmark.",
-    "hybrid_compile_command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_hybrid.dir/src/hybrid/rrf.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/hybrid/rrf.cpp",
+    "hybrid_compile_command": "/Library/Developer/CommandLineTools/usr/bin/clang++ -I<repo>/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_hybrid.dir/src/hybrid/rrf.cpp.o -c <repo>/src/hybrid/rrf.cpp",
     "sha256": {
       "CMakeCache.txt": "7c33ffe243ff97cfca36045dbc2f0f26149e7d2e660e306632f75f6009b189d2",
       "compile_commands.json": "c8609b83b5ac3f9e2f7b1e12e150fec6755733f17e2260a7022b20073fe49856",

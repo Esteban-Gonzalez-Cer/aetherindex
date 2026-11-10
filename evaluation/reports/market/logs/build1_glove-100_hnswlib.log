@@ -1,2 +1,0 @@
-hnswlib ef=128 recall@10=0.83216 p50=0.263333ms qps(batch)=34398.3
-hnswlib build 459.136 s, memory 769.922 MiB (Release (NDEBUG))

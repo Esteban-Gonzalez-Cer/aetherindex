@@ -12,7 +12,7 @@
       "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
       "CMAKE_OSX_SYSROOT": ""
     },
-    "service_compile_command": "/usr/bin/c++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -g -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_application.dir/src/application/search_service.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/application/search_service.cpp",
+    "service_compile_command": "/usr/bin/c++ -I<repo>/include -g -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_application.dir/src/application/search_service.cpp.o -c <repo>/src/application/search_service.cpp",
     "sha256": {
       "CMakeCache.txt": "317630d8679ee5798c4ccbebd20dc31b2e2d0ac0d5a485b9ccaa8107688bf411",
       "compile_commands.json": "f45b44ead02486268d4f0e196b3e6b1a4a7e86ecd0018e9b8dfb4f5a83a9012e",
@@ -40,7 +40,7 @@
       "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
       "CMAKE_OSX_SYSROOT": "macosx"
     },
-    "service_compile_command": "/usr/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_application.dir/src/application/search_service.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/application/search_service.cpp",
+    "service_compile_command": "/usr/bin/clang++ -I<repo>/include -O3 -DNDEBUG -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -o CMakeFiles/aether_application.dir/src/application/search_service.cpp.o -c <repo>/src/application/search_service.cpp",
     "sha256": {
       "CMakeCache.txt": "a5f5667e3f35367b1fc8c036aeb4200a9091b212beb858f35c766436506d9ff1",
       "compile_commands.json": "b5e673542c5b500f2aba2874874d4ae26b29174ad91c272c45352cd6b3eebac9",
@@ -68,7 +68,7 @@
       "CMAKE_CXX_COMPILER": "/opt/homebrew/opt/llvm/bin/clang++",
       "CMAKE_OSX_SYSROOT": "macosx"
     },
-    "service_compile_command": "/opt/homebrew/opt/llvm/bin/clang++ -I/Users/estebangonzalezcervantes/Documents/aetherindex/include -g -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -o CMakeFiles/aether_application.dir/src/application/search_service.cpp.o -c /Users/estebangonzalezcervantes/Documents/aetherindex/src/application/search_service.cpp",
+    "service_compile_command": "/opt/homebrew/opt/llvm/bin/clang++ -I<repo>/include -g -std=c++20 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -o CMakeFiles/aether_application.dir/src/application/search_service.cpp.o -c <repo>/src/application/search_service.cpp",
     "sha256": {
       "CMakeCache.txt": "c504914019fc64c70aff7b1db615d8caa30292014396f30e025698ed80ed9001",
       "compile_commands.json": "24275547b444ce3de83a29045978132f3bbf6bf6e74863aa744a2ae88d360dc5",

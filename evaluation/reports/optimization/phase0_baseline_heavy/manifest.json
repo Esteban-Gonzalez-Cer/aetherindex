@@ -3,11 +3,11 @@
     "vec_sift1m": {
       "command": [
         "vectors",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase0_baseline_heavy/vec_sift1m",
+        "<repo>/evaluation/reports/optimization/phase0_baseline_heavy/vec_sift1m",
         "--fvecs",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/sift1m/sift/sift_base.fvecs",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/sift1m/sift/sift_query.fvecs",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/sift1m/sift/sift_groundtruth.ivecs",
+        "<repo>/datasets/real/sift1m/sift/sift_base.fvecs",
+        "<repo>/datasets/real/sift1m/sift/sift_query.fvecs",
+        "<repo>/datasets/real/sift1m/sift/sift_groundtruth.ivecs",
         "--repeat",
         "1"
       ],
@@ -17,9 +17,9 @@
     "vec_dbpedia_100k": {
       "command": [
         "vectors",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase0_baseline_heavy/vec_dbpedia_100k",
+        "<repo>/evaluation/reports/optimization/phase0_baseline_heavy/vec_dbpedia_100k",
         "--csv",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia-100k/vectors.csv",
+        "<repo>/datasets/real/dbpedia-100k/vectors.csv",
         "--repeat",
         "1"
       ],
@@ -29,7 +29,7 @@
     "vec_synth_1m_128": {
       "command": [
         "vectors",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase0_baseline_heavy/vec_synth_1m_128",
+        "<repo>/evaluation/reports/optimization/phase0_baseline_heavy/vec_synth_1m_128",
         "--synthetic",
         "1000000",
         "128",
@@ -42,7 +42,7 @@
     "bm25_zipf_1m": {
       "command": [
         "bm25",
-        "/Users/estebangonzalezcervantes/Documents/aetherindex/evaluation/reports/optimization/phase0_baseline_heavy/bm25_zipf_1m",
+        "<repo>/evaluation/reports/optimization/phase0_baseline_heavy/bm25_zipf_1m",
         "--zipf",
         "1000000",
         "--repeat",

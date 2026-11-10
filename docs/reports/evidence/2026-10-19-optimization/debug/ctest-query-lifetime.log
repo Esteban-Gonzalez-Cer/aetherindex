@@ -1,4 +1,4 @@
-Test project /Users/estebangonzalezcervantes/Documents/aetherindex/build-optimization-debug
+Test project <repo>/build-optimization-debug
     Start 5: unit.optimization_contracts
 1/2 Test #5: unit.optimization_contracts ......   Passed    0.41 sec
     Start 7: integration.dense_retrieval
