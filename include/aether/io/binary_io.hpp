@@ -134,6 +134,20 @@ class SectionWriter {
         pad_to_64();
         bytes(values.data(), values.size_bytes());
     }
+    // An array written in pieces: produce(emit) calls emit(std::span<const T>) until exactly
+    // `count` elements were written (logic_error otherwise).
+    template <class T, class Produce>
+    void array_stream(std::size_t count, Produce&& produce) {
+        static_assert(std::is_trivially_copyable_v<T>);
+        u64(count);
+        pad_to_64();
+        std::size_t written = 0;
+        produce([&](std::span<const T> chunk) {
+            bytes(chunk.data(), chunk.size_bytes());
+            written += chunk.size();
+        });
+        if (written != count) throw std::logic_error("array_stream wrote the wrong count.");
+    }
     // Writes the header (payload size and checksum); call once, after the last field.
     void finish();
 

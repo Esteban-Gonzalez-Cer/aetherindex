@@ -20,7 +20,7 @@ find_library(OPENMP_LIBRARY omp HINTS /opt/homebrew/opt/libomp/lib REQUIRED)
 add_executable(aether_ann_compare ann_compare.cpp)
 target_include_directories(aether_ann_compare SYSTEM PRIVATE "${hnswlib_SOURCE_DIR}" "${OPENMP_INCLUDE}")
 target_link_libraries(aether_ann_compare PRIVATE aether_hnsw aether_brute_force aether_quantization
-    faiss "${OPENMP_LIBRARY}")
+    aether_persistence faiss "${OPENMP_LIBRARY}")
 target_compile_definitions(aether_ann_compare PRIVATE AETHER_HNSWLIB_VARIANT="default")
 
 # hnswlib 0.8.0 has no ARM SIMD kernels; its scalar loops vectorize only when float
@@ -29,7 +29,7 @@ target_compile_definitions(aether_ann_compare PRIVATE AETHER_HNSWLIB_VARIANT="de
 add_executable(aether_ann_compare_fastmath ann_compare.cpp)
 target_include_directories(aether_ann_compare_fastmath SYSTEM PRIVATE "${hnswlib_SOURCE_DIR}" "${OPENMP_INCLUDE}")
 target_link_libraries(aether_ann_compare_fastmath PRIVATE aether_hnsw aether_brute_force
-    aether_quantization faiss "${OPENMP_LIBRARY}")
+    aether_quantization aether_persistence faiss "${OPENMP_LIBRARY}")
 target_compile_definitions(aether_ann_compare_fastmath PRIVATE AETHER_HNSWLIB_VARIANT="fastmath")
 target_compile_options(aether_ann_compare_fastmath PRIVATE -ffast-math)
 

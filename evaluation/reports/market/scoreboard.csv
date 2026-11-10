@@ -167,6 +167,10 @@ ANN servers,glove-100,opensearch ef=64 latency p50 (ms),,opensearch,0.8865841664
 ANN servers,glove-100,opensearch ef=128 latency p50 (ms),,opensearch,2.127415966242552,,n/c,no AetherIndex server
 ANN servers,glove-100,opensearch ef=256 latency p50 (ms),,opensearch,1.2605830561369658,,n/c,no AetherIndex server
 ANN servers,glove-100,opensearch ef=512 latency p50 (ms),,opensearch,1.9118750933557749,,n/c,no AetherIndex server
+Persistence,sift1m,"load + first query, 1 thread (ms)",104.847416,FAISS HNSWFlat,51.920709,0.50x,lost,median of 3; files in the page cache
+Persistence,sift1m,saved index size (MiB),623.2535362243652,FAISS HNSWFlat,625.8567447662354,1.00x,won,
+Persistence,glove-100,"load + first query, 1 thread (ms)",118.205292,FAISS HNSWFlat,53.224792,0.45x,lost,median of 3; files in the page cache
+Persistence,glove-100,saved index size (MiB),611.2156562805176,FAISS HNSWFlat,614.3130054473877,1.01x,won,
 Dense HNSW cost,scifact,"latency p50, 1 thread (ms)",0.079625,qdrant-dense,0.5818330682814121,7.31x,n/c,server latency includes the local network
 Hybrid cost,scifact,"latency p50, 1 thread (ms)",0.167292,qdrant-hybrid,1.2213748414069414,7.30x,n/c,server latency includes the local network
 Dense HNSW cost,nfcorpus,"latency p50, 1 thread (ms)",0.078792,qdrant-dense,0.8192919194698334,10.40x,n/c,server latency includes the local network

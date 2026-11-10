@@ -214,12 +214,15 @@ Loading never trusts a size or an offset before checking it:
 
 - **Headers and files.** Header checksum, section kind and version, and that each file's
   size matches both its header and the manifest.
-- **Vectors.** No duplicate IDs, and the row count matches the ID count.
+- **Vectors.** No duplicate live IDs, and the row count matches the ID count. Rows are
+  stored without their in-memory padding, and IDs only when they are not 0..N-1.
 - **HNSW.**
   - Every degree is at most `M_max` and every upper-layer offset is in range.
-  - The full structural check (`validate_graph`) passes: no invalid references, layer
-    violations or wrong entry point.
+  - Every neighbor a traversal can follow names a node present at that layer, and the entry
+    point, top level and node count agree. This is one pass over the edges.
   - The graph was built on the same vector IDs (an ID checksum).
+  - The complete structural report (also duplicate edges and degree rules) runs in
+    `index verify`.
 - **BM25.** Every compressed block is decoded. Every read must stay inside the postings
   buffer and every document ordinal must be valid and ascending.
 - **Quantized codes.** Sizes match the store, and every PQ code names an existing centroid.

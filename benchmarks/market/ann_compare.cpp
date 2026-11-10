@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <exception>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -34,11 +35,13 @@
 #include <faiss/IndexIVFPQ.h>
 #include <faiss/IndexRefine.h>
 #include <faiss/impl/HNSW.h>
+#include <faiss/index_io.h>
 #include <hnswlib/hnswlib.h>
 
 #include "aether/ann/brute_force/brute_force_index.hpp"
 #include "aether/ann/hnsw/hnsw_index.hpp"
 #include "aether/core/parallel.hpp"
+#include "aether/persistence/snapshot.hpp"
 #include "aether/quantization/pq.hpp"
 #include "aether/quantization/sq8.hpp"
 #include "market_common.hpp"
@@ -73,7 +76,17 @@ class Searcher {
     virtual void single_threaded() {}
     virtual double library_mib() const { return 0; }
     virtual const char* param_name() const { return "ef"; }
+    // Persistence with each library's own format (--persist-dir): save() returns the bytes
+    // written; load() replaces the in-memory index with the saved one.
+    virtual std::uint64_t save(const std::string& /*dir*/) {
+        throw std::invalid_argument("This system has no persistence measurement.");
+    }
+    virtual void load(const std::string& /*dir*/) {
+        throw std::invalid_argument("This system has no persistence measurement.");
+    }
 };
+
+std::uint64_t file_bytes(const std::string& path) { return std::filesystem::file_size(path); }
 
 // --- AetherIndex --------------------------------------------------------------------
 
@@ -108,6 +121,20 @@ class AetherSearcher final : public Searcher {
         if (codes_kind_ == Codes::Sq8Lean) store_->release_rows();
     }
     void set_param(std::size_t value) override { ef_ = value; }
+    // Snapshot sections of the vectors and the graph. Loading skips the payload checksums
+    // (the others verify none) but still validates the graph structure.
+    std::uint64_t save(const std::string& dir) override {
+        if (codes_) throw std::invalid_argument("Persistence is measured for FP32 HNSW only.");
+        snapshot::save(*store_, dir + "/vectors.sec");
+        snapshot::save(*index_, dir + "/hnsw.sec");
+        return file_bytes(dir + "/vectors.sec") + file_bytes(dir + "/hnsw.sec");
+    }
+    void load(const std::string& dir) override {
+        index_.reset();
+        store_.reset();
+        store_ = snapshot::load_vector_store(dir + "/vectors.sec", false);
+        index_ = snapshot::load_hnsw(dir + "/hnsw.sec", *store_, false);
+    }
     void search(const float* query, std::size_t k, Ids& out) const override {
         const PreparedQuery prepared({query, store_->dimension()}, store_->dimension(), metric_);
         const auto results =
@@ -155,6 +182,15 @@ class HnswlibSearcher final : public Searcher {
         });
     }
     void set_param(std::size_t value) override { index_->setEf(value); }
+    std::uint64_t save(const std::string& dir) override {
+        index_->saveIndex(dir + "/hnswlib.bin");
+        return file_bytes(dir + "/hnswlib.bin");
+    }
+    void load(const std::string& dir) override {
+        index_.reset();
+        index_ = std::make_unique<hnswlib::HierarchicalNSW<float>>(space_.get(),
+                                                                   dir + "/hnswlib.bin");
+    }
     void search(const float* query, std::size_t k, Ids& out) const override {
         auto heap = index_->searchKnn(query, k);
         out.resize(heap.size());
@@ -234,6 +270,17 @@ class FaissSearcher final : public Searcher {
         if (ivf_) ivf_->nprobe = value;
     }
     void single_threaded() override { omp_set_num_threads(1); }
+    std::uint64_t save(const std::string& dir) override {
+        if (kind_ != Kind::Hnsw) throw std::invalid_argument("Persistence: HNSWFlat only.");
+        faiss::write_index(index_.get(), (dir + "/faiss.index").c_str());
+        return file_bytes(dir + "/faiss.index");
+    }
+    void load(const std::string& dir) override {
+        hnsw_ = nullptr;
+        index_.reset();
+        index_.reset(faiss::read_index((dir + "/faiss.index").c_str()));
+        hnsw_ = &dynamic_cast<faiss::IndexHNSW&>(*index_).hnsw;
+    }
     // Structure sizes from FAISS's own containers (codes, links, inverted lists).
     double library_mib() const override {
         const auto codes = [](const faiss::Index* index) {
@@ -329,7 +376,8 @@ int run(int argc, char** argv) {
     o.nlist = args.number("nlist", 1024);
     o.refine = args.number("refine", 4);
     const std::string base_path = args.get("base"), query_path = args.get("queries"),
-                      truth_path = args.get("groundtruth"), out_path = args.get("out");
+                      truth_path = args.get("groundtruth"),
+                      out_path = args.has("persist-dir") ? std::string() : args.get("out");
     const std::string raw_path = args.has("raw") ? args.get("raw") : std::string();
     const std::size_t latency_queries = args.number("latency-queries", 1000);
     const std::size_t repetitions = args.number("repetitions", 5);
@@ -369,6 +417,41 @@ int run(int argc, char** argv) {
     searcher->after_input_released();
     searcher->single_threaded();
     const double memory_mib = bench::resident_mib() - baseline_mib;
+
+    // Persistence: save once, then the median of three (load + one query at ef 64), one
+    // thread, files in the page cache for every system alike.
+    if (args.has("persist-dir")) {
+        const std::string dir = args.get("persist-dir");
+        const std::string persist_out = args.get("persist-out");
+        args.require_all_used();
+        std::filesystem::remove_all(dir);
+        std::filesystem::create_directories(dir);
+        const auto save_start = bench::Clock::now();
+        const auto bytes = searcher->save(dir);
+        const double save_seconds = bench::elapsed_ms(save_start) / 1000.0;
+        std::vector<double> runs;
+        Ids first;
+        for (int r = 0; r < 3; ++r) {
+            const auto start = bench::Clock::now();
+            searcher->load(dir);
+            searcher->set_param(64);
+            searcher->search(queries.row(0), 10, first);
+            runs.push_back(bench::elapsed_ms(start));
+        }
+        std::sort(runs.begin(), runs.end());
+        const bool new_persist = !std::ifstream(persist_out).good();
+        std::ofstream persist(persist_out, std::ios::app);
+        persist.imbue(std::locale::classic());
+        persist << std::setprecision(9);
+        if (new_persist)
+            persist << "dataset,system,M,ef_construction,build_seconds,save_seconds,bytes,"
+                       "load_first_query_ms,load_first_query_ms_min,load_first_query_ms_max\n";
+        persist << o.dataset << ',' << o.system << ',' << o.m << ',' << o.ef_construction << ','
+                << build_seconds << ',' << save_seconds << ',' << bytes << ',' << runs[1] << ','
+                << runs[0] << ',' << runs[2] << '\n';
+        std::filesystem::remove_all(dir);
+        return 0;
+    }
 
     const bool exact = o.system == "faiss-flat";
     const auto params = exact ? std::vector<std::size_t>{0}

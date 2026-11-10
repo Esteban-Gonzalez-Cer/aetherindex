@@ -68,8 +68,10 @@ to every run that feeds the scoreboard:
 | Compact on-disk BM25 format (front-coded terms, bit-packed lengths and postings; everything else rebuilt on load) | Index size: 6 of 6 won, 0.46–0.84× Lucene |
 | BM25 indexing: memoized stems, interned terms | Build time: 3 cells lost → won (SciFact by 0.6 %) |
 | SQ8 without row padding and without per-row floats (−4 to −5 % SQ8 QPS) | SQ8 memory: 2 cells lost → won |
-| `english-plain-v1`, the counterpart of Lucene with `-stemmer none -keepStopwords` (the old comparison used `ascii-tech-v1`, an analyzer for technical identifiers) | 14 clear losses → 3 won, 4 tied, 11 within noise either way |
-| **Today** | **86 of 144 won; 6 clear losses** |
+| `english-plain-v1`, the counterpart of Lucene with `-stemmer none -keepStopwords` (the old comparison used `ascii-tech-v1`, an analyzer for technical identifiers) | 18 cells, 14 of them clear losses → 3 won, 7 won within noise, 4 tied, 4 lost within noise |
+| Saved-index cells added: load + first query, and saved size, against hnswlib and FAISS (4 cells) | Size: 2 won after storing rows unpadded and skipping dense IDs; load: 2 lost |
+| Load path: no ID map for dense IDs (identity mode), bulk row copy, O(edges) reference check instead of the full graph report | SIFT1M load + first query 264 → 105 ms (FAISS 52 ms) |
+| **Today** | **88 of 148 won; 8 clear losses** |
 
 Re-measured cells come from a later campaign pass than the rest. The pass re-ran AetherIndex,
 Lucene and bm25s together for the BM25 cost cells. For the ANN throughput cells only the
@@ -86,3 +88,9 @@ Open, with what is known:
   puts the time in the traversal loop and the distance kernel, not in locking.
 - **GloVe-100 at Recall@10 ≥ 0.99.** No HNSW configuration on the shared grid reaches it,
   for any system; exact FAISS Flat does, at 2.7 K QPS.
+- **Load + first query against FAISS (2 cells, about 2× slower).** On SIFT1M, loading the
+  vectors takes 59 ms and the graph 39 ms. The vectors are copied out of a memory-mapped
+  file, so pages fault on both the mapping and the destination, whereas FAISS issues one
+  `read()` into its buffer. Our load also checks every graph reference, which FAISS does
+  not. A read-only mode that serves the vectors straight from the mapping would remove the
+  copy.

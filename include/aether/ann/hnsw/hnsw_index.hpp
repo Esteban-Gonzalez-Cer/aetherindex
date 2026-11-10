@@ -198,6 +198,9 @@ class HnswIndex {
     static constexpr std::uint8_t absent_level = 255;
 
     void ensure_usable() const;
+    // Every neighbor a traversal can follow names a node present at that layer, and the
+    // entry point and insertion count agree with the levels (snapshot loading).
+    bool references_are_valid() const noexcept;
     std::size_t random_level();
     std::size_t connection_limit(std::size_t level) const noexcept;
     float distance_to(const float* query, InternalId id) const;

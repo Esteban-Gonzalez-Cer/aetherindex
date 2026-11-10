@@ -52,3 +52,4 @@ Thumbs.db
 /evaluation/reports/market/done.txt
 # The hybrid checklist report links its logs directly, so that folder is kept whole.
 !/docs/reports/evidence/2026-10-30-hybrid-checklist/**
+/datasets/market/persist-tmp/

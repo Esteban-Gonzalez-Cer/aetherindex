@@ -700,6 +700,25 @@ GraphMemoryUsage HnswIndex::memory_usage() const noexcept {
                 (levels_.capacity() > 0) + (upper_offsets_.capacity() > 0)};
 }
 
+bool HnswIndex::references_are_valid() const noexcept {
+    std::size_t nodes = 0, observed_max = 0;
+    for (std::size_t position = 0; position < levels_.size(); ++position) {
+        if (levels_[position] == absent_level) continue;
+        ++nodes;
+        if (position >= store_.size()) return false;
+        observed_max = std::max(observed_max, static_cast<std::size_t>(levels_[position]));
+        for (std::size_t level = 0; level <= levels_[position]; ++level)
+            for (const InternalId neighbor : neighbors_internal(static_cast<InternalId>(position), level))
+                if (neighbor >= levels_.size() || levels_[neighbor] == absent_level ||
+                    levels_[neighbor] < level)
+                    return false;
+    }
+    const Top current = top();
+    if (!current.present) return nodes == 0 && successful_insertions_ == 0;
+    return current.entry < levels_.size() && levels_[current.entry] == current.level &&
+           observed_max == current.level && nodes == successful_insertions_;
+}
+
 HnswGraphValidation HnswIndex::validate_graph() const {
     HnswGraphValidation report;
     report.usable = usable_;

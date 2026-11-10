@@ -1,0 +1,4 @@
+dataset,system,M,ef_construction,build_seconds,save_seconds,bytes,load_first_query_ms,load_first_query_ms_min,load_first_query_ms_max
+sift1m,hnswlib,16,200,39.5426995,0.485444167,660518832,1241.27283,1210.26367,1249.15017
+sift1m,faiss-hnsw,16,200,51.4035665,0.242664208,656258362,51.920709,51.500375,55.3635
+sift1m,aether-hnsw,16,200,30.0764702,0.560204459,653528700,104.847416,103.433166,117.010709

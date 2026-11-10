@@ -301,6 +301,26 @@ def ann_cells():
     return [c for c in cells if c]
 
 
+def persist_cells():
+    """Saved indexes: load + first query, and file size, against hnswlib and FAISS."""
+    cells = []
+    for dataset in ("sift1m", "glove-100"):
+        rows = {r["system"]: r for r in read_csv(MARKET / "ann" / f"{dataset}_persist.csv")}
+        if "aether-hnsw" not in rows:
+            continue
+        ours = rows["aether-hnsw"]
+        others = {ANN_LABELS[s]: rows[s] for s in ("hnswlib", "faiss-hnsw") if s in rows}
+        for metric, column, scale, note in (
+                ("load + first query, 1 thread (ms)", "load_first_query_ms", 1.0,
+                 "median of 3; files in the page cache"),
+                ("saved index size (MiB)", "bytes", 1.0 / (1024 * 1024), "")):
+            cells.append(compare_cost(
+                "Persistence", dataset, metric, (float(ours[column]) * scale, None, None),
+                {label: (float(r[column]) * scale, None, None) for label, r in others.items()},
+                False, note))
+    return [c for c in cells if c]
+
+
 def beir_ann_cells():
     rows = read_csv(MARKET / "beir-ann/beir_ann.csv")
     cells = []
@@ -339,7 +359,8 @@ def fmt(value):
 
 
 def main():
-    cells = quality_cells() + lexical_cost_cells() + beir_ann_cells() + ann_cells() + server_cells()
+    cells = (quality_cells() + lexical_cost_cells() + beir_ann_cells() + ann_cells() +
+             persist_cells() + server_cells())
     with (MARKET / "scoreboard.csv").open("w", newline="", encoding="utf-8") as stream:
         writer = csv.DictWriter(stream, fieldnames=list(cells[0].keys()))
         writer.writeheader()

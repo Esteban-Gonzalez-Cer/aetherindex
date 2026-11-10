@@ -102,6 +102,19 @@ def ann_steps():
              "--nlist", 1024, "--refine", 4, *common])
 
 
+def persist_steps():
+    """Saved-index cells: save, then load and answer a first query (M=16, efC=200)."""
+    folder = OUT / "ann"
+    for dataset, spec in ANN_DATA.items():
+        for system in ("aether-hnsw", "hnswlib", "faiss-hnsw"):
+            run(f"persist/{dataset}/{system}",
+                [ANN, "--system", system, "--M", 16, "--ef-construction", 200,
+                 "--base", spec["base"], "--queries", spec["queries"], "--groundtruth", spec["gt"],
+                 "--metric", spec["metric"], "--dataset", dataset,
+                 "--persist-dir", ROOT / "datasets/market/persist-tmp",
+                 "--persist-out", folder / f"{dataset}_persist.csv"])
+
+
 def build1_steps():
     folder = OUT / "ann"
     for dataset, spec in ANN_DATA.items():
@@ -330,12 +343,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--only",
-                        choices=["ann", "build1", "beir", "beir-ann", "parity", "fusion"])
+                        choices=["ann", "build1", "beir", "beir-ann", "parity", "fusion",
+                                 "persist"])
     args = parser.parse_args()
     (OUT / "logs").mkdir(parents=True, exist_ok=True)
     manifest()
     steps = {"parity": parity_steps, "beir": beir_steps, "beir-ann": beir_ann_steps,
-             "ann": ann_steps, "build1": build1_steps, "fusion": fusion_steps}
+             "ann": ann_steps, "build1": build1_steps, "fusion": fusion_steps,
+             "persist": persist_steps}
     for name, function in steps.items():
         if args.only in (None, name):
             function()

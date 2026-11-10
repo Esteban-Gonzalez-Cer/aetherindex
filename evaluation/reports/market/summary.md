@@ -2,7 +2,7 @@
 
 Generado por `scripts/summarize_market.py` a partir de los archivos crudos de esta carpeta. No editar a mano.
 
-Commit `1bb7845a74cc39f614dcfa153e339dfd98ae96d1` (árbol con cambios: True), Apple M4 Pro, Apple clang version 17.0.0 (clang-1700.6.3.2).
+Commit `f07decc687d1b89fe337b5d20658bae0024b80d7` (árbol con cambios: True), Apple M4 Pro, Apple clang version 17.0.0 (clang-1700.6.3.2).
 
 ## Analizador english-v1 frente a Lucene (SciFact)
 

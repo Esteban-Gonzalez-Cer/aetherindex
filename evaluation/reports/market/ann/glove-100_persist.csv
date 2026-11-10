@@ -1,0 +1,4 @@
+dataset,system,M,ef_construction,build_seconds,save_seconds,bytes,load_first_query_ms,load_first_query_ms_min,load_first_query_ms_max
+glove-100,hnswlib,16,200,52.3252338,0.481758625,649183584,1432.14254,1398.41579,1437.43258
+glove-100,faiss-hnsw,16,200,74.6684151,0.12943825,644153874,53.224792,53.169458,55.120292
+glove-100,aether-hnsw,16,200,43.4277453,0.557055875,640906068,118.205292,118.044,120.976625

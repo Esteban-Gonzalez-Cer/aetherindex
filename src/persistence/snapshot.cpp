@@ -1,6 +1,7 @@
 #include "aether/persistence/snapshot.hpp"
 
 #include <algorithm>
+#include <cstring>
 #include <bit>
 #include <cmath>
 #include <locale>
@@ -41,12 +42,22 @@ struct SnapshotAccess {
 
     // ----- VectorStore -----------------------------------------------------------------
 
+    // Rows are written without their in-memory padding, and IDs only when they are not
+    // simply 0..N-1.
     static void save_store(const VectorStore& store, SectionWriter& out) {
         out.u64(store.dimension_);
         out.u32(static_cast<std::uint32_t>(store.metric_));
         out.u8(store.rows_released_ ? 1 : 0);
-        out.array<VectorId>(store.ids_);
-        out.array<EmbeddingValue>(store.data_);
+        out.u64(store.ids_.size());
+        bool dense = true;
+        for (std::size_t i = 0; i < store.ids_.size() && dense; ++i) dense = store.ids_[i] == i;
+        out.u8(dense ? 1 : 0);
+        out.array<VectorId>(dense ? std::span<const VectorId>() : std::span<const VectorId>(store.ids_));
+        const std::size_t rows = store.rows_released_ ? 0 : store.ids_.size();
+        out.array_stream<EmbeddingValue>(rows * store.dimension_, [&](auto emit) {
+            for (std::size_t i = 0; i < rows; ++i)
+                emit(std::span<const EmbeddingValue>(store.data_by_position(i), store.dimension_));
+        });
         out.u64(store.deleted_count_);
         out.array<std::uint64_t>(store.deleted_);
     }
@@ -62,15 +73,34 @@ struct SnapshotAccess {
             in.fail("unknown distance metric");
         auto store = std::make_unique<VectorStore>(static_cast<std::size_t>(dimension),
                                                    static_cast<DistanceKind>(metric));
+        const std::uint64_t count = in.u64();
+        const bool dense = in.u8() != 0;
         const auto ids = in.array<VectorId>();
         const auto rows = in.array<EmbeddingValue>();
         const std::uint64_t deleted_count = in.u64();
         const auto deleted = in.array<std::uint64_t>();
         in.expect_end();
-        if (released ? !rows.empty() : rows.size() != ids.size() * store->stride_)
+        if (count > std::numeric_limits<VectorId>::max() || (dense ? !ids.empty() : ids.size() != count))
+            in.fail("ID count does not match");
+        if (released ? !rows.empty() : rows.size() != count * dimension)
             in.fail("row count does not match the ID count");
-        if (deleted.size() > ids.size() / 64 + 1) in.fail("tombstone bitmap is too large");
-        store->ids_.assign(ids.begin(), ids.end());
+        if (deleted.size() > count / 64 + 1) in.fail("tombstone bitmap is too large");
+        if (dense) {
+            store->ids_.resize(static_cast<std::size_t>(count));
+            for (std::size_t i = 0; i < store->ids_.size(); ++i) store->ids_[i] = static_cast<VectorId>(i);
+        } else {
+            store->ids_.assign(ids.begin(), ids.end());
+        }
+        if (!released && store->stride_ == dimension) {
+            store->data_.assign(rows.begin(), rows.end());  // No padding: one bulk copy.
+        } else if (!released) {
+            store->data_.reserve(static_cast<std::size_t>(count) * store->stride_);
+            for (std::size_t i = 0; i < count; ++i) {
+                const auto* row = rows.data() + i * dimension;
+                store->data_.insert(store->data_.end(), row, row + dimension);
+                store->data_.resize(store->data_.size() + (store->stride_ - dimension), 0.0f);
+            }
+        }
         store->deleted_.assign(deleted.begin(), deleted.end());
         store->deleted_count_ = static_cast<std::size_t>(deleted_count);
         std::uint64_t marked = 0;
@@ -79,17 +109,19 @@ struct SnapshotAccess {
             // Bits past the last position must be clear.
             const std::size_t base = word * 64;
             const std::uint64_t valid =
-                base >= ids.size()       ? 0
-                : ids.size() - base >= 64 ? ~std::uint64_t{0}
-                                          : (std::uint64_t{1} << (ids.size() - base)) - 1;
+                base >= count       ? 0
+                : count - base >= 64 ? ~std::uint64_t{0}
+                                     : (std::uint64_t{1} << (count - base)) - 1;
             if ((deleted[word] & ~valid) != 0) in.fail("tombstone beyond the last position");
         }
         if (marked != deleted_count) in.fail("tombstone count does not match the bitmap");
-        store->positions_.reserve(ids.size());
-        for (std::size_t i = 0; i < ids.size(); ++i)
-            if (!store->is_deleted(i) && !store->positions_.emplace(ids[i], i).second)
-                in.fail("duplicate live VectorId");
-        store->data_.assign(rows.begin(), rows.end());
+        store->identity_ = dense;
+        if (!dense) {
+            store->positions_.reserve(ids.size());
+            for (std::size_t i = 0; i < ids.size(); ++i)
+                if (!store->is_deleted(i) && !store->positions_.emplace(ids[i], i).second)
+                    in.fail("duplicate live VectorId");
+        }
         store->rows_released_ = released;
         return store;
     }
@@ -193,8 +225,10 @@ struct SnapshotAccess {
             index->set_top(entry, static_cast<std::size_t>(max_level));
         }
         index->successful_insertions_ = static_cast<std::size_t>(insertions);
-        const auto report = index->validate_graph();
-        if (!report.valid()) in.fail("graph structure is invalid");
+        // Every reference a search can follow must be in range (O(edges)); the complete
+        // structural report (duplicates, degree rules) is HnswIndex::validate_graph, run by
+        // `index verify`.
+        if (!index->references_are_valid()) in.fail("graph references are invalid");
         return index;
     }
 

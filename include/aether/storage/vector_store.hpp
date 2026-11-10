@@ -85,7 +85,13 @@ class VectorStore {
     const DistanceKind metric_;
     AlignedVector<EmbeddingValue> data_;
     std::vector<VectorId> ids_;
+    // ID -> position. While every ID equals its position (the common dense 0..N-1 case),
+    // identity_ is set and the map stays empty; the first other ID materializes it.
     std::unordered_map<VectorId, std::size_t> positions_;
+    bool identity_ = true;
+    void materialize_positions();
+    // Appends a staged row under `id` (rolled back on failure). Precondition: id absent.
+    void append_row(VectorId id, const float* row);
     std::vector<std::uint64_t> deleted_;  // Tombstone bit per position (grown on demand).
     std::size_t deleted_count_ = 0;
     bool rows_released_ = false;

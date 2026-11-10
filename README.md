@@ -53,12 +53,14 @@ best competitor configuration measured for that cell. Quality is judged on test 
 with parameters tuned on dev only, and cost on medians of five runs. The full rule is in
 [docs/OBJECTIVE.md](docs/OBJECTIVE.md).
 
-Today: **86 of 144 comparable cells won** (62 clearly, 24 inside noise), up from 67 at the
-start of this objective. Of the 38 lost, 32 are inside noise, mostly BM25 quality within
-0.003 of Lucene or bm25s with the same formula and tokens. Six are clear losses:
+Today: **88 of 148 comparable cells won** (64 clearly, 24 inside noise), up from 67 of 144
+at the start of this objective. Of the 40 lost, 32 are inside noise, mostly BM25 quality
+within 0.003 of Lucene or bm25s with the same formula and tokens. Eight are clear losses:
 
 - ArguAna BM25 against bm25s's own analyzer (3 cells);
 - parallel HNSW build against hnswlib with `-ffast-math` (2 cells);
+- loading a saved HNSW index and answering a first query, about 2× slower than FAISS
+  (2 cells);
 - GloVe-100 at Recall@10 ≥ 0.99, which only exact FAISS Flat search reaches on the shared
   grid.
 
@@ -241,7 +243,7 @@ not stored in the repository.
 | Adds, deletes, updates and compaction; compaction is bit-identical to a fresh build ([details](docs/persistence.md#adding-deleting-and-compacting)) | Done |
 | Concurrent updates: searches keep running while a writer inserts, deletes or compacts; TSan-clean ([details](docs/concurrency.md)) | Done |
 | Write-ahead log: adds and deletes are durable without rewriting the index, and survive a crash ([details](docs/persistence.md#write-ahead-log)) | Done |
-| Close the open scoreboard cells, then widen the margins of the won ones | In progress: 67 → 86 cells won, 6 clear losses left |
+| Close the open scoreboard cells, then widen the margins of the won ones | In progress: 67 → 88 cells won, 8 clear losses left |
 
 ## Limitations
 
