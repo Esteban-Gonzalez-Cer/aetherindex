@@ -128,9 +128,10 @@ struct SnapshotAccess {
         engine.imbue(std::locale::classic());
         engine << index.random_engine_;
         out.string(engine.str());
-        out.u8(index.entry_point_ ? 1 : 0);
-        out.u32(index.entry_point_.value_or(0));
-        out.u64(index.max_level_);
+        const auto top = index.top();
+        out.u8(top.present ? 1 : 0);
+        out.u32(top.present ? top.entry : 0);
+        out.u64(top.present ? top.level : 0);
         out.u64(index.successful_insertions_.load());
         out.array<std::uint8_t>(index.levels_);
         out.array<std::uint32_t>(index.upper_offsets_);
@@ -165,7 +166,7 @@ struct SnapshotAccess {
         if (!engine) in.fail("invalid random engine state");
         const bool has_entry = in.u8() != 0;
         const std::uint32_t entry = in.u32();
-        index->max_level_ = in.u64();
+        const std::uint64_t max_level = in.u64();
         const std::uint64_t insertions = in.u64();
         const auto levels = in.array<std::uint8_t>();
         const auto offsets = in.array<std::uint32_t>();
@@ -187,7 +188,10 @@ struct SnapshotAccess {
             in.fail("entry point is not a graph node");
         index->levels_.assign(levels.begin(), levels.end());
         index->upper_offsets_.assign(offsets.begin(), offsets.end());
-        index->entry_point_ = has_entry ? std::optional<InternalId>(entry) : std::nullopt;
+        if (has_entry) {
+            if (max_level > config.max_level) in.fail("top level exceeds max_level");
+            index->set_top(entry, static_cast<std::size_t>(max_level));
+        }
         index->successful_insertions_ = static_cast<std::size_t>(insertions);
         const auto report = index->validate_graph();
         if (!report.valid()) in.fail("graph structure is invalid");

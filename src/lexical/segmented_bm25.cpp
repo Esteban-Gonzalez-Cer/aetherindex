@@ -101,6 +101,13 @@ bool SegmentedBm25::contains(DocumentId id) const {
 
 void SegmentedBm25::add(std::span<const std::pair<DocumentId, std::string>> documents) {
     if (documents.empty()) return;
+    commit_add(prepare_add(documents));
+}
+
+SegmentedBm25::PendingSegment SegmentedBm25::prepare_add(
+    std::span<const std::pair<DocumentId, std::string>> documents) const {
+    PendingSegment pending;
+    if (documents.empty()) return pending;
     std::unordered_set<DocumentId> batch;
     for (const auto& [id, text] : documents) {
         if (!batch.insert(id).second) throw std::invalid_argument("Duplicate DocumentId in batch.");
@@ -109,12 +116,38 @@ void SegmentedBm25::add(std::span<const std::pair<DocumentId, std::string>> docu
     auto index = std::make_shared<Bm25Index>(config_);
     for (const auto& [id, text] : documents) index->add_document(id, text);
     index->build();
-    // Build everything that can throw before publishing the new segment.
     Segment segment{std::move(index), {}, 0, {}, {}, {}, false};
     prepare(segment);
+    pending.index = std::move(segment.index);
+    pending.ids = std::move(segment.ids);
+    pending.lengths = std::move(segment.lengths);
+    pending.impacts = std::move(segment.impacts);
+    return pending;
+}
+
+void SegmentedBm25::commit_add(PendingSegment&& pending) {
+    if (!pending.index) return;
     prepare_all();
-    segments_.push_back(std::move(segment));
+    segments_.push_back({std::move(pending.index), {}, 0, std::move(pending.ids),
+                         std::move(pending.lengths), std::move(pending.impacts), true});
     merge_if_needed();
+}
+
+void SegmentedBm25::prepare_for_changes() { prepare_all(); }
+
+std::unique_ptr<SegmentedBm25> SegmentedBm25::compacted() const {
+    auto copy = std::make_unique<SegmentedBm25>(config_);
+    if (segments_.empty()) return copy;
+    if (single_index()) {
+        copy->segments_.push_back({segments_.front().index, {}, 0, {}, {}, {}, false});
+        return copy;
+    }
+    std::vector<const Segment*> all;
+    for (const auto& segment : segments_) all.push_back(&segment);
+    auto merged = merge(all);
+    if (merged->document_count() != 0)
+        copy->segments_.push_back({std::move(merged), {}, 0, {}, {}, {}, false});
+    return copy;
 }
 
 bool SegmentedBm25::remove(DocumentId id) {

@@ -48,6 +48,31 @@ class SegmentedBm25 final : public LexicalSearcher {
     // repeated in the batch, throws invalid_argument and leaves the index unchanged. An
     // empty batch does nothing.
     void add(std::span<const std::pair<DocumentId, std::string>> documents);
+    // add() in two steps for concurrent use: prepare_add builds the segment (validation and
+    // indexing; const, may run alongside searches); commit_add publishes it (cheap, apart
+    // from an occasional merge of the two smallest segments). Nothing else may change the
+    // index between the two calls.
+    class PendingSegment {
+       public:
+        PendingSegment(PendingSegment&&) noexcept = default;
+        PendingSegment& operator=(PendingSegment&&) noexcept = default;
+
+       private:
+        friend class SegmentedBm25;
+        PendingSegment() = default;
+        std::shared_ptr<const Bm25Index> index;
+        std::vector<DocumentId> ids;
+        std::vector<std::uint32_t> lengths;
+        std::vector<std::pair<std::uint32_t, std::uint32_t>> impacts;
+    };
+    PendingSegment prepare_add(std::span<const std::pair<DocumentId, std::string>> documents) const;
+    void commit_add(PendingSegment&& pending);
+    // Computes the corpus-wide scoring data of every segment ahead of a change, so that
+    // remove() and commit_add() stay cheap. Searches may run meanwhile.
+    void prepare_for_changes();
+    // A compacted copy (this index is unchanged).
+    std::unique_ptr<SegmentedBm25> compacted() const;
+
     // Tombstones a live document. Returns false if no live document has this ID.
     bool remove(DocumentId id);
     bool contains(DocumentId id) const;

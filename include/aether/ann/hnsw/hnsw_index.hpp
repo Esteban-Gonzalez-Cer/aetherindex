@@ -83,6 +83,20 @@ class HnswIndex {
     // unusable, as for insert().
     void insert_parallel(std::span<const VectorId> ids, std::size_t threads);
 
+    // insert_parallel in two steps, so that searches can run during the expensive one:
+    //  - prepare_insert validates the IDs, draws their levels and allocates every graph
+    //    buffer. It must not overlap a search or another insertion.
+    //  - insert_prepared links the prepared nodes with up to `threads` threads. Searches may
+    //    run concurrently, provided begin_concurrent_reads() was called before it started.
+    // Topology depends on scheduling (as insert_parallel with threads > 1).
+    void prepare_insert(std::span<const VectorId> ids);
+    void insert_prepared(std::size_t threads);
+    // While enabled, searches read adjacency lists with atomic loads, so they may overlap
+    // insert_prepared. Enable it before the insertion starts and disable it after it ends;
+    // a search observes the setting when it starts. Off by default (plain loads).
+    void begin_concurrent_reads() noexcept { concurrent_reads_.store(true, std::memory_order_release); }
+    void end_concurrent_reads() noexcept { concurrent_reads_.store(false, std::memory_order_release); }
+
     // k and ef_search must be positive. Queries are validated even when the
     // index is empty.
     // Search-only errors do not invalidate the index. Results use the store's
@@ -142,20 +156,41 @@ class HnswIndex {
         bool operator>(const Candidate& other) const noexcept { return other < *this; }
     };
 
+    // Entry point and top level in one word, so lock-free readers always see a matching
+    // pair: kNoTop, or (level << 32) | entry. Stored with release, loaded with acquire.
+    static constexpr std::uint64_t kNoTop = ~std::uint64_t{0};
+    struct Top {
+        bool present;
+        InternalId entry;
+        std::size_t level;
+    };
+    Top top() const noexcept {
+        const std::uint64_t value = top_.load(std::memory_order_acquire);
+        if (value == kNoTop) return {false, 0, 0};
+        return {true, static_cast<InternalId>(value), static_cast<std::size_t>(value >> 32)};
+    }
+    void set_top(InternalId entry, std::size_t level) noexcept {
+        top_.store((static_cast<std::uint64_t>(level) << 32) | entry, std::memory_order_release);
+    }
+    // Searches choose the adjacency access once, when they start.
+    enum class Access { Frozen, Writer, Reader };
+
     const VectorStore& store_;
     const HnswConfig config_;
     FlatGraphLayer layer0_;
     FlatGraphLayer upper_;
     std::vector<std::uint8_t> levels_;
     std::vector<std::uint32_t> upper_offsets_;
-    std::optional<InternalId> entry_point_;
-    std::size_t max_level_ = 0;
+    std::atomic<std::uint64_t> top_{kNoTop};
     std::atomic<std::size_t> successful_insertions_{0};
+    std::atomic<bool> concurrent_reads_{false};
+    std::vector<InternalId> pending_nodes_;     // prepare_insert -> insert_prepared.
+    std::vector<std::uint8_t> pending_levels_;
     // Parallel construction only: striped adjacency locks and the entry-point lock.
     std::unique_ptr<std::mutex[]> build_stripes_;
     std::mutex entry_mutex_;
     static constexpr std::size_t stripe_count = std::size_t{1} << 16;
-    bool usable_ = true;
+    std::atomic<bool> usable_{true};
     std::mt19937_64 random_engine_;
     detail::DistanceKernel distance_;
     static constexpr std::uint8_t absent_level = 255;
@@ -166,7 +201,7 @@ class HnswIndex {
     float distance_to(const float* query, InternalId id) const;
     std::span<const InternalId> neighbors_internal(InternalId id, std::size_t level) const noexcept;
     void set_neighbors(InternalId id, std::size_t level, std::span<const InternalId> neighbors);
-    template <bool Concurrent>
+    template <Access Mode>
     std::vector<Candidate> search_layer(const float* query, InternalId entry_point, std::size_t ef,
                                         std::size_t level) const;
     // Same traversal with any distance(InternalId) -> float callable.
@@ -175,11 +210,11 @@ class HnswIndex {
     };
     // Admit decides which visited nodes may enter the result set; all are traversed.
     // prefetch(id) hints the memory that distance(id) will read.
-    template <bool Concurrent, class Distance, class Prefetch, class Admit = AdmitAll>
+    template <Access Mode, class Distance, class Prefetch, class Admit = AdmitAll>
     std::vector<Candidate> search_layer_with(const Distance& distance, const Prefetch& prefetch,
                                              InternalId entry_point, std::size_t ef,
                                              std::size_t level, const Admit& admit = {}) const;
-    template <class Distance, class Prefetch, class Admit>
+    template <Access Mode, class Distance, class Prefetch, class Admit>
     std::vector<SearchResult> search_with(const PreparedQuery& query, const Distance& distance,
                                           const Prefetch& prefetch, const Admit& admit,
                                           std::size_t k, std::size_t ef_search,
@@ -191,8 +226,11 @@ class HnswIndex {
     void insert_concurrent(InternalId node, std::size_t level);
     std::vector<InternalId> select_neighbors(InternalId id, std::vector<Candidate> candidates,
                                              std::size_t limit, std::size_t level) const;
+    template <bool Atomic>
     void add_link(InternalId a, InternalId b, std::size_t level);
     void add_link_concurrent(InternalId a, InternalId b, std::size_t level);
+    template <bool Atomic>
+    void store_neighbors(InternalId id, std::size_t level, std::span<const InternalId> neighbors);
 };
 
 }  // namespace aetherindex

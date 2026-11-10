@@ -121,6 +121,19 @@ std::span<const InternalId> HnswIndex::neighbors_internal(InternalId id,
                : upper_.get_neighbors(static_cast<std::size_t>(upper_offsets_[id]) + level - 1);
 }
 
+template <bool Atomic>
+void HnswIndex::store_neighbors(InternalId id, std::size_t level,
+                                std::span<const InternalId> neighbors) {
+    if constexpr (!Atomic) {
+        set_neighbors(id, level, neighbors);
+    } else if (level == 0) {
+        layer0_.set_neighbors_atomic(id, neighbors);
+    } else {
+        upper_.set_neighbors_atomic(static_cast<std::size_t>(upper_offsets_[id]) + level - 1,
+                                    neighbors);
+    }
+}
+
 void HnswIndex::set_neighbors(InternalId id, std::size_t level,
                               std::span<const InternalId> neighbors) {
     if (level == 0)
@@ -142,18 +155,19 @@ void HnswIndex::require_rows() const {
         throw std::logic_error("This HNSW operation needs the FP32 rows; they were released.");
 }
 
-template <bool Concurrent>
+template <HnswIndex::Access Mode>
 std::vector<HnswIndex::Candidate> HnswIndex::search_layer(const float* query, InternalId entry,
                                                           std::size_t ef, std::size_t level) const {
-    return search_layer_with<Concurrent>([&](InternalId id) { return distance_to(query, id); },
+    return search_layer_with<Mode>([&](InternalId id) { return distance_to(query, id); },
                                          [&](InternalId id) { prefetch_row(id); }, entry, ef,
                                          level);
 }
 
-// Concurrent=true is used only by parallel construction: each adjacency list is copied
-// under its stripe lock before traversal. Concurrent=false is the unchanged query path.
+// Frozen: the query path with no concurrent writer (plain loads). Writer: insertion threads
+// copy each adjacency list under its stripe lock. Reader: searches that may overlap
+// insert_prepared copy each list with atomic loads, lock-free.
 // prefetch(id) brings in whatever distance(id) reads: FP32 rows or quantized codes.
-template <bool Concurrent, class Distance, class Prefetch, class Admit>
+template <HnswIndex::Access Mode, class Distance, class Prefetch, class Admit>
 std::vector<HnswIndex::Candidate> HnswIndex::search_layer_with(const Distance& distance,
                                                                const Prefetch& prefetch,
                                                                InternalId entry, std::size_t ef,
@@ -180,11 +194,18 @@ std::vector<HnswIndex::Candidate> HnswIndex::search_layer_with(const Distance& d
         if (results.size() >= ef && current.distance > results.top().distance) break;
         candidates.pop();
         std::span<const InternalId> adjacent;
-        if constexpr (Concurrent) {
+        if constexpr (Mode == Access::Writer) {
             const std::lock_guard lock(stripe(current.node));
             const auto shared = neighbors_internal(current.node, level);
             adjacency_copy.assign(shared.begin(), shared.end());
             adjacent = adjacency_copy;
+        } else if constexpr (Mode == Access::Reader) {
+            const FlatGraphLayer& layer = level == 0 ? layer0_ : upper_;
+            const std::size_t slot =
+                level == 0 ? current.node
+                           : static_cast<std::size_t>(upper_offsets_[current.node]) + level - 1;
+            adjacency_copy.resize(layer.max_neighbors());
+            adjacent = {adjacency_copy.data(), layer.copy_neighbors_atomic(slot, adjacency_copy.data())};
         } else {
             adjacent = neighbors_internal(current.node, level);
         }
@@ -275,14 +296,18 @@ std::vector<InternalId> HnswIndex::select_neighbors(InternalId base,
     return selected;
 }
 
+template <bool Atomic>
 void HnswIndex::add_link(InternalId a, InternalId b, std::size_t level) {
     const auto adjacent = neighbors_internal(a, level);
     if (a == b || std::find(adjacent.begin(), adjacent.end(), b) != adjacent.end()) return;
     if (adjacent.size() < connection_limit(level)) {
-        if (level == 0)
-            layer0_.append_neighbor(a, b);
+        FlatGraphLayer& layer = level == 0 ? layer0_ : upper_;
+        const std::size_t slot =
+            level == 0 ? a : static_cast<std::size_t>(upper_offsets_[a]) + level - 1;
+        if constexpr (Atomic)
+            layer.append_neighbor_atomic(slot, b);
         else
-            upper_.append_neighbor(static_cast<std::size_t>(upper_offsets_[a]) + level - 1, b);
+            layer.append_neighbor(slot, b);
         return;
     }
     // Score M_max + 1 in a temporary workspace. Never overflow a fixed slot.
@@ -293,7 +318,7 @@ void HnswIndex::add_link(InternalId a, InternalId b, std::size_t level) {
         scored.push_back({distance_to(base, node), store_.ids()[node], node});
     scored.push_back({distance_to(base, b), store_.ids()[b], b});
     const auto selected = select_neighbors(a, std::move(scored), connection_limit(level), level);
-    set_neighbors(a, level, selected);
+    store_neighbors<Atomic>(a, level, selected);
 }
 
 void HnswIndex::insert(VectorId id) {
@@ -322,33 +347,30 @@ void HnswIndex::insert(VectorId id) {
     upper_offsets_[node] = static_cast<std::uint32_t>(old_upper_size);
     levels_[node] = static_cast<std::uint8_t>(new_level);
     try {
-        if (!entry_point_) {
-            entry_point_ = node;
-            max_level_ = new_level;
+        const Top current_top = top();
+        if (!current_top.present) {
+            set_top(node, new_level);
             ++successful_insertions_;
             return;
         }
         const float* embedding = store_.data_by_position(node);
-        InternalId current = *entry_point_;
-        for (std::size_t level = max_level_; level > new_level; --level) {
-            current = search_layer<false>(embedding, current, 1, level).front().node;
+        InternalId current = current_top.entry;
+        for (std::size_t level = current_top.level; level > new_level; --level) {
+            current = search_layer<Access::Frozen>(embedding, current, 1, level).front().node;
         }
-        std::size_t level = std::min(new_level, max_level_);
+        std::size_t level = std::min(new_level, current_top.level);
         for (;;) {
             const auto candidates =
-                search_layer<false>(embedding, current, config_.ef_construction, level);
+                search_layer<Access::Frozen>(embedding, current, config_.ef_construction, level);
             const auto selected =
                 select_neighbors(node, candidates, connection_limit(level), level);
             set_neighbors(node, level, selected);
-            for (InternalId neighbor : selected) add_link(neighbor, node, level);
+            for (InternalId neighbor : selected) add_link<false>(neighbor, node, level);
             if (!candidates.empty()) current = candidates.front().node;
             if (level == 0) break;
             --level;
         }
-        if (new_level > max_level_) {
-            entry_point_ = node;
-            max_level_ = new_level;
-        }
+        if (new_level > current_top.level) set_top(node, new_level);
         ++successful_insertions_;
     } catch (...) {
         usable_ = false;
@@ -358,7 +380,7 @@ void HnswIndex::insert(VectorId id) {
 
 void HnswIndex::add_link_concurrent(InternalId a, InternalId b, std::size_t level) {
     const std::lock_guard lock(stripe(a));
-    add_link(a, b, level);
+    add_link<true>(a, b, level);
 }
 
 // One node of a parallel build. Only a node that raises the top level keeps the entry
@@ -368,19 +390,19 @@ void HnswIndex::add_link_concurrent(InternalId a, InternalId b, std::size_t leve
 // link another thread adds to it can be overwritten.
 void HnswIndex::insert_concurrent(InternalId node, std::size_t new_level) {
     std::unique_lock entry_lock(entry_mutex_);
-    const InternalId entry = *entry_point_;
-    const std::size_t top = max_level_;
+    const Top start = this->top();
+    const std::size_t top = start.level;
     if (new_level <= top) entry_lock.unlock();
     const float* embedding = store_.data_by_position(node);
-    InternalId current = entry;
+    InternalId current = start.entry;
     for (std::size_t level = top; level > new_level; --level)
-        current = search_layer<true>(embedding, current, 1, level).front().node;
+        current = search_layer<Access::Writer>(embedding, current, 1, level).front().node;
     // Phase 1: neighbor selection for every level, top-down (no graph mutation).
     const std::size_t first_level = std::min(new_level, top);
     std::vector<std::vector<InternalId>> selected(first_level + 1);
     for (std::size_t level = first_level;; --level) {
         const auto candidates =
-            search_layer<true>(embedding, current, config_.ef_construction, level);
+            search_layer<Access::Writer>(embedding, current, config_.ef_construction, level);
         selected[level] = select_neighbors(node, candidates, connection_limit(level), level);
         if (!candidates.empty()) current = candidates.front().node;
         if (level == 0) break;
@@ -391,7 +413,7 @@ void HnswIndex::insert_concurrent(InternalId node, std::size_t new_level) {
         for (std::size_t level = 0; level <= first_level; ++level) {
             const auto existing = neighbors_internal(node, level);
             if (existing.empty()) {
-                set_neighbors(node, level, selected[level]);
+                store_neighbors<true>(node, level, selected[level]);
                 continue;
             }
             std::vector<Candidate> pool;
@@ -400,18 +422,15 @@ void HnswIndex::insert_concurrent(InternalId node, std::size_t new_level) {
             for (InternalId id : selected[level])
                 if (std::find(existing.begin(), existing.end(), id) == existing.end())
                     pool.push_back({distance_to(embedding, id), store_.ids()[id], id});
-            set_neighbors(node, level,
-                          select_neighbors(node, std::move(pool), connection_limit(level), level));
+            store_neighbors<true>(
+                node, level, select_neighbors(node, std::move(pool), connection_limit(level), level));
         }
     }
     // Phase 3: publish the node through backlinks.
     for (std::size_t level = 0; level <= first_level; ++level)
         for (InternalId neighbor : selected[level]) add_link_concurrent(neighbor, node, level);
-    if (new_level > top) {
-        entry_point_ = node;
-        max_level_ = new_level;
-    }
     successful_insertions_.fetch_add(1, std::memory_order_relaxed);
+    if (new_level > top) set_top(node, new_level);  // Still under entry_lock.
 }
 
 void HnswIndex::insert_parallel(std::span<const VectorId> ids, std::size_t threads) {
@@ -421,8 +440,16 @@ void HnswIndex::insert_parallel(std::span<const VectorId> ids, std::size_t threa
         for (VectorId id : ids) insert(id);
         return;
     }
+    prepare_insert(ids);
+    insert_prepared(threads);
+}
+
+void HnswIndex::prepare_insert(std::span<const VectorId> ids) {
+    ensure_usable();
+    require_rows();
     if (config_.extend_candidates)
         throw std::invalid_argument("Parallel HNSW construction requires extend_candidates=false.");
+    if (!pending_nodes_.empty()) throw std::logic_error("An HNSW insertion is already prepared.");
     // Validate every ID before mutating anything.
     std::vector<InternalId> nodes;
     nodes.reserve(ids.size());
@@ -451,7 +478,7 @@ void HnswIndex::insert_parallel(std::span<const VectorId> ids, std::size_t threa
         upper_total += new_levels[i];
     }
     const InternalId highest = *std::max_element(nodes.begin(), nodes.end());
-    auto stripes = std::make_unique<std::mutex[]>(stripe_count);
+    auto stripes = build_stripes_ ? nullptr : std::make_unique<std::mutex[]>(stripe_count);
     try {
         if (levels_.size() <= highest) {
             layer0_.resize(static_cast<std::size_t>(highest) + 1);
@@ -466,22 +493,37 @@ void HnswIndex::insert_parallel(std::span<const VectorId> ids, std::size_t threa
             offset += new_levels[i];
         }
         std::size_t first = 0;
-        if (!entry_point_) {
-            entry_point_ = nodes[0];
-            max_level_ = new_levels[0];
+        if (!top().present) {
+            set_top(nodes[0], new_levels[0]);
             ++successful_insertions_;
             first = 1;
         }
-        build_stripes_ = std::move(stripes);
-        parallel_for(nodes.size() - first, threads, [&](std::size_t i) {
-            insert_concurrent(nodes[first + i], new_levels[first + i]);
-        });
-        build_stripes_.reset();
+        if (stripes) build_stripes_ = std::move(stripes);
+        pending_nodes_.assign(nodes.begin() + static_cast<std::ptrdiff_t>(first), nodes.end());
+        pending_levels_.assign(new_levels.begin() + static_cast<std::ptrdiff_t>(first),
+                               new_levels.end());
     } catch (...) {
+        usable_ = false;
+        throw;
+    }
+}
+
+void HnswIndex::insert_prepared(std::size_t threads) {
+    ensure_usable();
+    try {
+        parallel_for(pending_nodes_.size(), std::max<std::size_t>(threads, 1), [&](std::size_t i) {
+            insert_concurrent(pending_nodes_[i], pending_levels_[i]);
+        });
+    } catch (...) {
+        pending_nodes_.clear();
+        pending_levels_.clear();
         build_stripes_.reset();
         usable_ = false;
         throw;
     }
+    pending_nodes_.clear();
+    pending_levels_.clear();
+    build_stripes_.reset();
 }
 
 std::vector<SearchResult> HnswIndex::search(std::span<const EmbeddingValue> query,
@@ -505,15 +547,18 @@ std::vector<SearchResult> HnswIndex::search_prepared(const PreparedQuery& query,
         query.distance_kind() != store_.distance_kind()) {
         throw std::invalid_argument("Prepared query does not match HNSW VectorStore.");
     }
-    if (!entry_point_) return {};
-    // Tombstoned vectors still route the traversal but never enter the results.
-    if (store_.deleted_count() != 0) return search_filtered(query, k, ef_search, {});
-    InternalId current = *entry_point_;
-    for (std::size_t level = max_level_; level > 0; --level) {
-        current = search_layer<false>(query.data(), current, 1, level).front().node;
+    // Tombstoned vectors still route the traversal but never enter the results, and a
+    // search that may overlap an insertion needs atomic loads: both take the general path.
+    if (store_.deleted_count() != 0 || concurrent_reads_.load(std::memory_order_acquire))
+        return search_filtered(query, k, ef_search, {});
+    const Top start = top();
+    if (!start.present) return {};
+    InternalId current = start.entry;
+    for (std::size_t level = start.level; level > 0; --level) {
+        current = search_layer<Access::Frozen>(query.data(), current, 1, level).front().node;
     }
     const std::size_t ef = std::min(size(), std::max(k, ef_search));
-    const auto candidates = search_layer<false>(query.data(), current, ef, 0);
+    const auto candidates = search_layer<Access::Frozen>(query.data(), current, ef, 0);
     std::vector<SearchResult> results;
     const std::size_t count = std::min(k, candidates.size());
     results.reserve(count);
@@ -524,18 +569,19 @@ std::vector<SearchResult> HnswIndex::search_prepared(const PreparedQuery& query,
 
 // Shared tail of the quantized and filtered searches: greedy descent without filtering,
 // filtered layer-0 search, optional exact FP32 re-rank of the best `rerank` candidates.
-template <class Distance, class Prefetch, class Admit>
+template <HnswIndex::Access Mode, class Distance, class Prefetch, class Admit>
 std::vector<SearchResult> HnswIndex::search_with(const PreparedQuery& query,
                                                  const Distance& distance,
                                                  const Prefetch& prefetch, const Admit& admit,
                                                  std::size_t k, std::size_t ef_search,
                                                  std::size_t rerank) const {
-    if (!entry_point_) return {};
-    InternalId current = *entry_point_;
-    for (std::size_t level = max_level_; level > 0; --level)
-        current = search_layer_with<false>(distance, prefetch, current, 1, level).front().node;
+    const Top start = top();
+    if (!start.present) return {};
+    InternalId current = start.entry;
+    for (std::size_t level = start.level; level > 0; --level)
+        current = search_layer_with<Mode>(distance, prefetch, current, 1, level).front().node;
     const std::size_t ef = std::min(size(), std::max(k, ef_search));
-    auto candidates = search_layer_with<false>(distance, prefetch, current, ef, 0, admit);
+    auto candidates = search_layer_with<Mode>(distance, prefetch, current, ef, 0, admit);
     if (rerank != 0) {
         candidates.resize(std::min(candidates.size(), rerank));
         for (auto& candidate : candidates)
@@ -581,20 +627,27 @@ std::vector<SearchResult> HnswIndex::search_filtered(const PreparedQuery& query,
         return !store_.is_deleted(id) && allow(store_.ids()[id]);
     };
     const bool deletions = store_.deleted_count() != 0;
+    const bool concurrent = concurrent_reads_.load(std::memory_order_acquire);
+    // Every (access mode, admission) combination over one distance function.
+    const auto dispatch = [&](const auto& distance, const auto& prefetch, std::size_t depth) {
+        const auto run = [&](const auto& rule) {
+            return concurrent ? search_with<Access::Reader>(query, distance, prefetch, rule, k,
+                                                            ef_search, depth)
+                              : search_with<Access::Frozen>(query, distance, prefetch, rule, k,
+                                                            ef_search, depth);
+        };
+        if (allow) return run(admit);
+        return deletions ? run(admit_live) : run(admit_all);
+    };
     if (codes) {
         const auto approximate = codes->prepare(query);
         const auto distance = [&](InternalId id) { return approximate->distance(id); };
         const auto prefetch = [&](InternalId id) { approximate->prefetch(id); };
-        if (allow) return search_with(query, distance, prefetch, admit, k, ef_search, rerank);
-        return deletions
-                   ? search_with(query, distance, prefetch, admit_live, k, ef_search, rerank)
-                   : search_with(query, distance, prefetch, admit_all, k, ef_search, rerank);
+        return dispatch(distance, prefetch, rerank);
     }
     const auto distance = [&](InternalId id) { return distance_to(query.data(), id); };
     const auto prefetch = [&](InternalId id) { prefetch_row(id); };
-    if (allow) return search_with(query, distance, prefetch, admit, k, ef_search, 0);
-    return deletions ? search_with(query, distance, prefetch, admit_live, k, ef_search, 0)
-                     : search_with(query, distance, prefetch, admit_all, k, ef_search, 0);
+    return dispatch(distance, prefetch, 0);
 }
 
 std::size_t HnswIndex::size() const noexcept { return successful_insertions_; }
@@ -607,11 +660,13 @@ bool HnswIndex::contains(VectorId id) const {
 const HnswConfig& HnswIndex::config() const noexcept { return config_; }
 
 std::optional<VectorId> HnswIndex::entry_point() const noexcept {
-    return entry_point_ ? std::optional<VectorId>(store_.ids()[*entry_point_]) : std::nullopt;
+    const Top current = top();
+    return current.present ? std::optional<VectorId>(store_.ids()[current.entry]) : std::nullopt;
 }
 
 std::optional<std::size_t> HnswIndex::max_level() const noexcept {
-    return entry_point_ ? std::optional<std::size_t>(max_level_) : std::nullopt;
+    const Top current = top();
+    return current.present ? std::optional<std::size_t>(current.level) : std::nullopt;
 }
 
 std::optional<HnswNode> HnswIndex::find_node(VectorId id) const {
@@ -683,13 +738,14 @@ HnswGraphValidation HnswIndex::validate_graph() const {
             }
         }
     }
-    if (!entry_point_) {
+    const Top current = top();
+    if (!current.present) {
         if (report.nodes != 0) ++report.entry_point_violations;
     } else {
-        if (*entry_point_ >= levels_.size() || levels_[*entry_point_] == absent_level ||
-            levels_[*entry_point_] != max_level_)
+        if (current.entry >= levels_.size() || levels_[current.entry] == absent_level ||
+            levels_[current.entry] != current.level)
             ++report.entry_point_violations;
-        if (observed_max != max_level_) ++report.max_level_violations;
+        if (observed_max != current.level) ++report.max_level_violations;
     }
     if (report.nodes != successful_insertions_) ++report.insertion_count_violations;
     return report;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <atomic>
 #include <cstdint>
 #include <cstring>
 #include <limits>
@@ -63,6 +64,38 @@ class FlatGraphLayer {
         if (start[0] >= max_neighbors_) throw std::length_error("FlatGraph slot is full.");
         start[1 + start[0]] = neighbor;
         ++start[0];
+    }
+
+    // Concurrent variants. Writers (serialized per slot by the caller's lock) store every
+    // word atomically; lock-free readers load them atomically. Relaxed order: a reader may
+    // see a list mid-update, but every word it sees is a neighbor that was valid at some
+    // point. Publication of new nodes is ordered elsewhere (release/acquire on the graph's
+    // entry point and the caller's locks). Loads compile to plain loads on arm64/x86.
+    void set_neighbors_atomic(std::size_t slot, std::span<const InternalId> neighbors) {
+        if (slot >= slots()) throw std::out_of_range("FlatGraph slot is absent.");
+        if (neighbors.size() > max_neighbors_)
+            throw std::invalid_argument("FlatGraph degree exceeds M_max.");
+        auto* start = buffer_.data() + slot * stride_;
+        for (std::size_t i = 0; i < neighbors.size(); ++i)
+            std::atomic_ref<std::uint32_t>(start[1 + i]).store(neighbors[i], std::memory_order_relaxed);
+        std::atomic_ref<std::uint32_t>(start[0]).store(static_cast<std::uint32_t>(neighbors.size()),
+                                                       std::memory_order_relaxed);
+    }
+    void append_neighbor_atomic(std::size_t slot, InternalId neighbor) {
+        auto* start = buffer_.data() + slot * stride_;
+        const std::uint32_t degree = std::atomic_ref<std::uint32_t>(start[0]).load(std::memory_order_relaxed);
+        if (degree >= max_neighbors_) throw std::length_error("FlatGraph slot is full.");
+        std::atomic_ref<std::uint32_t>(start[1 + degree]).store(neighbor, std::memory_order_relaxed);
+        std::atomic_ref<std::uint32_t>(start[0]).store(degree + 1, std::memory_order_relaxed);
+    }
+    // Copies a slot's neighbors with atomic loads into `out` (capacity >= max_neighbors).
+    std::size_t copy_neighbors_atomic(std::size_t slot, InternalId* out) const noexcept {
+        auto* start = const_cast<std::uint32_t*>(buffer_.data()) + slot * stride_;
+        const std::size_t degree = std::min<std::size_t>(
+            std::atomic_ref<std::uint32_t>(start[0]).load(std::memory_order_relaxed), max_neighbors_);
+        for (std::size_t i = 0; i < degree; ++i)
+            out[i] = std::atomic_ref<std::uint32_t>(start[1 + i]).load(std::memory_order_relaxed);
+        return degree;
     }
 
    private:
