@@ -182,15 +182,17 @@ class HnswIndex {
     std::vector<std::uint8_t> levels_;
     std::vector<std::uint32_t> upper_offsets_;
     std::atomic<std::uint64_t> top_{kNoTop};
-    std::atomic<std::size_t> successful_insertions_{0};
+    // Written on every insertion: on their own cache lines (128 bytes on Apple silicon), so
+    // concurrent searches do not lose the read-mostly members above to false sharing.
+    alignas(128) std::atomic<std::size_t> successful_insertions_{0};
     std::atomic<bool> concurrent_reads_{false};
     std::vector<InternalId> pending_nodes_;     // prepare_insert -> insert_prepared.
     std::vector<std::uint8_t> pending_levels_;
     // Parallel construction only: striped adjacency locks and the entry-point lock.
     std::unique_ptr<std::mutex[]> build_stripes_;
-    std::mutex entry_mutex_;
+    alignas(128) std::mutex entry_mutex_;
     static constexpr std::size_t stripe_count = std::size_t{1} << 16;
-    std::atomic<bool> usable_{true};
+    alignas(128) std::atomic<bool> usable_{true};
     std::mt19937_64 random_engine_;
     detail::DistanceKernel distance_;
     static constexpr std::uint8_t absent_level = 255;

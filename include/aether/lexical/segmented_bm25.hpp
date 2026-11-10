@@ -65,7 +65,10 @@ class SegmentedBm25 final : public LexicalSearcher {
         std::vector<std::uint32_t> lengths;
         std::vector<std::pair<std::uint32_t, std::uint32_t>> impacts;
     };
-    PendingSegment prepare_add(std::span<const std::pair<DocumentId, std::string>> documents) const;
+    // `replacing`: live IDs the caller removes before commit_add (updates); they may appear
+    // in the batch.
+    PendingSegment prepare_add(std::span<const std::pair<DocumentId, std::string>> documents,
+                               std::span<const DocumentId> replacing = {}) const;
     void commit_add(PendingSegment&& pending);
     // Computes the corpus-wide scoring data of every segment ahead of a change, so that
     // remove() and commit_add() stay cheap. Searches may run meanwhile.

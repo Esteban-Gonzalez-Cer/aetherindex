@@ -84,13 +84,21 @@ class Collection {
 
     // Build-time configuration (the build-time fields of a SearchRequest).
     const SearchRequest& configuration() const noexcept;
-    const CollectionStats& stats() const noexcept;
+    // A copy: writers may change the statistics concurrently.
+    CollectionStats stats() const;
     // Structural graph check plus counts, for `index verify`; true when consistent.
     bool validate(std::string& report) const;
 
     // ----- Mutations ------------------------------------------------------------------
     // Visible to search() as soon as they return; persisted by the next save(). Each one
     // validates its whole input first, so an input error changes nothing.
+    //
+    // Thread safety: search(), load_queries(), stats() and merged_request() may run on any
+    // number of threads while one add(), remove(), compact() or save() runs (writers are
+    // serialized). A search sees each write entirely or not at all, except that nodes an
+    // add() inserts into the HNSW graph become reachable one by one while it links them.
+    // Searches wait only while a writer publishes (bookkeeping proportional to its batch),
+    // never while it builds a segment, links graph nodes or compacts.
 
     struct AddResult {
         std::size_t added = 0;

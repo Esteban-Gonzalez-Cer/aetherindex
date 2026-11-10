@@ -51,3 +51,7 @@ add_executable(aether_optimization_suite optimization_suite.cpp)
 target_include_directories(aether_optimization_suite PRIVATE "${PROJECT_SOURCE_DIR}/src/application")
 target_link_libraries(aether_optimization_suite PRIVATE aether_application aether_hnsw
     aether_brute_force aether_lexical aether_hybrid)
+
+# Concurrent reads and writes on a Collection, and the cost of its shared lock.
+add_executable(aether_concurrent_benchmark concurrent_benchmark.cpp)
+target_link_libraries(aether_concurrent_benchmark PRIVATE aether_application)

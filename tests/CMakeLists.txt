@@ -380,3 +380,10 @@ add_test(NAME e2e.cli_index_mutation COMMAND "${CMAKE_COMMAND}"
     "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/index-mutation-cli/$<CONFIG>"
     -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_index_mutation_test.cmake")
 set_tests_properties(e2e.cli_index_mutation PROPERTIES TIMEOUT 300 LABELS "deletes;persistence;e2e")
+
+add_executable(aether_concurrent_collection_tests integration/concurrent_collection_test.cpp)
+target_link_libraries(aether_concurrent_collection_tests PRIVATE aether_application)
+add_test(NAME integration.concurrent_collection COMMAND aether_concurrent_collection_tests
+    "${CMAKE_CURRENT_BINARY_DIR}/concurrent-collection/$<CONFIG>")
+set_tests_properties(integration.concurrent_collection PROPERTIES TIMEOUT 600
+    LABELS "concurrency;deletes;application")

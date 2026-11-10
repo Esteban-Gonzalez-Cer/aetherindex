@@ -232,13 +232,15 @@ not stored in the repository.
 | Objective and scoreboard: every benchmark cell tracked, won or not | Done |
 | Snapshot persistence: crash-safe save and load, checksummed and validated ([design](docs/persistence.md)) | Done |
 | Adds, deletes, updates and compaction; compaction is bit-identical to a fresh build ([details](docs/persistence.md#adding-deleting-and-compacting)) | Done |
-| Concurrent updates: searches keep running while other threads insert and delete | Planned |
+| Concurrent updates: searches keep running while a writer inserts, deletes or compacts; TSan-clean ([details](docs/concurrency.md)) | Done |
 | Write-ahead log: inserts and deletes survive a crash | Planned |
 | Close the open scoreboard cells, then widen the margins of the won ones | Planned |
 
 ## Limitations
 
-- No concurrent updates yet (one writer at a time, between searches), and no server mode.
+- One writer at a time (any number of concurrent searches), and no server mode. Reads
+  slow down by about 40 % while a writer links new graph nodes
+  ([measurements](docs/concurrency.md#evidence)).
 - The engine does not produce embeddings. The vectors in `datasets/hybrid/` are a
   reproducible lexical hashing, useful for testing but not a semantic model.
 - The x86 AVX2 kernel is selected at compile time (`-DAETHER_NATIVE_SIMD=ON`); there is no
@@ -260,6 +262,7 @@ team.
 | [CLI reference](docs/cli.md) | Every option, input formats and exit codes |
 | [Architecture](docs/architecture/README.md) | Module responsibilities and dependency rules |
 | [Persistence](docs/persistence.md) (English) | Snapshot format, crash safety, validation and load cost |
+| [Concurrency](docs/concurrency.md) (English) | Locking protocol, lock-free graph reads, TSan evidence and costs |
 
 ## Team
 

@@ -5,6 +5,8 @@
 #include <cstdio>
 #include <fstream>
 #include <iterator>
+#include <mutex>
+#include <shared_mutex>
 #include <limits>
 #include <sstream>
 #include <string_view>
@@ -342,6 +344,12 @@ std::vector<DocumentRecord> load_documents(const fs::path& path, bool verify) {
 }  // namespace
 
 struct Collection::State {
+    // Concurrency: searches hold `state` shared. Writers (add, remove, compact, save) are
+    // serialized by `writer`, do their expensive work while searches run, and hold `state`
+    // exclusively only to publish (row appends, tombstones, catalog, segment and pointer
+    // swaps). HNSW nodes are linked after that, alongside searches (lock-free reads).
+    mutable std::shared_mutex state;
+    mutable std::mutex writer;
     SearchRequest config;  // Build-time fields only.
     std::shared_ptr<VectorStore> store;
     // Identity and metadata; title, text and embeddings are dropped after the build.
@@ -372,7 +380,10 @@ Collection::Collection() : state_(std::make_unique<State>()) {}
 Collection::~Collection() = default;
 
 const SearchRequest& Collection::configuration() const noexcept { return state_->config; }
-const CollectionStats& Collection::stats() const noexcept { return state_->stats; }
+CollectionStats Collection::stats() const {
+    const std::shared_lock lock(state_->state);
+    return state_->stats;
+}
 
 std::unique_ptr<Collection> Collection::load(const SearchRequest& request) {
     std::unique_ptr<Collection> collection(new Collection());
@@ -399,6 +410,7 @@ std::unique_ptr<Collection> Collection::load(const SearchRequest& request) {
 
 std::vector<QueryRecord> Collection::load_queries(const SearchRequest& query_request) const {
     const auto& s = *state_;
+    const std::shared_lock lock(s.state);
     const SearchRequest request = merged_request(query_request);
     std::vector<QueryRecord> queries;
     if (request.mode == SearchMode::Lexical) {
@@ -502,6 +514,8 @@ SearchRequest Collection::merged_request(const SearchRequest& request) const {
 SearchResponse Collection::search(const SearchRequest& query_request,
                                   std::vector<QueryRecord>& queries) const {
     const auto& s = *state_;
+    // One consistent view per call (a batch included); see State for the protocol.
+    const std::shared_lock lock(s.state);
     if (!s.built) throw std::logic_error("Collection::search requires built indexes.");
     const SearchRequest request = merged_request(query_request);
     const QueryEngine engine;
@@ -624,6 +638,8 @@ bool Collection::is_collection(const fs::path& directory) {
 
 void Collection::save(const fs::path& directory) const {
     const auto& s = *state_;
+    // No writer may change the collection while it is written; searches may continue.
+    const std::lock_guard writer(s.writer);
     if (!s.built) throw std::logic_error("Collection::save requires built indexes.");
     fs::create_directories(directory);
     std::uint64_t sequence = 1;
@@ -842,6 +858,7 @@ std::unique_ptr<Collection> Collection::open(const fs::path& directory,
 
 std::size_t Collection::deleted_count() const {
     const auto& s = *state_;
+    const std::shared_lock lock(s.state);
     std::size_t deleted = s.store ? s.store->deleted_count() : 0;
     if (s.bm25) deleted = std::max(deleted, s.bm25->deleted_count());
     return deleted;
@@ -850,6 +867,7 @@ std::size_t Collection::deleted_count() const {
 Collection::AddResult Collection::add(const fs::path& dataset, const fs::path& vectors,
                                       bool replace) {
     auto& s = *state_;
+    const std::lock_guard writer(s.writer);
     if (!s.built) throw std::logic_error("Collection::add requires built indexes.");
     const auto& c = s.config;
     if (s.store && !s.store->has_rows())
@@ -959,61 +977,95 @@ Collection::AddResult Collection::add(const fs::path& dataset, const fs::path& v
         }
     }
 
-    // Apply: deletes of replaced records, then the new rows, graph nodes, codes and BM25.
-    std::vector<std::size_t> replaced_docs;
-    for (const auto& item : plan) {
-        if (item.existing == kNew) continue;
-        ++result.replaced;
-        if (s.store) s.store->erase(item.vector_id);
-        if (s.bm25) s.bm25->remove(item.document_id);
-        if (documents) replaced_docs.push_back(item.existing);
-    }
+    // Prepare outside the exclusive section: the BM25 segment and corpus-wide scoring data.
+    std::vector<DocumentId> replacing;
+    for (const auto& item : plan)
+        if (item.existing != kNew) replacing.push_back(item.document_id);
+    result.replaced = replacing.size();
     result.added = plan.size() - result.replaced;
-    if (s.store) {
-        std::vector<VectorId> inserted;
-        inserted.reserve(plan.size());
-        for (const auto& item : plan) {
-            if (s.store->insert_from(*in.store, item.row, item.vector_id) != InsertStatus::Success)
-                throw InputDataError(dataset.string() + ": cannot insert vector " +
-                                     std::to_string(item.vector_id) + ".");
-            inserted.push_back(item.vector_id);
-        }
-        if (s.hnsw)
-            for (VectorId id : inserted) s.hnsw->insert(id);
-        if (s.codes) s.codes->extend(*s.store);
-    }
+    std::optional<lexical::SegmentedBm25::PendingSegment> segment;
     if (s.bm25) {
         std::vector<std::pair<DocumentId, std::string>> batch;
         batch.reserve(plan.size());
         for (std::size_t i = 0; i < plan.size(); ++i)
             batch.emplace_back(plan[i].document_id, in.docs[i].title + "\n" + in.docs[i].text);
-        s.bm25->add(batch);
+        s.bm25->prepare_for_changes();
+        segment = s.bm25->prepare_add(batch, replacing);
     }
+    std::vector<DocumentRecord> records;
     if (documents) {
-        // Replaced records keep their slot; new ones are appended.
+        records.reserve(plan.size());
         for (std::size_t i = 0; i < plan.size(); ++i) {
             DocumentRecord record;
             record.id = std::move(in.docs[i].id);
             record.document_id = plan[i].document_id;
             record.vector_id = plan[i].vector_id;
             record.metadata = std::move(in.docs[i].metadata);
-            if (plan[i].existing == kNew)
-                s.docs.push_back(std::move(record));
-            else
-                s.docs[plan[i].existing] = std::move(record);
+            records.push_back(std::move(record));
         }
-        s.index_documents();
-        s.binding.clear();
-        for (const auto& doc : s.docs) s.binding.emplace(doc.vector_id, doc.document_id);
     }
-    s.stats.vectors = s.store ? s.store->live_size() : 0;
-    s.stats.documents = s.docs.size();
+
+    // Publish: tombstones of replaced records, new rows, codes, BM25 segment, catalog, and
+    // graph storage for the new nodes.
+    bool link = false;
+    {
+        const std::unique_lock lock(s.state);
+        for (const auto& item : plan) {
+            if (item.existing == kNew) continue;
+            if (s.store) s.store->erase(item.vector_id);
+            if (s.bm25) s.bm25->remove(item.document_id);
+        }
+        if (s.store) {
+            std::vector<VectorId> inserted;
+            inserted.reserve(plan.size());
+            for (const auto& item : plan) {
+                if (s.store->insert_from(*in.store, item.row, item.vector_id) !=
+                    InsertStatus::Success)
+                    throw InputDataError(dataset.string() + ": cannot insert vector " +
+                                         std::to_string(item.vector_id) + ".");
+                inserted.push_back(item.vector_id);
+            }
+            if (s.codes) s.codes->extend(*s.store);
+            if (s.hnsw && !inserted.empty()) {
+                s.hnsw->prepare_insert(inserted);
+                s.hnsw->begin_concurrent_reads();
+                link = true;
+            }
+        }
+        if (segment) s.bm25->commit_add(std::move(*segment));
+        if (documents) {
+            // Replaced records keep their slot; new ones are appended.
+            for (std::size_t i = 0; i < plan.size(); ++i) {
+                if (plan[i].existing == kNew)
+                    s.docs.push_back(std::move(records[i]));
+                else
+                    s.docs[plan[i].existing] = std::move(records[i]);
+            }
+            s.index_documents();
+            s.binding.clear();
+            for (const auto& doc : s.docs) s.binding.emplace(doc.vector_id, doc.document_id);
+        }
+        s.stats.vectors = s.store ? s.store->live_size() : 0;
+        s.stats.documents = s.docs.size();
+    }
+    // Link the new graph nodes while searches run; they become reachable as they finish.
+    if (link) {
+        try {
+            s.hnsw->insert_prepared(std::max<std::size_t>(c.build_threads, 1));
+        } catch (...) {
+            s.hnsw->end_concurrent_reads();
+            throw;
+        }
+        s.hnsw->end_concurrent_reads();
+    }
     return result;
 }
 
 std::size_t Collection::remove(std::span<const std::string> ids) {
     auto& s = *state_;
+    const std::lock_guard writer(s.writer);
     if (!s.built) throw std::logic_error("Collection::remove requires built indexes.");
+    if (s.bm25) s.bm25->prepare_for_changes();  // Outside the exclusive section.
     const bool documents = s.config.mode != SearchMode::Vector || s.jsonl_vectors;
     std::unordered_set<std::string_view> seen;
     for (const auto& id : ids)
@@ -1028,6 +1080,7 @@ std::size_t Collection::remove(std::span<const std::string> ids) {
             doomed.push_back(found->second);
         }
         std::unordered_set<std::size_t> gone(doomed.begin(), doomed.end());
+        const std::unique_lock lock(s.state);
         for (std::size_t index : doomed) {
             const auto& doc = s.docs[index];
             if (s.store) s.store->erase(doc.vector_id);
@@ -1050,7 +1103,10 @@ std::size_t Collection::remove(std::span<const std::string> ids) {
                 throw InputDataError("Unknown vector ID: " + id);
             doomed.push_back(value);
         }
+        const std::unique_lock lock(s.state);
         for (VectorId id : doomed) s.store->erase(id);
+        s.stats.vectors = s.store->live_size();
+        return ids.size();
     }
     s.stats.vectors = s.store ? s.store->live_size() : 0;
     s.stats.documents = s.docs.size();
@@ -1059,45 +1115,62 @@ std::size_t Collection::remove(std::span<const std::string> ids) {
 
 void Collection::compact() {
     auto& s = *state_;
+    const std::lock_guard writer(s.writer);
     if (!s.built) throw std::logic_error("Collection::compact requires built indexes.");
     const auto& c = s.config;
+    // Build the compacted components while searches keep using the current ones.
+    std::shared_ptr<VectorStore> store;
+    std::unique_ptr<HnswIndex> hnsw;
+    std::unique_ptr<QuantizedVectors> codes;
+    std::unique_ptr<lexical::SegmentedBm25> bm25;
+    CollectionStats stats = s.stats;
     if (s.store && s.store->deleted_count() != 0 && s.store->has_rows()) {
-        std::shared_ptr<VectorStore> store = s.store->compacted();
-        std::unique_ptr<HnswIndex> hnsw;
-        std::unique_ptr<QuantizedVectors> codes;
+        store = s.store->compacted();
         if (s.hnsw) {
             const auto start = Clock::now();
             hnsw = std::make_unique<HnswIndex>(*store, s.hnsw->config());
             hnsw->insert_parallel(store->ids(), c.build_threads);
-            s.stats.index_build_time = Clock::now() - start;
+            stats.index_build_time = Clock::now() - start;
         }
         if (s.codes) {
             const auto start = Clock::now();
             codes = make_codes(c, *store);
-            s.stats.quantization_time = Clock::now() - start;
-            s.stats.code_bytes = codes->memory_bytes();
+            stats.quantization_time = Clock::now() - start;
+            stats.code_bytes = codes->memory_bytes();
         }
-        // Publish only after everything that can throw.
-        s.hnsw.reset();
-        s.store = std::move(store);
-        s.hnsw = std::move(hnsw);
-        if (codes) s.codes = std::move(codes);
-        s.stats.fp32_bytes = s.store->size() * s.store->padded_dimension() * sizeof(float);
+        stats.fp32_bytes = store->size() * store->padded_dimension() * sizeof(float);
     }
     if (s.bm25) {
         const auto start = Clock::now();
-        s.bm25->compact();
-        if (c.mode == SearchMode::Lexical)
-            s.stats.index_build_time = Clock::now() - start;
-        else
-            s.stats.lexical_build_time = Clock::now() - start;
+        bm25 = s.bm25->compacted();
+        (c.mode == SearchMode::Lexical ? stats.index_build_time : stats.lexical_build_time) =
+            Clock::now() - start;
     }
-    s.stats.vectors = s.store ? s.store->live_size() : 0;
-    s.stats.documents = s.docs.size();
+    // Swap. The old components are destroyed after the lock is released, the graph before
+    // the store it reads.
+    std::shared_ptr<VectorStore> old_store;
+    std::unique_ptr<HnswIndex> old_hnsw;
+    std::unique_ptr<QuantizedVectors> old_codes;
+    std::unique_ptr<lexical::SegmentedBm25> old_bm25;
+    {
+        const std::unique_lock lock(s.state);
+        if (store) {
+            old_hnsw = std::exchange(s.hnsw, std::move(hnsw));
+            old_store = std::exchange(s.store, std::move(store));
+            if (codes) old_codes = std::exchange(s.codes, std::move(codes));
+        }
+        if (bm25) old_bm25 = std::exchange(s.bm25, std::move(bm25));
+        stats.vectors = s.store ? s.store->live_size() : 0;
+        stats.documents = s.docs.size();
+        s.stats = stats;
+    }
+    old_hnsw.reset();
 }
 
 bool Collection::validate(std::string& report) const {
     const auto& s = *state_;
+    const std::lock_guard writer(s.writer);  // A quiescent graph: no insertion in flight.
+    const std::shared_lock lock(s.state);
     std::ostringstream out;
     bool ok = true;
     if (s.hnsw) {

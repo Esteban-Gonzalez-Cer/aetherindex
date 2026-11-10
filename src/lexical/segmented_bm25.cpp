@@ -105,13 +105,16 @@ void SegmentedBm25::add(std::span<const std::pair<DocumentId, std::string>> docu
 }
 
 SegmentedBm25::PendingSegment SegmentedBm25::prepare_add(
-    std::span<const std::pair<DocumentId, std::string>> documents) const {
+    std::span<const std::pair<DocumentId, std::string>> documents,
+    std::span<const DocumentId> replacing) const {
     PendingSegment pending;
     if (documents.empty()) return pending;
+    const std::unordered_set<DocumentId> replaced(replacing.begin(), replacing.end());
     std::unordered_set<DocumentId> batch;
     for (const auto& [id, text] : documents) {
         if (!batch.insert(id).second) throw std::invalid_argument("Duplicate DocumentId in batch.");
-        if (contains(id)) throw std::invalid_argument("DocumentId is already indexed.");
+        if (!replaced.contains(id) && contains(id))
+            throw std::invalid_argument("DocumentId is already indexed.");
     }
     auto index = std::make_shared<Bm25Index>(config_);
     for (const auto& [id, text] : documents) index->add_document(id, text);
@@ -127,6 +130,8 @@ SegmentedBm25::PendingSegment SegmentedBm25::prepare_add(
 
 void SegmentedBm25::commit_add(PendingSegment&& pending) {
     if (!pending.index) return;
+    for (DocumentId id : pending.ids)
+        if (contains(id)) throw std::invalid_argument("DocumentId is already indexed.");
     prepare_all();
     segments_.push_back({std::move(pending.index), {}, 0, std::move(pending.ids),
                          std::move(pending.lengths), std::move(pending.impacts), true});
