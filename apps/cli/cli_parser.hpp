@@ -10,7 +10,16 @@
 
 namespace aetherindex::cli {
 
-enum class Command { Search, Convert, IndexBuild, IndexInfo, IndexVerify };
+enum class Command {
+    Search,
+    Convert,
+    IndexBuild,
+    IndexInfo,
+    IndexVerify,
+    IndexAdd,
+    IndexDelete,
+    IndexCompact
+};
 
 struct CliOptions {
     bool show_help = false;
@@ -24,6 +33,10 @@ struct CliOptions {
     // search --index: query-time options given explicitly, checked once the index's mode
     // is known (for example, --alpha requires a hybrid index).
     std::vector<std::string> index_query_options;
+    // index add: records from search.dataset_path (and search.vectors_path); --replace
+    // updates existing IDs. index delete: the --id values.
+    bool replace = false;
+    std::vector<std::string> delete_ids;
 };
 
 // Arguments exclude argv[0]. Throws invalid_argument on malformed options.

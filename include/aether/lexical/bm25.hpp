@@ -3,6 +3,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <memory>
+#include <span>
+#include <utility>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -11,6 +14,7 @@
 #include "aether/core/search_result.hpp"
 #include "aether/lexical/bm25_config.hpp"
 #include "aether/lexical/inverted_index.hpp"
+#include "aether/lexical/lexical_searcher.hpp"
 
 namespace aetherindex {
 struct SnapshotAccess;
@@ -41,7 +45,9 @@ struct PostingMemory {
     std::size_t blocks = 0;
 };
 
-class Bm25Index {
+class SegmentedBm25;
+
+class Bm25Index : public LexicalSearcher {
    public:
     explicit Bm25Index(Bm25Config config = {});
 
@@ -56,7 +62,8 @@ class Bm25Index {
     // Same ranking restricted to documents with allow(id) == true (scores unchanged;
     // excluded documents are never returned). An empty function allows every document.
     [[nodiscard]] std::vector<RankedResult> search(
-        std::string_view query, std::size_t k, const std::function<bool(DocumentId)>& allow) const;
+        std::string_view query, std::size_t k,
+        const std::function<bool(DocumentId)>& allow) const override;
 
     [[nodiscard]] bool is_built() const noexcept;
     [[nodiscard]] std::size_t document_count() const noexcept;
@@ -69,6 +76,8 @@ class Bm25Index {
 
    private:
     friend struct ::aetherindex::SnapshotAccess;  // Index snapshots (aether_persistence).
+    friend class SegmentedBm25;                   // Uses this index as one segment.
+    using Allow = std::function<bool(DocumentId)>;
     // A block of up to 128 postings, bit-packed at fixed widths in postings_: the ordinal
     // deltas (count * doc_bits bits, the first relative to the previous block's last
     // ordinal), then tf - 1 (count * tf_bits bits; 0 bits when every tf is 1).
@@ -92,7 +101,6 @@ class Bm25Index {
             return std::hash<std::string_view>{}(value);
         }
     };
-    class Cursor;
     // A distinct analyzed query term and the factor applied to its contribution
     // (1 under QueryTermWeighting::Unique, its query occurrences under Frequency).
     struct QueryTerm {
@@ -101,11 +109,55 @@ class Bm25Index {
     };
 
     std::vector<QueryTerm> query_terms(std::string_view query) const;
+
+    // ----- Segment support (SegmentedBm25) -------------------------------------------
+    // Corpus-wide statistics for scoring one segment of a multi-segment index: scores use
+    // these instead of the segment's own, so every document scores exactly as an
+    // exhaustive scorer over the whole corpus would. Arrays are indexed by this segment's
+    // ordinals (ascending DocumentId); impacts by block (max tf, min document length).
+    struct GlobalContext {
+        double average_length;
+        std::span<const std::uint32_t> lengths;
+        std::span<const DocumentId> ids;
+        const std::uint64_t* deleted;  // Tombstone bit per ordinal, or null.
+        std::span<const std::pair<std::uint32_t, std::uint32_t>> impacts;
+    };
+    // idf[i] belongs to terms[i] (computed from corpus-wide N and df).
+    std::vector<RankedResult> search_global(const std::vector<QueryTerm>& terms,
+                                            std::span<const double> idf, std::size_t k,
+                                            const Allow& allow, const GlobalContext& context) const;
+    std::size_t term_document_frequency(std::string_view term) const;
+    std::uint64_t total_token_count() const noexcept { return index_.total_token_count(); }
+    // Ascending DocumentIds (= ordinals) and their lengths.
+    std::vector<DocumentId> ordinal_ids() const;
+    std::vector<std::uint32_t> ordinal_lengths(std::span<const DocumentId> ids) const;
+    // (max tf, min document length) of every compressed block; empty for exhaustive.
+    std::vector<std::pair<std::uint32_t, std::uint32_t>> block_impacts(
+        std::span<const std::uint32_t> lengths) const;
+    // Every term's postings as (DocumentId, tf), decoding compressed blocks if needed.
+    void for_each_posting_list(
+        const std::function<void(std::string_view, std::span<const Posting>)>& visit) const;
+    // A built index from postings (sorted by DocumentId) and document lengths, exactly as
+    // build() would produce from the documents that yielded them.
+    static std::unique_ptr<Bm25Index> from_postings(
+        Bm25Config config, std::unordered_map<std::string, PostingList, InvertedIndex::TermHash,
+                                              std::equal_to<>> postings,
+        std::unordered_map<DocumentId, std::uint32_t> lengths, std::uint64_t total_tokens);
+    void finish_build();
+
+    class Cursor;
+    template <class Norm, class Skip>
+    std::vector<RankedResult> maxscore_impl(std::vector<Cursor>& cursors, std::size_t k,
+                                            const Allow& allow, const Norm& norm,
+                                            const Skip& skip) const;
+    template <class Norm, class Skip>
+    std::vector<RankedResult> taat_impl(std::vector<Cursor>& cursors, std::size_t k,
+                                        const Allow& allow, const Norm& norm,
+                                        const Skip& skip) const;
     // Decodes every block of the compressed layout and checks that all reads stay inside
     // postings_ and every ordinal indexes document_ids_ in ascending order (snapshots).
     bool layout_is_consistent() const;
     void build_layout(const InvertedIndex& built, PostingMemory& memory);
-    using Allow = std::function<bool(DocumentId)>;
     std::vector<RankedResult> search_exhaustive(const std::vector<QueryTerm>& terms,
                                                 std::size_t k, const Allow& allow) const;
     std::vector<RankedResult> search_term_at_a_time(const std::vector<QueryTerm>& terms,

@@ -7,10 +7,12 @@
 #include <sstream>
 #include <string>
 #include <utility>
+#include <unordered_set>
 #include <vector>
 
 #include "aether/core/vector_math.hpp"
 #include "aether/io/binary_io.hpp"
+#include "aether/lexical/segmented_bm25.hpp"
 #include "aether/quantization/pq.hpp"
 #include "aether/quantization/sq8.hpp"
 
@@ -334,7 +336,6 @@ struct SnapshotAccess {
             const auto terms = load_terms(in);
             const auto starts = in.array<std::uint64_t>();
             const auto postings = in.array<lexical::Posting>();
-            in.expect_end();
             if (starts.size() != terms.size() + 1 || starts.back() != postings.size())
                 in.fail("posting lists are inconsistent");
             for (std::size_t t = 0; t < terms.size(); ++t) {
@@ -352,7 +353,6 @@ struct SnapshotAccess {
             const auto postings = in.array<std::uint8_t>();
             const auto document_ids = in.array<DocumentId>();
             const auto norms = in.array<double>();
-            in.expect_end();
             if (layouts.size() != terms.size() || document_ids.size() != ids.size() ||
                 norms.size() != ids.size() || postings.size() < sizeof(std::uint64_t))
                 in.fail("compressed layout sizes do not match");
@@ -366,6 +366,83 @@ struct SnapshotAccess {
             if (!index->layout_is_consistent()) in.fail("compressed postings are inconsistent");
         }
         inverted.ready_ = true;
+        return index;
+    }
+
+    // ----- SegmentedBm25 ---------------------------------------------------------------
+
+    static void save_segmented(const lexical::SegmentedBm25& index, SectionWriter& out) {
+        const auto& config = index.config_;
+        out.f64(config.k1);
+        out.f64(config.b);
+        out.u32(static_cast<std::uint32_t>(config.strategy));
+        out.u32(static_cast<std::uint32_t>(config.analyzer));
+        out.u32(static_cast<std::uint32_t>(config.query_weighting));
+        out.u64(index.segments_.size());
+        for (const auto& segment : index.segments_) {
+            save_bm25(*segment.index, out);
+            out.u64(segment.deleted_count);
+            out.array<std::uint64_t>(segment.deleted);
+        }
+    }
+
+    static std::unique_ptr<lexical::SegmentedBm25> load_segmented(
+        SectionReader& in, const snapshot::Bm25QueryOverrides& with) {
+        lexical::Bm25Config config;
+        config.k1 = in.f64();
+        config.b = in.f64();
+        config.strategy = static_cast<lexical::Bm25Strategy>(in.u32());
+        config.analyzer = static_cast<lexical::Analyzer>(in.u32());
+        config.query_weighting = static_cast<lexical::QueryTermWeighting>(in.u32());
+        try {
+            lexical::validate_bm25_config(config);
+        } catch (const std::invalid_argument& error) {
+            in.fail(std::string("invalid BM25 config: ") + error.what());
+        }
+        if (with.strategy) config.strategy = *with.strategy;
+        if (with.query_weighting) config.query_weighting = *with.query_weighting;
+        auto index = std::make_unique<lexical::SegmentedBm25>(config);
+        const std::uint64_t count = in.u64();
+        if (count > in.payload_bytes()) in.fail("segment count exceeds the payload");
+        bool global = count > 1;
+        for (std::uint64_t i = 0; i < count; ++i) {
+            std::shared_ptr<const lexical::Bm25Index> segment = load_bm25(in, with);
+            const auto& loaded = segment->config_;
+            if (loaded.k1 != config.k1 || loaded.b != config.b ||
+                loaded.analyzer != config.analyzer)
+                in.fail("segments disagree on the BM25 configuration");
+            const std::uint64_t deleted_count = in.u64();
+            auto deleted = in.vector<std::uint64_t>();
+            const std::size_t documents = segment->document_count();
+            if (!deleted.empty() && deleted.size() != (documents + 63) / 64)
+                in.fail("segment tombstone bitmap has the wrong size");
+            std::uint64_t marked = 0;
+            for (std::size_t word = 0; word < deleted.size(); ++word) {
+                marked += static_cast<std::uint64_t>(std::popcount(deleted[word]));
+                const std::size_t base = word * 64;
+                const std::uint64_t valid =
+                    documents - base >= 64 ? ~std::uint64_t{0}
+                                           : (std::uint64_t{1} << (documents - base)) - 1;
+                if ((deleted[word] & ~valid) != 0) in.fail("tombstone beyond the last document");
+            }
+            if (marked != deleted_count || deleted_count > documents)
+                in.fail("segment tombstone count does not match");
+            global = global || deleted_count != 0;
+            index->segments_.push_back(
+                {std::move(segment), std::move(deleted), static_cast<std::size_t>(deleted_count),
+                 {}, {}, {}, false});
+        }
+        in.expect_end();
+        // Live DocumentIds must be unique across segments.
+        std::unordered_set<DocumentId> live;
+        for (const auto& segment : index->segments_) {
+            const auto ids = segment.index->ordinal_ids();
+            for (std::size_t ordinal = 0; ordinal < ids.size(); ++ordinal)
+                if (!lexical::SegmentedBm25::is_deleted(segment, ordinal) &&
+                    !live.insert(ids[ordinal]).second)
+                    in.fail("a live document appears in two segments");
+        }
+        if (global) index->prepare_all();
         return index;
     }
 
@@ -498,7 +575,22 @@ std::unique_ptr<lexical::Bm25Index> load_bm25(const std::filesystem::path& path,
                                               const Bm25QueryOverrides& overrides) {
     const io::FileView file(path);
     SectionReader in(file, static_cast<std::uint32_t>(Section::Bm25), verify_checksums);
-    return SnapshotAccess::load_bm25(in, overrides);
+    auto index = SnapshotAccess::load_bm25(in, overrides);
+    in.expect_end();
+    return index;
+}
+
+void save(const lexical::SegmentedBm25& index, const std::filesystem::path& path) {
+    SnapshotAccess::write(path, Section::Bm25Segments,
+                          [&](SectionWriter& out) { SnapshotAccess::save_segmented(index, out); });
+}
+
+std::unique_ptr<lexical::SegmentedBm25> load_segmented_bm25(const std::filesystem::path& path,
+                                                            bool verify_checksums,
+                                                            const Bm25QueryOverrides& overrides) {
+    const io::FileView file(path);
+    SectionReader in(file, static_cast<std::uint32_t>(Section::Bm25Segments), verify_checksums);
+    return SnapshotAccess::load_segmented(in, overrides);
 }
 
 void save(const QuantizedVectors& codes, const std::filesystem::path& path) {

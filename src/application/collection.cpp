@@ -19,6 +19,7 @@
 #include "aether/hybrid/rrf.hpp"
 #include "aether/io/binary_io.hpp"
 #include "aether/lexical/bm25.hpp"
+#include "aether/lexical/segmented_bm25.hpp"
 #include "aether/persistence/snapshot.hpp"
 #include "aether/quantization/pq.hpp"
 #include "aether/quantization/sq8.hpp"
@@ -347,7 +348,7 @@ struct Collection::State {
     std::vector<DocumentRecord> docs;
     std::unique_ptr<HnswIndex> hnsw;
     std::unique_ptr<QuantizedVectors> codes;
-    std::unique_ptr<lexical::Bm25Index> bm25;
+    std::unique_ptr<lexical::SegmentedBm25> bm25;
     bool jsonl_vectors = false;  // Vector mode over JSONL: show source document IDs.
     bool built = false;
     CollectionStats stats;
@@ -440,11 +441,13 @@ void Collection::build_indexes() {
         }
     };
     const auto build_lexical = [&] {
-        s.bm25 = std::make_unique<lexical::Bm25Index>(config.bm25_config);
+        auto index = std::make_shared<lexical::Bm25Index>(config.bm25_config);
         const auto start = Clock::now();
-        for (const auto& doc : s.docs) s.bm25->add_document(doc.document_id, doc.title + "\n" + doc.text);
-        s.bm25->build();
-        return Clock::now() - start;
+        for (const auto& doc : s.docs) index->add_document(doc.document_id, doc.title + "\n" + doc.text);
+        index->build();
+        const auto elapsed = Clock::now() - start;
+        s.bm25 = std::make_unique<lexical::SegmentedBm25>(std::move(index));
+        return elapsed;
     };
     if (config.mode == SearchMode::Lexical) {
         s.stats.index_build_time = build_lexical();
@@ -536,7 +539,7 @@ SearchResponse Collection::search(const SearchRequest& query_request,
     if (request.mode == SearchMode::Hybrid) {
         base.index_build_time = s.stats.index_build_time;
         base.lexical_build_time = s.stats.lexical_build_time;
-        base.vectors_indexed = s.store->size();
+        base.vectors_indexed = s.store->live_size();
         base.documents_indexed = s.docs.size();
         base.dimension = s.store->dimension();
         base.candidate_k = effective_candidate_k(request);
@@ -587,7 +590,7 @@ SearchResponse Collection::search(const SearchRequest& query_request,
     const std::size_t rerank = base.rerank;
     const auto filter = build_filter(request, s.docs, s.store->has_rows(),
                                      request.algorithm == SearchAlgorithm::BruteForce, base);
-    base.vectors_indexed = s.store->size();
+    base.vectors_indexed = s.store->live_size();
     base.dimension = s.store->dimension();
     const HnswIndex* index = s.hnsw.get();
     return run_queries(
@@ -795,8 +798,8 @@ std::unique_ptr<Collection> Collection::open(const fs::path& directory,
     }
     if (const auto path = file_of("codes")) s.codes = snapshot::load_quantized(*path, verify);
     if (const auto path = file_of("bm25"))
-        s.bm25 = snapshot::load_bm25(*path, verify,
-                                     {options.bm25_strategy, options.bm25_query_weighting});
+        s.bm25 = snapshot::load_segmented_bm25(
+            *path, verify, {options.bm25_strategy, options.bm25_query_weighting});
     if (const auto path = file_of("documents")) s.docs = load_documents(*path, verify);
 
     const bool dense = c.mode == SearchMode::Hybrid ||
@@ -818,7 +821,7 @@ std::unique_ptr<Collection> Collection::open(const fs::path& directory,
         if (s.hnsw && s.hnsw->size() != s.store->size())
             throw io::IoError(manifest_path.string() + ": the graph does not index every vector.");
     }
-    if (c.mode != SearchMode::Vector && s.bm25 && s.bm25->document_count() != s.docs.size())
+    if (c.mode != SearchMode::Vector && s.bm25 && s.bm25->live_count() != s.docs.size())
         throw io::IoError(manifest_path.string() + ": BM25 and documents disagree.");
     if (s.jsonl_vectors || c.mode == SearchMode::Hybrid)
         for (const auto& doc : s.docs)
@@ -835,6 +838,264 @@ std::unique_ptr<Collection> Collection::open(const fs::path& directory,
     return collection;
 }
 
+// ----- Mutations ---------------------------------------------------------------------
+
+std::size_t Collection::deleted_count() const {
+    const auto& s = *state_;
+    std::size_t deleted = s.store ? s.store->deleted_count() : 0;
+    if (s.bm25) deleted = std::max(deleted, s.bm25->deleted_count());
+    return deleted;
+}
+
+Collection::AddResult Collection::add(const fs::path& dataset, const fs::path& vectors,
+                                      bool replace) {
+    auto& s = *state_;
+    if (!s.built) throw std::logic_error("Collection::add requires built indexes.");
+    const auto& c = s.config;
+    if (s.store && !s.store->has_rows())
+        throw std::invalid_argument(
+            "This index was built with --drop-fp32; it cannot accept new vectors.");
+    if (!vectors.empty() && c.mode != SearchMode::Hybrid)
+        throw std::invalid_argument("--vectors applies to hybrid indexes only.");
+    if (c.mode == SearchMode::Hybrid && vectors.empty() != c.vectors_path.empty())
+        throw std::invalid_argument(c.vectors_path.empty()
+                                        ? "This hybrid index reads embeddings from the JSONL; "
+                                          "do not pass --vectors."
+                                        : "This hybrid index was built with --vectors; pass "
+                                          "the new embeddings with --vectors FILE.avec.");
+    SearchRequest source = c;
+    source.dataset_path = dataset;
+    source.vectors_path = vectors;
+    if (c.mode != SearchMode::Vector || s.jsonl_vectors) {
+        if (!jsonl_path(dataset))
+            throw std::invalid_argument("This index takes JSONL documents.");
+    } else if (jsonl_path(dataset)) {
+        throw std::invalid_argument("This index takes CSV or .avec vectors.");
+    }
+    auto incoming = Collection::load(source);
+    auto& in = *incoming->state_;
+    if (s.store && in.store && in.store->dimension() != s.store->dimension())
+        throw InputDataError(dataset.string() + ": vector dimension " +
+                             std::to_string(in.store->dimension()) + " differs from the index (" +
+                             std::to_string(s.store->dimension()) + ").");
+
+    AddResult result;
+    const bool documents = c.mode != SearchMode::Vector || s.jsonl_vectors;
+    // (incoming position, existing doc index or npos) and the identity each record gets.
+    struct Plan {
+        std::size_t existing;
+        DocumentId document_id;
+        VectorId vector_id;
+        std::size_t row;  // Position in the incoming store (vectors only).
+    };
+    constexpr std::size_t kNew = std::numeric_limits<std::size_t>::max();
+    std::vector<Plan> plan;
+    if (documents) {
+        std::unordered_map<std::string_view, std::size_t> by_source;
+        std::unordered_set<DocumentId> used;
+        for (std::size_t i = 0; i < s.docs.size(); ++i) {
+            by_source.emplace(s.docs[i].id, i);
+            used.insert(s.docs[i].document_id);
+        }
+        // Opaque new IDs are numbered in source-ID order, like a fresh load.
+        std::vector<std::size_t> order(in.docs.size());
+        for (std::size_t i = 0; i < order.size(); ++i) order[i] = i;
+        std::sort(order.begin(), order.end(),
+                  [&](std::size_t a, std::size_t b) { return in.docs[a].id < in.docs[b].id; });
+        plan.resize(in.docs.size());
+        std::uint64_t next = 0;
+        const auto allocate = [&] {
+            while (next <= std::numeric_limits<DocumentId>::max() &&
+                   used.contains(static_cast<DocumentId>(next)))
+                ++next;
+            if (next > std::numeric_limits<DocumentId>::max())
+                throw InputDataError("Too many document identifiers.");
+            used.insert(static_cast<DocumentId>(next));
+            return static_cast<DocumentId>(next++);
+        };
+        // Existing and numeric IDs first, so allocation never takes them.
+        for (std::size_t i = 0; i < in.docs.size(); ++i) {
+            const auto& doc = in.docs[i];
+            const auto found = by_source.find(doc.id);
+            if (found != by_source.end()) {
+                if (!replace)
+                    throw InputDataError(dataset.string() + ": document '" + doc.id +
+                                         "' already exists (use --replace to update it).");
+                const auto& old = s.docs[found->second];
+                plan[i] = {found->second, old.document_id, old.vector_id, 0};
+            } else {
+                plan[i] = {kNew, 0, 0, 0};
+            }
+        }
+        for (std::size_t i = 0; i < in.docs.size(); ++i) {
+            if (plan[i].existing != kNew) continue;
+            DocumentId numeric = 0;
+            const auto& text = in.docs[i].id;
+            const auto [end, error] =
+                std::from_chars(text.data(), text.data() + text.size(), numeric);
+            if (error == std::errc{} && end == text.data() + text.size() && !text.empty() &&
+                (text.size() == 1 || text[0] != '0') && !used.contains(numeric)) {
+                used.insert(numeric);
+                plan[i].document_id = numeric;
+                plan[i].existing = kNew - 1;  // Marked as assigned.
+            }
+        }
+        for (std::size_t position : order) {
+            if (plan[position].existing == kNew) plan[position].document_id = allocate();
+            if (plan[position].existing == kNew - 1) plan[position].existing = kNew;
+        }
+        for (std::size_t i = 0; i < in.docs.size(); ++i) {
+            if (plan[i].existing == kNew) plan[i].vector_id = plan[i].document_id;
+            if (in.store) plan[i].row = *in.store->position_of(in.docs[i].vector_id);
+        }
+    } else {
+        plan.resize(in.store->size());
+        for (std::size_t row = 0; row < in.store->size(); ++row) {
+            const VectorId id = in.store->ids()[row];
+            if (s.store->contains(id) && !replace)
+                throw InputDataError(dataset.string() + ": vector " + std::to_string(id) +
+                                     " already exists (use --replace to update it).");
+            plan[row] = {s.store->contains(id) ? 0 : kNew, id, id, row};
+        }
+    }
+
+    // Apply: deletes of replaced records, then the new rows, graph nodes, codes and BM25.
+    std::vector<std::size_t> replaced_docs;
+    for (const auto& item : plan) {
+        if (item.existing == kNew) continue;
+        ++result.replaced;
+        if (s.store) s.store->erase(item.vector_id);
+        if (s.bm25) s.bm25->remove(item.document_id);
+        if (documents) replaced_docs.push_back(item.existing);
+    }
+    result.added = plan.size() - result.replaced;
+    if (s.store) {
+        std::vector<VectorId> inserted;
+        inserted.reserve(plan.size());
+        for (const auto& item : plan) {
+            if (s.store->insert_from(*in.store, item.row, item.vector_id) != InsertStatus::Success)
+                throw InputDataError(dataset.string() + ": cannot insert vector " +
+                                     std::to_string(item.vector_id) + ".");
+            inserted.push_back(item.vector_id);
+        }
+        if (s.hnsw)
+            for (VectorId id : inserted) s.hnsw->insert(id);
+        if (s.codes) s.codes->extend(*s.store);
+    }
+    if (s.bm25) {
+        std::vector<std::pair<DocumentId, std::string>> batch;
+        batch.reserve(plan.size());
+        for (std::size_t i = 0; i < plan.size(); ++i)
+            batch.emplace_back(plan[i].document_id, in.docs[i].title + "\n" + in.docs[i].text);
+        s.bm25->add(batch);
+    }
+    if (documents) {
+        // Replaced records keep their slot; new ones are appended.
+        for (std::size_t i = 0; i < plan.size(); ++i) {
+            DocumentRecord record;
+            record.id = std::move(in.docs[i].id);
+            record.document_id = plan[i].document_id;
+            record.vector_id = plan[i].vector_id;
+            record.metadata = std::move(in.docs[i].metadata);
+            if (plan[i].existing == kNew)
+                s.docs.push_back(std::move(record));
+            else
+                s.docs[plan[i].existing] = std::move(record);
+        }
+        s.index_documents();
+        s.binding.clear();
+        for (const auto& doc : s.docs) s.binding.emplace(doc.vector_id, doc.document_id);
+    }
+    s.stats.vectors = s.store ? s.store->live_size() : 0;
+    s.stats.documents = s.docs.size();
+    return result;
+}
+
+std::size_t Collection::remove(std::span<const std::string> ids) {
+    auto& s = *state_;
+    if (!s.built) throw std::logic_error("Collection::remove requires built indexes.");
+    const bool documents = s.config.mode != SearchMode::Vector || s.jsonl_vectors;
+    std::unordered_set<std::string_view> seen;
+    for (const auto& id : ids)
+        if (!seen.insert(id).second) throw InputDataError("ID repeated in the delete list: " + id);
+    if (documents) {
+        std::unordered_map<std::string_view, std::size_t> by_source;
+        for (std::size_t i = 0; i < s.docs.size(); ++i) by_source.emplace(s.docs[i].id, i);
+        std::vector<std::size_t> doomed;
+        for (const auto& id : ids) {
+            const auto found = by_source.find(id);
+            if (found == by_source.end()) throw InputDataError("Unknown document ID: " + id);
+            doomed.push_back(found->second);
+        }
+        std::unordered_set<std::size_t> gone(doomed.begin(), doomed.end());
+        for (std::size_t index : doomed) {
+            const auto& doc = s.docs[index];
+            if (s.store) s.store->erase(doc.vector_id);
+            if (s.bm25) s.bm25->remove(doc.document_id);
+        }
+        std::vector<DocumentRecord> kept;
+        kept.reserve(s.docs.size() - gone.size());
+        for (std::size_t i = 0; i < s.docs.size(); ++i)
+            if (!gone.contains(i)) kept.push_back(std::move(s.docs[i]));
+        s.docs = std::move(kept);
+        s.index_documents();
+        s.binding.clear();
+        for (const auto& doc : s.docs) s.binding.emplace(doc.vector_id, doc.document_id);
+    } else {
+        std::vector<VectorId> doomed;
+        for (const auto& id : ids) {
+            VectorId value = 0;
+            const auto [end, error] = std::from_chars(id.data(), id.data() + id.size(), value);
+            if (error != std::errc{} || end != id.data() + id.size() || !s.store->contains(value))
+                throw InputDataError("Unknown vector ID: " + id);
+            doomed.push_back(value);
+        }
+        for (VectorId id : doomed) s.store->erase(id);
+    }
+    s.stats.vectors = s.store ? s.store->live_size() : 0;
+    s.stats.documents = s.docs.size();
+    return ids.size();
+}
+
+void Collection::compact() {
+    auto& s = *state_;
+    if (!s.built) throw std::logic_error("Collection::compact requires built indexes.");
+    const auto& c = s.config;
+    if (s.store && s.store->deleted_count() != 0 && s.store->has_rows()) {
+        std::shared_ptr<VectorStore> store = s.store->compacted();
+        std::unique_ptr<HnswIndex> hnsw;
+        std::unique_ptr<QuantizedVectors> codes;
+        if (s.hnsw) {
+            const auto start = Clock::now();
+            hnsw = std::make_unique<HnswIndex>(*store, s.hnsw->config());
+            hnsw->insert_parallel(store->ids(), c.build_threads);
+            s.stats.index_build_time = Clock::now() - start;
+        }
+        if (s.codes) {
+            const auto start = Clock::now();
+            codes = make_codes(c, *store);
+            s.stats.quantization_time = Clock::now() - start;
+            s.stats.code_bytes = codes->memory_bytes();
+        }
+        // Publish only after everything that can throw.
+        s.hnsw.reset();
+        s.store = std::move(store);
+        s.hnsw = std::move(hnsw);
+        if (codes) s.codes = std::move(codes);
+        s.stats.fp32_bytes = s.store->size() * s.store->padded_dimension() * sizeof(float);
+    }
+    if (s.bm25) {
+        const auto start = Clock::now();
+        s.bm25->compact();
+        if (c.mode == SearchMode::Lexical)
+            s.stats.index_build_time = Clock::now() - start;
+        else
+            s.stats.lexical_build_time = Clock::now() - start;
+    }
+    s.stats.vectors = s.store ? s.store->live_size() : 0;
+    s.stats.documents = s.docs.size();
+}
+
 bool Collection::validate(std::string& report) const {
     const auto& s = *state_;
     std::ostringstream out;
@@ -846,8 +1107,12 @@ bool Collection::validate(std::string& report) const {
         ok = ok && graph.valid();
     }
     if (s.bm25)
-        out << "BM25 index: " << s.bm25->document_count() << " documents, "
-            << (s.bm25->is_built() ? "built" : "NOT BUILT") << '\n';
+        out << "BM25 index: " << s.bm25->live_count() << " live documents, "
+            << s.bm25->deleted_count() << " deleted, " << s.bm25->segment_count()
+            << " segment(s)\n";
+    if (s.store && s.store->deleted_count() != 0)
+        out << "Vectors: " << s.store->live_size() << " live, " << s.store->deleted_count()
+            << " deleted\n";
     if (s.codes)
         out << "Quantized codes: " << s.codes->name() << ", " << s.codes->size() << " rows\n";
     report = out.str();

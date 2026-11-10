@@ -6,7 +6,7 @@
 #include "aether/ann/brute_force/brute_force_index.hpp"
 #include "aether/ann/hnsw/hnsw_index.hpp"
 #include "aether/hybrid/rrf.hpp"
-#include "aether/lexical/bm25.hpp"
+#include "aether/lexical/lexical_searcher.hpp"
 
 namespace aetherindex {
 
@@ -32,9 +32,9 @@ std::vector<SearchResult> QueryEngine::search(const HnswIndex& index, const Quan
     return index.search_quantized(prepared, codes, k, index.config().ef_search, rerank);
 }
 
-std::vector<RankedResult> QueryEngine::search(const lexical::Bm25Index& index,
+std::vector<RankedResult> QueryEngine::search(const lexical::LexicalSearcher& index,
                                               std::string_view query, std::size_t k) const {
-    return index.search(query, k);
+    return index.search(query, k, {});
 }
 
 std::vector<SearchResult> QueryEngine::search(const HnswIndex& index,
@@ -59,7 +59,7 @@ std::vector<SearchResult> QueryEngine::search(const VectorStore& database,
     return bruteForceSearchSubset(database, prepared, k, *filter.exact_vectors);
 }
 
-std::vector<RankedResult> QueryEngine::search(const lexical::Bm25Index& index,
+std::vector<RankedResult> QueryEngine::search(const lexical::LexicalSearcher& index,
                                               std::string_view query, std::size_t k,
                                               const SearchFilter& filter) const {
     return index.search(query, k, filter.allow_document);
@@ -67,7 +67,7 @@ std::vector<RankedResult> QueryEngine::search(const lexical::Bm25Index& index,
 
 HybridRankings QueryEngine::search(const HnswIndex& dense_index,
                                    const VectorDocumentBinding& binding,
-                                   const lexical::Bm25Index& lexical_index,
+                                   const lexical::LexicalSearcher& lexical_index,
                                    const hybrid::RrfFusion& fusion,
                                    const HybridQuery& query) const {
     if (query.k == 0) throw std::invalid_argument("Hybrid search requires k > 0.");

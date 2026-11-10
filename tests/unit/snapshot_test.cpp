@@ -213,6 +213,42 @@ void bm25_round_trip() {
     }
 }
 
+void segmented_bm25_round_trip() {
+    for (auto strategy : {lexical::Bm25Strategy::MaxScore, lexical::Bm25Strategy::Exhaustive}) {
+        lexical::Bm25Config config;
+        config.strategy = strategy;
+        lexical::SegmentedBm25 index(config);
+        std::mt19937 random(13);
+        const std::vector<std::string> words = {"motor", "bomba", "sensor", "falla", "e47",
+                                                "turbina", "aceite", "filtro", "eje"};
+        DocumentId next = 1;
+        for (int batch = 0; batch < 5; ++batch) {
+            std::vector<std::pair<DocumentId, std::string>> documents;
+            for (int d = 0; d < 80; ++d) {
+                std::string text;
+                for (int w = 0; w < 1 + static_cast<int>(random() % 12); ++w)
+                    text += words[random() % words.size()] + " ";
+                documents.emplace_back(next++, text);
+            }
+            index.add(documents);
+        }
+        for (DocumentId id = 3; id < next; id += 7) index.remove(id);
+        const auto path = work_dir / "segments.sec";
+        snapshot::save(index, path);
+        const auto loaded = snapshot::load_segmented_bm25(path, true);
+        require(loaded->segment_count() == index.segment_count() &&
+                    loaded->deleted_count() == index.deleted_count(),
+                "Loaded segment structure differs.");
+        for (const char* query : {"motor bomba", "e47 e47 falla", "eje", "nada"})
+            for (std::size_t k : {1, 10, 500})
+                require_same_ranking(loaded->search(query, k), index.search(query, k),
+                                     "Loaded segmented BM25 results differ.");
+        snapshot::save(*loaded, work_dir / "segments-again.sec");
+        require(bytes_of(path) == bytes_of(work_dir / "segments-again.sec"),
+                "Saving a loaded segmented index must reproduce the same bytes.");
+    }
+}
+
 void quantized_round_trip() {
     const std::size_t dimension = 32;
     auto store = make_store(800, dimension, DistanceKind::SquaredEuclidean, 31);
@@ -282,6 +318,7 @@ int main(int argc, char** argv) {
         vector_store_round_trip();
         hnsw_round_trip();
         bm25_round_trip();
+        segmented_bm25_round_trip();
         quantized_round_trip();
         damaged_files_are_rejected();
     } catch (const std::exception& error) {

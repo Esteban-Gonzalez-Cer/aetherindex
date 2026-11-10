@@ -372,6 +372,37 @@ int index_info(const CliOptions& options, std::ostream& output, bool verify) {
     return valid ? 0 : 3;
 }
 
+// add, delete and compact: open, change, save a new snapshot.
+int change_index(const CliOptions& options, std::ostream& output) {
+    auto collection = Collection::open(options.index_path);
+    std::ostringstream formatted;
+    formatted.imbue(std::locale::classic());
+    const auto start = std::chrono::steady_clock::now();
+    if (options.command == Command::IndexAdd) {
+        const auto result = collection->add(options.search.dataset_path,
+                                            options.search.vectors_path, options.replace);
+        formatted << "AetherIndex Index Add\n\nRecords added: " << result.added
+                  << "\nRecords replaced: " << result.replaced;
+    } else if (options.command == Command::IndexDelete) {
+        const auto removed = collection->remove(options.delete_ids);
+        formatted << "AetherIndex Index Delete\n\nRecords deleted: " << removed;
+    } else {
+        const auto before = collection->deleted_count();
+        collection->compact();
+        formatted << "AetherIndex Index Compact\n\nDeleted records dropped: " << before;
+    }
+    const std::chrono::duration<double, std::milli> change_time =
+        std::chrono::steady_clock::now() - start;
+    collection->save(options.index_path);
+    const auto& stats = collection->stats();
+    formatted << "\nLive records: " << std::max(stats.vectors, stats.documents)
+              << "\nDeleted records held: " << collection->deleted_count()
+              << "\nChange time (ms): " << number(change_time.count(), 6)
+              << "\n\nIndex updated successfully.\n";
+    output << formatted.str();
+    return 0;
+}
+
 // Query options that only some index modes accept, checked once the mode is known.
 void check_index_query_options(const CliOptions& options, const SearchRequest& request) {
     const auto given = [&](std::string_view name) {
@@ -426,6 +457,15 @@ int run(std::span<const std::string_view> arguments, std::ostream& output, std::
         }
         if (options.command == Command::IndexInfo || options.command == Command::IndexVerify)
             return index_info(options, output, options.command == Command::IndexVerify);
+        if (options.command == Command::IndexAdd || options.command == Command::IndexDelete ||
+            options.command == Command::IndexCompact) {
+            try {
+                return change_index(options, output);
+            } catch (const std::invalid_argument& error) {
+                errors << "Error: " << error.what() << "\nUse aetherindex --help for usage.\n";
+                return 2;
+            }
+        }
         SearchResponse response;
         if (!options.index_path.empty()) {
             OpenOptions open;

@@ -14,7 +14,7 @@ namespace aetherindex {
 
 class HnswIndex;
 namespace lexical {
-class Bm25Index;
+class LexicalSearcher;
 }
 namespace hybrid {
 class RrfFusion;
@@ -66,7 +66,7 @@ class QueryEngine {
                                      std::span<const EmbeddingValue> query, std::size_t k) const;
     std::vector<SearchResult> search(const HnswIndex& index, std::span<const EmbeddingValue> query,
                                      std::size_t k) const;
-    std::vector<RankedResult> search(const lexical::Bm25Index& index, std::string_view query,
+    std::vector<RankedResult> search(const lexical::LexicalSearcher& index, std::string_view query,
                                      std::size_t k) const;
     // HNSW traversal on compressed codes; see HnswIndex::search_quantized for rerank.
     std::vector<SearchResult> search(const HnswIndex& index, const QuantizedVectors& codes,
@@ -80,7 +80,7 @@ class QueryEngine {
     std::vector<SearchResult> search(const VectorStore& database,
                                      std::span<const EmbeddingValue> query, std::size_t k,
                                      const SearchFilter& filter) const;
-    std::vector<RankedResult> search(const lexical::Bm25Index& index, std::string_view query,
+    std::vector<RankedResult> search(const lexical::LexicalSearcher& index, std::string_view query,
                                      std::size_t k, const SearchFilter& filter) const;
 
     // Hybrid orchestration: HNSW and BM25 each return candidate_k candidates, dense
@@ -89,7 +89,7 @@ class QueryEngine {
     // and logic_error if HNSW returns a VectorId without a document binding. An empty
     // BM25 ranking is valid: the fused result then contains the dense candidates only.
     HybridRankings search(const HnswIndex& dense_index, const VectorDocumentBinding& binding,
-                          const lexical::Bm25Index& lexical_index, const hybrid::RrfFusion& fusion,
+                          const lexical::LexicalSearcher& lexical_index, const hybrid::RrfFusion& fusion,
                           const HybridQuery& query) const;
 };
 

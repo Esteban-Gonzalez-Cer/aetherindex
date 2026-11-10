@@ -214,13 +214,30 @@ class Bm25Index::Cursor {
           weight_(weight) {
         decode(0);
     }
+    // Segment of a larger corpus: corpus-wide idf, and per-block bounds computed for the
+    // corpus-wide statistics (block_bounds[i] belongs to this term's i-th block).
+    Cursor(const Bm25Index& index, const TermLayout& term, std::size_t rank, double weight,
+           double idf, const double* block_bounds, double term_bound)
+        : blocks_(index.blocks_.data() + term.first_block),
+          block_count_((term.df + kBlockSize - 1) / kBlockSize),
+          postings_(index.postings_.data()),
+          idf_(idf),
+          max_score_(term.max_score),
+          rank_(rank),
+          weight_(weight),
+          block_bounds_(block_bounds),
+          term_bound_(term_bound) {
+        decode(0);
+    }
 
     std::uint32_t doc() const noexcept { return doc_; }
     std::uint32_t tf() const noexcept { return tfs_[position_]; }
     std::size_t rank() const noexcept { return rank_; }
     // Bounds include the query weight; rounding is monotonic, so weight * score never
     // exceeds weight * bound.
-    double upper_bound() const noexcept { return weight_ * static_cast<double>(max_score_); }
+    double upper_bound() const noexcept {
+        return weight_ * (block_bounds_ ? term_bound_ : static_cast<double>(max_score_));
+    }
     double idf() const noexcept { return idf_; }
     double weight() const noexcept { return weight_; }
 
@@ -250,15 +267,14 @@ class Bm25Index::Cursor {
         // Never answer with a later block's bound: re-anchor if target precedes shallow_.
         if (shallow_ > block_ && blocks_[shallow_ - 1].last >= target) shallow_ = block_;
         while (shallow_ < block_count_ && blocks_[shallow_].last < target) ++shallow_;
-        return shallow_ < block_count_ ? weight_ * static_cast<double>(blocks_[shallow_].max_score)
-                                       : 0.0;
+        return shallow_ < block_count_ ? weight_ * bound_of(shallow_) : 0.0;
     }
     // Largest weighted block bound over documents [first, last]; first >= doc().
     double range_max(std::uint32_t first, std::uint32_t last) {
         block_max(first);  // Positions shallow_ at the block holding first.
         double best = 0.0;
         for (std::size_t b = shallow_; b < block_count_; ++b) {
-            best = std::max(best, static_cast<double>(blocks_[b].max_score));
+            best = std::max(best, bound_of(b));
             if (blocks_[b].last >= last) break;
         }
         return weight_ * best;
@@ -268,6 +284,9 @@ class Bm25Index::Cursor {
     }
 
    private:
+    double bound_of(std::size_t b) const noexcept {
+        return block_bounds_ ? block_bounds_[b] : static_cast<double>(blocks_[b].max_score);
+    }
     void decode(std::size_t b) {
         block_ = b;
         const Block& block = blocks_[b];
@@ -294,6 +313,8 @@ class Bm25Index::Cursor {
     float max_score_;
     std::size_t rank_;
     double weight_;
+    const double* block_bounds_ = nullptr;
+    double term_bound_ = 0.0;
     std::size_t block_ = 0, shallow_ = 0, position_ = 0, count_ = 0;
     std::uint32_t doc_ = kEnd;
     std::array<std::uint32_t, kBlockSize> docs_{}, tfs_{};
@@ -503,6 +524,24 @@ std::vector<RankedResult> Bm25Index::search_exhaustive(const std::vector<QueryTe
 std::vector<RankedResult> Bm25Index::search_term_at_a_time(const std::vector<QueryTerm>& terms,
                                                            std::size_t k,
                                                            const Allow& allow) const {
+    std::vector<Cursor> cursors;
+    cursors.reserve(terms.size());
+    for (std::size_t rank = 0; rank < terms.size(); ++rank) {
+        const auto found = layout_.find(terms[rank].text);
+        if (found != layout_.end())
+            cursors.emplace_back(*this, found->second, rank, terms[rank].weight);
+    }
+    return taat_impl(
+        cursors, k, allow, [this](std::uint32_t d) { return length_norm_[d]; },
+        [](std::uint32_t) { return false; });
+}
+
+// norm(d): BM25 length normalization of ordinal d; skip(d): tombstoned ordinal. Cursors
+// are in term (rank) order, so contributions add in the same order as the exhaustive path.
+template <class Norm, class Skip>
+std::vector<RankedResult> Bm25Index::taat_impl(std::vector<Cursor>& cursors, std::size_t k,
+                                               const Allow& allow, const Norm& norm,
+                                               const Skip& skip) const {
     // Per-thread scratch; every search leaves it clean, also when something throws (each
     // dirty slot is in `touched`, appended before its score changes).
     thread_local std::vector<double> scores;
@@ -515,10 +554,10 @@ std::vector<RankedResult> Bm25Index::search_term_at_a_time(const std::vector<Que
     touched.clear();
     TopK top(k);
     try {
-        for (const auto& term : terms) {
-            const auto found = layout_.find(term.text);
-            if (found == layout_.end()) continue;
-            Cursor cursor(*this, found->second, 0, term.weight);
+        for (const auto& source : cursors) {
+            // A local copy: the compiler can then keep the cursor's state out of memory
+            // that the scratch writes below might alias (measured 7% on FiQA).
+            Cursor cursor = source;
             for (; cursor.doc() != kEnd; cursor.next()) {
                 const std::uint32_t d = cursor.doc();
                 if (!touched_flag[d]) {
@@ -526,8 +565,8 @@ std::vector<RankedResult> Bm25Index::search_term_at_a_time(const std::vector<Que
                     touched_flag[d] = 1;
                 }
                 const double contribution =
-                    term.weight * detail::bm25_score_from_norm(cursor.tf(), length_norm_[d],
-                                                               cursor.idf(), config_);
+                    cursor.weight() *
+                    detail::bm25_score_from_norm(cursor.tf(), norm(d), cursor.idf(), config_);
                 scores[d] += contribution;
             }
         }
@@ -535,7 +574,7 @@ std::vector<RankedResult> Bm25Index::search_term_at_a_time(const std::vector<Que
             const double score = scores[d];
             scores[d] = 0.0;
             touched_flag[d] = 0;
-            if (allow && !allow(document_ids_[d])) continue;
+            if (skip(d) || (allow && !allow(document_ids_[d]))) continue;
             if (!std::isfinite(score))
                 throw std::overflow_error("BM25 accumulated score overflow.");
             top.offer({document_ids_[d], score});
@@ -645,6 +684,22 @@ std::vector<RankedResult> Bm25Index::search_wand(const std::vector<QueryTerm>& t
 // strategies, and documents tying the threshold are always scored.
 std::vector<RankedResult> Bm25Index::search_maxscore(const std::vector<QueryTerm>& terms,
                                                      std::size_t k, const Allow& allow) const {
+    std::vector<Cursor> cursors;
+    cursors.reserve(terms.size());
+    for (std::size_t rank = 0; rank < terms.size(); ++rank) {
+        const auto found = layout_.find(terms[rank].text);
+        if (found != layout_.end())
+            cursors.emplace_back(*this, found->second, rank, terms[rank].weight);
+    }
+    return maxscore_impl(
+        cursors, k, allow, [this](std::uint32_t d) { return length_norm_[d]; },
+        [](std::uint32_t) { return false; });
+}
+
+template <class Norm, class Skip>
+std::vector<RankedResult> Bm25Index::maxscore_impl(std::vector<Cursor>& cursors, std::size_t k,
+                                                   const Allow& allow, const Norm& norm,
+                                                   const Skip& skip) const {
     constexpr std::uint32_t kWindow = 4096;
     constexpr std::uint32_t kNone = std::numeric_limits<std::uint32_t>::max();
     struct Entry {
@@ -663,16 +718,9 @@ std::vector<RankedResult> Bm25Index::search_maxscore(const std::vector<QueryTerm
         head.assign(kWindow, kNone);
         touched.assign(kWindow / 64, 0);
     }
-    std::vector<Cursor> cursors;
-    cursors.reserve(terms.size());
-    for (std::size_t rank = 0; rank < terms.size(); ++rank) {
-        const auto found = layout_.find(terms[rank].text);
-        if (found != layout_.end())
-            cursors.emplace_back(*this, found->second, rank, terms[rank].weight);
-    }
     const auto contribution = [&](const Cursor& cursor, std::uint32_t d) {
         return cursor.weight() *
-               detail::bm25_score_from_norm(cursor.tf(), length_norm_[d], cursor.idf(), config_);
+               detail::bm25_score_from_norm(cursor.tf(), norm(d), cursor.idf(), config_);
     };
     TopK top(k);
     std::vector<std::pair<double, Cursor*>> lists;  // (window bound, cursor), ascending.
@@ -722,7 +770,7 @@ std::vector<RankedResult> Bm25Index::search_maxscore(const std::vector<QueryTerm
                     std::uint32_t chain = head[slot];
                     partial[slot] = 0.0;
                     head[slot] = kNone;
-                    if (allow && !allow(document_ids_[d])) continue;
+                    if (skip(d) || (allow && !allow(document_ids_[d]))) continue;
                     contributions.clear();
                     bool pruned = false;
                     for (std::size_t i = essential; i-- > 0;) {
@@ -761,6 +809,179 @@ std::vector<RankedResult> Bm25Index::search_maxscore(const std::vector<QueryTerm
         throw;
     }
     return std::move(top).sorted();
+}
+
+// ----- Segment support -------------------------------------------------------------------
+
+std::size_t Bm25Index::term_document_frequency(std::string_view term) const {
+    if (index_.has_postings()) return index_.find(term).size();
+    const auto found = layout_.find(term);
+    return found == layout_.end() ? 0 : found->second.df;
+}
+
+std::vector<DocumentId> Bm25Index::ordinal_ids() const {
+    return index_.has_postings() ? index_.document_ids() : document_ids_;
+}
+
+std::vector<std::uint32_t> Bm25Index::ordinal_lengths(std::span<const DocumentId> ids) const {
+    std::vector<std::uint32_t> lengths;
+    lengths.reserve(ids.size());
+    for (DocumentId id : ids) lengths.push_back(index_.document_length(id).value());
+    return lengths;
+}
+
+std::vector<std::pair<std::uint32_t, std::uint32_t>> Bm25Index::block_impacts(
+    std::span<const std::uint32_t> lengths) const {
+    std::vector<std::pair<std::uint32_t, std::uint32_t>> impacts(blocks_.size());
+    std::array<std::uint32_t, kBlockSize> docs{}, tfs{};
+    for (const auto& [term, layout] : layout_) {
+        const std::size_t count = (layout.df + kBlockSize - 1) / kBlockSize;
+        std::uint32_t previous = 0;
+        for (std::size_t b = layout.first_block; b < layout.first_block + count; ++b) {
+            const Block& block = blocks_[b];
+            const std::uint8_t* in = postings_.data() + block.offset;
+            kUnpack[block.doc_bits](in, docs.data(), block.count);
+            kUnpack[block.tf_bits](in + (block.count * block.doc_bits + 7) / 8, tfs.data(),
+                                   block.count);
+            std::uint32_t max_tf = 0, min_length = std::numeric_limits<std::uint32_t>::max();
+            for (std::uint32_t i = 0; i < block.count; ++i) {
+                previous += docs[i];
+                max_tf = std::max(max_tf, tfs[i] + 1);
+                min_length = std::min(min_length, lengths[previous]);
+            }
+            impacts[b] = {max_tf, min_length};
+        }
+    }
+    return impacts;
+}
+
+void Bm25Index::for_each_posting_list(
+    const std::function<void(std::string_view, std::span<const Posting>)>& visit) const {
+    if (index_.has_postings()) {
+        index_.for_each_term(visit);
+        return;
+    }
+    std::array<std::uint32_t, kBlockSize> docs{}, tfs{};
+    std::vector<Posting> list;
+    for (const auto& [term, layout] : layout_) {
+        list.clear();
+        const std::size_t count = (layout.df + kBlockSize - 1) / kBlockSize;
+        std::uint32_t previous = 0;
+        for (std::size_t b = layout.first_block; b < layout.first_block + count; ++b) {
+            const Block& block = blocks_[b];
+            const std::uint8_t* in = postings_.data() + block.offset;
+            kUnpack[block.doc_bits](in, docs.data(), block.count);
+            kUnpack[block.tf_bits](in + (block.count * block.doc_bits + 7) / 8, tfs.data(),
+                                   block.count);
+            for (std::uint32_t i = 0; i < block.count; ++i) {
+                previous += docs[i];
+                list.push_back({document_ids_[previous], tfs[i] + 1});
+            }
+        }
+        visit(term, list);
+    }
+}
+
+std::unique_ptr<Bm25Index> Bm25Index::from_postings(
+    Bm25Config config,
+    std::unordered_map<std::string, PostingList, InvertedIndex::TermHash, std::equal_to<>> postings,
+    std::unordered_map<DocumentId, std::uint32_t> lengths, std::uint64_t total_tokens) {
+    auto index = std::make_unique<Bm25Index>(config);
+    auto& inverted = index->index_;
+    inverted.postings_ = std::move(postings);
+    inverted.lengths_ = std::move(lengths);
+    inverted.document_count_ = inverted.lengths_.size();
+    inverted.total_tokens_ = total_tokens;
+    // The same expression InvertedIndex::build uses, so statistics are bit-identical.
+    inverted.average_length_ = inverted.document_count_ == 0
+                                   ? 0.0
+                                   : static_cast<double>(total_tokens) /
+                                         static_cast<double>(inverted.document_count_);
+    inverted.ready_ = true;
+    index->finish_build();
+    return index;
+}
+
+void Bm25Index::finish_build() {
+    const bool compressed = config_.strategy != Bm25Strategy::Exhaustive;
+    PostingMemory memory{};
+    std::size_t postings = 0, vocabulary = 0;
+    index_.for_each_term([&](std::string_view, std::span<const Posting> list) {
+        postings += list.size();
+        ++vocabulary;
+    });
+    memory.postings = postings;
+    memory.raw_bytes = postings * sizeof(Posting) + vocabulary * sizeof(PostingList);
+    if (compressed) {
+        build_layout(index_, memory);
+        index_.release_postings();
+    }
+    memory_ = memory;
+}
+
+std::vector<RankedResult> Bm25Index::search_global(const std::vector<QueryTerm>& terms,
+                                                   std::span<const double> idf, std::size_t k,
+                                                   const Allow& allow,
+                                                   const GlobalContext& context) const {
+    const auto skip = [&](std::uint32_t d) {
+        return context.deleted && ((context.deleted[d / 64] >> (d % 64)) & 1u) != 0;
+    };
+    if (index_.has_postings()) {
+        // Raw postings: the exhaustive scorer itself, with corpus-wide statistics.
+        std::unordered_map<DocumentId, double> scores;
+        for (std::size_t rank = 0; rank < terms.size(); ++rank) {
+            const auto list = index_.find(terms[rank].text);
+            for (const auto& posting : list) {
+                const auto ordinal = static_cast<std::uint32_t>(
+                    std::lower_bound(context.ids.begin(), context.ids.end(), posting.document_id) -
+                    context.ids.begin());
+                if (skip(ordinal) || (allow && !allow(posting.document_id))) continue;
+                const double contribution =
+                    terms[rank].weight *
+                    bm25_term_score(posting.term_frequency, context.lengths[ordinal],
+                                    context.average_length, idf[rank], config_);
+                auto& score = scores[posting.document_id];
+                score += contribution;
+                if (!std::isfinite(score))
+                    throw std::overflow_error("BM25 accumulated score overflow.");
+            }
+        }
+        std::vector<RankedResult> results;
+        results.reserve(scores.size());
+        for (const auto& [id, score] : scores) results.push_back({id, score});
+        std::sort(results.begin(), results.end(), better);
+        if (results.size() > k) results.resize(k);
+        return results;
+    }
+    // Compressed: bounds from each block's (max tf, min length) under the corpus-wide
+    // statistics. A block's documents have tf <= max tf and length >= min length, and the
+    // score grows with tf and shrinks with length, so the bound is never below a score.
+    std::vector<std::vector<double>> bounds(terms.size());
+    std::vector<Cursor> cursors;
+    cursors.reserve(terms.size());
+    for (std::size_t rank = 0; rank < terms.size(); ++rank) {
+        const auto found = layout_.find(terms[rank].text);
+        if (found == layout_.end()) continue;
+        const TermLayout& layout = found->second;
+        auto& term_bounds = bounds[rank];
+        term_bounds.resize((layout.df + kBlockSize - 1) / kBlockSize);
+        double term_bound = 0.0;
+        for (std::size_t i = 0; i < term_bounds.size(); ++i) {
+            const auto [max_tf, min_length] = context.impacts[layout.first_block + i];
+            term_bounds[i] = detail::bm25_score_from_norm(
+                max_tf, detail::bm25_length_norm(min_length, context.average_length, config_),
+                idf[rank], config_);
+            term_bound = std::max(term_bound, term_bounds[i]);
+        }
+        cursors.emplace_back(*this, layout, rank, terms[rank].weight, idf[rank],
+                             term_bounds.data(), term_bound);
+    }
+    const auto norm = [&](std::uint32_t d) {
+        return detail::bm25_length_norm(context.lengths[d], context.average_length, config_);
+    };
+    if (config_.strategy == Bm25Strategy::TermAtATime)
+        return taat_impl(cursors, k, allow, norm, skip);
+    return maxscore_impl(cursors, k, allow, norm, skip);
 }
 
 bool Bm25Index::is_built() const noexcept { return index_.is_built(); }

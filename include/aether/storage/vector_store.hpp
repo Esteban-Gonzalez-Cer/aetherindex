@@ -71,6 +71,9 @@ class VectorStore {
     }
     std::size_t deleted_count() const noexcept { return deleted_count_; }
     std::size_t live_size() const noexcept { return ids_.size() - deleted_count_; }
+    // Appends the row at `position` of `source` (same dimension and metric) under `id`,
+    // copied bit for bit: it was already normalized when `source` stored it.
+    InsertStatus insert_from(const VectorStore& source, std::size_t position, VectorId id);
     // A new store with only the live rows, in position order, copied bit for bit (no
     // re-normalization), so it equals a store that never held the deleted rows.
     std::unique_ptr<VectorStore> compacted() const;

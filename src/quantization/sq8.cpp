@@ -110,9 +110,22 @@ Sq8Vectors::Sq8Vectors(const VectorStore& store)
         const double range = static_cast<double>(max[d]) - min_[d];
         scale_[d] = static_cast<float>(range / 255.0);  // Zero for a constant dimension.
     }
-    codes_.assign(rows_ * stride_, 0);
-    if (metric_ == DistanceKind::SquaredEuclidean) row_terms_.assign(rows_, 0.0f);
-    for (std::size_t p = 0; p < rows_; ++p) {
+    const std::size_t rows = rows_;
+    rows_ = 0;
+    encode(store, rows);
+}
+
+void Sq8Vectors::extend(const VectorStore& store) {
+    if (store.dimension() != dimension_ || store.distance_kind() != metric_ || !store.has_rows())
+        throw std::invalid_argument("SQ8 extend requires the same store with FP32 rows.");
+    encode(store, store.size());
+}
+
+void Sq8Vectors::encode(const VectorStore& store, std::size_t rows) {
+    const std::size_t first = rows_;
+    codes_.resize(rows * stride_, 0);
+    if (metric_ == DistanceKind::SquaredEuclidean) row_terms_.resize(rows, 0.0f);
+    for (std::size_t p = first; p < rows; ++p) {
         const float* row = store.data_by_position(p);
         std::uint8_t* code = codes_.data() + p * stride_;
         double term = 0;
@@ -127,6 +140,7 @@ Sq8Vectors::Sq8Vectors(const VectorStore& store)
         }
         if (!row_terms_.empty()) row_terms_[p] = static_cast<float>(term);
     }
+    rows_ = rows;
 }
 
 std::unique_ptr<QuantizedQuery> Sq8Vectors::prepare(const PreparedQuery& query) const {

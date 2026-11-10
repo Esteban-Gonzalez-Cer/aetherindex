@@ -96,6 +96,31 @@ bool VectorStore::erase(VectorId id) {
     return true;
 }
 
+InsertStatus VectorStore::insert_from(const VectorStore& source, std::size_t position,
+                                      VectorId id) {
+    if (rows_released_ || !source.has_rows())
+        throw std::logic_error("VectorStore rows were released.");
+    if (source.dimension_ != dimension_ || source.metric_ != metric_)
+        return InsertStatus::DimensionMismatch;
+    if (position >= source.size()) throw std::out_of_range("Source position is absent.");
+    if (contains(id)) return InsertStatus::DuplicateId;
+    // Stage first: source may be this store, and appending can reallocate data_.
+    const AlignedVector<float> row(source.data_by_position(position),
+                                   source.data_by_position(position) + stride_);
+    const std::size_t old_data_size = data_.size();
+    const std::size_t old_size = ids_.size();
+    try {
+        data_.insert(data_.end(), row.begin(), row.end());
+        ids_.push_back(id);
+        positions_.emplace(id, old_size);
+    } catch (...) {
+        data_.resize(old_data_size);
+        ids_.resize(old_size);
+        throw;
+    }
+    return InsertStatus::Success;
+}
+
 std::unique_ptr<VectorStore> VectorStore::compacted() const {
     if (rows_released_) throw std::logic_error("VectorStore rows were released.");
     auto store = std::make_unique<VectorStore>(dimension_, metric_);

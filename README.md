@@ -111,6 +111,7 @@ one-shot search; on SIFT1M it turns a 37 s rebuild into a 0.35 s load
 ```sh
 ./build/release/aetherindex index build --out idx --mode hybrid --dataset datasets/hybrid/corpus.jsonl
 ./build/release/aetherindex search --index idx --query datasets/hybrid/queries.jsonl --query-id Q002 --k 5
+./build/release/aetherindex index delete --index idx --id D002
 ./build/release/aetherindex index verify --index idx
 ```
 
@@ -128,6 +129,7 @@ one-shot search; on SIFT1M it turns a 37 s rebuild into a 0.35 s load
 | `--all-queries --query-threads N` | Batch mode with one index build |
 | `convert --out FILE.avec` | Convert CSV/JSONL vectors to a memory-mapped binary format |
 | `index build --out DIR`, `search --index DIR` | Save an index once, then search it without rebuilding |
+| `index add`, `index delete`, `index compact` | Add, update and delete records in a saved index |
 
 ## Architecture
 
@@ -229,14 +231,14 @@ not stored in the repository.
 |---|---|
 | Objective and scoreboard: every benchmark cell tracked, won or not | Done |
 | Snapshot persistence: crash-safe save and load, checksummed and validated ([design](docs/persistence.md)) | Done |
-| Deletes, updates and compaction, with results bit-identical to a fresh build after compaction | Planned |
+| Adds, deletes, updates and compaction; compaction is bit-identical to a fresh build ([details](docs/persistence.md#adding-deleting-and-compacting)) | Done |
 | Concurrent updates: searches keep running while other threads insert and delete | Planned |
 | Write-ahead log: inserts and deletes survive a crash | Planned |
 | Close the open scoreboard cells, then widen the margins of the won ones | Planned |
 
 ## Limitations
 
-- No deletes or concurrent updates yet, and no server mode.
+- No concurrent updates yet (one writer at a time, between searches), and no server mode.
 - The engine does not produce embeddings. The vectors in `datasets/hybrid/` are a
   reproducible lexical hashing, useful for testing but not a semantic model.
 - The x86 AVX2 kernel is selected at compile time (`-DAETHER_NATIVE_SIMD=ON`); there is no

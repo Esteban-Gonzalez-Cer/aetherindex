@@ -361,3 +361,22 @@ add_executable(aether_vector_delete_tests unit/vector_delete_test.cpp)
 target_link_libraries(aether_vector_delete_tests PRIVATE aether_persistence aether_brute_force)
 add_test(NAME unit.vector_delete COMMAND aether_vector_delete_tests)
 set_tests_properties(unit.vector_delete PROPERTIES TIMEOUT 120 LABELS "deletes;storage;hnsw")
+
+add_executable(aether_segmented_bm25_tests unit/segmented_bm25_test.cpp)
+target_link_libraries(aether_segmented_bm25_tests PRIVATE aether_lexical)
+add_test(NAME unit.segmented_bm25 COMMAND aether_segmented_bm25_tests)
+set_tests_properties(unit.segmented_bm25 PROPERTIES TIMEOUT 300 LABELS "lexical;deletes;bm25")
+
+add_executable(aether_collection_mutation_tests integration/collection_mutation_test.cpp)
+target_link_libraries(aether_collection_mutation_tests PRIVATE aether_application)
+add_test(NAME integration.collection_mutation COMMAND aether_collection_mutation_tests
+    "${CMAKE_CURRENT_BINARY_DIR}/collection-mutation/$<CONFIG>")
+set_tests_properties(integration.collection_mutation PROPERTIES TIMEOUT 300
+    LABELS "deletes;persistence;application")
+
+add_test(NAME e2e.cli_index_mutation COMMAND "${CMAKE_COMMAND}"
+    "-DCLI_PATH=$<TARGET_FILE:aetherindex>"
+    "-DSOURCE_DIR=${PROJECT_SOURCE_DIR}"
+    "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/index-mutation-cli/$<CONFIG>"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_index_mutation_test.cmake")
+set_tests_properties(e2e.cli_index_mutation PROPERTIES TIMEOUT 300 LABELS "deletes;persistence;e2e")

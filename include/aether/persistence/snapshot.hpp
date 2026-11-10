@@ -7,6 +7,7 @@
 
 #include "aether/ann/hnsw/hnsw_index.hpp"
 #include "aether/lexical/bm25.hpp"
+#include "aether/lexical/segmented_bm25.hpp"
 #include "aether/quantization/quantized_vectors.hpp"
 #include "aether/storage/vector_store.hpp"
 
@@ -29,6 +30,7 @@ enum class Section : std::uint32_t {
     Sq8 = 4,
     Pq = 5,
     Documents = 6,
+    Bm25Segments = 7,
 };
 
 void save(const VectorStore& store, const std::filesystem::path& path);
@@ -53,6 +55,13 @@ void save(const lexical::Bm25Index& index, const std::filesystem::path& path);
 std::unique_ptr<lexical::Bm25Index> load_bm25(const std::filesystem::path& path,
                                               bool verify_checksums,
                                               const Bm25QueryOverrides& overrides = {});
+
+// A segmented (mutable) BM25 index: every segment and its tombstones. The same query-time
+// overrides apply to every segment.
+void save(const lexical::SegmentedBm25& index, const std::filesystem::path& path);
+std::unique_ptr<lexical::SegmentedBm25> load_segmented_bm25(
+    const std::filesystem::path& path, bool verify_checksums,
+    const Bm25QueryOverrides& overrides = {});
 
 // SQ8 or PQ codes; the section kind records which.
 void save(const QuantizedVectors& codes, const std::filesystem::path& path);

@@ -74,12 +74,16 @@ class InvertedIndex {
 
    private:
     friend struct ::aetherindex::SnapshotAccess;  // Index snapshots (aether_persistence).
+    friend class Bm25Index;                       // Bm25Index::from_postings.
+
+   public:
     struct TermHash {
         using is_transparent = void;
         std::size_t operator()(std::string_view value) const noexcept {
             return std::hash<std::string_view>{}(value);
         }
     };
+   private:
     struct DocumentTermData {
         std::uint32_t length;
         std::unordered_map<std::string, std::uint32_t> frequencies;

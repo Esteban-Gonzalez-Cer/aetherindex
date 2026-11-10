@@ -23,6 +23,50 @@ random-generator state, so inserting into a loaded graph produces the same topol
 inserting into the original (`unit.snapshot` checks this). Saving a loaded component again
 produces identical bytes.
 
+## Adding, deleting and compacting
+
+```sh
+aetherindex index add --index idx --dataset more.jsonl            # new records
+aetherindex index add --index idx --dataset fixes.jsonl --replace # updates by ID
+aetherindex index delete --index idx --id D002 --id D019
+aetherindex index compact --index idx
+```
+
+Each command opens the index, applies the change, and saves a new snapshot. Changes are
+visible to the next search.
+
+**Vectors.**
+
+- A delete tombstones the row's position. Positions never move, so the HNSW graph and the
+  quantized codes stay valid.
+- HNSW still routes through a deleted node but never returns it, which is how hnswlib
+  handles deletes. Exact search skips deleted rows.
+- An update is a delete plus an insert under the same ID.
+- New rows are inserted into the existing graph, and quantized codes encode them with the
+  parameters already trained.
+
+**BM25** works like Lucene:
+
+- **Segments.** The index is a list of immutable compressed segments. An add indexes its
+  batch as a new segment. When there are more than 8 segments, the two smallest merge.
+- **Deletes.** A delete tombstones the document inside its segment. As in Lucene, corpus
+  statistics (N, average length, document frequencies) keep counting a deleted document
+  until its segment is merged or compacted.
+- **Scoring.** Scores always use corpus-wide statistics summed over the segments, so every
+  document scores exactly as an exhaustive BM25 over the same corpus. `unit.segmented_bm25`
+  checks this bit for bit for every strategy, through adds, deletes, updates and merges.
+- **Pruning.** MaxScore stays rank-safe across segments. Its bounds are computed at query
+  time from each block's maximum term frequency and minimum document length.
+- **Fast path.** An index with one segment and no deletes runs exactly the single-index code.
+
+**Compaction** rewrites the vectors without the deleted rows, rebuilds the HNSW graph and
+the quantized codes over them, and merges BM25 into one segment. The result answers
+bit-identically to an index built from scratch over the live records with the same IDs.
+`integration.collection_mutation` checks this in hybrid, lexical and vector modes.
+
+Not supported: adding vectors to an index built with `--drop-fp32`, because the graph needs
+FP32 rows to insert.
+
 ## Build options and query options
 
 Options that shape an index are fixed when it is built:

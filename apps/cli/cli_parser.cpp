@@ -491,27 +491,65 @@ CliOptions parse_index(std::span<const std::string_view> arguments) {
         options.command = Command::IndexBuild;
         return parse_search(arguments, 2, Purpose::Build, std::move(options));
     }
-    if (sub != "info" && sub != "verify")
+    if (sub == "info")
+        options.command = Command::IndexInfo;
+    else if (sub == "verify")
+        options.command = Command::IndexVerify;
+    else if (sub == "add")
+        options.command = Command::IndexAdd;
+    else if (sub == "delete")
+        options.command = Command::IndexDelete;
+    else if (sub == "compact")
+        options.command = Command::IndexCompact;
+    else
         throw std::invalid_argument("Unknown index command: " + std::string(sub) +
-                                    ". Use build, info or verify.");
-    options.command = sub == "info" ? Command::IndexInfo : Command::IndexVerify;
-    bool have_index = false;
+                                    ". Use build, add, delete, compact, info or verify.");
+    const auto accepts = [&](std::string_view name) {
+        if (name == "--index") return true;
+        if (options.command == Command::IndexAdd)
+            return name == "--dataset" || name == "--vectors" || name == "--replace";
+        if (options.command == Command::IndexDelete) return name == "--id";
+        return false;
+    };
+    bool have_index = false, have_dataset = false, have_vectors = false;
     for (std::size_t i = 2; i < arguments.size(); ++i) {
-        if (arguments[i] == "--help") {
+        const auto name = arguments[i];
+        if (name == "--help") {
             options.show_help = true;
             continue;
         }
-        if (arguments[i] != "--index")
-            throw std::invalid_argument("Unknown option: " + std::string(arguments[i]) + ".");
-        if (have_index) throw std::invalid_argument("Repeated option: --index.");
+        if (!accepts(name))
+            throw std::invalid_argument("Unknown option for index " + std::string(sub) + ": " +
+                                        std::string(name) + ".");
+        if (name == "--replace") {
+            if (options.replace) throw std::invalid_argument("Repeated option: --replace.");
+            options.replace = true;
+            continue;
+        }
         if (i + 1 == arguments.size() || arguments[i + 1].empty() ||
             arguments[i + 1].starts_with("--"))
-            throw std::invalid_argument("Missing value for --index.");
-        have_index = true;
-        options.index_path = std::string(arguments[++i]);
+            throw std::invalid_argument("Missing value for " + std::string(name) + ".");
+        const std::string value(arguments[++i]);
+        if (name == "--id") {
+            options.delete_ids.push_back(value);
+            continue;
+        }
+        bool& seen = name == "--index" ? have_index : name == "--dataset" ? have_dataset : have_vectors;
+        if (seen) throw std::invalid_argument("Repeated option: " + std::string(name) + ".");
+        seen = true;
+        if (name == "--index")
+            options.index_path = value;
+        else if (name == "--dataset")
+            options.search.dataset_path = value;
+        else
+            options.search.vectors_path = value;
     }
-    if (!options.show_help && !have_index)
-        throw std::invalid_argument("Missing required option: --index DIR.");
+    if (options.show_help) return options;
+    if (!have_index) throw std::invalid_argument("Missing required option: --index DIR.");
+    if (options.command == Command::IndexAdd && !have_dataset)
+        throw std::invalid_argument("index add requires --dataset FILE.");
+    if (options.command == Command::IndexDelete && options.delete_ids.empty())
+        throw std::invalid_argument("index delete requires at least one --id ID.");
     return options;
 }
 
@@ -550,6 +588,9 @@ std::string_view help_text() {
            "[--documents-out FILE.jsonl]\n"
            "  aetherindex index build --out DIR --dataset FILE [build options]\n"
            "  aetherindex search --index DIR --query FILE [query options]\n"
+           "  aetherindex index add --index DIR --dataset FILE [--vectors FILE.avec] [--replace]\n"
+           "  aetherindex index delete --index DIR --id ID [--id ID ...]\n"
+           "  aetherindex index compact --index DIR\n"
            "  aetherindex index info|verify --index DIR\n"
            "  aetherindex --help\n\n"
            "Saved indexes:\n"
@@ -561,6 +602,10 @@ std::string_view help_text() {
            "                       --bm25-strategy (compressed strategies) and\n"
            "                       --bm25-query-weighting override the saved defaults.\n"
            "  --no-verify          search --index: skip payload checksums while loading\n"
+           "  index add            Add records in the format the index was built from;\n"
+           "                       --replace updates records whose ID already exists\n"
+           "  index delete         Delete records by ID (document_id, or the vector ID)\n"
+           "  index compact        Drop deleted records for good and rebuild the indexes\n"
            "  index info           Summarize a saved index\n"
            "  index verify         Check every checksum and the graph structure\n\n"
            "Options:\n"

@@ -5,6 +5,7 @@
 
 #include "aether/core/prepared_query.hpp"
 #include "aether/core/types.hpp"
+#include "aether/storage/vector_store.hpp"
 
 namespace aetherindex {
 
@@ -33,6 +34,9 @@ class QuantizedVectors {
     // Bytes held for codes plus per-row and codebook data (excludes FP32 rows).
     virtual std::size_t memory_bytes() const noexcept = 0;
     virtual const char* name() const noexcept = 0;
+    // Encodes the store's rows at positions [size(), store.size()) with the parameters
+    // already trained (rows appended since the codes were built). Requires FP32 rows.
+    virtual void extend(const VectorStore& store) = 0;
 };
 
 }  // namespace aetherindex

@@ -38,6 +38,7 @@ add_library(aether_lexical STATIC
     src/lexical/tokenizer.cpp
     src/lexical/inverted_index.cpp
     src/lexical/bm25.cpp
+    src/lexical/segmented_bm25.cpp
 )
 target_link_libraries(aether_lexical PUBLIC aether_core)
 if(MSVC)

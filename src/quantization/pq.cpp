@@ -172,14 +172,29 @@ PqVectors::PqVectors(const VectorStore& store, PqConfig config)
                config.seed + 0x9E3779B97F4A7C15ULL * (s + 1),
                codebooks_.data() + s * centroids_ * sub_dimension_);
     });
-    codes_.assign(rows_ * subspaces_, 0);
-    parallel_for(rows_, threads, [&](std::size_t p) {
+    const std::size_t rows = rows_;
+    rows_ = 0;
+    encode(store, rows, threads);
+}
+
+void PqVectors::extend(const VectorStore& store) {
+    if (store.dimension() != dimension_ || store.distance_kind() != metric_ || !store.has_rows())
+        throw std::invalid_argument("PQ extend requires the same store with FP32 rows.");
+    encode(store, store.size(), 1);
+}
+
+void PqVectors::encode(const VectorStore& store, std::size_t rows, std::size_t threads) {
+    const std::size_t first = rows_;
+    codes_.resize(rows * subspaces_, 0);
+    parallel_for(rows - first, threads, [&](std::size_t i) {
+        const std::size_t p = first + i;
         const float* row = store.data_by_position(p);
         for (std::size_t s = 0; s < subspaces_; ++s)
             codes_[p * subspaces_ + s] = static_cast<std::uint8_t>(nearest(
                 row + s * sub_dimension_, codebooks_.data() + s * centroids_ * sub_dimension_,
                 centroids_, sub_dimension_));
     });
+    rows_ = rows;
 }
 
 std::unique_ptr<QuantizedQuery> PqVectors::prepare(const PreparedQuery& query) const {

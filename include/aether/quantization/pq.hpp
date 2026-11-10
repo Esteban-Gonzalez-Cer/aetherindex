@@ -37,6 +37,7 @@ class PqVectors final : public QuantizedVectors {
     std::size_t dimension() const noexcept override { return dimension_; }
     DistanceKind metric() const noexcept override { return metric_; }
     std::size_t memory_bytes() const noexcept override;
+    void extend(const VectorStore& store) override;
     const char* name() const noexcept override { return "PQ"; }
 
     std::size_t subspaces() const noexcept { return subspaces_; }
@@ -50,6 +51,7 @@ class PqVectors final : public QuantizedVectors {
    private:
     friend struct SnapshotAccess;  // Index snapshots (aether_persistence).
     PqVectors() = default;  // Filled by SnapshotAccess.
+    void encode(const VectorStore& store, std::size_t rows, std::size_t threads);
     class Query;
     std::size_t dimension_;
     std::size_t rows_;

@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <memory>
 #include <optional>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -86,6 +87,32 @@ class Collection {
     const CollectionStats& stats() const noexcept;
     // Structural graph check plus counts, for `index verify`; true when consistent.
     bool validate(std::string& report) const;
+
+    // ----- Mutations ------------------------------------------------------------------
+    // Visible to search() as soon as they return; persisted by the next save(). Each one
+    // validates its whole input first, so an input error changes nothing.
+
+    struct AddResult {
+        std::size_t added = 0;
+        std::size_t replaced = 0;
+    };
+    // Adds the records of `dataset` (and `vectors`, an .avec file, for hybrid indexes built
+    // with --vectors), in the format the collection was built from. An ID that already
+    // exists is an input error, unless `replace` is set: then the record replaces it and
+    // keeps its DocumentId and VectorId (an update). New opaque IDs get the smallest
+    // DocumentIds not in use, in source-ID order.
+    AddResult add(const std::filesystem::path& dataset, const std::filesystem::path& vectors,
+                  bool replace);
+    // Deletes records by source ID (document_id, or the numeric VectorId of CSV/.avec
+    // vectors). An unknown or repeated ID is an input error.
+    std::size_t remove(std::span<const std::string> ids);
+    // Drops deleted data for good: the vectors are rewritten without the deleted rows, the
+    // HNSW graph and quantized codes are rebuilt over them, and BM25 is merged into one
+    // segment. The result answers exactly like a collection built from the live records
+    // with the same IDs. Indexes built with --drop-fp32 keep their vector tombstones.
+    void compact();
+    // Deleted records still held (vectors and BM25 documents) until compact().
+    std::size_t deleted_count() const;
 
    private:
     Collection();
