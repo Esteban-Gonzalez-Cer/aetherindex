@@ -56,6 +56,7 @@ using Retrieve = std::function<std::vector<Hit>(std::size_t q, std::size_t k, st
 
 lexical::Analyzer parse_analyzer(const std::string& name) {
     if (name == "english-v1") return lexical::Analyzer::EnglishV1;
+    if (name == "english-plain-v1") return lexical::Analyzer::EnglishPlainV1;
     if (name == "ascii-tech-v1") return lexical::Analyzer::AsciiTechV1;
     throw std::invalid_argument("Unknown --analyzer " + name);
 }

@@ -162,6 +162,9 @@ def beir_steps():
            "maxscore")
         ir("aether-bm25-english-freq-maxscore", "bm25", "--analyzer", "english-v1", "--strategy",
            "maxscore", *freq)
+        # Counterpart of Lucene with -stemmer none -keepStopwords (same analysis steps).
+        ir("aether-bm25-plain", "bm25", "--analyzer", "english-plain-v1", "--strategy",
+           "maxscore", *freq)
         porter = lucene_index(dataset, "porter", [])
         plain = lucene_index(dataset, "none-keepstop", ["-stemmer", "none", "-keepStopwords"])
         def lucene(name, index, k1, b, stemmer, keep):

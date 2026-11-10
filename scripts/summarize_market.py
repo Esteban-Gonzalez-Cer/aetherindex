@@ -34,6 +34,8 @@ QUALITY_RUNS = [
     ("opensearch-bm25", "OpenSearch BM25", "BM25", "servers:opensearch-bm25"),
     ("lucene-plain", "Lucene sin stemming/stopwords", "BM25 sin stemming", "lucene-bm25-none-keepstop"),
     ("aether-bm25-ascii", "AetherIndex BM25 ascii-tech-v1", "BM25 sin stemming", "aether-bm25-ascii"),
+    ("aether-bm25-plain", "AetherIndex BM25 english-plain-v1, frecuencia", "BM25 sin stemming",
+     "aether-bm25-plain"),
     ("lucene-k1.2", "Lucene BM25 k1=1.2 b=0.75", "BM25 k1=1.2", "lucene-bm25-porter-k1.2"),
     ("aether-bm25-k1.2", "AetherIndex BM25 k1=1.2 b=0.75", "BM25 k1=1.2", "aether-bm25-english-k1.2"),
     ("aether-bm25-freq-k1.2", "AetherIndex BM25 k1=1.2 b=0.75, frecuencia", "BM25 k1=1.2",
@@ -59,7 +61,7 @@ QUALITY_RUNS = [
 ]
 COMPARISONS = [("aether-bm25", "lucene"), ("aether-bm25-freq", "lucene"),
                ("aether-bm25-freq", "aether-bm25"), ("aether-bm25-freq-k1.2", "lucene-k1.2"),
-               ("aether-bm25-ascii", "lucene-plain"),
+               ("aether-bm25-ascii", "lucene-plain"), ("aether-bm25-plain", "lucene-plain"),
                ("aether-hybrid", "reference-hybrid"), ("aether-hybrid-freq", "reference-hybrid"),
                ("aether-hybrid", "aether-bm25"), ("aether-hybrid", "exact"),
                ("aether-hybrid-convex", "aether-hybrid-freq"),

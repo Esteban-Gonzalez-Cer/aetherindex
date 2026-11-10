@@ -180,7 +180,7 @@ bool stopword(std::string_view token) {
     return false;
 }
 
-std::vector<std::string> tokenize_english(std::string_view text, StemCache* cache) {
+std::vector<std::string> tokenize_english(std::string_view text, StemCache* cache, bool plain) {
     std::vector<std::string> tokens;
     std::string current;
     Kind last = Kind::Letter;
@@ -192,7 +192,9 @@ std::vector<std::string> tokenize_english(std::string_view text, StemCache* cach
         } else if (ends_with(current, "\xE2\x80\x99s") || ends_with(current, "\xEF\xBC\x87s")) {
             current.resize(current.size() - 4);
         }
-        if (!current.empty() && !stopword(current)) {
+        if (plain) {
+            if (!current.empty()) tokens.push_back(current);
+        } else if (!current.empty() && !stopword(current)) {
             if (!cache) {
                 tokens.push_back(porter_stem(current));
             } else {
@@ -484,17 +486,24 @@ class Porter {
 }  // namespace
 
 const char* analyzer_name(Analyzer analyzer) noexcept {
-    return analyzer == Analyzer::EnglishV1 ? "english-v1" : "ascii-tech-v1";
+    switch (analyzer) {
+        case Analyzer::EnglishV1:
+            return "english-v1";
+        case Analyzer::EnglishPlainV1:
+            return "english-plain-v1";
+        default:
+            return "ascii-tech-v1";
+    }
 }
 
 std::vector<std::string> Tokenizer::tokenize(std::string_view text) const {
-    return analyzer_ == Analyzer::EnglishV1 ? tokenize_english(text, nullptr)
-                                            : tokenize_ascii_tech(text);
+    if (analyzer_ == Analyzer::AsciiTechV1) return tokenize_ascii_tech(text);
+    return tokenize_english(text, nullptr, analyzer_ == Analyzer::EnglishPlainV1);
 }
 
 std::vector<std::string> Tokenizer::tokenize(std::string_view text, StemCache& cache) const {
-    return analyzer_ == Analyzer::EnglishV1 ? tokenize_english(text, &cache)
-                                            : tokenize_ascii_tech(text);
+    if (analyzer_ == Analyzer::AsciiTechV1) return tokenize_ascii_tech(text);
+    return tokenize_english(text, &cache, analyzer_ == Analyzer::EnglishPlainV1);
 }
 
 std::string porter_stem(std::string word) {

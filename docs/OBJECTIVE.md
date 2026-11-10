@@ -58,3 +58,31 @@ to every run that feeds the scoreboard:
 - Some quality cells differ from Lucene or bm25s by less than 0.001 with the same BM25
   formula. Winning them takes ranking improvements that hold up on test data, and some
   may stay lost. The scoreboard will say so.
+
+## Progress
+
+| Change | Cells affected |
+|---|---|
+| Baseline (scoreboard introduced) | 67 of 144 won; 28 clear losses |
+| BM25 index size measured on disk for both sides. The earlier in-memory figure left out our term dictionary, so the Quora "win" was a loss (20.0 MB vs Lucene's 15.8). | Correction |
+| Compact on-disk BM25 format (front-coded terms, bit-packed lengths and postings; everything else rebuilt on load) | Index size: 6 of 6 won, 0.46–0.84× Lucene |
+| BM25 indexing: memoized stems, interned terms | Build time: 3 cells lost → won (SciFact by 0.6 %) |
+| SQ8 without row padding and without per-row floats (−4 to −5 % SQ8 QPS) | SQ8 memory: 2 cells lost → won |
+| `english-plain-v1`, the counterpart of Lucene with `-stemmer none -keepStopwords` (the old comparison used `ascii-tech-v1`, an analyzer for technical identifiers) | 14 clear losses → 3 won, 4 tied, 11 within noise either way |
+| **Today** | **86 of 144 won; 6 clear losses** |
+
+Re-measured cells come from a later campaign pass than the rest. The pass re-ran AetherIndex,
+Lucene and bm25s together for the BM25 cost cells. For the ANN throughput cells only the
+AetherIndex SQ8 runs were repeated, so those cells compare runs from different sessions;
+they were won by more than 2× in both passes.
+
+Open, with what is known:
+
+- **ArguAna BM25 against bm25s (3 cells).** bm25s's default configuration uses its own
+  stemmer and stopword list. With identical tokens (`bm25s (english-v1 tokens)`), the
+  scores are identical to ours.
+- **Parallel HNSW build against hnswlib `-ffast-math` (2 cells).** Removing per-node locks
+  from the insertion traversal changed nothing (32.1 s vs 32.0 s on SIFT1M). The profile
+  puts the time in the traversal loop and the distance kernel, not in locking.
+- **GloVe-100 at Recall@10 ≥ 0.99.** No HNSW configuration on the shared grid reaches it,
+  for any system; exact FAISS Flat does, at 2.7 K QPS.

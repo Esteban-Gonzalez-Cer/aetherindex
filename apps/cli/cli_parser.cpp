@@ -332,8 +332,11 @@ CliOptions parse_search(std::span<const std::string_view> arguments, std::size_t
                 options.search.bm25_config.analyzer = lexical::Analyzer::AsciiTechV1;
             else if (value == "english-v1")
                 options.search.bm25_config.analyzer = lexical::Analyzer::EnglishV1;
+            else if (value == "english-plain-v1")
+                options.search.bm25_config.analyzer = lexical::Analyzer::EnglishPlainV1;
             else
-                throw std::invalid_argument("Invalid --analyzer: use ascii-tech-v1 or english-v1.");
+                throw std::invalid_argument(
+                    "Invalid --analyzer: use ascii-tech-v1, english-v1 or english-plain-v1.");
         } else if (name == "--bm25-query-weighting") {
             if (value == "unique")
                 options.search.bm25_config.query_weighting = lexical::QueryTermWeighting::Unique;
@@ -636,7 +639,8 @@ std::string_view help_text() {
            "                       exhaustive; identical results, compressed postings except\n"
            "                       exhaustive\n"
            "  --analyzer NAME      ascii-tech-v1 (default) | english-v1 (Lucene-style English:\n"
-           "                       stopwords, possessives, Porter stemming)\n"
+           "                       stopwords, possessives, Porter stemming) | english-plain-v1\n"
+           "                       (english-v1 without stopwords or stemming)\n"
            "  --bm25-query-weighting NAME\n"
            "                       frequency (default; a repeated query term counts once per\n"
            "                       occurrence, as in Lucene/Anserini) | unique (once)\n"

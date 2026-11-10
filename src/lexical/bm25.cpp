@@ -29,7 +29,8 @@ void validate_bm25_config(const Bm25Config& config) {
         default:
             throw std::invalid_argument("Unsupported BM25 strategy.");
     }
-    if (config.analyzer != Analyzer::AsciiTechV1 && config.analyzer != Analyzer::EnglishV1) {
+    if (config.analyzer != Analyzer::AsciiTechV1 && config.analyzer != Analyzer::EnglishV1 &&
+        config.analyzer != Analyzer::EnglishPlainV1) {
         throw std::invalid_argument("Unsupported BM25 analyzer.");
     }
     if (config.query_weighting != QueryTermWeighting::Unique &&

@@ -2,7 +2,7 @@
   "flags": [],
   "threads": 1,
   "optimize": true,
-  "wall_seconds": 0.9615139961242676,
+  "wall_seconds": 0.844489336013794,
   "anserini_reported": "00:00:00",
   "index_bytes": 1132944
 }

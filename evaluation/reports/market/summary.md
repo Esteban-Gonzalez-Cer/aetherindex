@@ -2,7 +2,7 @@
 
 Generado por `scripts/summarize_market.py` a partir de los archivos crudos de esta carpeta. No editar a mano.
 
-Commit `07f83c8f6030be6848423a143eff95d6e1bc4170` (árbol con cambios: True), Apple M4 Pro, Apple clang version 17.0.0 (clang-1700.6.3.2).
+Commit `1bb7845a74cc39f614dcfa153e339dfd98ae96d1` (árbol con cambios: True), Apple M4 Pro, Apple clang version 17.0.0 (clang-1700.6.3.2).
 
 ## Analizador english-v1 frente a Lucene (SciFact)
 
@@ -60,6 +60,7 @@ Diferencia máxima: 0.00005 (trec_eval imprime 4 decimales).
 | **BM25 sin stemming** | | | | | | | |
 | Lucene sin stemming/stopwords | 0.6651 | 0.3049 | 0.2320 | 0.3813 | 0.5823 | 0.7269 | 0.4821 |
 | AetherIndex BM25 ascii-tech-v1 | 0.6435 | 0.2935 | 0.2238 | 0.3244 | 0.5387 | 0.7244 | 0.4581 |
+| AetherIndex BM25 english-plain-v1, frecuencia | 0.6622 | 0.3051 | 0.2324 | 0.3845 | 0.5832 | 0.7270 | 0.4824 |
 | **BM25 k1=1.2** | | | | | | | |
 | Lucene BM25 k1=1.2 b=0.75 | 0.6826 | 0.3209 | 0.2536 | 0.4780 | 0.6153 | 0.8077 | 0.5263 |
 | AetherIndex BM25 k1=1.2 b=0.75 | 0.6870 | 0.3219 | 0.2509 | 0.4062 | 0.6123 | 0.8088 | 0.5145 |
@@ -96,6 +97,7 @@ Diferencia máxima: 0.00005 (trec_eval imprime 4 decimales).
 | **BM25 sin stemming** | | | | | | | |
 | Lucene sin stemming/stopwords | 0.8852 | 0.2368 | 0.4923 | 0.9075 | 0.0967 | 0.9400 | 0.5931 |
 | AetherIndex BM25 ascii-tech-v1 | 0.8659 | 0.2258 | 0.4862 | 0.8179 | 0.0853 | 0.9396 | 0.5701 |
+| AetherIndex BM25 english-plain-v1, frecuencia | 0.8852 | 0.2365 | 0.4934 | 0.9104 | 0.0975 | 0.9400 | 0.5938 |
 | **BM25 k1=1.2** | | | | | | | |
 | Lucene BM25 k1=1.2 b=0.75 | 0.9282 | 0.2463 | 0.5489 | 0.9587 | 0.1119 | 0.9771 | 0.6285 |
 | AetherIndex BM25 k1=1.2 b=0.75 | 0.9282 | 0.2482 | 0.5539 | 0.9154 | 0.1125 | 0.9779 | 0.6227 |
@@ -126,6 +128,7 @@ Diferencia máxima: 0.00005 (trec_eval imprime 4 decimales).
 | AetherIndex BM25 english-v1, frecuencia vs AetherIndex BM25 english-v1 | -0.0018 (p=0.550) | -0.0005 (p=1.000) | -0.0025 (p=0.243) | +0.0825 (p=0.000, sig.) | -0.0004 (p=0.756) | -0.0008 (p=0.098) |
 | AetherIndex BM25 k1=1.2 b=0.75, frecuencia vs Lucene BM25 k1=1.2 b=0.75 | +0.0005 (p=0.055) | +0.0004 (p=0.656) | -0.0013 (p=0.451) | +0.0043 (p=0.002, sig.) | -0.0014 (p=0.376) | +0.0001 (p=0.188) |
 | AetherIndex BM25 ascii-tech-v1 vs Lucene sin stemming/stopwords | -0.0216 (p=0.003, sig.) | -0.0114 (p=0.008, sig.) | -0.0081 (p=0.041, sig.) | -0.0570 (p=0.000, sig.) | -0.0436 (p=0.037, sig.) | -0.0025 (p=0.006, sig.) |
+| AetherIndex BM25 english-plain-v1, frecuencia vs Lucene sin stemming/stopwords | -0.0030 (p=0.094) | +0.0002 (p=0.726) | +0.0005 (p=0.724) | +0.0032 (p=0.001, sig.) | +0.0009 (p=0.713) | +0.0000 (p=0.500) |
 | AetherIndex híbrido RRF vs Referencia: Lucene + exacto + RRF | +0.0030 (p=0.144) | +0.0003 (p=0.809) | -0.0040 (p=0.136) | -0.0523 (p=0.000, sig.) | +0.0018 (p=0.723) | -0.0001 (p=0.718) |
 | AetherIndex híbrido RRF, frecuencia vs Referencia: Lucene + exacto + RRF | +0.0018 (p=0.022, sig.) | -0.0006 (p=0.448) | -0.0023 (p=0.293) | +0.0019 (p=0.036, sig.) | -0.0015 (p=0.739) | -0.0001 (p=0.611) |
 | AetherIndex híbrido RRF vs AetherIndex BM25 english-v1 | +0.0508 (p=0.000, sig.) | +0.0413 (p=0.000, sig.) | +0.1190 (p=0.000, sig.) | +0.1653 (p=0.000, sig.) | +0.2063 (p=0.000, sig.) | +0.0769 (p=0.000, sig.) |
@@ -174,9 +177,9 @@ Mediana de 5 repeticiones tras calentamiento. Servidores: medido desde el client
 | scifact | AetherIndex BM25 frecuencia (BMW) | 0.056 | 0.312 | 105,993 (105,831–106,026) |
 | scifact | AetherIndex BM25 frecuencia (exhaustivo) | 0.243 | 0.426 | 26,754 (26,690–27,071) |
 | scifact | AetherIndex BM25 (MaxScore) | 0.022 | 0.054 | 291,309 (289,984–298,273) |
-| scifact | AetherIndex BM25 frecuencia (MaxScore) | 0.023 | 0.054 | 290,311 (288,196–290,510) |
-| scifact | Lucene BM25 | 0.091 | 0.207 | 31,799 (31,791–31,912) |
-| scifact | bm25s | 0.125 | 0.191 | 10,052 (9,853–10,723) |
+| scifact | AetherIndex BM25 frecuencia (MaxScore) | 0.021 | 0.050 | 282,431 (274,380–284,080) |
+| scifact | Lucene BM25 | 0.069 | 0.151 | 42,976 (42,454–44,240) |
+| scifact | bm25s | 0.117 | 0.170 | 11,625 (11,562–11,764) |
 | scifact | AetherIndex HNSW | 0.080 | 0.104 | 108,904 (106,311–108,914) |
 | scifact | AetherIndex HNSW SQ8 | 0.077 | 0.103 | 115,663 (115,274–116,437) |
 | scifact | AetherIndex híbrido | 0.189 | 0.468 | 42,333 (41,937–43,450) |
@@ -195,9 +198,9 @@ Mediana de 5 repeticiones tras calentamiento. Servidores: medido desde el client
 | nfcorpus | AetherIndex BM25 frecuencia (BMW) | 0.004 | 0.049 | 682,695 (521,424–736,533) |
 | nfcorpus | AetherIndex BM25 frecuencia (exhaustivo) | 0.017 | 0.229 | 133,694 (133,219–135,674) |
 | nfcorpus | AetherIndex BM25 (MaxScore) | 0.003 | 0.021 | 753,061 (710,476–902,444) |
-| nfcorpus | AetherIndex BM25 frecuencia (MaxScore) | 0.003 | 0.021 | 818,932 (655,671–854,310) |
-| nfcorpus | Lucene BM25 | 0.029 | 0.129 | 16,865 (16,766–18,644) |
-| nfcorpus | bm25s | 0.086 | 0.129 | 21,366 (20,919–21,711) |
+| nfcorpus | AetherIndex BM25 frecuencia (MaxScore) | 0.003 | 0.021 | 868,280 (723,202–965,502) |
+| nfcorpus | Lucene BM25 | 0.037 | 0.140 | 15,221 (15,187–15,242) |
+| nfcorpus | bm25s | 0.081 | 0.116 | 22,336 (22,178–22,850) |
 | nfcorpus | AetherIndex HNSW | 0.079 | 0.101 | 106,614 (105,263–109,643) |
 | nfcorpus | AetherIndex HNSW SQ8 | 0.075 | 0.097 | 113,523 (113,479–113,729) |
 | nfcorpus | AetherIndex híbrido | 0.101 | 0.175 | 81,678 (81,650–82,342) |
@@ -216,9 +219,9 @@ Mediana de 5 repeticiones tras calentamiento. Servidores: medido desde el client
 | fiqa | AetherIndex BM25 frecuencia (BMW) | 0.495 | 2.476 | 14,871 (14,837–14,885) |
 | fiqa | AetherIndex BM25 frecuencia (exhaustivo) | 3.013 | 5.484 | 2,998 (2,981–3,015) |
 | fiqa | AetherIndex BM25 (MaxScore) | 0.119 | 0.395 | 65,237 (65,219–65,354) |
-| fiqa | AetherIndex BM25 frecuencia (MaxScore) | 0.119 | 0.396 | 64,244 (64,059–64,298) |
-| fiqa | Lucene BM25 | 0.165 | 0.444 | 45,625 (45,331–47,704) |
-| fiqa | bm25s | 0.458 | 0.710 | 6,937 (6,868–6,974) |
+| fiqa | AetherIndex BM25 frecuencia (MaxScore) | 0.115 | 0.375 | 65,011 (64,765–65,054) |
+| fiqa | Lucene BM25 | 0.153 | 0.404 | 52,744 (51,950–52,931) |
+| fiqa | bm25s | 0.422 | 0.630 | 7,182 (7,181–7,187) |
 | fiqa | AetherIndex HNSW | 0.272 | 0.451 | 34,839 (33,930–34,878) |
 | fiqa | AetherIndex HNSW SQ8 | 0.178 | 0.293 | 54,437 (53,798–55,006) |
 | fiqa | AetherIndex híbrido | 1.025 | 3.459 | 8,120 (8,117–8,126) |
@@ -237,9 +240,9 @@ Mediana de 5 repeticiones tras calentamiento. Servidores: medido desde el client
 | arguana | AetherIndex BM25 frecuencia (BMW) | 7.273 | 41.980 | 938 (936–938) |
 | arguana | AetherIndex BM25 frecuencia (exhaustivo) | 1.278 | 1.913 | 7,154 (7,021–7,170) |
 | arguana | AetherIndex BM25 (MaxScore) | 0.315 | 0.645 | 26,529 (26,519–26,734) |
-| arguana | AetherIndex BM25 frecuencia (MaxScore) | 0.301 | 0.642 | 27,890 (27,575–29,494) |
-| arguana | Lucene BM25 | 0.541 | 1.222 | 15,395 (15,390–15,492) |
-| arguana | bm25s | 0.347 | 0.719 | 1,262 (1,261–1,265) |
+| arguana | AetherIndex BM25 frecuencia (MaxScore) | 0.284 | 0.612 | 29,823 (29,789–29,892) |
+| arguana | Lucene BM25 | 0.521 | 1.192 | 15,598 (15,456–15,657) |
+| arguana | bm25s | 0.297 | 0.600 | 1,321 (1,317–1,330) |
 | arguana | AetherIndex HNSW | 0.079 | 0.112 | 112,999 (112,353–113,569) |
 | arguana | AetherIndex HNSW SQ8 | 0.075 | 0.104 | 120,712 (120,663–121,705) |
 | arguana | AetherIndex híbrido | 8.223 | 41.882 | 893 (891–893) |
@@ -258,9 +261,9 @@ Mediana de 5 repeticiones tras calentamiento. Servidores: medido desde el client
 | trec-covid | AetherIndex BM25 frecuencia (BMW) | 1.200 | 10.409 | 3,254 (3,250–3,255) |
 | trec-covid | AetherIndex BM25 frecuencia (exhaustivo) | 10.590 | 17.803 | 775 (771–775) |
 | trec-covid | AetherIndex BM25 (MaxScore) | 0.292 | 1.117 | 21,029 (20,825–21,154) |
-| trec-covid | AetherIndex BM25 frecuencia (MaxScore) | 0.293 | 1.083 | 21,294 (21,236–21,365) |
-| trec-covid | Lucene BM25 | 0.384 | 1.182 | 15,726 (15,601–16,500) |
-| trec-covid | bm25s | 1.399 | 2.048 | 3,367 (3,332–3,424) |
+| trec-covid | AetherIndex BM25 frecuencia (MaxScore) | 0.278 | 1.051 | 21,641 (21,595–21,732) |
+| trec-covid | Lucene BM25 | 0.363 | 1.059 | 15,654 (15,350–15,657) |
+| trec-covid | bm25s | 1.277 | 1.847 | 3,503 (3,466–3,509) |
 | trec-covid | AetherIndex HNSW | 0.307 | 0.498 | 22,732 (22,521–23,714) |
 | trec-covid | AetherIndex HNSW SQ8 | 0.195 | 0.311 | 43,868 (43,537–43,966) |
 | trec-covid | AetherIndex híbrido | 2.122 | 12.780 | 2,267 (2,265–2,272) |
@@ -279,9 +282,9 @@ Mediana de 5 repeticiones tras calentamiento. Servidores: medido desde el client
 | quora | AetherIndex BM25 frecuencia (BMW) | 0.332 | 2.774 | 18,454 (18,065–18,492) |
 | quora | AetherIndex BM25 frecuencia (exhaustivo) | 23.832 | 43.533 | 356 (356–356) |
 | quora | AetherIndex BM25 (MaxScore) | 0.174 | 0.584 | 44,108 (43,965–44,152) |
-| quora | AetherIndex BM25 frecuencia (MaxScore) | 0.173 | 0.793 | 42,623 (42,429–42,669) |
-| quora | Lucene BM25 | 0.214 | 0.734 | 37,753 (37,488–38,276) |
-| quora | bm25s | 2.550 | 4.158 | 3,050 (3,040–3,117) |
+| quora | AetherIndex BM25 frecuencia (MaxScore) | 0.165 | 0.810 | 42,893 (42,806–42,967) |
+| quora | Lucene BM25 | 0.209 | 0.710 | 39,011 (38,556–39,053) |
+| quora | bm25s | 2.493 | 4.024 | 3,060 (3,060–3,115) |
 | quora | AetherIndex HNSW | 0.384 | 0.585 | 20,630 (20,629–20,676) |
 | quora | AetherIndex HNSW SQ8 | 0.306 | 0.451 | 29,604 (29,425–29,706) |
 | quora | AetherIndex híbrido | 0.997 | 3.966 | 7,259 (7,208–7,320) |
@@ -302,12 +305,12 @@ Mediana de 5 repeticiones tras calentamiento. Servidores: medido desde el client
 
 | Dataset | AetherIndex BM25 s | Postings comprimidos MB | Lucene s | Índice Lucene MB | bm25s s | bm25s MB |
 |---|---:|---:|---:|---:|---:|---:|
-| scifact | 0.15 | 1.6 | 0.96 | 1.1 | 0.13 | 4.2 |
-| nfcorpus | 0.11 | 1.2 | 0.75 | 0.8 | 0.10 | 3.2 |
-| fiqa | 0.92 | 7.9 | 1.95 | 6.9 | 1.05 | 29.5 |
-| arguana | 0.19 | 1.8 | 0.90 | 1.7 | 0.18 | 5.9 |
-| trec-covid | 3.78 | 28.0 | 6.02 | 26.5 | 4.17 | 104.6 |
-| quora | 1.01 | 14.8 | 2.35 | 15.8 | 2.56 | 32.9 |
+| scifact | 0.15 | 1.6 | 0.84 | 1.1 | 0.12 | 4.2 |
+| nfcorpus | 0.11 | 1.2 | 0.70 | 0.8 | 0.09 | 3.2 |
+| fiqa | 0.92 | 7.9 | 1.80 | 6.9 | 0.99 | 29.5 |
+| arguana | 0.19 | 1.8 | 0.82 | 1.7 | 0.17 | 5.9 |
+| trec-covid | 3.78 | 28.0 | 5.56 | 26.5 | 3.75 | 104.6 |
+| quora | 1.01 | 14.8 | 2.20 | 15.8 | 2.50 | 32.9 |
 
 Lucene: tiempo de pared de `IndexCollection -threads 1 -optimize` (incluye arranque de la JVM y fusión a un segmento); tamaño en disco sin posiciones ni documentos. bm25s: solo `index()`, sin tokenizar.
 
@@ -323,8 +326,8 @@ Sobre toda la rejilla (M ∈ {16, 32}, efConstruction ∈ {100, 200}, barrido de
 | hnswlib 0.8.0 | 93,227 | 57,276 | 29,171 | 0.174 | 0.9993 |
 | hnswlib 0.8.0 (-ffast-math) | 127,148 | 80,116 | 41,161 | 0.117 | 0.9993 |
 | FAISS HNSWFlat | 80,171 | 47,456 | 25,461 | 0.139 | 0.9994 |
-| AetherIndex SQ8 + re-rank | 277,568 | 163,833 | 79,981 | 0.048 | 0.9994 |
-| AetherIndex SQ8 sin FP32 | 238,548 | 180,785 | — | 0.041 | 0.9889 |
+| AetherIndex SQ8 + re-rank | 306,607 | 178,791 | 78,524 | 0.045 | 0.9994 |
+| AetherIndex SQ8 sin FP32 | 269,745 | 197,924 | — | 0.039 | 0.9889 |
 | FAISS HNSWSQ8 | 117,410 | 67,313 | — | 0.148 | 0.9867 |
 | AetherIndex PQ + re-rank | 181,207 | 114,899 | 70,552 | 0.068 | 0.9993 |
 | FAISS IVFPQ + refine | 58,115 | 33,178 | — | 0.313 | 0.9869 |
@@ -338,8 +341,8 @@ Sobre toda la rejilla (M ∈ {16, 32}, efConstruction ∈ {100, 200}, barrido de
 | hnswlib 0.8.0 | 43.9 | 366.2 | 780 | 626 |
 | hnswlib 0.8.0 (-ffast-math) | 30.5 | — | 779 | 626 |
 | FAISS HNSWFlat | 56.3 | 351.8 | 664 | 626 |
-| AetherIndex SQ8 + re-rank | 32.3 | — | 824 | 750 |
-| AetherIndex SQ8 sin FP32 | 34.9 | — | 335 | 262 |
+| AetherIndex SQ8 + re-rank | 30.7 | — | 859 | 746 |
+| AetherIndex SQ8 sin FP32 | 30.7 | — | 371 | 258 |
 | FAISS HNSWSQ8 | 46.8 | — | 297 | 260 |
 | AetherIndex PQ + re-rank | 34.6 | — | 736 | 655 |
 | FAISS IVFPQ + refine | 8.6 | — | 838 | 527 |
@@ -372,8 +375,8 @@ Sobre toda la rejilla (M ∈ {16, 32}, efConstruction ∈ {100, 200}, barrido de
 | hnswlib 0.8.0 | 14,346 | 7,842 | — | 1.193 | 0.9799 |
 | hnswlib 0.8.0 (-ffast-math) | 16,778 | 9,028 | — | 0.975 | 0.9794 |
 | FAISS HNSWFlat | 9,820 | 5,181 | — | 1.270 | 0.9785 |
-| AetherIndex SQ8 + re-rank | 19,310 | 10,299 | — | 0.858 | 0.9539 |
-| AetherIndex SQ8 sin FP32 | 24,335 | — | — | — | 0.9364 |
+| AetherIndex SQ8 + re-rank | 22,499 | 11,348 | — | 0.730 | 0.9536 |
+| AetherIndex SQ8 sin FP32 | 24,858 | — | — | — | 0.9364 |
 | FAISS HNSWSQ8 | 4,995 | — | — | — | 0.9257 |
 | AetherIndex PQ + re-rank | 20,440 | — | — | — | 0.9432 |
 | FAISS IVFPQ + refine | — | — | — | — | 0.8745 |
@@ -387,8 +390,8 @@ Sobre toda la rejilla (M ∈ {16, 32}, efConstruction ∈ {100, 200}, barrido de
 | hnswlib 0.8.0 | 56.1 | 459.1 | 791 | 615 |
 | hnswlib 0.8.0 (-ffast-math) | 42.6 | — | 791 | 615 |
 | FAISS HNSWFlat | 82.2 | 485.1 | 669 | 614 |
-| AetherIndex SQ8 + re-rank | 47.5 | — | 887 | 739 |
-| AetherIndex SQ8 sin FP32 | 47.8 | — | 381 | 287 |
+| AetherIndex SQ8 + re-rank | 43.1 | — | 919 | 725 |
+| AetherIndex SQ8 sin FP32 | 42.3 | — | 413 | 274 |
 | FAISS HNSWSQ8 | 113.6 | — | 332 | 276 |
 | AetherIndex PQ + re-rank | 44.1 | — | 792 | 641 |
 | FAISS IVFPQ + refine | 6.8 | — | 717 | 489 |

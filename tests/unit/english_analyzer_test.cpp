@@ -219,12 +219,27 @@ void check_query_weighting() {
 
 }  // namespace
 
+void plain_variant() {
+    const Tokenizer english(Analyzer::EnglishV1);
+    const Tokenizer plain(Analyzer::EnglishPlainV1);
+    const std::vector<std::string> expected = {"the", "engineer", "pumps", "are", "running", "a",
+                                               "c3po", "test"};
+    require(plain.tokenize("The engineer's PUMPS are running: a C3PO-test") == expected,
+            "english-plain-v1 must keep stopwords and skip stemming.");
+    require(english.tokenize("The engineer's PUMPS are running") ==
+                std::vector<std::string>({"engin", "pump", "run"}),
+            "english-v1 reference tokens changed.");
+    require(std::string(analyzer_name(Analyzer::EnglishPlainV1)) == "english-plain-v1",
+            "Analyzer name.");
+}
+
 int main() {
     try {
         check_porter();
         check_tokens();
         check_bm25();
         check_query_weighting();
+        plain_variant();
         std::cout << "english-v1 analyzer checks passed.\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

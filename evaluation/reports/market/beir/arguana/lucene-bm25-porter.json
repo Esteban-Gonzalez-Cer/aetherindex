@@ -13,14 +13,14 @@
   "latency_queries": 1000,
   "repetitions": 5,
   "warmup_passes": 2,
-  "lat_p50_ms": 0.540917000,
-  "lat_p95_ms": 0.958083000,
-  "lat_p99_ms": 1.22208300,
-  "lat_mean_ms": 0.567832796,
-  "qps_single": 1761.08180,
+  "lat_p50_ms": 0.521333000,
+  "lat_p95_ms": 0.915250000,
+  "lat_p99_ms": 1.19233300,
+  "lat_mean_ms": 0.546729511,
+  "qps_single": 1829.05803,
   "threads": 10,
-  "qps_batch": 15395.2843,
-  "qps_batch_q1": 15390.2639,
-  "qps_batch_q3": 15492.3306,
-  "jvm_heap_used_mib_after_gc": 8.08958
+  "qps_batch": 15597.8866,
+  "qps_batch_q1": 15456.3740,
+  "qps_batch_q3": 15656.5506,
+  "jvm_heap_used_mib_after_gc": 8.08506
 }

@@ -41,7 +41,7 @@ QUALITY_BENCHMARKS = [
       "OpenSearch": "servers:opensearch-bm25"}, None),
     ("BM25 (k1=1.2, b=0.75)", "aether-bm25-english-freq-k1.2",
      {"Lucene": "lucene-bm25-porter-k1.2"}, None),
-    ("BM25 without stemming", "aether-bm25-ascii",
+    ("BM25 without stemming", "aether-bm25-plain",
      {"Lucene": "lucene-bm25-none-keepstop"}, None),
     ("Dense HNSW (bge-small)", "aether-dense-hnsw",
      {"Qdrant": "servers:qdrant-dense", "OpenSearch": "servers:opensearch-dense"}, "exact-dense"),

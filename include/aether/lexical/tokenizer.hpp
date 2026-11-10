@@ -16,8 +16,11 @@ namespace aetherindex::lexical {
 //                and apostrophes join two digits. Then the English possessive 's is
 //                removed, Latin/Greek/Cyrillic letters are lowercased, Lucene's 33
 //                English stopwords are dropped and the classic Porter stemmer is applied.
-// Neither applies NFC or full Unicode case folding; ascii-tech-v1 lowercases ASCII only.
-enum class Analyzer { AsciiTechV1, EnglishV1 };
+//   EnglishPlainV1  english-plain-v1: english-v1 without stopword removal and without
+//                stemming (tokenization, possessive removal and lowercasing only). The
+//                counterpart of Lucene/Anserini with -stemmer none -keepStopwords.
+// None applies NFC or full Unicode case folding; ascii-tech-v1 lowercases ASCII only.
+enum class Analyzer { AsciiTechV1, EnglishV1, EnglishPlainV1 };
 
 [[nodiscard]] const char* analyzer_name(Analyzer analyzer) noexcept;
 

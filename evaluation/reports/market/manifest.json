@@ -1,6 +1,6 @@
 {
-  "date": "2026-10-30 12:59:18 CST",
-  "git_commit": "07f83c8f6030be6848423a143eff95d6e1bc4170",
+  "date": "2026-11-10 16:55:13 CST",
+  "git_commit": "1bb7845a74cc39f614dcfa153e339dfd98ae96d1",
   "git_dirty": true,
   "machine": {
     "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
@@ -12,9 +12,9 @@
   },
   "compiler": "Apple clang version 17.0.0 (clang-1700.6.3.2)",
   "binaries": {
-    "aether_ann_compare": "27f350e2fe3e66e38e5d30afd6ad51ee90890e47631a69f0799dfd9e37f58e9a",
-    "aether_ann_compare_fastmath": "9eddf0a1caa5cc2bfd4d917a52b883913b89ed5d60b704c6e0501d09b73ace92",
-    "aether_ir_compare": "a0bb7f91cbf1feb1a539904efb0faf4646e6c1c2f6d5c7e231208cfaa95ea5a3"
+    "aether_ann_compare": "0e7c188a654b49d3a0a0aeef45285ceb7118fa84318d9efc279e22295f35d959",
+    "aether_ann_compare_fastmath": "465444fa583d4fc5ed14721b7aa95e7ab6ed71b6f36faad46098b744f7aae021",
+    "aether_ir_compare": "c5a92e1c3270b2bab7dcad5b4ba987ec5a13b0c89f017e109e2aa68d4d5eecf8"
   },
   "hnswlib_commit": "3f3429661187e4c24a490a0f148fc6bc89042b3d",
   "faiss": "faiss 1.15.1",
