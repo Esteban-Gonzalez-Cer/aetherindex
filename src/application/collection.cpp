@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <fstream>
 #include <iterator>
+#include <random>
 #include <mutex>
 #include <shared_mutex>
 #include <limits>
@@ -23,6 +24,7 @@
 #include "aether/lexical/bm25.hpp"
 #include "aether/lexical/segmented_bm25.hpp"
 #include "aether/persistence/snapshot.hpp"
+#include "aether/persistence/write_ahead_log.hpp"
 #include "aether/quantization/pq.hpp"
 #include "aether/quantization/sq8.hpp"
 #include "aether/storage/vector_file.hpp"
@@ -350,6 +352,10 @@ struct Collection::State {
     // swaps). HNSW nodes are linked after that, alongside searches (lock-free reads).
     mutable std::shared_mutex state;
     mutable std::mutex writer;
+    // Write-ahead log (when opened with write_ahead_log) and the directory it belongs to.
+    std::unique_ptr<WriteAheadLog> log;
+    fs::path directory;
+    std::uint64_t last_operation = 0;
     SearchRequest config;  // Build-time fields only.
     std::shared_ptr<VectorStore> store;
     // Identity and metadata; title, text and embeddings are dropped after the build.
@@ -676,6 +682,7 @@ void Collection::save(const fs::path& directory) const {
     std::ostringstream manifest;
     manifest << "{\n  \"format\": \"aetherindex-collection\",\n  \"version\": " << kManifestVersion
              << ",\n  \"sequence\": " << sequence
+             << ",\n  \"last_operation\": " << s.last_operation
              << ",\n  \"mode\": " << detail::json_string(mode_name(c.mode))
              << ",\n  \"algorithm\": "
              << detail::json_string(c.algorithm == SearchAlgorithm::Hnsw ? "hnsw" : "brute-force")
@@ -711,8 +718,16 @@ void Collection::save(const fs::path& directory) const {
     fs::remove_all(target);
     fs::rename(staging, target);
     io::sync_path(directory);
+    crash_point("checkpoint-before-current");
     io::write_file_atomically(directory / kCurrentFile,
                               [&](std::ostream& output) { output << name << '\n'; });
+    // The snapshot holds every logged operation: empty the log. A crash before this is
+    // harmless, since replay skips records the snapshot already contains.
+    std::error_code same_error;
+    if (s.log && fs::equivalent(directory, s.directory, same_error)) {
+        crash_point("checkpoint-before-log-reset");
+        s.log->reset(s.last_operation + 1);
+    }
     // Older snapshots and abandoned staging directories are no longer reachable.
     for (const auto& entry : fs::directory_iterator(directory)) {
         const auto file = entry.path().filename().string();
@@ -850,8 +865,129 @@ std::unique_ptr<Collection> Collection::open(const fs::path& directory,
     s.index_documents();
     for (const auto& doc : s.docs) s.binding.emplace(doc.vector_id, doc.document_id);
     s.built = true;
+    s.directory = directory;
+    const auto last = manifest.find("last_operation");
+    s.last_operation = last == manifest.end() ? 0
+                                              : number_of<std::uint64_t>(last->second, manifest_path);
+    collection->replay(directory / "wal.log", options);
+    s.stats.vectors = s.store ? s.store->live_size() : 0;
+    s.stats.documents = s.docs.size();
+    s.stats.last_operation = s.last_operation;
     s.stats.load_time = Clock::now() - start;
     return collection;
+}
+
+// ----- Write-ahead log ------------------------------------------------------------------
+
+namespace {
+
+enum class Operation : std::uint8_t { Add = 1, Remove = 2, Compact = 3 };
+
+void put_text(std::string& out, std::string_view text) {
+    unsigned char size[8];
+    io::put<std::uint64_t>(size, text.size());
+    out.append(reinterpret_cast<const char*>(size), sizeof size);
+    out.append(text);
+}
+
+std::string_view take_text(std::string_view& in) {
+    if (in.size() < 8) throw io::IoError("Malformed write-ahead log record.");
+    const auto size = io::get<std::uint64_t>(reinterpret_cast<const unsigned char*>(in.data()));
+    if (size > in.size() - 8) throw io::IoError("Malformed write-ahead log record.");
+    const auto text = in.substr(8, size);
+    in.remove_prefix(8 + size);
+    return text;
+}
+
+std::string file_bytes(const fs::path& path) {
+    if (path.empty()) return {};
+    std::ifstream input(path, std::ios::binary);
+    if (!input) throw InputDataError("Cannot read " + path.string());
+    return {std::istreambuf_iterator<char>(input), {}};
+}
+
+// A replayed add reads its records from temporary files with the original extensions.
+struct TemporaryFile {
+    fs::path path;
+    TemporaryFile(std::string_view extension, std::string_view bytes) {
+        static std::atomic<unsigned> counter{0};
+        static const unsigned process_tag = std::random_device{}();
+        path = fs::temp_directory_path() /
+               ("aether-replay-" + std::to_string(process_tag) + "-" +
+                std::to_string(counter++) + std::string(extension));
+        std::ofstream output(path, std::ios::binary | std::ios::trunc);
+        output.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
+        if (!output) throw io::IoError("Cannot write replay file " + path.string());
+    }
+    ~TemporaryFile() {
+        std::error_code ignored;
+        fs::remove(path, ignored);
+    }
+};
+
+}  // namespace
+
+void Collection::replay(const fs::path& path, const OpenOptions& options) {
+    auto& s = *state_;
+    const auto contents = WriteAheadLog::read(path);
+    s.stats.log_tail_discarded = contents.torn;
+    for (const auto& record : contents.records) {
+        if (record.sequence <= s.last_operation) continue;  // Already in the snapshot.
+        if (record.sequence != s.last_operation + 1)
+            throw io::IoError(path.string() + ": operation " +
+                              std::to_string(s.last_operation + 1) + " is missing.");
+        std::string_view payload = record.payload;
+        switch (static_cast<Operation>(record.operation)) {
+            case Operation::Add: {
+                if (payload.empty()) throw io::IoError(path.string() + ": malformed add.");
+                const bool replace = payload.front() != 0;
+                payload.remove_prefix(1);
+                const auto extension = take_text(payload);
+                const auto dataset = take_text(payload);
+                const auto vectors = take_text(payload);
+                const TemporaryFile dataset_file(extension, dataset);
+                std::optional<TemporaryFile> vectors_file;
+                if (!vectors.empty()) vectors_file.emplace(".avec", vectors);
+                add(dataset_file.path, vectors_file ? vectors_file->path : fs::path(), replace);
+                break;
+            }
+            case Operation::Remove: {
+                if (payload.size() < 8) throw io::IoError(path.string() + ": malformed delete.");
+                const auto count =
+                    io::get<std::uint64_t>(reinterpret_cast<const unsigned char*>(payload.data()));
+                payload.remove_prefix(8);
+                if (count > payload.size()) throw io::IoError(path.string() + ": malformed delete.");
+                std::vector<std::string> ids;
+                for (std::uint64_t i = 0; i < count; ++i) ids.emplace_back(take_text(payload));
+                remove(ids);
+                break;
+            }
+            case Operation::Compact:
+                compact();
+                break;
+            default:
+                throw io::IoError(path.string() + ": unknown operation " +
+                                  std::to_string(record.operation) + ".");
+        }
+        s.last_operation = record.sequence;
+        ++s.stats.replayed_operations;
+    }
+    if (options.write_ahead_log)
+        s.log = std::make_unique<WriteAheadLog>(path, contents.valid_bytes, s.last_operation + 1,
+                                                options.sync);
+}
+
+void Collection::log_operation(std::uint8_t operation, const std::string& payload) {
+    auto& s = *state_;
+    if (!s.log) return;
+    s.last_operation = s.log->append(operation, payload);
+    s.stats.last_operation = s.last_operation;
+}
+
+void Collection::checkpoint() {
+    auto& s = *state_;
+    if (!s.log) throw std::logic_error("checkpoint() requires a collection opened with its log.");
+    save(s.directory);
 }
 
 // ----- Mutations ---------------------------------------------------------------------
@@ -868,6 +1004,14 @@ Collection::AddResult Collection::add(const fs::path& dataset, const fs::path& v
                                       bool replace) {
     auto& s = *state_;
     const std::lock_guard writer(s.writer);
+    // The log keeps the input exactly as it was read.
+    std::string record;
+    if (s.log) {
+        record.push_back(replace ? 1 : 0);
+        put_text(record, dataset.extension().string());
+        put_text(record, file_bytes(dataset));
+        put_text(record, file_bytes(vectors));
+    }
     if (!s.built) throw std::logic_error("Collection::add requires built indexes.");
     const auto& c = s.config;
     if (s.store && !s.store->has_rows())
@@ -1058,12 +1202,20 @@ Collection::AddResult Collection::add(const fs::path& dataset, const fs::path& v
         }
         s.hnsw->end_concurrent_reads();
     }
+    log_operation(static_cast<std::uint8_t>(Operation::Add), record);
     return result;
 }
 
 std::size_t Collection::remove(std::span<const std::string> ids) {
     auto& s = *state_;
     const std::lock_guard writer(s.writer);
+    std::string record;
+    if (s.log) {
+        unsigned char count[8];
+        io::put<std::uint64_t>(count, ids.size());
+        record.append(reinterpret_cast<const char*>(count), sizeof count);
+        for (const auto& id : ids) put_text(record, id);
+    }
     if (!s.built) throw std::logic_error("Collection::remove requires built indexes.");
     if (s.bm25) s.bm25->prepare_for_changes();  // Outside the exclusive section.
     const bool documents = s.config.mode != SearchMode::Vector || s.jsonl_vectors;
@@ -1103,13 +1255,17 @@ std::size_t Collection::remove(std::span<const std::string> ids) {
                 throw InputDataError("Unknown vector ID: " + id);
             doomed.push_back(value);
         }
-        const std::unique_lock lock(s.state);
-        for (VectorId id : doomed) s.store->erase(id);
-        s.stats.vectors = s.store->live_size();
+        {
+            const std::unique_lock lock(s.state);
+            for (VectorId id : doomed) s.store->erase(id);
+            s.stats.vectors = s.store->live_size();
+        }
+        log_operation(static_cast<std::uint8_t>(Operation::Remove), record);
         return ids.size();
     }
     s.stats.vectors = s.store ? s.store->live_size() : 0;
     s.stats.documents = s.docs.size();
+    log_operation(static_cast<std::uint8_t>(Operation::Remove), record);
     return ids.size();
 }
 
@@ -1165,6 +1321,7 @@ void Collection::compact() {
         s.stats = stats;
     }
     old_hnsw.reset();
+    log_operation(static_cast<std::uint8_t>(Operation::Compact), {});
 }
 
 bool Collection::validate(std::string& report) const {

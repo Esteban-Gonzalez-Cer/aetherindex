@@ -21,6 +21,13 @@ struct OpenOptions {
     std::optional<std::size_t> ef_search;
     std::optional<lexical::Bm25Strategy> bm25_strategy;  // Among the compressed strategies.
     std::optional<lexical::QueryTermWeighting> bm25_query_weighting;
+    // Attach the write-ahead log for writing: add(), remove() and compact() append to
+    // DIR/wal.log, so they are durable without a full save(). Without it, the log is
+    // still replayed but never written.
+    bool write_ahead_log = false;
+    // Flush every log record to stable storage before the operation returns. Without it,
+    // records survive a process crash but not necessarily a power loss.
+    bool sync = true;
 };
 
 // Sizes and timings of a collection, for reports and `index info`.
@@ -38,6 +45,11 @@ struct CollectionStats {
     std::chrono::duration<double, std::milli> load_time{};
     std::uint64_t snapshot_sequence = 0;
     std::size_t snapshot_bytes = 0;
+    // Write-ahead log: the last operation applied, and how many open() replayed on top of
+    // the snapshot (also the records a checkpoint would fold in).
+    std::uint64_t last_operation = 0;
+    std::size_t replayed_operations = 0;
+    bool log_tail_discarded = false;  // A torn record from a crash was ignored.
 };
 
 // The data and indexes of one search configuration: vectors, documents, and the HNSW,
@@ -70,8 +82,13 @@ class Collection {
     // then points CURRENT at it and removes older snapshots. A crash at any point leaves
     // either the previous snapshot or the new one current, never a partial one.
     void save(const std::filesystem::path& directory) const;
+    // open() loads the current snapshot and replays the operations of DIR/wal.log that are
+    // newer than it, stopping at a torn or corrupt tail (the unacknowledged end of a
+    // crashed write).
     static std::unique_ptr<Collection> open(const std::filesystem::path& directory,
                                             const OpenOptions& options = {});
+    // With the log attached: save() to the opened directory, which then empties the log.
+    void checkpoint();
     // True if `directory` holds a saved collection (a CURRENT file).
     static bool is_collection(const std::filesystem::path& directory);
 
@@ -124,6 +141,8 @@ class Collection {
 
    private:
     Collection();
+    void replay(const std::filesystem::path& log, const OpenOptions& options);
+    void log_operation(std::uint8_t operation, const std::string& payload);
     struct State;
     std::unique_ptr<State> state_;
 };

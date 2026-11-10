@@ -387,3 +387,17 @@ add_test(NAME integration.concurrent_collection COMMAND aether_concurrent_collec
     "${CMAKE_CURRENT_BINARY_DIR}/concurrent-collection/$<CONFIG>")
 set_tests_properties(integration.concurrent_collection PROPERTIES TIMEOUT 600
     LABELS "concurrency;deletes;application")
+
+# Crash recovery of the write-ahead log and checkpoints (fault injection).
+add_test(NAME e2e.cli_crash COMMAND "${CMAKE_COMMAND}"
+    "-DCLI_PATH=$<TARGET_FILE:aetherindex>"
+    "-DSOURCE_DIR=${PROJECT_SOURCE_DIR}"
+    "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/crash-cli/$<CONFIG>"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_crash_test.cmake")
+set_tests_properties(e2e.cli_crash PROPERTIES TIMEOUT 300 LABELS "persistence;crash;e2e")
+
+add_executable(aether_write_ahead_log_tests unit/write_ahead_log_test.cpp)
+target_link_libraries(aether_write_ahead_log_tests PRIVATE aether_persistence)
+add_test(NAME unit.write_ahead_log COMMAND aether_write_ahead_log_tests
+    "${CMAKE_CURRENT_BINARY_DIR}/write-ahead-log/$<CONFIG>")
+set_tests_properties(unit.write_ahead_log PROPERTIES TIMEOUT 60 LABELS "persistence;wal")

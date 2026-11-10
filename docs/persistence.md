@@ -30,10 +30,13 @@ aetherindex index add --index idx --dataset more.jsonl            # new records
 aetherindex index add --index idx --dataset fixes.jsonl --replace # updates by ID
 aetherindex index delete --index idx --id D002 --id D019
 aetherindex index compact --index idx
+aetherindex index checkpoint --index idx
 ```
 
-Each command opens the index, applies the change, and saves a new snapshot. Changes are
-visible to the next search.
+`add` and `delete` append to the index's write-ahead log, so they cost the size of the
+change, not of the index (see [Write-ahead log](#write-ahead-log)). `compact` and
+`checkpoint` write a new snapshot and empty the log. Every change is visible to the next
+search.
 
 **Vectors.**
 
@@ -97,6 +100,7 @@ Three saved defaults can be overridden per search:
 ```text
 idx/
 ├── CURRENT                          name of the current snapshot
+├── wal.log                          operations since the snapshot (write-ahead log)
 └── snapshot-00000000000000000001/
     ├── manifest.json                configuration, statistics and file list (written last)
     ├── vectors.sec                  IDs and padded FP32 rows, exactly as in memory
@@ -147,6 +151,62 @@ Saving writes a new snapshot without touching the current one:
 
 A crash at any step leaves either the previous snapshot or the new one current, never a
 partial one.
+
+## Write-ahead log
+
+Operations made after a snapshot live in `wal.log`.
+
+The file is a 16-byte header (magic `AETHWAL1`, version, header CRC-32C) followed by records:
+
+| Field | Bytes |
+|---|---|
+| payload size | 4 |
+| CRC-32C of everything after it | 4 |
+| operation sequence | 8 |
+| operation (1 add, 2 delete, 3 compact) | 1 |
+| payload | variable |
+
+The payload of each operation:
+
+- **add:** the `--replace` flag and the input files exactly as they were read.
+- **delete:** the IDs.
+- **compact:** nothing.
+
+**When an operation is durable.** The record is appended after the operation succeeded in
+memory, then flushed to stable storage (`F_FULLFSYNC` on Apple platforms). The command
+returns after that.
+
+- Each snapshot's manifest records the last operation it contains.
+- With `--no-sync`, a record survives a crash of the process but not necessarily a power
+  loss.
+- Cost on Apple M4 Pro: about 4 ms per synced append, 0.02 ms without the flush.
+
+**Opening an index** loads the snapshot and replays the records newer than it:
+
+- Reading stops at the first record that is truncated, fails its checksum or breaks the
+  sequence. A crash can only damage the end of the log, and that end was never
+  acknowledged.
+- The next writer truncates the file there before appending.
+- `index info` reports how many operations were replayed and whether a damaged tail was
+  ignored.
+
+**A checkpoint** (`index checkpoint`, also part of `index compact`) saves a snapshot that
+contains every logged operation, then empties the log. A crash between the two is harmless:
+replay skips records the snapshot already holds.
+
+**Recovery is tested by killing the process.** `e2e.cli_crash` kills the CLI
+(`AETHER_CRASH_AT`, a test-only fault-injection hook) at five points:
+
+- halfway through writing a record;
+- after writing a record but before flushing it;
+- in a checkpoint, before `CURRENT` moves;
+- in a checkpoint, after `CURRENT` moves but before the log is emptied;
+- in the checkpoint of a compaction.
+
+After each crash the index must answer exactly like a crash-free index holding a prefix of
+the operations that includes every acknowledged one. To check that the test can catch a
+real bug, the writer was changed to append without first truncating the damaged tail; the
+test failed. `unit.write_ahead_log` covers the reader's edge cases.
 
 ## Validation when loading
 

@@ -358,7 +358,11 @@ int index_info(const CliOptions& options, std::ostream& output, bool verify) {
     print_index(formatted, *collection);
     const auto& stats = collection->stats();
     formatted << "\nSnapshot: " << stats.snapshot_sequence << " (" << mib(stats.snapshot_bytes)
-              << " MiB)\nIndex load time (ms): " << number(stats.load_time.count(), 6) << "\n";
+              << " MiB)\nLogged operations replayed: " << stats.replayed_operations
+              << " (last operation " << stats.last_operation << ")";
+    if (stats.log_tail_discarded)
+        formatted << "\nLog tail: an incomplete record from a crash was ignored";
+    formatted << "\nIndex load time (ms): " << number(stats.load_time.count(), 6) << "\n";
     if (!verify) {
         output << formatted.str();
         return 0;
@@ -374,7 +378,10 @@ int index_info(const CliOptions& options, std::ostream& output, bool verify) {
 
 // add, delete and compact: open, change, save a new snapshot.
 int change_index(const CliOptions& options, std::ostream& output) {
-    auto collection = Collection::open(options.index_path);
+    OpenOptions open;
+    open.write_ahead_log = true;
+    open.sync = options.sync;
+    auto collection = Collection::open(options.index_path, open);
     std::ostringstream formatted;
     formatted.imbue(std::locale::classic());
     const auto start = std::chrono::steady_clock::now();
@@ -386,18 +393,28 @@ int change_index(const CliOptions& options, std::ostream& output) {
     } else if (options.command == Command::IndexDelete) {
         const auto removed = collection->remove(options.delete_ids);
         formatted << "AetherIndex Index Delete\n\nRecords deleted: " << removed;
-    } else {
+    } else if (options.command == Command::IndexCompact) {
         const auto before = collection->deleted_count();
         collection->compact();
         formatted << "AetherIndex Index Compact\n\nDeleted records dropped: " << before;
+    } else {
+        formatted << "AetherIndex Index Checkpoint\n\nOperations folded into the snapshot: "
+                  << collection->stats().replayed_operations;
     }
     const std::chrono::duration<double, std::milli> change_time =
         std::chrono::steady_clock::now() - start;
-    collection->save(options.index_path);
-    const auto& stats = collection->stats();
+    // add and delete are durable in the log; compact and checkpoint write a snapshot.
+    const bool snapshot = options.command == Command::IndexCompact ||
+                          options.command == Command::IndexCheckpoint;
+    if (snapshot) collection->checkpoint();
+    const auto stats = collection->stats();
     formatted << "\nLive records: " << std::max(stats.vectors, stats.documents)
               << "\nDeleted records held: " << collection->deleted_count()
               << "\nChange time (ms): " << number(change_time.count(), 6)
+              << (snapshot ? "\nDurability: new snapshot written; log emptied"
+                           : std::string("\nDurability: write-ahead log, operation ") +
+                                 std::to_string(stats.last_operation) +
+                                 (options.sync ? " (synced)" : " (not synced)"))
               << "\n\nIndex updated successfully.\n";
     output << formatted.str();
     return 0;
@@ -458,7 +475,8 @@ int run(std::span<const std::string_view> arguments, std::ostream& output, std::
         if (options.command == Command::IndexInfo || options.command == Command::IndexVerify)
             return index_info(options, output, options.command == Command::IndexVerify);
         if (options.command == Command::IndexAdd || options.command == Command::IndexDelete ||
-            options.command == Command::IndexCompact) {
+            options.command == Command::IndexCompact ||
+            options.command == Command::IndexCheckpoint) {
             try {
                 return change_index(options, output);
             } catch (const std::invalid_argument& error) {

@@ -74,7 +74,7 @@ target_link_libraries(aether_hnsw
 )
 
 # Component snapshots (vectors, HNSW, BM25, SQ8/PQ codes) as checksummed section files.
-add_library(aether_persistence STATIC src/persistence/snapshot.cpp)
+add_library(aether_persistence STATIC src/persistence/snapshot.cpp src/persistence/write_ahead_log.cpp)
 target_link_libraries(aether_persistence
     PUBLIC aether_core
     PRIVATE aether_io aether_storage aether_hnsw aether_lexical aether_quantization

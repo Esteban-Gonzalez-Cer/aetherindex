@@ -233,7 +233,7 @@ not stored in the repository.
 | Snapshot persistence: crash-safe save and load, checksummed and validated ([design](docs/persistence.md)) | Done |
 | Adds, deletes, updates and compaction; compaction is bit-identical to a fresh build ([details](docs/persistence.md#adding-deleting-and-compacting)) | Done |
 | Concurrent updates: searches keep running while a writer inserts, deletes or compacts; TSan-clean ([details](docs/concurrency.md)) | Done |
-| Write-ahead log: inserts and deletes survive a crash | Planned |
+| Write-ahead log: adds and deletes are durable without rewriting the index, and survive a crash ([details](docs/persistence.md#write-ahead-log)) | Done |
 | Close the open scoreboard cells, then widen the margins of the won ones | Planned |
 
 ## Limitations

@@ -501,14 +501,17 @@ CliOptions parse_index(std::span<const std::string_view> arguments) {
         options.command = Command::IndexDelete;
     else if (sub == "compact")
         options.command = Command::IndexCompact;
+    else if (sub == "checkpoint")
+        options.command = Command::IndexCheckpoint;
     else
         throw std::invalid_argument("Unknown index command: " + std::string(sub) +
-                                    ". Use build, add, delete, compact, info or verify.");
+                                    ". Use build, add, delete, compact, checkpoint, info or verify.");
     const auto accepts = [&](std::string_view name) {
         if (name == "--index") return true;
         if (options.command == Command::IndexAdd)
-            return name == "--dataset" || name == "--vectors" || name == "--replace";
-        if (options.command == Command::IndexDelete) return name == "--id";
+            return name == "--dataset" || name == "--vectors" || name == "--replace" ||
+                   name == "--no-sync";
+        if (options.command == Command::IndexDelete) return name == "--id" || name == "--no-sync";
         return false;
     };
     bool have_index = false, have_dataset = false, have_vectors = false;
@@ -524,6 +527,11 @@ CliOptions parse_index(std::span<const std::string_view> arguments) {
         if (name == "--replace") {
             if (options.replace) throw std::invalid_argument("Repeated option: --replace.");
             options.replace = true;
+            continue;
+        }
+        if (name == "--no-sync") {
+            if (!options.sync) throw std::invalid_argument("Repeated option: --no-sync.");
+            options.sync = false;
             continue;
         }
         if (i + 1 == arguments.size() || arguments[i + 1].empty() ||
@@ -591,6 +599,7 @@ std::string_view help_text() {
            "  aetherindex index add --index DIR --dataset FILE [--vectors FILE.avec] [--replace]\n"
            "  aetherindex index delete --index DIR --id ID [--id ID ...]\n"
            "  aetherindex index compact --index DIR\n"
+           "  aetherindex index checkpoint --index DIR\n"
            "  aetherindex index info|verify --index DIR\n"
            "  aetherindex --help\n\n"
            "Saved indexes:\n"
@@ -605,7 +614,11 @@ std::string_view help_text() {
            "  index add            Add records in the format the index was built from;\n"
            "                       --replace updates records whose ID already exists\n"
            "  index delete         Delete records by ID (document_id, or the vector ID)\n"
-           "  index compact        Drop deleted records for good and rebuild the indexes\n"
+           "                       add and delete append to the index's write-ahead log and\n"
+           "                       are durable when they return (--no-sync: survive a crash\n"
+           "                       of the process, not necessarily a power loss)\n"
+           "  index compact        Drop deleted records for good, rebuild, and checkpoint\n"
+           "  index checkpoint     Write a snapshot with every logged change; empty the log\n"
            "  index info           Summarize a saved index\n"
            "  index verify         Check every checksum and the graph structure\n\n"
            "Options:\n"

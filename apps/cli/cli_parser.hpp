@@ -18,7 +18,8 @@ enum class Command {
     IndexVerify,
     IndexAdd,
     IndexDelete,
-    IndexCompact
+    IndexCompact,
+    IndexCheckpoint
 };
 
 struct CliOptions {
@@ -37,6 +38,7 @@ struct CliOptions {
     // updates existing IDs. index delete: the --id values.
     bool replace = false;
     std::vector<std::string> delete_ids;
+    bool sync = true;  // --no-sync: log records are not flushed to stable storage.
 };
 
 // Arguments exclude argv[0]. Throws invalid_argument on malformed options.
