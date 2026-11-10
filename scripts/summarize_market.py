@@ -427,6 +427,8 @@ def main():
     (MARKET / "summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     plots()
     print(f"Wrote {MARKET / 'summary.md'}")
+    import scoreboard  # Same folder; regenerated from the same raw files.
+    scoreboard.main()
 
 
 if __name__ == "__main__":

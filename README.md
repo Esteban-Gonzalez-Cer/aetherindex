@@ -44,6 +44,20 @@ What these numbers do not show:
 - There is no server and no persistence, so comparisons with Qdrant and OpenSearch are
   in-process versus network round trip, and are reported separately for that reason.
 
+## Objective
+
+**AetherIndex aims to beat every competitor on every benchmark cell.** A cell is one
+benchmark, dataset and metric. AetherIndex's shipped configuration is compared with the
+best competitor configuration measured for that cell. Quality is judged on test splits
+with parameters tuned on dev only, and cost on medians of five runs. The full rule is in
+[docs/OBJECTIVE.md](docs/OBJECTIVE.md).
+
+Today: **67 of 144 comparable cells won** (49 clearly, 18 inside noise). Of the 61 lost,
+33 are inside noise, mostly BM25 quality within 0.001 of Lucene and bm25s. The clear
+losses are the no-stemming analyzer, lexical index size on small collections, and parallel
+HNSW build against hnswlib with `-ffast-math`. The
+[scoreboard](evaluation/reports/market/scoreboard.md) lists every cell, won or not.
+
 ## Quick start
 
 Requirements: CMake 3.21+ and a C++20 compiler (GCC, Clang or AppleClang). Nothing else.
@@ -194,10 +208,21 @@ cmake --preset bench && cmake --build --preset bench --parallel
 Datasets (SIFT1M, GloVe-100, BEIR, DBpedia) are downloaded on demand by the scripts and are
 not stored in the repository.
 
+## Roadmap
+
+| Milestone | Status |
+|---|---|
+| Objective and scoreboard: every benchmark cell tracked, won or not | Done |
+| Snapshot persistence: save and load indexes with checksums and memory-mapped loading | Planned |
+| Deletes, updates and compaction, with results bit-identical to a fresh build after compaction | Planned |
+| Concurrent updates: searches keep running while other threads insert and delete | Planned |
+| Write-ahead log: inserts and deletes survive a crash | Planned |
+| Close the open scoreboard cells, then widen the margins of the won ones | Planned |
+
 ## Limitations
 
-- No persistence: every run loads the data and rebuilds the indexes.
-- No server, no concurrent updates, no deletes.
+- No persistence yet: every run loads the data and rebuilds the indexes.
+- No deletes or concurrent updates yet, and no server mode.
 - The engine does not produce embeddings. The vectors in `datasets/hybrid/` are a
   reproducible lexical hashing, useful for testing but not a semantic model.
 - The x86 AVX2 kernel is selected at compile time (`-DAETHER_NATIVE_SIMD=ON`); there is no
