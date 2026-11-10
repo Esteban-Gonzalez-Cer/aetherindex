@@ -27,7 +27,9 @@ std::vector<SearchResult> bruteForceSearchPrepared(const VectorStore& database,
         query.distance_kind() != database.distance_kind()) {
         throw std::invalid_argument("Prepared query does not match VectorStore.");
     }
-    k = std::min(k, database.size());
+    k = std::min(k, database.live_size());
+    if (k == 0) return {};
+    const bool deletions = database.deleted_count() != 0;
     using Candidate = std::pair<float, VectorId>;
     std::vector<Candidate> buffer;
     buffer.reserve(k);
@@ -35,6 +37,7 @@ std::vector<SearchResult> bruteForceSearchPrepared(const VectorStore& database,
     const auto distance = detail::distance_kernel(database.distance_kind());
     const auto ids = database.ids();
     for (std::size_t position = 0; position < ids.size(); ++position) {
+        if (deletions && database.is_deleted(position)) continue;
         const Candidate candidate{distance(query.data(), database.data_by_position(position),
                                            database.padded_dimension()),
                                   ids[position]};

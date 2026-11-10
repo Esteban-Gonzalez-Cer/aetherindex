@@ -331,8 +331,7 @@ set_tests_properties(e2e.cli_fusion PROPERTIES TIMEOUT 120 LABELS "hybrid;fusion
 
 # Optimization phase 6: metadata filtering (dense exact/graph, BM25 strategies, hybrid).
 add_executable(aether_filter_tests integration/filter_test.cpp)
-target_link_libraries(aether_filter_tests PRIVATE aether_application aether_hnsw aether_brute_force
-    aether_lexical)
+target_link_libraries(aether_filter_tests PRIVATE aether_application)
 add_test(NAME integration.filter COMMAND aether_filter_tests
     "${CMAKE_CURRENT_BINARY_DIR}/filter/$<CONFIG>")
 set_tests_properties(integration.filter PROPERTIES TIMEOUT 300 LABELS "filter;optimization")
@@ -357,3 +356,8 @@ add_test(NAME e2e.cli_index COMMAND "${CMAKE_COMMAND}"
     "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/index-cli/$<CONFIG>"
     -P "${CMAKE_CURRENT_SOURCE_DIR}/e2e/cli_index_test.cmake")
 set_tests_properties(e2e.cli_index PROPERTIES TIMEOUT 300 LABELS "persistence;e2e")
+
+add_executable(aether_vector_delete_tests unit/vector_delete_test.cpp)
+target_link_libraries(aether_vector_delete_tests PRIVATE aether_persistence aether_brute_force)
+add_test(NAME unit.vector_delete COMMAND aether_vector_delete_tests)
+set_tests_properties(unit.vector_delete PROPERTIES TIMEOUT 120 LABELS "deletes;storage;hnsw")

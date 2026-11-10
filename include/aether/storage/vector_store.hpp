@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <optional>
 #include <span>
 #include <unordered_map>
@@ -57,6 +59,22 @@ class VectorStore {
     void release_rows();
     bool has_rows() const noexcept { return !rows_released_; }
 
+    // Deletes: erase() unmaps the ID (contains/find/position_of no longer see it) and
+    // tombstones its position. Positions never move, so indexes built on the store stay
+    // valid; they skip tombstoned positions in results (rows remain readable for graph
+    // routing). The same ID may be inserted again; it gets a new position. Returns false
+    // when the ID is absent.
+    bool erase(VectorId id);
+    bool is_deleted(std::size_t position) const noexcept {
+        return deleted_count_ != 0 && position / 64 < deleted_.size() &&
+               ((deleted_[position / 64] >> (position % 64)) & 1u) != 0;
+    }
+    std::size_t deleted_count() const noexcept { return deleted_count_; }
+    std::size_t live_size() const noexcept { return ids_.size() - deleted_count_; }
+    // A new store with only the live rows, in position order, copied bit for bit (no
+    // re-normalization), so it equals a store that never held the deleted rows.
+    std::unique_ptr<VectorStore> compacted() const;
+
    private:
     friend struct SnapshotAccess;  // Index snapshots (aether_persistence).
     const std::size_t dimension_;
@@ -65,6 +83,8 @@ class VectorStore {
     AlignedVector<EmbeddingValue> data_;
     std::vector<VectorId> ids_;
     std::unordered_map<VectorId, std::size_t> positions_;
+    std::vector<std::uint64_t> deleted_;  // Tombstone bit per position (grown on demand).
+    std::size_t deleted_count_ = 0;
     bool rows_released_ = false;
 };
 

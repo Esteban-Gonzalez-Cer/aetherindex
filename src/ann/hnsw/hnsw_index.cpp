@@ -506,6 +506,8 @@ std::vector<SearchResult> HnswIndex::search_prepared(const PreparedQuery& query,
         throw std::invalid_argument("Prepared query does not match HNSW VectorStore.");
     }
     if (!entry_point_) return {};
+    // Tombstoned vectors still route the traversal but never enter the results.
+    if (store_.deleted_count() != 0) return search_filtered(query, k, ef_search, {});
     InternalId current = *entry_point_;
     for (std::size_t level = max_level_; level > 0; --level) {
         current = search_layer<false>(query.data(), current, 1, level).front().node;
@@ -573,18 +575,26 @@ std::vector<SearchResult> HnswIndex::search_filtered(const PreparedQuery& query,
         throw std::invalid_argument("HNSW rerank must be 0 or at least k.");
     if (!codes || rerank != 0) require_rows();
     const auto admit_all = [](InternalId) { return true; };
-    const auto admit = [&](InternalId id) { return allow(store_.ids()[id]); };
+    // Tombstoned positions are routed through but never admitted.
+    const auto admit_live = [&](InternalId id) { return !store_.is_deleted(id); };
+    const auto admit = [&](InternalId id) {
+        return !store_.is_deleted(id) && allow(store_.ids()[id]);
+    };
+    const bool deletions = store_.deleted_count() != 0;
     if (codes) {
         const auto approximate = codes->prepare(query);
         const auto distance = [&](InternalId id) { return approximate->distance(id); };
         const auto prefetch = [&](InternalId id) { approximate->prefetch(id); };
-        return allow ? search_with(query, distance, prefetch, admit, k, ef_search, rerank)
-                     : search_with(query, distance, prefetch, admit_all, k, ef_search, rerank);
+        if (allow) return search_with(query, distance, prefetch, admit, k, ef_search, rerank);
+        return deletions
+                   ? search_with(query, distance, prefetch, admit_live, k, ef_search, rerank)
+                   : search_with(query, distance, prefetch, admit_all, k, ef_search, rerank);
     }
     const auto distance = [&](InternalId id) { return distance_to(query.data(), id); };
     const auto prefetch = [&](InternalId id) { prefetch_row(id); };
-    return allow ? search_with(query, distance, prefetch, admit, k, ef_search, 0)
-                 : search_with(query, distance, prefetch, admit_all, k, ef_search, 0);
+    if (allow) return search_with(query, distance, prefetch, admit, k, ef_search, 0);
+    return deletions ? search_with(query, distance, prefetch, admit_live, k, ef_search, 0)
+                     : search_with(query, distance, prefetch, admit_all, k, ef_search, 0);
 }
 
 std::size_t HnswIndex::size() const noexcept { return successful_insertions_; }

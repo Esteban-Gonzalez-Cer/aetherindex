@@ -85,6 +85,31 @@ void VectorStore::release_rows() {
     rows_released_ = true;
 }
 
+bool VectorStore::erase(VectorId id) {
+    const auto found = positions_.find(id);
+    if (found == positions_.end()) return false;
+    const std::size_t position = found->second;
+    if (deleted_.size() <= position / 64) deleted_.resize(ids_.size() / 64 + 1, 0);
+    deleted_[position / 64] |= std::uint64_t{1} << (position % 64);
+    positions_.erase(found);
+    ++deleted_count_;
+    return true;
+}
+
+std::unique_ptr<VectorStore> VectorStore::compacted() const {
+    if (rows_released_) throw std::logic_error("VectorStore rows were released.");
+    auto store = std::make_unique<VectorStore>(dimension_, metric_);
+    store->reserve(live_size());
+    for (std::size_t position = 0; position < ids_.size(); ++position) {
+        if (is_deleted(position)) continue;
+        const float* row = data_by_position(position);
+        store->data_.insert(store->data_.end(), row, row + stride_);
+        store->positions_.emplace(ids_[position], store->ids_.size());
+        store->ids_.push_back(ids_[position]);
+    }
+    return store;
+}
+
 void VectorStore::reserve(std::size_t count) {
     if (rows_released_) throw std::logic_error("VectorStore rows were released.");
     if (count > data_.max_size() / stride_)

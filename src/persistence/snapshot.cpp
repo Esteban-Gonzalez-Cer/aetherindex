@@ -1,6 +1,7 @@
 #include "aether/persistence/snapshot.hpp"
 
 #include <algorithm>
+#include <bit>
 #include <cmath>
 #include <locale>
 #include <sstream>
@@ -44,6 +45,8 @@ struct SnapshotAccess {
         out.u8(store.rows_released_ ? 1 : 0);
         out.array<VectorId>(store.ids_);
         out.array<EmbeddingValue>(store.data_);
+        out.u64(store.deleted_count_);
+        out.array<std::uint64_t>(store.deleted_);
     }
 
     static std::unique_ptr<VectorStore> load_store(SectionReader& in) {
@@ -59,13 +62,31 @@ struct SnapshotAccess {
                                                    static_cast<DistanceKind>(metric));
         const auto ids = in.array<VectorId>();
         const auto rows = in.array<EmbeddingValue>();
+        const std::uint64_t deleted_count = in.u64();
+        const auto deleted = in.array<std::uint64_t>();
         in.expect_end();
         if (released ? !rows.empty() : rows.size() != ids.size() * store->stride_)
             in.fail("row count does not match the ID count");
+        if (deleted.size() > ids.size() / 64 + 1) in.fail("tombstone bitmap is too large");
         store->ids_.assign(ids.begin(), ids.end());
+        store->deleted_.assign(deleted.begin(), deleted.end());
+        store->deleted_count_ = static_cast<std::size_t>(deleted_count);
+        std::uint64_t marked = 0;
+        for (std::size_t word = 0; word < deleted.size(); ++word) {
+            marked += static_cast<std::uint64_t>(std::popcount(deleted[word]));
+            // Bits past the last position must be clear.
+            const std::size_t base = word * 64;
+            const std::uint64_t valid =
+                base >= ids.size()       ? 0
+                : ids.size() - base >= 64 ? ~std::uint64_t{0}
+                                          : (std::uint64_t{1} << (ids.size() - base)) - 1;
+            if ((deleted[word] & ~valid) != 0) in.fail("tombstone beyond the last position");
+        }
+        if (marked != deleted_count) in.fail("tombstone count does not match the bitmap");
         store->positions_.reserve(ids.size());
         for (std::size_t i = 0; i < ids.size(); ++i)
-            if (!store->positions_.emplace(ids[i], i).second) in.fail("duplicate VectorId");
+            if (!store->is_deleted(i) && !store->positions_.emplace(ids[i], i).second)
+                in.fail("duplicate live VectorId");
         store->data_.assign(rows.begin(), rows.end());
         store->rows_released_ = released;
         return store;
