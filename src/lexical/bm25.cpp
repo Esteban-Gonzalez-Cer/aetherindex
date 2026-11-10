@@ -811,6 +811,230 @@ std::vector<RankedResult> Bm25Index::maxscore_impl(std::vector<Cursor>& cursors,
     return std::move(top).sorted();
 }
 
+// ----- Compact on-disk form -------------------------------------------------------------
+
+namespace {
+
+void put_varint(std::vector<std::uint8_t>& out, std::uint64_t value) {
+    while (value >= 0x80) {
+        out.push_back(static_cast<std::uint8_t>(value | 0x80));
+        value >>= 7;
+    }
+    out.push_back(static_cast<std::uint8_t>(value));
+}
+
+class CompactReader {
+   public:
+    explicit CompactReader(std::span<const std::uint8_t> bytes) : bytes_(bytes) {}
+    std::uint64_t varint() {
+        std::uint64_t value = 0;
+        for (unsigned shift = 0; shift < 64; shift += 7) {
+            const std::uint8_t byte = take(1)[0];
+            value |= std::uint64_t{byte & 0x7Fu} << shift;
+            if ((byte & 0x80) == 0) return value;
+        }
+        fail("varint overflow");
+    }
+    std::span<const std::uint8_t> take(std::size_t count) {
+        if (count > bytes_.size() - offset_) fail("truncated data");
+        const auto view = bytes_.subspan(offset_, count);
+        offset_ += count;
+        return view;
+    }
+    bool done() const noexcept { return offset_ == bytes_.size(); }
+    [[noreturn]] static void fail(const std::string& reason) {
+        throw std::runtime_error("compact BM25 index: " + reason + ".");
+    }
+
+   private:
+    std::span<const std::uint8_t> bytes_;
+    std::size_t offset_ = 0;
+};
+
+// Unpacks `count` values of `bits` bits from `in` (no padding needed past its end).
+std::vector<std::uint32_t> unpack_values(std::span<const std::uint8_t> in, std::size_t count,
+                                         unsigned bits) {
+    std::vector<std::uint8_t> padded(in.begin(), in.end());
+    padded.resize(padded.size() + sizeof(std::uint64_t), 0);
+    std::vector<std::uint32_t> values((count + 7) / 8 * 8);
+    kUnpack[bits](padded.data(), values.data(), count);
+    values.resize(count);
+    return values;
+}
+
+}  // namespace
+
+std::vector<std::uint8_t> Bm25Index::write_compact() const {
+    if (!index_.is_built() || index_.has_postings())
+        throw std::logic_error("write_compact requires a compressed, built index.");
+    std::vector<std::uint8_t> out;
+    const std::size_t n = document_ids_.size();
+    put_varint(out, n);
+    put_varint(out, index_.total_token_count());
+    bool dense = true;
+    for (std::size_t i = 0; i < n && dense; ++i) dense = document_ids_[i] == i;
+    out.push_back(dense ? 1 : 0);
+    if (!dense)
+        for (std::size_t i = 0; i < n; ++i)
+            put_varint(out, document_ids_[i] - (i == 0 ? 0 : document_ids_[i - 1]));
+    const auto lengths = ordinal_lengths(document_ids_);
+    std::uint32_t widest = 0;
+    for (auto length : lengths) widest = std::max(widest, length);
+    const auto bits = static_cast<unsigned>(std::bit_width(widest));
+    out.push_back(static_cast<std::uint8_t>(bits));
+    pack(out, lengths.data(), lengths.size(), bits);
+
+    std::vector<std::string_view> terms;
+    terms.reserve(layout_.size());
+    for (const auto& [term, layout] : layout_) terms.push_back(term);
+    std::sort(terms.begin(), terms.end());
+    put_varint(out, terms.size());
+    std::string_view previous;
+    for (const auto term : terms) {
+        std::size_t shared = 0;
+        while (shared < std::min(term.size(), previous.size()) && term[shared] == previous[shared])
+            ++shared;
+        put_varint(out, shared);
+        put_varint(out, term.size() - shared);
+        out.insert(out.end(), term.begin() + static_cast<std::ptrdiff_t>(shared), term.end());
+        previous = term;
+        const TermLayout& layout = layout_.find(term)->second;
+        put_varint(out, layout.df);
+        const std::size_t count = (layout.df + kBlockSize - 1) / kBlockSize;
+        for (std::size_t b = layout.first_block; b < layout.first_block + count; ++b) {
+            const Block& block = blocks_[b];
+            out.push_back(block.doc_bits);
+            out.push_back(block.tf_bits);
+            const std::size_t size = (block.count * block.doc_bits + 7) / 8 +
+                                     (block.count * block.tf_bits + 7) / 8;
+            out.insert(out.end(), postings_.begin() + block.offset,
+                       postings_.begin() + block.offset + static_cast<std::ptrdiff_t>(size));
+        }
+    }
+    return out;
+}
+
+std::unique_ptr<Bm25Index> Bm25Index::read_compact(Bm25Config config,
+                                                   std::span<const std::uint8_t> bytes) {
+    if (config.strategy == Bm25Strategy::Exhaustive)
+        CompactReader::fail("the exhaustive strategy keeps raw postings");
+    CompactReader in(bytes);
+    auto index = std::make_unique<Bm25Index>(config);
+    auto& inverted = index->index_;
+    const std::uint64_t n = in.varint();
+    const std::uint64_t total = in.varint();
+    if (n > std::numeric_limits<std::uint32_t>::max()) CompactReader::fail("too many documents");
+    const bool dense = in.take(1)[0] != 0;
+    std::vector<DocumentId> ids(static_cast<std::size_t>(n));
+    std::uint64_t id = 0;
+    for (std::size_t i = 0; i < ids.size(); ++i) {
+        id = dense ? i : (i == 0 ? 0 : id) + in.varint();
+        if (id > std::numeric_limits<DocumentId>::max() || (i > 0 && !dense && id <= ids[i - 1]))
+            CompactReader::fail("document IDs are not ascending");
+        ids[i] = static_cast<DocumentId>(id);
+    }
+    const unsigned bits = in.take(1)[0];
+    if (bits > 32) CompactReader::fail("invalid length width");
+    const auto lengths = unpack_values(in.take((ids.size() * bits + 7) / 8), ids.size(), bits);
+    std::uint64_t sum = 0;
+    for (auto length : lengths) sum += length;
+    if (sum != total) CompactReader::fail("document lengths do not add up to the token count");
+    inverted.document_count_ = ids.size();
+    inverted.total_tokens_ = total;
+    // The expression InvertedIndex::build uses.
+    inverted.average_length_ =
+        ids.empty() ? 0.0 : static_cast<double>(total) / static_cast<double>(ids.size());
+    inverted.lengths_.reserve(ids.size());
+    index->length_norm_.resize(ids.size());
+    for (std::size_t i = 0; i < ids.size(); ++i) {
+        inverted.lengths_.emplace(ids[i], lengths[i]);
+        index->length_norm_[i] =
+            detail::bm25_length_norm(lengths[i], inverted.average_length_, index->config_);
+        if (!std::isfinite(index->length_norm_[i]))
+            throw std::overflow_error("BM25 length overflow.");
+    }
+    index->document_ids_ = std::move(ids);
+
+    const std::uint64_t vocabulary = in.varint();
+    if (vocabulary > bytes.size()) CompactReader::fail("vocabulary exceeds the data");
+    std::string term;
+    std::size_t postings = 0;
+    auto& packed = index->postings_;
+    for (std::uint64_t t = 0; t < vocabulary; ++t) {
+        const std::uint64_t shared = in.varint();
+        const std::uint64_t suffix = in.varint();
+        if (shared > term.size()) CompactReader::fail("invalid term prefix");
+        const auto tail = in.take(static_cast<std::size_t>(suffix));
+        term.resize(static_cast<std::size_t>(shared));
+        term.append(tail.begin(), tail.end());
+        const std::uint64_t df = in.varint();
+        if (df == 0 || df > n) CompactReader::fail("invalid document frequency");
+        TermLayout layout{static_cast<std::uint32_t>(df),
+                          static_cast<std::uint32_t>(index->blocks_.size()), 0.0f};
+        const double idf = compute_idf(static_cast<std::size_t>(n), static_cast<std::size_t>(df));
+        std::uint64_t remaining = df;
+        std::uint32_t previous = 0;
+        bool first = true;
+        while (remaining > 0) {
+            const auto count = static_cast<std::uint32_t>(std::min<std::uint64_t>(remaining, kBlockSize));
+            remaining -= count;
+            const auto widths = in.take(2);
+            Block block{0, static_cast<std::uint32_t>(packed.size()), 0.0f,
+                        static_cast<std::uint16_t>(count), widths[0], widths[1]};
+            if (block.doc_bits > 32 || block.tf_bits > 32) CompactReader::fail("invalid bit width");
+            const std::size_t doc_bytes = (count * block.doc_bits + 7) / 8;
+            const auto data = in.take(doc_bytes + (count * block.tf_bits + 7) / 8);
+            if (packed.size() > std::numeric_limits<std::uint32_t>::max() - data.size())
+                CompactReader::fail("postings exceed 4 GiB");
+            packed.insert(packed.end(), data.begin(), data.end());
+            const auto deltas = unpack_values(data.first(doc_bytes), count, block.doc_bits);
+            const auto frequencies =
+                unpack_values(data.subspan(doc_bytes), count, block.tf_bits);
+            double block_max = 0;
+            for (std::uint32_t i = 0; i < count; ++i) {
+                const std::uint64_t ordinal = std::uint64_t{previous} + deltas[i];
+                if (ordinal >= n || (!first && ordinal <= previous))
+                    CompactReader::fail("posting ordinals out of order");
+                previous = static_cast<std::uint32_t>(ordinal);
+                first = false;
+                const std::uint64_t tf = std::uint64_t{frequencies[i]} + 1;
+                if (tf > lengths[previous]) CompactReader::fail("term frequency exceeds the length");
+                const double score = detail::bm25_score_from_norm(
+                    static_cast<std::uint32_t>(tf), index->length_norm_[previous], idf,
+                    index->config_);
+                if (!std::isfinite(score)) throw std::overflow_error("BM25 score overflow.");
+                block_max = std::max(block_max, score);
+            }
+            // As build_layout: the float bound is rounded up to stay a safe bound.
+            block.max_score = static_cast<float>(block_max);
+            if (static_cast<double>(block.max_score) < block_max)
+                block.max_score =
+                    std::nextafter(block.max_score, std::numeric_limits<float>::infinity());
+            block.last = previous;
+            layout.max_score = std::max(layout.max_score, block.max_score);
+            index->blocks_.push_back(block);
+            postings += count;
+        }
+        if (!index->layout_.emplace(term, layout).second) CompactReader::fail("duplicate term");
+    }
+    if (!in.done()) CompactReader::fail("unexpected trailing bytes");
+    packed.resize(packed.size() + sizeof(std::uint64_t), 0);
+    packed.shrink_to_fit();
+    index->blocks_.shrink_to_fit();
+    // The accounting build() reports.
+    auto& memory = index->memory_;
+    memory.postings = postings;
+    memory.raw_bytes = postings * sizeof(Posting) + vocabulary * sizeof(PostingList);
+    memory.blocks = index->blocks_.size();
+    memory.compressed_bytes = packed.size() + index->blocks_.size() * sizeof(Block) +
+                              index->layout_.size() * sizeof(TermLayout) +
+                              index->length_norm_.size() * sizeof(double) +
+                              index->document_ids_.size() * sizeof(DocumentId);
+    inverted.postings_released_ = true;
+    inverted.ready_ = true;
+    return index;
+}
+
 // ----- Segment support -------------------------------------------------------------------
 
 std::size_t Bm25Index::term_document_frequency(std::string_view term) const {

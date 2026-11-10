@@ -84,9 +84,10 @@ class InvertedIndex {
         }
     };
    private:
+    // While collecting, terms are interned: each document keeps (term id, frequency) pairs.
     struct DocumentTermData {
         std::uint32_t length;
-        std::unordered_map<std::string, std::uint32_t> frequencies;
+        std::vector<std::pair<std::uint32_t, std::uint32_t>> frequencies;
     };
     using InvertedIndexData =
         std::unordered_map<std::string, PostingList, TermHash, std::equal_to<>>;
@@ -94,6 +95,9 @@ class InvertedIndex {
     void require_built() const;
 
     Tokenizer tokenizer_;
+    StemCache stems_;  // Collection-time only; cleared by build().
+    std::unordered_map<std::string, std::uint32_t, TermHash, std::equal_to<>> term_ids_;
+    std::vector<std::string_view> terms_;  // Term id -> text (keys of term_ids_).
     bool ready_ = false;
     bool postings_released_ = false;
     std::size_t document_count_ = 0;

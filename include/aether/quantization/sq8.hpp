@@ -16,7 +16,8 @@ namespace aetherindex {
 // scale_d), scale_d = (max_d - min_d) / 255, so each component is reconstructed within
 // scale_d / 2. Distances are asymmetric: the FP32 query is never quantized, and both
 // metrics reduce to constant + sum_d w_d * c_d (+ a per-row term for squared Euclidean).
-// Code rows are 64-byte aligned and padded with zeros to a multiple of 16 bytes.
+// Code rows are exactly `dimension` bytes (no padding). Squared Euclidean distances are
+// computed directly on the dequantized row, so no per-row data is stored besides the codes.
 class Sq8Vectors final : public QuantizedVectors {
    public:
     // Throws invalid_argument for an empty store or one whose rows were released.
@@ -46,12 +47,17 @@ class Sq8Vectors final : public QuantizedVectors {
     std::vector<float> min_;
     std::vector<float> scale_;
     AlignedVector<std::uint8_t> codes_;
-    std::vector<float> row_terms_;  // Squared Euclidean: sum_d (scale_d * c_d)^2.
+
 };
 
 namespace detail {
-// sum_i weights[i] * codes[i] for a multiple of 16 values (NEON where available).
+// sum_i weights[i] * codes[i] (NEON where available, any length).
 float weighted_code_sum(const float* weights, const std::uint8_t* codes, std::size_t length);
+// sum_i (scale[i] * codes[i] - offset[i])^2 (NEON where available, any length).
+float squared_code_distance(const float* scale, const float* offset, const std::uint8_t* codes,
+                            std::size_t length);
+float squared_code_distance_scalar(const float* scale, const float* offset,
+                                   const std::uint8_t* codes, std::size_t length);
 // Portable reference used to verify the vector kernel.
 float weighted_code_sum_scalar(const float* weights, const std::uint8_t* codes, std::size_t length);
 }  // namespace detail

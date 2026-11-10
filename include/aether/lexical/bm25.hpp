@@ -145,6 +145,16 @@ class Bm25Index : public LexicalSearcher {
         std::unordered_map<DocumentId, std::uint32_t> lengths, std::uint64_t total_tokens);
     void finish_build();
 
+    // Compact on-disk form of a compressed index (snapshots). It keeps only what cannot be
+    // derived: document lengths (bit-packed; DocumentIds only when not 0..N-1),
+    // front-coded sorted terms, document frequencies, and each block's two bit widths
+    // and packed bytes. Reading rebuilds offsets, block ends, score bounds and length
+    // norms with the functions build() uses, so the result searches bit-identically.
+    // read_compact validates every block as it decodes it (throws runtime_error).
+    std::vector<std::uint8_t> write_compact() const;
+    static std::unique_ptr<Bm25Index> read_compact(Bm25Config config,
+                                                   std::span<const std::uint8_t> bytes);
+
     class Cursor;
     template <class Norm, class Skip>
     std::vector<RankedResult> maxscore_impl(std::vector<Cursor>& cursors, std::size_t k,

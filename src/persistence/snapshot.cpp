@@ -244,7 +244,13 @@ struct SnapshotAccess {
         out.u32(static_cast<std::uint32_t>(config.strategy));
         out.u32(static_cast<std::uint32_t>(config.analyzer));
         out.u32(static_cast<std::uint32_t>(config.query_weighting));
-        // Statistics and document lengths, by ascending DocumentId.
+        out.u8(inverted.postings_released_ ? 1 : 0);
+        if (inverted.postings_released_) {
+            // Compressed: the compact form (Bm25Index::write_compact).
+            out.array<std::uint8_t>(index.write_compact());
+            return;
+        }
+        // Exhaustive: statistics, lengths and raw postings per term, in term order.
         out.u64(inverted.document_count_);
         out.u64(inverted.total_tokens_);
         out.f64(inverted.average_length_);
@@ -258,36 +264,18 @@ struct SnapshotAccess {
         out.array<DocumentId>(ids);
         out.array<std::uint32_t>(lengths);
         out.u64(index.memory_.raw_bytes);
-        out.u64(index.memory_.compressed_bytes);
         out.u64(index.memory_.postings);
-        out.u64(index.memory_.blocks);
-        out.u8(inverted.postings_released_ ? 1 : 0);
-        if (!inverted.postings_released_) {
-            // Exhaustive: raw postings per term, concatenated in term order.
-            const auto terms = sorted_terms(inverted.postings_);
-            std::vector<std::uint64_t> starts{0};
-            std::vector<lexical::Posting> postings;
-            for (auto term : terms) {
-                const auto& list = inverted.postings_.find(term)->second;
-                postings.insert(postings.end(), list.begin(), list.end());
-                starts.push_back(postings.size());
-            }
-            save_terms(terms, out);
-            out.array<std::uint64_t>(starts);
-            out.array<lexical::Posting>(postings);
-            return;
+        const auto terms = sorted_terms(inverted.postings_);
+        std::vector<std::uint64_t> starts{0};
+        std::vector<lexical::Posting> postings;
+        for (auto term : terms) {
+            const auto& list = inverted.postings_.find(term)->second;
+            postings.insert(postings.end(), list.begin(), list.end());
+            starts.push_back(postings.size());
         }
-        // Compressed layout.
-        const auto terms = sorted_terms(index.layout_);
-        std::vector<lexical::Bm25Index::TermLayout> layouts;
-        layouts.reserve(terms.size());
-        for (auto term : terms) layouts.push_back(index.layout_.find(term)->second);
         save_terms(terms, out);
-        out.array<lexical::Bm25Index::TermLayout>(layouts);
-        out.array<lexical::Bm25Index::Block>(index.blocks_);
-        out.array<std::uint8_t>(index.postings_);
-        out.array<DocumentId>(index.document_ids_);
-        out.array<double>(index.length_norm_);
+        out.array<std::uint64_t>(starts);
+        out.array<lexical::Posting>(postings);
     }
 
     static std::unique_ptr<lexical::Bm25Index> load_bm25(SectionReader& in,
@@ -316,6 +304,16 @@ struct SnapshotAccess {
             config.strategy = *with.strategy;
         }
         if (with.query_weighting) config.query_weighting = *with.query_weighting;
+        const bool released = in.u8() != 0;
+        if (released == saved_exhaustive) in.fail("posting format does not match the strategy");
+        if (released) {
+            const auto bytes = in.array<std::uint8_t>();
+            try {
+                return lexical::Bm25Index::read_compact(config, bytes);
+            } catch (const std::runtime_error& error) {
+                in.fail(error.what());
+            }
+        }
         auto index = std::make_unique<lexical::Bm25Index>(config);
         auto& inverted = index->index_;
         inverted.document_count_ = in.u64();
@@ -331,43 +329,19 @@ struct SnapshotAccess {
             inverted.lengths_.emplace(ids[i], lengths[i]);
         }
         index->memory_.raw_bytes = in.u64();
-        index->memory_.compressed_bytes = in.u64();
         index->memory_.postings = in.u64();
-        index->memory_.blocks = in.u64();
-        const bool released = in.u8() != 0;
-        if (released == saved_exhaustive) in.fail("posting format does not match the strategy");
-        if (!released) {
-            const auto terms = load_terms(in);
-            const auto starts = in.array<std::uint64_t>();
-            const auto postings = in.array<lexical::Posting>();
-            if (starts.size() != terms.size() + 1 || starts.back() != postings.size())
-                in.fail("posting lists are inconsistent");
-            for (std::size_t t = 0; t < terms.size(); ++t) {
-                if (starts[t + 1] < starts[t]) in.fail("posting lists are inconsistent");
-                lexical::PostingList list(postings.begin() + starts[t], postings.begin() + starts[t + 1]);
-                for (const auto& posting : list)
-                    if (!inverted.lengths_.contains(posting.document_id))
-                        in.fail("a posting names an unknown document");
-                inverted.postings_.emplace(terms[t], std::move(list));
-            }
-        } else {
-            const auto terms = load_terms(in);
-            const auto layouts = in.array<lexical::Bm25Index::TermLayout>();
-            const auto blocks = in.array<lexical::Bm25Index::Block>();
-            const auto postings = in.array<std::uint8_t>();
-            const auto document_ids = in.array<DocumentId>();
-            const auto norms = in.array<double>();
-            if (layouts.size() != terms.size() || document_ids.size() != ids.size() ||
-                norms.size() != ids.size() || postings.size() < sizeof(std::uint64_t))
-                in.fail("compressed layout sizes do not match");
-            for (std::size_t t = 0; t < terms.size(); ++t)
-                index->layout_.emplace(terms[t], layouts[t]);
-            index->blocks_.assign(blocks.begin(), blocks.end());
-            index->postings_.assign(postings.begin(), postings.end());
-            index->document_ids_.assign(document_ids.begin(), document_ids.end());
-            index->length_norm_.assign(norms.begin(), norms.end());
-            inverted.postings_released_ = true;
-            if (!index->layout_is_consistent()) in.fail("compressed postings are inconsistent");
+        const auto terms = load_terms(in);
+        const auto starts = in.array<std::uint64_t>();
+        const auto postings = in.array<lexical::Posting>();
+        if (starts.size() != terms.size() + 1 || starts.back() != postings.size())
+            in.fail("posting lists are inconsistent");
+        for (std::size_t t = 0; t < terms.size(); ++t) {
+            if (starts[t + 1] < starts[t]) in.fail("posting lists are inconsistent");
+            lexical::PostingList list(postings.begin() + starts[t], postings.begin() + starts[t + 1]);
+            for (const auto& posting : list)
+                if (!inverted.lengths_.contains(posting.document_id))
+                    in.fail("a posting names an unknown document");
+            inverted.postings_.emplace(terms[t], std::move(list));
         }
         inverted.ready_ = true;
         return index;
@@ -460,7 +434,6 @@ struct SnapshotAccess {
         out.array<float>(codes.min_);
         out.array<float>(codes.scale_);
         out.array<std::uint8_t>(codes.codes_);
-        out.array<float>(codes.row_terms_);
     }
 
     static std::unique_ptr<QuantizedVectors> load_sq8(SectionReader& in) {
@@ -472,10 +445,9 @@ struct SnapshotAccess {
         codes->min_ = in.vector<float>();
         codes->scale_ = in.vector<float>();
         const auto bytes = in.array<std::uint8_t>();
-        codes->row_terms_ = in.vector<float>();
         in.expect_end();
-        if (codes->dimension_ == 0 || codes->stride_ < codes->dimension_ ||
-            codes->stride_ % 16 != 0 || codes->min_.size() != codes->dimension_ ||
+        if (codes->dimension_ == 0 || codes->stride_ != codes->dimension_ ||
+            codes->min_.size() != codes->dimension_ ||
             codes->scale_.size() != codes->dimension_ ||
             bytes.size() != codes->rows_ * codes->stride_ ||
             (codes->metric_ != DistanceKind::Cosine &&

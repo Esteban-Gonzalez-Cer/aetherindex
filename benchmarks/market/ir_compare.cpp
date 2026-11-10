@@ -22,6 +22,7 @@
 // library's (frequency, convex search fusion), so earlier campaign runs keep their meaning.
 #include <cstdint>
 #include <exception>
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <iostream>
@@ -36,6 +37,7 @@
 #include "aether/core/parallel.hpp"
 #include "aether/hybrid/rrf.hpp"
 #include "aether/lexical/bm25.hpp"
+#include "aether/persistence/snapshot.hpp"
 #include "aether/quantization/sq8.hpp"
 #include "market_common.hpp"
 
@@ -279,13 +281,21 @@ int retrieval(const std::string& mode, const Args& args) {
             << ",\n  \"build_type\": \"" << bench::build_type() << "\",\n";
     if (lexical_on) {
         const auto memory = bm25_index->posting_memory();
+        // On-disk size, comparable with Lucene's index directory: the BM25 snapshot section
+        // (terms, document lengths, postings, block widths). Exhaustive indexes keep raw
+        // postings and are not compacted.
+        const std::filesystem::path disk = prefix + ".bm25.sec";
+        snapshot::save(*bm25_index, disk);
+        const auto disk_bytes = std::filesystem::file_size(disk);
+        std::filesystem::remove(disk);
         summary << "  \"bm25\": {\"k1\": " << bm25.k1 << ", \"b\": " << bm25.b
                 << ", \"analyzer\": \"" << lexical::analyzer_name(bm25.analyzer)
                 << "\", \"strategy\": \"" << args.get("strategy", "bmw")
                 << "\", \"query_weighting\": \"" << args.get("query-weighting", "unique")
                 << "\", \"build_seconds_single_thread\": " << lexical_seconds
                 << ", \"postings_raw_bytes\": " << memory.raw_bytes
-                << ", \"postings_compressed_bytes\": " << memory.compressed_bytes << "},\n";
+                << ", \"postings_compressed_bytes\": " << memory.compressed_bytes
+                << ", \"index_bytes\": " << disk_bytes << "},\n";
     }
     if (dense_on) {
         summary << "  \"dense\": {\"index\": \"" << index_kind << "\", \"M\": " << hnsw.m

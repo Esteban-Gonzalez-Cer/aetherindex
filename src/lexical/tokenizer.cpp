@@ -180,7 +180,7 @@ bool stopword(std::string_view token) {
     return false;
 }
 
-std::vector<std::string> tokenize_english(std::string_view text) {
+std::vector<std::string> tokenize_english(std::string_view text, StemCache* cache) {
     std::vector<std::string> tokens;
     std::string current;
     Kind last = Kind::Letter;
@@ -192,7 +192,15 @@ std::vector<std::string> tokenize_english(std::string_view text) {
         } else if (ends_with(current, "\xE2\x80\x99s") || ends_with(current, "\xEF\xBC\x87s")) {
             current.resize(current.size() - 4);
         }
-        if (!current.empty() && !stopword(current)) tokens.push_back(porter_stem(current));
+        if (!current.empty() && !stopword(current)) {
+            if (!cache) {
+                tokens.push_back(porter_stem(current));
+            } else {
+                auto found = cache->find(current);
+                if (found == cache->end()) found = cache->emplace(current, porter_stem(current)).first;
+                tokens.push_back(found->second);
+            }
+        }
         current.clear();
     };
     for (std::size_t i = 0; i < text.size();) {
@@ -480,7 +488,13 @@ const char* analyzer_name(Analyzer analyzer) noexcept {
 }
 
 std::vector<std::string> Tokenizer::tokenize(std::string_view text) const {
-    return analyzer_ == Analyzer::EnglishV1 ? tokenize_english(text) : tokenize_ascii_tech(text);
+    return analyzer_ == Analyzer::EnglishV1 ? tokenize_english(text, nullptr)
+                                            : tokenize_ascii_tech(text);
+}
+
+std::vector<std::string> Tokenizer::tokenize(std::string_view text, StemCache& cache) const {
+    return analyzer_ == Analyzer::EnglishV1 ? tokenize_english(text, &cache)
+                                            : tokenize_ascii_tech(text);
 }
 
 std::string porter_stem(std::string word) {

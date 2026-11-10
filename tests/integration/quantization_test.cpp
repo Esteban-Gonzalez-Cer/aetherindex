@@ -50,7 +50,7 @@ void require_throws(Function action, const char* message) {
 
 void check_kernel() {
     std::mt19937_64 engine(5);
-    for (std::size_t length : {16, 32, 48, 128, 1024}) {
+    for (std::size_t length : {1, 15, 16, 32, 48, 100, 128, 1023}) {
         std::vector<float> weights(length);
         std::vector<std::uint8_t> codes(length);
         for (std::size_t i = 0; i < length; ++i) {
@@ -66,6 +66,20 @@ void check_kernel() {
         require(std::abs(fast - exact) <= 1e-3 * (1.0 + std::abs(exact)) &&
                     std::abs(reference - exact) <= 1e-3 * (1.0 + std::abs(exact)),
                 "SQ8 kernel differs from the exact weighted sum.");
+        std::vector<float> offsets(length);
+        for (auto& value : offsets) value = real(engine) * 100.0f;
+        const float squared =
+            detail::squared_code_distance(weights.data(), offsets.data(), codes.data(), length);
+        const float squared_reference = detail::squared_code_distance_scalar(
+            weights.data(), offsets.data(), codes.data(), length);
+        double squared_exact = 0;
+        for (std::size_t i = 0; i < length; ++i) {
+            const double difference = static_cast<double>(weights[i]) * codes[i] - offsets[i];
+            squared_exact += difference * difference;
+        }
+        require(std::abs(squared - squared_exact) <= 1e-4 * (1.0 + squared_exact) &&
+                    std::abs(squared_reference - squared_exact) <= 1e-4 * (1.0 + squared_exact),
+                "SQ8 squared distance kernel differs from the exact sum.");
     }
 }
 

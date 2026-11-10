@@ -2,6 +2,7 @@
 
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 
 namespace aetherindex::lexical {
@@ -21,10 +22,16 @@ enum class Analyzer { AsciiTechV1, EnglishV1 };
 [[nodiscard]] const char* analyzer_name(Analyzer analyzer) noexcept;
 
 // Invalid UTF-8 throws invalid_argument. Returned strings own their contents.
+// Memoized Porter stems (word -> stem). Owned by one thread; an indexer reuses one for all
+// its documents, so each distinct word is stemmed once.
+using StemCache = std::unordered_map<std::string, std::string>;
+
 class Tokenizer {
    public:
     explicit Tokenizer(Analyzer analyzer = Analyzer::AsciiTechV1) : analyzer_(analyzer) {}
     [[nodiscard]] std::vector<std::string> tokenize(std::string_view text) const;
+    // Same tokens; english-v1 stems through `cache`.
+    [[nodiscard]] std::vector<std::string> tokenize(std::string_view text, StemCache& cache) const;
 
    private:
     Analyzer analyzer_;

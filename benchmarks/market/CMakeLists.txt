@@ -37,4 +37,4 @@ target_compile_options(aether_ann_compare_fastmath PRIVATE -ffast-math)
 add_executable(aether_ir_compare ir_compare.cpp)
 target_include_directories(aether_ir_compare PRIVATE "${PROJECT_SOURCE_DIR}/src/application")
 target_link_libraries(aether_ir_compare PRIVATE aether_application aether_hnsw aether_brute_force
-    aether_lexical aether_hybrid aether_quantization)
+    aether_lexical aether_hybrid aether_quantization aether_persistence)
