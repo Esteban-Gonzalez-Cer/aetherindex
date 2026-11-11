@@ -1,0 +1,23 @@
+{
+  "system": "aetherindex-dense",
+  "data": "<repo>/datasets/market/beir/fiqa",
+  "documents": 57638,
+  "queries": 648,
+  "build_type": "Release (NDEBUG)",
+  "dense": {"index": "hnsw", "M": 16, "ef_construction": 200, "ef": 128, "build_threads": 10, "build_seconds": 3.60126875, "dimension": 384},
+  "memory_mib": 104.156364,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50,
+  "latency_queries": 648,
+  "repetitions": 5,
+  "lat_p50_ms": 0.271959,
+  "lat_p95_ms": 0.401709,
+  "lat_p99_ms": 0.450958,
+  "lat_mean_ms": 0.277721275,
+  "qps_single": 3600.73243,
+  "threads": 10,
+  "qps_batch": 34839.0993,
+  "qps_batch_q1": 33929.8103,
+  "qps_batch_q3": 34878.4017
+}

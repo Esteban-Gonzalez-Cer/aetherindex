@@ -1,0 +1,23 @@
+{
+  "system": "aetherindex-dense",
+  "data": "<repo>/datasets/market/beir/scifact",
+  "documents": 5183,
+  "queries": 300,
+  "build_type": "Release (NDEBUG)",
+  "dense": {"index": "sq8", "M": 16, "ef_construction": 200, "ef": 128, "build_threads": 10, "build_seconds": 0.168207292, "dimension": 384},
+  "memory_mib": 16.2187958,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50,
+  "latency_queries": 300,
+  "repetitions": 5,
+  "lat_p50_ms": 0.077125,
+  "lat_p95_ms": 0.095334,
+  "lat_p99_ms": 0.103458,
+  "lat_mean_ms": 0.0779184667,
+  "qps_single": 12833.9281,
+  "threads": 10,
+  "qps_batch": 115662.651,
+  "qps_batch_q1": 115273.775,
+  "qps_batch_q3": 116437.027
+}

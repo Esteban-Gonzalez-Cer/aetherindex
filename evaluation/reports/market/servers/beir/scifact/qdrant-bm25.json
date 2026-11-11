@@ -1,0 +1,27 @@
+{
+  "system": "qdrant-bm25",
+  "dataset": "scifact",
+  "documents": 5183,
+  "queries": 300,
+  "ingest_and_index_seconds": 7.206917708041146,
+  "container_memory_mib": 1031.168,
+  "image": "sha256:9bfc89f9914fc14876a88c05270685921a55b8877b254a98bcc1cc2f0a424cd2",
+  "k1": 0.9,
+  "b": 0.4,
+  "hnsw": {
+    "M": 16,
+    "ef_construction": 200,
+    "ef": 128
+  },
+  "qdrant_indexed_vectors": 5183,
+  "latency_queries": 300,
+  "repetitions": 5,
+  "lat_p50_ms": 0.7191670592874289,
+  "lat_p95_ms": 0.8663341868668795,
+  "lat_p99_ms": 1.36841693893075,
+  "lat_mean_ms": 0.6981533439829946,
+  "threads": 10,
+  "qps_batch": 6237.735694286909,
+  "qps_batch_q1": 6120.887545998215,
+  "qps_batch_q3": 6246.578572577232
+}

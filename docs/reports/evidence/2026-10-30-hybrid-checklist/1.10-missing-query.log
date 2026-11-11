@@ -1,0 +1,13 @@
+Working directory: <repo>
+Command: build-testing-hybrid-2026-10-30/aetherindex search --mode hybrid --dataset datasets/hybrid/corpus.jsonl
+Started UTC: 2026-10-30T16:35:53.036913+00:00
+Expected exit: 2
+Actual exit: 2
+Test verdict: PASS
+
+--- stdout ---
+(empty)
+
+--- stderr ---
+Error: Missing required option: --query.
+Use aetherindex --help for usage.

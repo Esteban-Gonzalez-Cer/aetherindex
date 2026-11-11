@@ -1,0 +1,13 @@
+{
+  "system": "aetherindex-hybrid",
+  "data": "<repo>/datasets/market/beir/scifact",
+  "documents": 5183,
+  "queries": 300,
+  "build_type": "Release (NDEBUG)",
+  "bm25": {"k1": 0.9, "b": 0.4, "analyzer": "english-v1", "strategy": "bmw", "build_seconds_single_thread": 0.14608475, "postings_raw_bytes": 4780016, "postings_compressed_bytes": 3191450},
+  "dense": {"index": "hnsw", "M": 16, "ef_construction": 200, "ef": 128, "build_threads": 1, "build_seconds": 1.25941033, "dimension": 384},
+  "memory_mib": 47.4687958,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50
+}

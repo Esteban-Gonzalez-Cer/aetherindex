@@ -1,0 +1,9 @@
+{
+  "source_hashes_match": true,
+  "source_files": 81,
+  "local_document_links_checked": 77,
+  "matrix_cases_per_profile": 22,
+  "property_trials_per_profile": 200,
+  "repeat_cycles_per_profile": 50,
+  "git_diff_check_passed": true
+}

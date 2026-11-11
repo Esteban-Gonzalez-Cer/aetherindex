@@ -1,0 +1,46 @@
+{
+  "protocol_version": 1,
+  "frozen_before_measurement": "2026-10-19",
+  "topk": {
+    "vectors": 100000, "dimension": 128, "k": 10,
+    "dataset_seed": 42, "query_seed": 424242, "distinct_queries": 10, "cycles": 5,
+    "warmup_pairs": 3, "comparison": "full sort vs production max heap, identical FP32 SIMD distance and query preparation",
+    "statistic": "paired workload arithmetic mean search latency, alternating order",
+    "required_reduction_strictly_greater_than": 0.60
+  },
+  "memory": {
+    "vectors": 100000, "dimension": 8, "dataset_seed": 42, "graph_seed": 42,
+    "m": 16, "m0": 32, "ef_construction": 100,
+    "layer0_expected_bytes": 13200000, "complete_graph_limit_bytes": 14500000,
+    "scope": "graph buffer capacity plus graph object; embeddings and temporary insertion workspaces excluded; RSS delta separately reported"
+  },
+  "clustered": {
+    "vectors": 10000, "dimension": 128, "clusters": 100, "points_per_cluster": 100,
+    "center_distribution": "independent Gaussian coordinates, stddev 1.0",
+    "perturbation_stddev": 0.015, "queries_per_cluster": 10,
+    "dataset_seed": 42, "query_seed": 424242, "graph_seed": 42,
+    "insertion_order": "grouped by cluster, primary; same order for both algorithms",
+    "metric": "cosine", "k": 10, "ef_search": 30,
+    "m": 16, "m0": 32, "ef_construction": 100,
+    "extend_candidates": false, "keep_pruned_connections": true,
+    "required_absolute_recall_gain": 0.05,
+    "rule": "Do not retune the fixture or parameters after observing recall; report failure if threshold is unmet."
+  },
+  "dbpedia": {
+    "vectors": 10000, "dimension": 1024, "distinct_queries": 20,
+    "query_cycles": 50, "measured_searches": 1000, "warmup_searches": 100,
+    "graph_seed": 42, "m": 16, "m0": 32, "ef_construction": 100, "ef_search": 50,
+    "k": 10, "threads": 1, "metric": "cosine",
+    "timing_scope": "QueryEngine search including preparation; prebuilt graph, no I/O or output",
+    "percentile": "nearest-rank ceil(0.99*N)", "p99_limit_ms_strictly_less_than": 1.5,
+    "caveat": "1000 searches repeat 20 distinct held-out queries; no independence or production-SLA claim"
+  },
+  "cache": {
+    "platform": "Linux perf with permitted PMU access",
+    "events": ["L1-dcache-load-misses", "LLC-load-misses"],
+    "required_llc_miss_reduction": 0.50,
+    "scope": "1000 DBpedia queries after warmup, graph build excluded using perf control FIFO",
+    "baseline": "frozen pre-optimization source or base commit with the same profiling driver",
+    "caveat": "Old-vs-new comparison combines kernel, selection, visited-set and layout changes; it does not isolate layout causality."
+  }
+}

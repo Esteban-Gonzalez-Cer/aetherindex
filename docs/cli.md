@@ -1,7 +1,11 @@
-# CLI mínima de AetherIndex
+# CLI de AetherIndex
 
 La CLI de Sprint 1 permite cargar embeddings proporcionados externamente y
-ejecutar Top-K exacto con fuerza bruta o aproximado con HNSW. Toda la operación
+ejecutar Top-K exacto con fuerza bruta o aproximado con HNSW. La actualización del
+28 de octubre de 2026 incorpora [búsqueda BM25 sobre documentos JSONL](cli_bm25.md),
+con consultas de texto y selección por query_id, sin requerir embeddings, y la
+[búsqueda híbrida HNSW + BM25](cli_hybrid.md) (fusión convexa por defecto desde el 30 de
+octubre de 2026, RRF con `--fusion rrf`). Toda la operación
 ocurre en memoria dentro de un proceso; no se guardan índices ni datos entre
 ejecuciones. No hay modo interactivo, modelos de embeddings, servidor ni
 comparación automática de Recall@K dentro del comando de búsqueda. Los tests
@@ -20,9 +24,9 @@ cmake --build build-cli --parallel 4
 
 El ejemplo debe devolver los IDs 10 y 40, a distancias coseno 0 y aproximadamente
 0.2, respectivamente. Las distancias se muestran siempre con **nueve decimales**:
-`0.000000000` y `0.200000003`. Los IDs conservan su formato entero. La cantidad de
+`0.000000000` y `0.199999988`. Los IDs conservan su formato entero. La cantidad de
 decimales es una decisión de presentación; la precisión del `float` no cambia y
-`0.200000003` satisface `|resultado - 0.2| < 1e-5`.
+`0.199999988` satisface `|resultado - 0.2| < 1e-5`.
 
 Para euclidiana al cuadrado:
 
@@ -45,8 +49,20 @@ Las pruebas de un generador de múltiples configuraciones requieren
 |---|---|
 | `search` | Único comando de búsqueda |
 | `--dataset FILE` | Ruta obligatoria del dataset |
-| `--query FILE` | Ruta obligatoria del embedding de consulta |
-| `--algorithm NAME` | Obligatorio: `brute-force` exacto o `hnsw` aproximado |
+| `--query FILE` | CSV vectorial o JSONL de consultas; excluyente con `--query-text` |
+| `--query-text TEXT` | Texto literal de BM25; admite cadena vacía |
+| `--query-id ID` | Selección exacta en JSONL; obligatoria si hay varias consultas |
+| `--mode NAME` | `vector` por defecto, `lexical` (BM25) o `hybrid` ([HNSW + BM25](cli_hybrid.md)) |
+| `--candidate-k N` | Solo híbrido: candidatos por recuperador, ≥ K; default `max(K,50)` |
+| `--fusion NAME` | Solo híbrido: `convex` (por defecto) o `rrf` (ver abajo) |
+| `--alpha A` | Solo híbrido, convexa: peso denso `A` en [0,1]; default 0.65 (ver abajo) |
+| `--rrf-k NUMBER` | Solo híbrido, RRF: constante finita y positiva; default 60; selecciona RRF |
+| `--rrf-weight W` | Solo híbrido, RRF ponderado: peso denso `W` en [0,1] y léxico `1 - W`; selecciona RRF |
+| `--algorithm NAME` | Vector: `brute-force` o `hnsw`; `bm25` selecciona modo léxico |
+| `--bm25-k1 NUMBER` | Solo BM25: finito y positivo, default 1.2 |
+| `--bm25-b NUMBER` | Solo BM25: finito en [0,1], default 0.75 |
+| `--analyzer NAME` | Solo BM25: `ascii-tech-v1` (por defecto) o `english-v1` (ver abajo) |
+| `--bm25-query-weighting NAME` | Solo BM25: `frequency` (por defecto) o `unique` (ver abajo) |
 | `--k INTEGER` | Entero decimal positivo dentro del rango de `size_t`; por defecto 10 |
 | `--metric NAME` | `cosine` (por defecto) o `squared-euclidean` |
 | `--m INTEGER` | Solo HNSW: vecinos máximos en capas superiores, al menos 2; por defecto 16 |
@@ -98,14 +114,195 @@ alcanzarlos. Ver [el contrato del algoritmo](algorithms/hnsw.md).
 - Se permiten espacios/tabulaciones alrededor de campos, líneas vacías y LF/CRLF.
 - Se rechazan encabezados, comillas, comentarios, BOM, valores NaN/infinito,
   campos vacíos, comas finales y registros inválidos. No se omiten filas inválidas.
-- Coseno rechaza embeddings y consultas completamente cero; euclidiana al
-  cuadrado los acepta. No se normalizan ni cambian los datos proporcionados.
+- Coseno rechaza embeddings con norma L2 <1e-7 y consultas cero; euclidiana al
+  cuadrado los acepta. Cosine almacena la dirección normalizada; SquaredEuclidean
+  conserva las componentes originales. Los archivos y spans del llamador no se modifican.
 - Las rutas deben identificar archivos regulares legibles. No hay stdin ni
   separadores regionales distintos de coma y punto decimal.
 
 La carga procesa una fila a la vez mediante `VectorStore::insert()`, sin una
 segunda copia permanente del dataset. Si una fila falla, se descarta el store
 local y no se presentan resultados parciales.
+
+## Formato binario `.avec` (optimización, fase 1)
+
+Leer embeddings como texto (CSV/JSONL) domina el tiempo de carga. `convert` los escribe
+una sola vez en un archivo binario y la búsqueda los carga sin parsear texto:
+
+```sh
+./build-cli/aetherindex convert --dataset datasets/examples/vectors.csv --out vectors.avec
+./build-cli/aetherindex search --algorithm hnsw --dataset vectors.avec --query datasets/examples/query.csv --k 2
+# Híbrido: documentos JSONL sin embeddings + vectores binarios con los mismos DocumentId
+./build-cli/aetherindex convert --dataset datasets/hybrid/corpus.jsonl --out corpus.avec --documents-out corpus.text.jsonl
+./build-cli/aetherindex search --mode hybrid --dataset corpus.text.jsonl --vectors corpus.avec --query datasets/hybrid/queries.jsonl --query-id Q002
+```
+
+- Formato v1: cabecera de 64 bytes (`AETHVEC1`, versión, dimensión, cantidad, offsets,
+  tamaño, CRC-32C de IDs, filas y cabecera), `uint32 ids[N]` y filas `float32` crudas
+  alineadas a 64 bytes, little-endian. El contrato está en
+  `include/aether/storage/vector_file.hpp`.
+- `convert` conserva los valores originales; la métrica se aplica al cargar (coseno
+  normaliza exactamente igual que con CSV/JSONL). Desde JSONL, los VectorId son los
+  DocumentId, así que `--vectors` mantiene la identidad documental compartida.
+- Se rechazan con código 3 los archivos corruptos o truncados (checksum, tamaño,
+  magia o versión), los IDs duplicados, los valores no finitos y, en híbrido, un `.avec`
+  que no tenga exactamente un vector por documento. Las combinaciones inválidas
+  (`--vectors` fuera de híbrido, `--out` sin `.avec`) devuelven código 2.
+- Las salidas de búsqueda son idénticas a las de la entrada de texto
+  (`e2e.cli_avec`). **No es persistencia:** el grafo HNSW y el índice BM25 se siguen
+  construyendo en cada ejecución.
+
+## Paralelismo y consultas en lote (optimización, fase 2)
+
+| Opción | Contrato |
+|---|---|
+| `--all-queries` | Ejecuta todas las consultas de un `--query` JSONL con **una sola** carga y construcción de índices. Excluye `--query-id` y `--query-text`. |
+| `--query-threads N` | Hilos para `--all-queries` (por defecto 1). La salida conserva el orden del archivo. |
+| `--build-threads N` | Hilos para construir HNSW (vector con `hnsw` e híbrido). **1 (por defecto) reproduce exactamente el grafo secuencial**; con más hilos los niveles siguen saliendo de la semilla, pero la topología depende de la planificación de los hilos. |
+| `--parallel-retrievers` | Solo híbrido: BM25 se ejecuta en otro hilo mientras corre HNSW. No cambia resultados; solo puede cambiar el tiempo. |
+
+En lote, la salida comienza con `Batch queries`, `Batch time (ms)` y
+`Throughput (queries/s)`, y sigue con un bloque `=== Query i/N ===` por consulta. Cada
+bloque es exactamente el reporte individual de esa consulta (`e2e.cli_batch` lo
+verifica con 1 y 4 hilos en los tres modos).
+
+```sh
+./build-cli/aetherindex search --mode hybrid --dataset datasets/hybrid/corpus.jsonl \
+    --query datasets/hybrid/queries.jsonl --all-queries --query-threads 4 --build-threads 4
+```
+
+Construcción paralela: niveles pre-muestreados en orden con la semilla, memoria del
+grafo reservada antes de iniciar los hilos, 65,536 bloqueos por franjas (un hilo nunca
+toma dos a la vez) y un bloqueo de entrada solo para el nodo que eleva el nivel máximo.
+Cada nodo calcula sus vecinos en todos los niveles, escribe sus listas y recién después
+publica los enlaces inversos, así nadie recorre una lista incompleta.
+`--build-threads` requiere `extend_candidates=false` (el valor por defecto). Las
+búsquedas reutilizan un registro de visitados por hilo con marcas de época, en lugar de
+reservar un mapa de bits por recorrido. Los resultados son idénticos.
+
+## Cuantización SQ8/PQ (optimización, fases 3 y 4)
+
+`--quantization sq8|pq` recorre el grafo HNSW con distancias sobre códigos comprimidos y
+reordena los candidatos finales con la distancia FP32 exacta. Se aplica a `--algorithm hnsw`
+y al canal denso híbrido; el grafo siempre se construye con FP32.
+
+| Opción | Contrato |
+|---|---|
+| `--quantization none\|sq8\|pq` | `none` por defecto. SQ8: 1 byte por dimensión (≈4× menos que FP32), rango por dimensión y consulta FP32 sin cuantizar. PQ: 1 byte por subespacio, k-means con semilla e igual resultado con cualquier número de hilos. |
+| `--rerank N` | Candidatos que se reordenan con FP32 (por defecto, todos los `max(K, efSearch)`); `0` devuelve las distancias aproximadas. Debe ser 0 o ≥ K (≥ `candidate_k` en híbrido). |
+| `--drop-fp32` | Libera las filas FP32 después de construir el grafo y los códigos: la memoria de vectores queda en la de los códigos. Implica `--rerank 0`; la búsqueda exacta, la inserción y el reordenamiento se rechazan desde entonces. |
+| `--pq-subspaces M` | Subespacios de PQ; deben dividir la dimensión (por defecto, dimensión/4 → 16×). |
+
+La salida agrega `Quantization` (memoria de códigos y FP32), `Re-rank` y
+`Quantization time (ms)`. PQ suele necesitar un `--ef-search` mayor para que el
+reordenamiento recupere el Recall: en la prueba de integración, m=16 llega a Recall@10 = 1.0
+con ef=128 y a 0.90 con ef=64.
+
+## Estrategias BM25 a escala (optimización, fase 5)
+
+`--bm25-strategy maxscore|bmw|wand|taat|exhaustive` (modo léxico o híbrido; `maxscore` por
+defecto desde el 30 de octubre de 2026, antes `exhaustive`). Todas
+devuelven los mismos documentos con scores idénticos bit a bit; `unit.bm25_strategies`
+compara 18,960 consultas/estrategias contra la ruta exhaustiva, incluyendo empates masivos y
+consultas de hasta 150 términos.
+
+- `exhaustive`: la implementación original sobre postings sin comprimir; es la única que
+  conserva `InvertedIndex::find`. La salida lo indica con `BM25 strategy: exhaustive`.
+- `taat`, `wand`, `bmw`, `maxscore`: ordinales densos por DocumentId, normalización por longitud
+  precalculada y postings comprimidos en bloques de 128, empaquetados por bits con un ancho
+  fijo por bloque (deltas de ordinal y `tf - 1`; 0 bits si todos los `tf` valen 1), con la
+  cota máxima de cada bloque redondeada hacia arriba. Todos los bloques y bytes viven en dos
+  arreglos compartidos y cada término ocupa 12 bytes. Liberan los postings crudos
+  (`InvertedIndex::find` deja de estar disponible).
+- `wand`/`bmw` omiten documentos o bloques cuya cota (inflada en 1e-9 para que el redondeo
+  nunca pode un resultado válido) no alcanza el K-ésimo score; un empate con el umbral
+  siempre se evalúa, así que el desempate por DocumentId no cambia.
+- `maxscore` recorre la colección en ventanas de 4,096 ordinales, como el
+  `MaxScoreBulkScorer` de Lucene. En cada ventana, la cota de cada término es la mayor cota de
+  bloque que la solapa; los términos cuya suma de cotas no alcanza el umbral son no
+  esenciales. Los esenciales se acumulan término a término y los no esenciales solo se
+  consultan mientras el documento aún puede entrar en el Top-K. No reordena cursores en cada
+  paso. Es la estrategia por defecto y la más rápida en todas las colecciones medidas: en ArguAna (93 términos
+  por consulta) responde en 0.32 ms frente a 7.9 ms de `bmw`; en FiQA, TREC-COVID y Quora
+  responde antes que Lucene ([informe](reports/MARKET_COMPARISON.md)).
+
+## Analizador inglés `english-v1` (comparación con el mercado)
+
+`--analyzer ascii-tech-v1|english-v1` (modo léxico o híbrido) elige el análisis de texto,
+que se aplica igual a documentos y consultas. `ascii-tech-v1` sigue siendo el valor por
+defecto y su salida no cambia (la línea `BM25 analyzer` solo aparece con `english-v1`).
+
+`english-v1` reproduce el `EnglishAnalyzer` de Lucene para texto latino:
+
+- separa en guiones y en signos y símbolos Unicode (`±`, `×`, `≥`, superíndices); `_` une;
+  `.`, `:`, `·` y apóstrofos unen dos letras; `.`, `,`, `;` y apóstrofos unen dos dígitos;
+- quita el posesivo `'s`, pasa a minúsculas letras latinas, griegas y cirílicas;
+- elimina las 33 *stopwords* inglesas de Lucene y aplica el *stemmer* Porter clásico
+  (con las variantes `bli`/`logi` de Martin Porter, igual que Lucene).
+
+En el corpus de SciFact (BEIR, 838,128 tokens), el 99.993 % de los tokens coincide con los
+que indexa Anserini/Lucene; las diferencias restantes son símbolos como `®`, `©` y `™`, que
+Lucene emite como tokens. Resultados y protocolo de la comparación:
+[informe de comparación con el mercado](reports/MARKET_COMPARISON.md).
+
+`--bm25-query-weighting frequency|unique` decide cuánto cuenta un término repetido en la
+consulta analizada. Con `frequency` (por defecto desde el 30 de octubre de 2026) su
+contribución se multiplica por las veces que aparece, como en las consultas *bag of words* de
+Lucene/Anserini. Con `unique` (el comportamiento anterior) cada término distinto cuenta una
+vez y la salida añade `BM25 query weighting: unique`. Las consultas sin términos repetidos
+dan exactamente los mismos resultados con ambas, y todas las estrategias devuelven los mismos
+resultados con scores idénticos. Importa en consultas largas: en ArguAna (mediana de 174
+palabras por consulta) es lo que separa a BM25 del resultado de Lucene.
+
+## Fusión híbrida
+
+Desde el 30 de octubre de 2026 el modo híbrido usa por defecto la fusión convexa con
+`alpha = 0.65`; antes usaba RRF clásico.
+
+- **Convexa** (por defecto, `--fusion convex`, `--alpha A`): `A · denso + (1 - A) · BM25`,
+  donde cada lista se normaliza min-max sobre sus propios candidatos (la similitud densa es
+  `1 - distancia`). Un documento ausente de una lista aporta 0 en ella; una lista cuyos
+  scores son todos iguales se normaliza a 1. La salida muestra
+  `Fusion: convex (alpha=A, min-max normalized scores)` y la columna `Fused Score`.
+- **RRF** (`--fusion rrf`, o `--rrf-k` / `--rrf-weight` solos): `1/(k_rrf + rango)` por
+  cada lista, la salida anterior byte a byte. `--rrf-weight W` da RRF ponderado,
+  `W/(k_rrf + rango denso) + (1 - W)/(k_rrf + rango léxico)`, y la salida muestra
+  `Fusion: weighted RRF (k_rrf=…, dense weight=W, lexical weight=1-dense)`.
+
+`--alpha` no se combina con `--rrf-k`, `--rrf-weight` ni `--fusion rrf`, y `--fusion convex`
+no se combina con las opciones de RRF. El valor 0.65 se eligió solo con las particiones dev de
+BEIR, nunca con las de prueba; con él la fusión convexa supera a RRF clásico en FiQA, ArguAna
+y Quora y no pierde en ningún dataset: ver el
+[informe de comparación con el mercado](reports/MARKET_COMPARISON.md). En la biblioteca,
+`SearchRequest` usa `hybrid::kDefaultSearchFusion`; `RrfConfig{}` sigue siendo RRF clásico,
+porque `RrfFusion::fuse` (rankings sin scores) solo admite RRF.
+
+## Filtros por metadatos (optimización, fase 6)
+
+Los documentos JSONL pueden incluir `"metadata": {"campo": valor}` con valores string,
+número o booleano (se comparan como texto). Los filtros se combinan con AND:
+
+```sh
+./build-cli/aetherindex search --mode hybrid --dataset datasets/hybrid/corpus.jsonl \
+    --query datasets/hybrid/queries.jsonl --query-id Q003 --filter "topic=hnsw|rrf"
+```
+
+| Opción | Contrato |
+|---|---|
+| `--filter campo=v1\|v2` | El campo debe valer v1 o v2. Repetible. |
+| `--filter-date campo=AAAA-MM-DD..AAAA-MM-DD` | Fecha gregoriana válida dentro del rango (cualquiera de los extremos puede omitirse). |
+
+- Canal denso: si coinciden menos de 2,000 documentos o menos del 5% del corpus, se hace una
+  búsqueda **exacta** solo sobre los vectores que coinciden. Si no, se recorre HNSW de forma
+  filtrada: se visitan todos los nodos, pero solo los que coinciden entran en el resultado, y
+  la búsqueda continúa hasta reunir suficientes coincidencias. Con `--drop-fp32` siempre se
+  usa el recorrido filtrado.
+- Canal léxico: BM25 omite los documentos que no coinciden, en todas las estrategias.
+- Híbrido: el mismo filtro se aplica a ambos canales antes de RRF.
+- La salida agrega `Filter` (coincidencias de N) y, con canal denso, la estrategia usada. Un
+  campo que no existe en ningún documento devuelve código 3; una sintaxis inválida o un
+  dataset CSV/.avec devuelven código 2. Si nada coincide, la búsqueda termina bien, con cero
+  resultados.
 
 ## Resultados y errores
 
@@ -121,7 +318,7 @@ ancho según el contenido, incluso para el ID máximo y distancias muy grandes.
 +------+-----------+-------------+
 |    1 |        10 | 0.000000000 |
 +------+-----------+-------------+
-|    2 |        40 | 0.200000003 |
+|    2 |        40 | 0.199999988 |
 +------+-----------+-------------+
 ```
 
@@ -165,7 +362,7 @@ carga y búsqueda usando el servicio; `e2e.cli_search` comprueba el ejecutable,
 streams, códigos y errores; `e2e.cli_mvp` ejecuta diez procesos de búsqueda Top-10
 sobre 1,000 embeddings de dimensión 128, con IDs no consecutivos y semilla 42.
 
-La suite normal registra **16 tests**. Los cinco tests HNSW del núcleo cubren
+La suite normal registra **56 tests**. Los cinco tests HNSW del núcleo cubren
 nodos/niveles, inserción, búsqueda, invariantes y Recall@10 con 100 consultas
 independientes por métrica. `e2e.cli_hnsw` ejecuta el algoritmo por la CLI sobre
 1,000 × 128 con ambas métricas, parámetros y semilla reproducible. Sus consultas
@@ -242,3 +439,13 @@ La sobrecarga de `QueryEngine` recibe un `const HnswIndex&` ya construido.
 `SearchService` coordina el store, el grafo y los tiempos; la CLI solo conoce
 solicitudes, configuración y resultados públicos. Consultar
 [la auditoría y validación de HNSW](architecture/hnsw_validation.md).
+
+## Actualización de kernels y selección HNSW
+
+Cosine normaliza al insertar y prepara la consulta una sola vez. Los kernels
+acumulan en FP32/FMA. HNSW usa FlatGraph y `heuristic` (Algoritmo 4) por defecto;
+`--neighbor-selection simple` permite comparar con Algoritmo 3, solo con
+`--algorithm hnsw`. La distancia matemática 0.2 se presenta `0.199999988` en
+este ejemplo: es el redondeo de FP32, conservando nueve decimales en la tabla.
+El tiempo de consulta incluye preparación y búsqueda; no incluye carga CSV ni
+construcción. Ver [la validación de optimizaciones](benchmarks/OPTIMIZATION_VALIDATION.md).

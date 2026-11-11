@@ -1,0 +1,27 @@
+{
+  "system": "opensearch-dense",
+  "dataset": "trec-covid",
+  "documents": 171332,
+  "queries": 50,
+  "ingest_and_index_seconds": 107.07043175003491,
+  "container_memory_mib": 4773.888,
+  "image": "sha256:3b55f6b6249cfdb92b52ee59adc8a266203ba9ef9f5d82544fad6f1af2f3609e",
+  "k1": 0.9,
+  "b": 0.4,
+  "hnsw": {
+    "M": 16,
+    "ef_construction": 200,
+    "ef": 128
+  },
+  "qdrant_indexed_vectors": null,
+  "latency_queries": 50,
+  "repetitions": 5,
+  "lat_p50_ms": 1.3086250983178616,
+  "lat_p95_ms": 2.390375128015876,
+  "lat_p99_ms": 2.6967921294271946,
+  "lat_mean_ms": 1.5841525793075562,
+  "threads": 10,
+  "qps_batch": 2710.443288139708,
+  "qps_batch_q1": 2619.446796678821,
+  "qps_batch_q3": 2901.6345400018263
+}

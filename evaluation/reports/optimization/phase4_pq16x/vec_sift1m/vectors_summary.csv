@@ -1,0 +1,2 @@
+rep,vectors,dimension,build_threads,build_ms,graph_bytes,vector_bytes,rss_mib,recall_at_k,mean_ms,p50_ms,p95_ms,p99_ms,max_ms,qps,query_threads,batch_qps,quantization,code_bytes,code_build_ms,rerank,fp32_released,filter_percent,filter_matches,exact_filter_p50_ms
+1,1000000,128,10,34182.2285,142444984,512000000,801.720078,0.9854,0.261308296,0.267125,0.332167,0.3665,0.414917,3826.89725,1,4326.85886,pq,32131072,1397.41863,all,0,0,0,0

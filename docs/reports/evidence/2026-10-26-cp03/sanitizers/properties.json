@@ -1,0 +1,9 @@
+{
+"case_id":"properties",
+"passed":true,
+"error":"",
+"absolute_tolerance":1e-12,
+"property_trials":200,
+"repetitions":0,
+"checks":[{"dense":[4294967295,0,427],"lexical":[0,4294967295,91],"k_rrf":60,"top_k":10,"expected_error":null,"actual_error":null,"expected":[{"document_id":0,"score":0.03252247488101534},{"document_id":4294967295,"score":0.03252247488101534},{"document_id":91,"score":0.015873015873015872},{"document_id":427,"score":0.015873015873015872}],"actual":[{"document_id":0,"score":0.03252247488101534},{"document_id":4294967295,"score":0.03252247488101534},{"document_id":91,"score":0.015873015873015872},{"document_id":427,"score":0.015873015873015872}]},{"dense":[0],"lexical":[0],"k_rrf":0.25,"top_k":10,"expected_error":null,"actual_error":null,"expected":[{"document_id":0,"score":1.6000000000000001}],"actual":[{"document_id":0,"score":1.6000000000000001}]},{"dense":[0],"lexical":[0],"k_rrf":2.2250738585072014e-308,"top_k":10,"expected_error":null,"actual_error":null,"expected":[{"document_id":0,"score":2}],"actual":[{"document_id":0,"score":2}]},{"dense":[0],"lexical":[0],"k_rrf":4.9406564584124654e-324,"top_k":10,"expected_error":null,"actual_error":null,"expected":[{"document_id":0,"score":2}],"actual":[{"document_id":0,"score":2}]},{"dense":[0],"lexical":[0],"k_rrf":1.7976931348623157e+308,"top_k":10,"expected_error":null,"actual_error":null,"expected":[{"document_id":0,"score":1.1125369292536007e-308}],"actual":[{"document_id":0,"score":1.1125369292536007e-308}]}]
+}

@@ -1,0 +1,12 @@
+{
+  "system": "aetherindex-bm25",
+  "data": "<repo>/datasets/market/beir/quora",
+  "documents": 522931,
+  "queries": 10000,
+  "build_type": "Release (NDEBUG)",
+  "bm25": {"k1": 0.9, "b": 0.4, "analyzer": "english-v1", "strategy": "bmw", "query_weighting": "frequency", "build_seconds_single_thread": 0.992384333, "postings_raw_bytes": 35230472, "postings_compressed_bytes": 18936011},
+  "memory_mib": 287.719185,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50
+}

@@ -1,0 +1,23 @@
+{
+  "system": "aetherindex-bm25",
+  "data": "<repo>/datasets/market/beir/nfcorpus",
+  "documents": 3633,
+  "queries": 323,
+  "build_type": "Release (NDEBUG)",
+  "bm25": {"k1": 1.2, "b": 0.75, "analyzer": "english-v1", "strategy": "bmw", "query_weighting": "frequency", "build_seconds_single_thread": 0.107281333, "postings_raw_bytes": 3656040, "postings_compressed_bytes": 1191553},
+  "memory_mib": 24.7813187,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50,
+  "latency_queries": 323,
+  "repetitions": 5,
+  "lat_p50_ms": 0.004416,
+  "lat_p95_ms": 0.028292,
+  "lat_p99_ms": 0.048542,
+  "lat_mean_ms": 0.00804899381,
+  "qps_single": 124239.131,
+  "threads": 10,
+  "qps_batch": 714142.001,
+  "qps_batch_q1": 702047.239,
+  "qps_batch_q3": 717379.234
+}

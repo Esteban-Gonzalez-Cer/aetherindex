@@ -1,0 +1,12 @@
+{
+  "system": "aetherindex-bm25",
+  "data": "<repo>/datasets/market/beir/nfcorpus",
+  "documents": 3633,
+  "queries": 323,
+  "build_type": "Release (NDEBUG)",
+  "bm25": {"k1": 0.9, "b": 0.4, "analyzer": "english-v1", "strategy": "bmw", "build_seconds_single_thread": 0.111780125, "postings_raw_bytes": 3656040, "postings_compressed_bytes": 2423723},
+  "memory_mib": 25.3594208,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50
+}

@@ -13,7 +13,7 @@ endfunction()
 
 function(check_search_output output expected_count)
     if(NOT output MATCHES "Query time \\(ms\\): [0-9]+\\.[0-9][0-9][0-9][0-9][0-9][0-9]\n" OR
-       NOT output MATCHES "Query time scope: search only \\(excludes CSV loading\\)")
+       NOT output MATCHES "Query time scope: search only \\(excludes input loading\\)")
         message(FATAL_ERROR "Missing finite nonnegative query time and its scope: ${output}")
     endif()
     string(REPLACE "\n" ";" lines "${output}")

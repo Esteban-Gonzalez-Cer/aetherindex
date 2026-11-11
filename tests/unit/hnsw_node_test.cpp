@@ -2,6 +2,7 @@
 #include <exception>
 #include <iostream>
 #include <limits>
+#include <type_traits>
 #include <vector>
 
 #include "../hnsw_test_helpers.hpp"
@@ -9,13 +10,11 @@
 using namespace aetherindex;
 
 void check_configuration_and_empty_graph() {
-    const HnswNode node{std::numeric_limits<VectorId>::max(), 3};
-    require(node.id == std::numeric_limits<VectorId>::max() && node.max_level == 3 &&
-                node.neighbors.size() == 4,
-            "A node must retain its ID and every layer through its maximum level.");
-    for (const auto& neighbors : node.neighbors) {
-        require(neighbors.empty(), "A new node must not invent initial edges.");
-    }
+    static_assert(std::is_trivially_copyable_v<HnswNode>);
+    const HnswNode node{std::numeric_limits<VectorId>::max(), 0, 3};
+    require(node.id == std::numeric_limits<VectorId>::max() && node.internal_id == 0 &&
+                node.max_level == 3,
+            "Node diagnostics must contain only scalar ID/position/level values.");
     const HnswConfig defaults;
     require(defaults.m == 16 && defaults.m_max_0 == 32 && defaults.ef_construction == 100 &&
                 defaults.ef_search == 50 && defaults.random_seed == 42 && defaults.max_level == 32,
@@ -81,9 +80,10 @@ void check_reproducible_levels_and_topology() {
     hnsw_test::check_graph(second, store, store.ids());
     std::array<std::size_t, 33> levels{};
     for (VectorId id : store.ids()) {
-        const auto* lhs = first.find_node(id);
-        const auto* rhs = second.find_node(id);
-        require(lhs->max_level == rhs->max_level && lhs->neighbors == rhs->neighbors,
+        const auto lhs = first.find_node(id);
+        const auto rhs = second.find_node(id);
+        require(lhs->max_level == rhs->max_level &&
+                    hnsw_test::topology(first, id) == hnsw_test::topology(second, id),
                 "Same seed and insertion order must reproduce levels and topology.");
         ++levels[lhs->max_level];
     }

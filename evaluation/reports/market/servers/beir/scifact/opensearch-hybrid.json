@@ -1,0 +1,27 @@
+{
+  "system": "opensearch-hybrid",
+  "dataset": "scifact",
+  "documents": 5183,
+  "queries": 300,
+  "ingest_and_index_seconds": 2.682796875014901,
+  "container_memory_mib": 3700.736,
+  "image": "sha256:3b55f6b6249cfdb92b52ee59adc8a266203ba9ef9f5d82544fad6f1af2f3609e",
+  "k1": 0.9,
+  "b": 0.4,
+  "hnsw": {
+    "M": 16,
+    "ef_construction": 200,
+    "ef": 128
+  },
+  "qdrant_indexed_vectors": null,
+  "latency_queries": 300,
+  "repetitions": 5,
+  "lat_p50_ms": 3.7167088594287634,
+  "lat_p95_ms": 4.551707999780774,
+  "lat_p99_ms": 5.071583203971386,
+  "lat_mean_ms": 3.7941495926740267,
+  "threads": 10,
+  "qps_batch": 1568.381774720177,
+  "qps_batch_q1": 1561.2477507062033,
+  "qps_batch_q3": 1661.1165426375778
+}

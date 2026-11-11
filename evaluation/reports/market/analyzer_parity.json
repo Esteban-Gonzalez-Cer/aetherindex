@@ -1,0 +1,104 @@
+{
+  "documents": 5183,
+  "exact_documents": 5149,
+  "reference_tokens": 838128,
+  "candidate_tokens": 838085,
+  "shared_tokens": 838072,
+  "agreement": 0.9999331844300632,
+  "top_reference_only": [
+    [
+      "\u00ae",
+      27
+    ],
+    [
+      "\u00a9",
+      11
+    ],
+    [
+      "\u2194",
+      2
+    ],
+    [
+      "\u2122",
+      2
+    ],
+    [
+      "s",
+      2
+    ],
+    [
+      "acam2000",
+      1
+    ],
+    [
+      "met",
+      1
+    ],
+    [
+      "io",
+      1
+    ],
+    [
+      "i.citi",
+      1
+    ],
+    [
+      "b",
+      1
+    ],
+    [
+      "shrink\u00ad",
+      1
+    ],
+    [
+      "liveli\u00ad",
+      1
+    ]
+  ],
+  "top_candidate_only": [
+    [
+      "\ufffd",
+      3
+    ],
+    [
+      "acam2000\u2122",
+      1
+    ],
+    [
+      "met\ufffdio",
+      1
+    ],
+    [
+      "to\ufffdi.c",
+      1
+    ],
+    [
+      "\ufffdb",
+      1
+    ],
+    [
+      "live",
+      1
+    ],
+    [
+      "shrink",
+      1
+    ],
+    [
+      "po",
+      1
+    ],
+    [
+      "conseque\ufffdc",
+      1
+    ],
+    [
+      "o\ufffd",
+      1
+    ],
+    [
+      "adams\u2122",
+      1
+    ]
+  ]
+}

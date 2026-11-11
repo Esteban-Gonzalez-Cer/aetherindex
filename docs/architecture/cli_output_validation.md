@@ -1,5 +1,10 @@
 # Validación: tabla, tiempos y datos reales
 
+> Evidencia histórica del baseline previo a las optimizaciones del 19-10-2026.
+> Describe el código y las mediciones de esa versión; las cifras y salidas
+> guardadas no se recalcularon. Para el contrato y resultados actuales, consultar
+> [la validación de optimizaciones](../benchmarks/OPTIMIZATION_VALIDATION.md).
+
 Fecha local: **2026-10-12**, America/Mexico_City, macOS ARM64.
 
 Este informe registra la entrega de formato y datos reales anterior a la

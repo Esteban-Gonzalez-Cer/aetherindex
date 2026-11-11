@@ -1,0 +1,27 @@
+{
+  "system": "opensearch-dense",
+  "dataset": "nfcorpus",
+  "documents": 3633,
+  "queries": 323,
+  "ingest_and_index_seconds": 1.6282259998843074,
+  "container_memory_mib": 3856.384,
+  "image": "sha256:3b55f6b6249cfdb92b52ee59adc8a266203ba9ef9f5d82544fad6f1af2f3609e",
+  "k1": 0.9,
+  "b": 0.4,
+  "hnsw": {
+    "M": 16,
+    "ef_construction": 200,
+    "ef": 128
+  },
+  "qdrant_indexed_vectors": null,
+  "latency_queries": 323,
+  "repetitions": 5,
+  "lat_p50_ms": 1.3128342106938362,
+  "lat_p95_ms": 1.9031250849366188,
+  "lat_p99_ms": 2.7529161889106035,
+  "lat_mean_ms": 1.3918775759475888,
+  "threads": 10,
+  "qps_batch": 3293.397906285247,
+  "qps_batch_q1": 3290.9777036742335,
+  "qps_batch_q3": 3303.1397744934707
+}

@@ -1,0 +1,17 @@
+Working directory: <repo>
+Command: cmake -S . -B build-testing-hybrid-2026-10-30 -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_OSX_SYSROOT=macosx -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTING=ON -DAETHER_BUILD_BENCHMARKS=OFF -DAETHER_BUILD_MARKET_BENCH=OFF
+Actual exit: 0
+
+--- stdout ---
+-- The CXX compiler identification is AppleClang 17.0.0.17000603
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done (0.6s)
+-- Generating done (0.0s)
+-- Build files have been written to: <repo>/build-testing-hybrid-2026-10-30
+
+--- stderr ---
+(empty)

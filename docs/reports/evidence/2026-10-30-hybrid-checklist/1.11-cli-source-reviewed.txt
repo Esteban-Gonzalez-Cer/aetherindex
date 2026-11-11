@@ -1,0 +1,898 @@
+
+FILE: apps/cli/cli_parser.cpp
+1: #include "cli_parser.hpp"
+2: 
+3: #include <charconv>
+4: #include <cmath>
+5: #include <cstdint>
+6: #include <stdexcept>
+7: #include <string>
+8: #include <system_error>
+9: 
+10: namespace aetherindex::cli {
+11: namespace {
+12: 
+13: template <typename Integer>
+14: Integer parse_unsigned(std::string_view text, std::string_view option, bool allow_zero = false) {
+15:     Integer value = 0;
+16:     const auto [end, error] = std::from_chars(text.data(), text.data() + text.size(), value);
+17:     if (error != std::errc{} || end != text.data() + text.size() || (!allow_zero && value == 0)) {
+18:         throw std::invalid_argument("Invalid value for " + std::string(option) +
+19:                                     ": expected a representable " +
+20:                                     (allow_zero ? "unsigned" : "positive") + " integer.");
+21:     }
+22:     return value;
+23: }
+24: 
+25: double parse_real(std::string_view text, std::string_view option) {
+26:     double value = 0;
+27:     const auto [end, error] = std::from_chars(text.data(), text.data() + text.size(), value);
+28:     if (error != std::errc{} || end != text.data() + text.size() || !std::isfinite(value))
+29:         throw std::invalid_argument("Invalid value for " + std::string(option) +
+30:                                     ": expected a finite number.");
+31:     return value;
+32: }
+33: 
+34: CliOptions parse_convert(std::span<const std::string_view> arguments) {
+35:     CliOptions options;
+36:     options.convert = true;
+37:     bool have_dataset = false, have_out = false, have_documents = false;
+38:     for (std::size_t i = 1; i < arguments.size(); ++i) {
+39:         const auto name = arguments[i];
+40:         if (name == "--help") {
+41:             if (options.show_help) throw std::invalid_argument("Repeated option: --help.");
+42:             options.show_help = true;
+43:             continue;
+44:         }
+45:         bool* seen = name == "--dataset"         ? &have_dataset
+46:                      : name == "--out"           ? &have_out
+47:                      : name == "--documents-out" ? &have_documents
+48:                                                  : nullptr;
+49:         if (!seen) throw std::invalid_argument("Unknown option: " + std::string(name) + ".");
+50:         if (*seen) throw std::invalid_argument("Repeated option: " + std::string(name) + ".");
+51:         *seen = true;
+52:         if (i + 1 == arguments.size() || arguments[i + 1].empty() ||
+53:             arguments[i + 1].starts_with("--"))
+54:             throw std::invalid_argument("Missing value for " + std::string(name) + ".");
+55:         const std::string value(arguments[++i]);
+56:         if (name == "--dataset")
+57:             options.conversion.dataset_path = value;
+58:         else if (name == "--out")
+59:             options.conversion.output_path = value;
+60:         else
+61:             options.conversion.documents_output = value;
+62:     }
+63:     if (!options.show_help && (!have_dataset || !have_out))
+64:         throw std::invalid_argument("convert requires --dataset FILE and --out FILE.avec.");
+65:     if (!options.show_help) validate_convert_request(options.conversion);
+66:     return options;
+67: }
+68: 
+69: }  // namespace
+70: 
+71: CliOptions parse_arguments(std::span<const std::string_view> arguments) {
+72:     CliOptions options;
+73:     if (arguments.empty() || (arguments.size() == 1 && arguments[0] == "--help")) {
+74:         options.show_help = true;
+75:         return options;
+76:     }
+77:     if (arguments[0] == "convert") return parse_convert(arguments);
+78:     if (arguments[0] != "search") {
+79:         throw std::invalid_argument("Unknown command: " + std::string(arguments[0]) + ".");
+80:     }
+81:     bool have_dataset = false;
+82:     bool have_query = false;
+83:     bool have_algorithm = false;
+84:     bool have_k = false;
+85:     bool have_metric = false;
+86:     bool have_m = false;
+87:     bool have_m0 = false;
+88:     bool have_ef_construction = false;
+89:     bool have_ef_search = false;
+90:     bool have_seed = false;
+91:     bool have_selection = false;
+92:     bool have_mode = false;
+93:     bool have_query_text = false;
+94:     bool have_query_id = false;
+95:     bool have_k1 = false;
+96:     bool have_b = false;
+97:     bool have_candidate_k = false;
+98:     bool have_rrf_k = false;
+99:     bool have_rrf_weight = false;
+100:     bool have_alpha = false;
+101:     bool have_vectors = false;
+102:     bool have_build_threads = false;
+103:     bool have_query_threads = false;
+104:     bool have_quantization = false;
+105:     bool have_rerank = false;
+106:     bool have_pq_subspaces = false;
+107:     bool have_bm25_strategy = false;
+108:     bool have_analyzer = false;
+109:     bool have_query_weighting = false;
+110:     bool bm25_selected = false;
+111:     for (std::size_t i = 1; i < arguments.size(); ++i) {
+112:         const auto name = arguments[i];
+113:         if (name == "--help") {
+114:             if (options.show_help) {
+115:                 throw std::invalid_argument("Repeated option: --help.");
+116:             }
+117:             options.show_help = true;
+118:             continue;
+119:         }
+120:         // Valueless switches.
+121:         if (name == "--all-queries" || name == "--parallel-retrievers" || name == "--drop-fp32") {
+122:             bool& flag = name == "--all-queries"           ? options.search.all_queries
+123:                          : name == "--parallel-retrievers" ? options.search.parallel_retrievers
+124:                                                            : options.search.drop_fp32;
+125:             if (flag) throw std::invalid_argument("Repeated option: " + std::string(name) + ".");
+126:             flag = true;
+127:             continue;
+128:         }
+129:         // Repeatable filters (combined with AND).
+130:         if (name == "--filter" || name == "--filter-date") {
+131:             if (i + 1 == arguments.size() || arguments[i + 1].starts_with("--"))
+132:                 throw std::invalid_argument("Missing value for " + std::string(name) + ".");
+133:             const auto value = arguments[++i];
+134:             options.search.filters.push_back(name == "--filter" ? parse_equality_filter(value)
+135:                                                                 : parse_date_filter(value));
+136:             continue;
+137:         }
+138:         bool* seen = nullptr;
+139:         if (name == "--dataset") {
+140:             seen = &have_dataset;
+141:         } else if (name == "--query") {
+142:             seen = &have_query;
+143:         } else if (name == "--mode") {
+144:             seen = &have_mode;
+145:         } else if (name == "--query-text") {
+146:             seen = &have_query_text;
+147:         } else if (name == "--query-id") {
+148:             seen = &have_query_id;
+149:         } else if (name == "--bm25-k1") {
+150:             seen = &have_k1;
+151:         } else if (name == "--bm25-b") {
+152:             seen = &have_b;
+153:         } else if (name == "--candidate-k") {
+154:             seen = &have_candidate_k;
+155:         } else if (name == "--rrf-k") {
+156:             seen = &have_rrf_k;
+157:         } else if (name == "--rrf-weight") {
+158:             seen = &have_rrf_weight;
+159:         } else if (name == "--alpha") {
+160:             seen = &have_alpha;
+161:         } else if (name == "--vectors") {
+162:             seen = &have_vectors;
+163:         } else if (name == "--build-threads") {
+164:             seen = &have_build_threads;
+165:         } else if (name == "--query-threads") {
+166:             seen = &have_query_threads;
+167:         } else if (name == "--quantization") {
+168:             seen = &have_quantization;
+169:         } else if (name == "--rerank") {
+170:             seen = &have_rerank;
+171:         } else if (name == "--pq-subspaces") {
+172:             seen = &have_pq_subspaces;
+173:         } else if (name == "--bm25-strategy") {
+174:             seen = &have_bm25_strategy;
+175:         } else if (name == "--analyzer") {
+176:             seen = &have_analyzer;
+177:         } else if (name == "--bm25-query-weighting") {
+178:             seen = &have_query_weighting;
+179:         } else if (name == "--algorithm") {
+180:             seen = &have_algorithm;
+181:         } else if (name == "--k") {
+182:             seen = &have_k;
+183:         } else if (name == "--metric") {
+184:             seen = &have_metric;
+185:         } else if (name == "--m") {
+186:             seen = &have_m;
+187:         } else if (name == "--m0") {
+188:             seen = &have_m0;
+189:         } else if (name == "--ef-construction") {
+190:             seen = &have_ef_construction;
+191:         } else if (name == "--ef-search") {
+192:             seen = &have_ef_search;
+193:         } else if (name == "--seed") {
+194:             seen = &have_seed;
+195:         } else if (name == "--neighbor-selection") {
+196:             seen = &have_selection;
+197:         } else {
+198:             throw std::invalid_argument("Unknown option: " + std::string(name) + ".");
+199:         }
+200:         if (*seen) {
+201:             throw std::invalid_argument("Repeated option: " + std::string(name) + ".");
+202:         }
+203:         *seen = true;
+204:         if (i + 1 == arguments.size() || (arguments[i + 1].empty() && name != "--query-text") ||
+205:             arguments[i + 1].starts_with("--")) {
+206:             throw std::invalid_argument("Missing value for " + std::string(name) + ".");
+207:         }
+208:         const auto value = arguments[++i];
+209:         if (name == "--dataset") {
+210:             options.search.dataset_path = std::string(value);
+211:         } else if (name == "--query") {
+212:             options.search.query_path = std::string(value);
+213:         } else if (name == "--query-text") {
+214:             options.search.query_text = std::string(value);
+215:         } else if (name == "--query-id") {
+216:             options.search.query_id = std::string(value);
+217:         } else if (name == "--mode") {
+218:             if (value == "vector")
+219:                 options.search.mode = SearchMode::Vector;
+220:             else if (value == "lexical")
+221:                 options.search.mode = SearchMode::Lexical;
+222:             else if (value == "hybrid")
+223:                 options.search.mode = SearchMode::Hybrid;
+224:             else
+225:                 throw std::invalid_argument("Invalid --mode: use vector, lexical or hybrid.");
+226:         } else if (name == "--bm25-k1") {
+227:             options.search.bm25_config.k1 = parse_real(value, name);
+228:         } else if (name == "--bm25-b") {
+229:             options.search.bm25_config.b = parse_real(value, name);
+230:         } else if (name == "--rrf-k") {
+231:             options.search.rrf_config.k_rrf = parse_real(value, name);
+232:         } else if (name == "--rrf-weight") {
+233:             options.search.rrf_config.dense_weight = parse_real(value, name);
+234:         } else if (name == "--alpha") {
+235:             options.search.rrf_config.method = hybrid::FusionMethod::Convex;
+236:             options.search.rrf_config.alpha = parse_real(value, name);
+237:         } else if (name == "--vectors") {
+238:             options.search.vectors_path = std::string(value);
+239:         } else if (name == "--build-threads") {
+240:             options.search.build_threads = parse_unsigned<std::size_t>(value, name);
+241:         } else if (name == "--query-threads") {
+242:             options.search.query_threads = parse_unsigned<std::size_t>(value, name);
+243:         } else if (name == "--quantization") {
+244:             if (value == "none")
+245:                 options.search.quantization = Quantization::None;
+246:             else if (value == "sq8")
+247:                 options.search.quantization = Quantization::Sq8;
+248:             else if (value == "pq")
+249:                 options.search.quantization = Quantization::Pq;
+250:             else
+251:                 throw std::invalid_argument("Invalid --quantization: use none, sq8 or pq.");
+252:         } else if (name == "--rerank") {
+253:             options.search.rerank = parse_unsigned<std::size_t>(value, name, true);
+254:         } else if (name == "--pq-subspaces") {
+255:             options.search.pq_subspaces = parse_unsigned<std::size_t>(value, name);
+256:         } else if (name == "--bm25-strategy") {
+257:             auto& strategy = options.search.bm25_config.strategy;
+258:             if (value == "exhaustive")
+259:                 strategy = lexical::Bm25Strategy::Exhaustive;
+260:             else if (value == "taat")
+261:                 strategy = lexical::Bm25Strategy::TermAtATime;
+262:             else if (value == "wand")
+263:                 strategy = lexical::Bm25Strategy::Wand;
+264:             else if (value == "bmw")
+265:                 strategy = lexical::Bm25Strategy::BlockMaxWand;
+266:             else if (value == "maxscore")
+267:                 strategy = lexical::Bm25Strategy::MaxScore;
+268:             else
+269:                 throw std::invalid_argument(
+270:                     "Invalid --bm25-strategy: use exhaustive, taat, wand, bmw or maxscore.");
+271:         } else if (name == "--analyzer") {
+272:             if (value == "ascii-tech-v1")
+273:                 options.search.bm25_config.analyzer = lexical::Analyzer::AsciiTechV1;
+274:             else if (value == "english-v1")
+275:                 options.search.bm25_config.analyzer = lexical::Analyzer::EnglishV1;
+276:             else
+277:                 throw std::invalid_argument("Invalid --analyzer: use ascii-tech-v1 or english-v1.");
+278:         } else if (name == "--bm25-query-weighting") {
+279:             if (value == "unique")
+280:                 options.search.bm25_config.query_weighting = lexical::QueryTermWeighting::Unique;
+281:             else if (value == "frequency")
+282:                 options.search.bm25_config.query_weighting = lexical::QueryTermWeighting::Frequency;
+283:             else
+284:                 throw std::invalid_argument(
+285:                     "Invalid --bm25-query-weighting: use unique or frequency.");
+286:         } else if (name == "--candidate-k") {
+287:             options.search.candidate_k = parse_unsigned<std::size_t>(value, name);
+288:         } else if (name == "--algorithm") {
+289:             if (value == "brute-force") {
+290:                 options.search.algorithm = SearchAlgorithm::BruteForce;
+291:             } else if (value == "hnsw") {
+292:                 options.search.algorithm = SearchAlgorithm::Hnsw;
+293:             } else if (value == "bm25") {
+294:                 bm25_selected = true;
+295:             } else {
+296:                 throw std::invalid_argument("Unknown algorithm: " + std::string(value) +
+297:                                             ". Available algorithms: brute-force, hnsw, bm25.");
+298:             }
+299:         } else if (name == "--metric") {
+300:             if (value == "cosine") {
+301:                 options.search.metric = DistanceKind::Cosine;
+302:             } else if (value == "squared-euclidean") {
+303:                 options.search.metric = DistanceKind::SquaredEuclidean;
+304:             } else {
+305:                 throw std::invalid_argument("Invalid --metric: use cosine or squared-euclidean.");
+306:             }
+307:         } else if (name == "--neighbor-selection") {
+308:             if (value == "simple")
+309:                 options.search.hnsw_config.neighbor_selection = NeighborSelection::Simple;
+310:             else if (value == "heuristic")
+311:                 options.search.hnsw_config.neighbor_selection = NeighborSelection::Heuristic;
+312:             else
+313:                 throw std::invalid_argument(
+314:                     "Invalid --neighbor-selection: use simple or heuristic.");
+315:         } else if (name == "--k") {
+316:             options.search.k = parse_unsigned<std::size_t>(value, name);
+317:         } else if (name == "--seed") {
+318:             options.search.hnsw_config.random_seed =
+319:                 parse_unsigned<std::uint64_t>(value, name, true);
+320:         } else {
+321:             const auto parameter = parse_unsigned<std::size_t>(value, name);
+322:             auto& config = options.search.hnsw_config;
+323:             if (name == "--m")
+324:                 config.m = parameter;
+325:             else if (name == "--m0")
+326:                 config.m_max_0 = parameter;
+327:             else if (name == "--ef-construction")
+328:                 config.ef_construction = parameter;
+329:             else if (name == "--ef-search")
+330:                 config.ef_search = parameter;
+331:         }
+332:     }
+333:     if (!options.show_help) {
+334:         if (!have_dataset) {
+335:             throw std::invalid_argument("Missing required option: --dataset.");
+336:         }
+337:         if (!have_query && !have_query_text) {
+338:             throw std::invalid_argument("Missing required option: --query.");
+339:         }
+340:         const auto mode = options.search.mode;
+341:         if (!have_mode && bm25_selected) options.search.mode = SearchMode::Lexical;
+342:         if (options.search.mode == SearchMode::Vector && !have_algorithm) {
+343:             throw std::invalid_argument("Missing required option: --algorithm.");
+344:         }
+345:         if ((options.search.mode == SearchMode::Lexical && have_algorithm && !bm25_selected) ||
+346:             (options.search.mode == SearchMode::Vector && bm25_selected))
+347:             throw std::invalid_argument(
+348:                 "Incompatible --mode and --algorithm: BM25 is lexical; brute-force and hnsw are "
+349:                 "vector algorithms.");
+350:         // Hybrid always fuses HNSW with BM25; --algorithm hnsw is accepted as a restatement.
+351:         if (mode == SearchMode::Hybrid) {
+352:             if (have_algorithm &&
+353:                 (bm25_selected || options.search.algorithm != SearchAlgorithm::Hnsw))
+354:                 throw std::invalid_argument(
+355:                     "Incompatible --mode and --algorithm: hybrid fuses HNSW with BM25.");
+356:             options.search.algorithm = SearchAlgorithm::Hnsw;
+357:         }
+358:         if (options.search.mode == SearchMode::Lexical && have_metric)
+359:             throw std::invalid_argument(
+360:                 "--metric requires vector or hybrid mode; BM25 returns scores, not distances.");
+361:         if (options.search.mode == SearchMode::Vector &&
+362:             (have_k1 || have_b || have_bm25_strategy || have_analyzer || have_query_weighting))
+363:             throw std::invalid_argument(
+364:                 "BM25 options require lexical or hybrid mode (--mode lexical|hybrid or "
+365:                 "--algorithm bm25).");
+366:         if (options.search.mode != SearchMode::Hybrid &&
+367:             (have_candidate_k || have_rrf_k || have_rrf_weight || have_alpha || have_vectors))
+368:             throw std::invalid_argument(
+369:                 "--candidate-k, --rrf-k, --rrf-weight, --alpha and --vectors require --mode "
+370:                 "hybrid.");
+371:         if (have_alpha && (have_rrf_k || have_rrf_weight))
+372:             throw std::invalid_argument(
+373:                 "--alpha selects convex fusion; it cannot be combined with --rrf-k or "
+374:                 "--rrf-weight.");
+375:         const bool hnsw_selected = options.search.mode == SearchMode::Hybrid ||
+376:                                    (options.search.mode == SearchMode::Vector &&
+377:                                     options.search.algorithm == SearchAlgorithm::Hnsw);
+378:         if (!hnsw_selected && (have_m || have_m0 || have_ef_construction || have_ef_search ||
+379:                                have_seed || have_selection || have_build_threads)) {
+380:             throw std::invalid_argument("HNSW options require --algorithm hnsw or --mode hybrid.");
+381:         }
+382:         if (have_query_threads && !options.search.all_queries)
+383:             throw std::invalid_argument("--query-threads requires --all-queries.");
+384:         validate_search_request(options.search);
+385:     }
+386:     return options;
+387: }
+388: 
+389: std::string_view help_text() {
+390:     return "AetherIndex CLI\n\n"
+391:            "Usage:\n"
+392:            "  aetherindex search --dataset FILE --query FILE --algorithm NAME [options]\n"
+393:            "  aetherindex search --mode lexical --dataset FILE --query-text TEXT [options]\n"
+394:            "  aetherindex search --algorithm bm25 --dataset FILE --query FILE --query-id ID "
+395:            "[options]\n"
+396:            "  aetherindex search --mode hybrid --dataset FILE --query FILE --query-id ID "
+397:            "[options]\n"
+398:            "  aetherindex convert --dataset FILE.(csv|jsonl) --out FILE.avec "
+399:            "[--documents-out FILE.jsonl]\n"
+400:            "  aetherindex --help\n\n"
+401:            "Options:\n"
+402:            "  --dataset FILE       Required: vector CSV/JSONL, or document JSONL for BM25\n"
+403:            "  --query FILE         Query CSV (vector) or JSONL (either mode)\n"
+404:            "  --query-text TEXT    BM25 query text instead of a query file; empty text is valid\n"
+405:            "  --query-id ID        Select exactly one query from a JSONL query file\n"
+406:            "  --mode NAME          vector (default) | lexical (BM25) | hybrid (HNSW+BM25+RRF)\n"
+407:            "  --algorithm NAME     brute-force (exact) | hnsw (approximate) | bm25 (lexical)\n"
+408:            "                       Required in vector mode; bm25 implies lexical mode\n"
+409:            "  --k INTEGER          Positive maximum result count (default: 10)\n"
+410:            "  --bm25-k1 NUMBER     BM25 finite positive term saturation (default: 1.2)\n"
+411:            "  --bm25-b NUMBER      BM25 finite length normalization in [0,1] (default: 0.75)\n"
+412:            "  --bm25-strategy NAME exhaustive (default) | taat | wand | bmw (Block-Max WAND) |\n"
+413:            "                       maxscore;\n"
+414:            "                       identical results, compressed postings except exhaustive\n"
+415:            "  --analyzer NAME      ascii-tech-v1 (default) | english-v1 (Lucene-style English:\n"
+416:            "                       stopwords, possessives, Porter stemming)\n"
+417:            "  --bm25-query-weighting NAME\n"
+418:            "                       unique (default) | frequency (a repeated query term counts\n"
+419:            "                       once per occurrence, as in Lucene/Anserini)\n"
+420:            "  --filter F=V[|V2]    Keep documents whose metadata F equals V (or V2); repeatable\n"
+421:            "  --filter-date F=A..B Keep documents whose metadata date F (YYYY-MM-DD) is in [A,B];\n"
+422:            "                       A or B may be empty; all filters must hold (JSONL only)\n"
+423:            "  --candidate-k N      Hybrid: candidates per retriever, >= k (default: max(k,50))\n"
+424:            "  --rrf-k NUMBER       Hybrid: finite positive RRF smoothing constant (default: 60)\n"
+425:            "  --rrf-weight W       Hybrid: weighted RRF; dense weight W in [0,1], lexical 1 - W\n"
+426:            "                       (default: both weights 1, classic RRF)\n"
+427:            "  --alpha A            Hybrid: convex fusion A * dense + (1 - A) * BM25 of min-max\n"
+428:            "                       normalized scores, A in [0,1]; replaces RRF\n"
+429:            "  --vectors FILE.avec  Hybrid: binary embeddings for the JSONL documents\n"
+430:            "  --all-queries        Run every query of a JSONL --query file with one index build\n"
+431:            "  --query-threads N    Threads for --all-queries (default: 1; output keeps file "
+432:            "order)\n"
+433:            "  --build-threads N    HNSW construction threads (default: 1 = reproducible graph;\n"
+434:            "                       more threads are faster but the graph is not reproducible)\n"
+435:            "  --parallel-retrievers  Hybrid: run BM25 concurrently with HNSW in each query\n"
+436:            "  --quantization NAME  HNSW traversal on none (default) | sq8 | pq codes\n"
+437:            "  --rerank N           Exact FP32 re-rank depth for quantized search (default: all\n"
+438:            "                       candidates; 0 = approximate distances only)\n"
+439:            "  --drop-fp32          Free FP32 rows after building (implies --rerank 0)\n"
+440:            "  --pq-subspaces M     PQ subspaces dividing the dimension (default: dimension/4)\n"
+441:            "                       PQ usually needs a larger --ef-search for the re-rank\n"
+442:            "  --metric NAME        Vector/hybrid: cosine (default) | squared-euclidean\n"
+443:            "  --m INTEGER          HNSW upper-layer neighbor limit (default: 16; >= 2)\n"
+444:            "  --m0 INTEGER         HNSW base-layer neighbor limit (default: 32; >= M)\n"
+445:            "  --ef-construction N  HNSW construction search width (default: 100; >= M)\n"
+446:            "  --ef-search N        HNSW query search width (default: 50; > 0)\n"
+447:            "  --seed INTEGER       HNSW unsigned 64-bit seed, including zero (default: 42)\n"
+448:            "  --neighbor-selection NAME  HNSW heuristic (default, Algorithm 4) | simple (Algorithm "
+449:            "3)\n"
+450:            "  --help               Show help (also: search --help)\n\n"
+451:            "CSV: no headers or quotes; finite floats; unique unsigned 32-bit IDs.\n"
+452:            "JSONL: one UTF-8 object per line. Documents: document_id, text, optional title.\n"
+453:            "Queries: query_id, query_text. Legacy id/query/vector fields are accepted.\n"
+454:            "Multiple queries require --query-id; relevance labels never affect ranking.\n"
+455:            "BM25 indexes title + text, requires no embeddings and sorts by decreasing score.\n"
+456:            "BM25 returns only matching documents; empty/unknown terms may return zero results.\n"
+457:            "Vector JSONL needs nonempty embedding arrays in documents and queries.\n"
+458:            "Spaces/tabs around fields and blank lines are allowed. All dimensions must match.\n"
+459:            "Cosine stores unit vectors and rejects embedding L2 norms below 1e-7.\n"
+460:            "Cosine queries must be nonzero; squared Euclidean permits zero vectors.\n"
+461:            "Vector results are sorted by increasing distance; at most min(k, dataset size) are "
+462:            "returned.\n"
+463:            "Distances use nine decimal places; IDs stay integers in the bordered results table.\n"
+464:            "Query time is reported in milliseconds and excludes input loading and output.\n"
+465:            "HNSW graph construction is reported separately and excluded from query time.\n"
+466:            "HNSW uses max(efSearch,k), capped by index size; sparse graphs may return fewer "
+467:            "neighbors.\n"
+468:            "HNSW options require --algorithm hnsw or --mode hybrid; the graph is rebuilt in each "
+469:            "execution.\n"
+470:            "Hybrid needs JSONL documents with text and embeddings, and one JSONL query with\n"
+471:            "query_text and embedding. HNSW and BM25 rankings share DocumentIds and are fused\n"
+472:            "with RRF: score = sum 1/(k_rrf + rank), ranks from 1, ties by DocumentId.\n"
+473:            "Data is loaded and searched in one execution. There is no persistence.\n"
+474:            "Binary .avec embeddings (from convert) load without text parsing: use them as\n"
+475:            "--dataset in vector mode or as --vectors with JSONL documents in hybrid mode.\n\n"
+476:            "Exit codes: 0 success/help, 2 arguments, 3 input data, 4 "
+477:            "search/internal error.\n";
+478: }
+479: 
+480: }  // namespace aetherindex::cli
+
+FILE: apps/cli/cli_parser.hpp
+1: #pragma once
+2: 
+3: #include <span>
+4: #include <string_view>
+5: 
+6: #include "aether/application/search_service.hpp"
+7: 
+8: namespace aetherindex::cli {
+9: 
+10: struct CliOptions {
+11:     bool show_help = false;
+12:     bool convert = false;  // "convert": embeddings to .avec instead of a search.
+13:     SearchRequest search;
+14:     ConvertRequest conversion;
+15: };
+16: 
+17: // Arguments exclude argv[0]. Throws invalid_argument on malformed options.
+18: CliOptions parse_arguments(std::span<const std::string_view> arguments);
+19: std::string_view help_text();
+20: 
+21: }  // namespace aetherindex::cli
+
+FILE: apps/cli/cli_runner.cpp
+1: #include "cli_runner.hpp"
+2: 
+3: #include <algorithm>
+4: #include <array>
+5: #include <charconv>
+6: #include <exception>
+7: #include <iomanip>
+8: #include <limits>
+9: #include <locale>
+10: #include <ostream>
+11: #include <sstream>
+12: #include <stdexcept>
+13: #include <string>
+14: #include <vector>
+15: 
+16: #include "aether/application/search_service.hpp"
+17: #include "cli_parser.hpp"
+18: 
+19: namespace aetherindex::cli {
+20: namespace {
+21: 
+22: using Row = std::vector<std::string>;
+23: 
+24: std::string number(double value, int precision = 9) {
+25:     std::ostringstream output;
+26:     output.imbue(std::locale::classic());
+27:     output << std::fixed << std::setprecision(precision) << value;
+28:     return output.str();
+29: }
+30: 
+31: // Escape bytes which could inject rows, delimiters or terminal controls. The
+32: // application response retains the original source ID; this is presentation only.
+33: std::string display_id(std::string_view id) {
+34:     std::string output;
+35:     constexpr char hex[] = "0123456789abcdef";
+36:     for (unsigned char c : id) {
+37:         if (c >= 0x20 && c <= 0x7e && c != '|' && c != '\\')
+38:             output += static_cast<char>(c);
+39:         else {
+40:             output += "\\x";
+41:             output += hex[c >> 4];
+42:             output += hex[c & 0xf];
+43:         }
+44:     }
+45:     return output;
+46: }
+47: 
+48: void print_table(std::ostream& output, const Row& headings, const std::vector<Row>& rows) {
+49:     std::vector<std::size_t> widths;
+50:     for (const auto& heading : headings) widths.push_back(heading.size());
+51:     for (const auto& row : rows)
+52:         for (std::size_t column = 0; column < widths.size(); ++column)
+53:             widths[column] = std::max(widths[column], row[column].size());
+54:     const auto border = [&] {
+55:         output << '+';
+56:         for (auto width : widths) output << std::string(width + 2, '-') << '+';
+57:         output << '\n';
+58:     };
+59:     const auto print_row = [&](const Row& row, bool right) {
+60:         output << '|';
+61:         for (std::size_t column = 0; column < widths.size(); ++column) {
+62:             const std::string padding(widths[column] - row[column].size(), ' ');
+63:             output << ' ' << (right ? padding + row[column] : row[column] + padding) << " |";
+64:         }
+65:         output << '\n';
+66:     };
+67:     border();
+68:     print_row(headings, false);
+69:     border();
+70:     for (const auto& row : rows) {
+71:         print_row(row, true);
+72:         border();
+73:     }
+74: }
+75: 
+76: std::string mib(std::size_t bytes) { return number(static_cast<double>(bytes) / 1048576.0, 3); }
+77: 
+78: // Printed only for quantized searches, so the default reports are unchanged.
+79: void print_quantization(std::ostream& output, const SearchRequest& request,
+80:                         const SearchResponse& response) {
+81:     if (request.quantization == Quantization::None) return;
+82:     output << "\nQuantization: " << (request.quantization == Quantization::Sq8 ? "SQ8" : "PQ")
+83:            << " (codes " << mib(response.code_bytes) << " MiB vs FP32 " << mib(response.fp32_bytes)
+84:            << " MiB; FP32 rows " << (response.fp32_released ? "released" : "kept")
+85:            << ")\nRe-rank: ";
+86:     if (response.rerank == 0)
+87:         output << "none (approximate distances)";
+88:     else if (response.rerank == std::numeric_limits<std::size_t>::max())
+89:         output << "exact FP32 over all candidates";
+90:     else
+91:         output << "exact FP32 over " << response.rerank << " candidates";
+92:     output << "\nQuantization time (ms): " << number(response.quantization_time.count(), 6);
+93: }
+94: 
+95: const char* strategy_name(lexical::Bm25Strategy strategy) {
+96:     switch (strategy) {
+97:         case lexical::Bm25Strategy::TermAtATime:
+98:             return "term-at-a-time (compressed)";
+99:         case lexical::Bm25Strategy::Wand:
+100:             return "WAND (compressed)";
+101:         case lexical::Bm25Strategy::BlockMaxWand:
+102:             return "Block-Max WAND (compressed)";
+103:         case lexical::Bm25Strategy::MaxScore:
+104:             return "MaxScore (compressed)";
+105:         default:
+106:             return "exhaustive";
+107:     }
+108: }
+109: 
+110: // Printed only for filtered searches, so the default reports are unchanged.
+111: void print_filter(std::ostream& output, const SearchRequest& request,
+112:                   const SearchResponse& response, bool dense) {
+113:     if (!response.filtered) return;
+114:     const double share = response.filter_population
+115:                              ? 100.0 * static_cast<double>(response.filter_matches) /
+116:                                    static_cast<double>(response.filter_population)
+117:                              : 0.0;
+118:     output << "\nFilter: " << request.filters.size()
+119:            << " clause(s); matching documents: " << response.filter_matches << " of "
+120:            << response.filter_population << " (" << number(share, 1) << "%)";
+121:     if (dense)
+122:         output << "\nDense filter strategy: "
+123:                << (response.exact_filter ? "exact search over matching vectors"
+124:                                          : "filtered HNSW traversal");
+125: }
+126: 
+127: void print_lexical(std::ostream& output, const SearchRequest& request,
+128:                    const SearchResponse& response) {
+129:     output << "Search mode: Lexical\nAlgorithm: BM25\nDocuments indexed: "
+130:            << response.documents_indexed
+131:            << "\nIndexed fields: title + text (no field boosts)\nRequested K: " << request.k
+132:            << "\nResults returned: " << response.documents.size()
+133:            << "\nBM25 configuration: k1=" << std::setprecision(17) << request.bm25_config.k1
+134:            << " b=" << request.bm25_config.b;
+135:     if (request.bm25_config.strategy != lexical::Bm25Strategy::Exhaustive)
+136:         output << "\nBM25 strategy: " << strategy_name(request.bm25_config.strategy);
+137:     if (request.bm25_config.analyzer != lexical::Analyzer::AsciiTechV1)
+138:         output << "\nBM25 analyzer: " << lexical::analyzer_name(request.bm25_config.analyzer);
+139:     if (request.bm25_config.query_weighting != lexical::QueryTermWeighting::Unique)
+140:         output << "\nBM25 query weighting: frequency";
+141:     print_filter(output, request, response, false);
+142:     if (!response.selected_query_id.empty())
+143:         output << "\nQuery ID: " << display_id(response.selected_query_id);
+144:     output << "\nIndex build time (ms): " << number(response.index_build_time.count(), 6)
+145:            << "\nIndex build time scope: lexical indexing (excludes input loading)"
+146:            << "\nQuery time (ms): " << number(response.query_time.count(), 6)
+147:            << "\nQuery time scope: BM25 search only (excludes input loading, index build and "
+148:               "output)\n\n";
+149:     std::vector<Row> rows;
+150:     rows.reserve(response.documents.size());
+151:     for (std::size_t i = 0; i < response.documents.size(); ++i)
+152:         rows.push_back({std::to_string(i + 1), display_id(response.documents[i].source_id),
+153:                         number(response.documents[i].score)});
+154:     print_table(output, {"Rank", "Document ID", "BM25 Score"}, rows);
+155:     if (rows.empty()) output << "\nNo matching documents.\n";
+156: }
+157: 
+158: void print_vector(std::ostream& output, const SearchRequest& request,
+159:                   const SearchResponse& response) {
+160:     output << "Algorithm: " << (request.algorithm == SearchAlgorithm::Hnsw ? "HNSW" : "BruteForce")
+161:            << "\nDistance metric: "
+162:            << (request.metric == DistanceKind::Cosine ? "Cosine" : "SquaredEuclidean")
+163:            << "\nVectors indexed: " << response.vectors_indexed
+164:            << "\nDimensions: " << response.dimension << "\nRequested K: " << request.k
+165:            << "\nResults returned: " << response.neighbors.size();
+166:     if (!response.selected_query_id.empty())
+167:         output << "\nQuery ID: " << display_id(response.selected_query_id);
+168:     if (request.algorithm == SearchAlgorithm::Hnsw) {
+169:         const auto& config = request.hnsw_config;
+170:         output << "\nHNSW configuration: M=" << config.m << " M0=" << config.m_max_0
+171:                << " efConstruction=" << config.ef_construction << " efSearch=" << config.ef_search
+172:                << " seed=" << config.random_seed << "\nHNSW neighbor selection: "
+173:                << (config.neighbor_selection == NeighborSelection::Heuristic
+174:                        ? "Heuristic (Algorithm 4)"
+175:                        : "Simple (Algorithm 3)")
+176:                << "\nIndex build time (ms): " << number(response.index_build_time.count(), 6)
+177:                << "\nIndex build time scope: graph construction only (excludes input loading)";
+178:         print_quantization(output, request, response);
+179:     }
+180:     print_filter(output, request, response, true);
+181:     output << "\nQuery time (ms): " << number(response.query_time.count(), 6)
+182:            << "\nQuery time scope: search only (excludes input loading)\n\n";
+183:     // JSONL vectors are stored under their DocumentId; show the source document identity.
+184:     const bool documents = !response.neighbor_source_ids.empty();
+185:     std::vector<Row> rows;
+186:     rows.reserve(response.neighbors.size());
+187:     for (std::size_t i = 0; i < response.neighbors.size(); ++i)
+188:         rows.push_back({std::to_string(i + 1),
+189:                         documents ? display_id(response.neighbor_source_ids[i])
+190:                                   : std::to_string(response.neighbors[i].id),
+191:                         number(response.neighbors[i].distance)});
+192:     print_table(output, {"Rank", documents ? "Document ID" : "Vector ID", "Distance"}, rows);
+193: }
+194: 
+195: std::string component_rank(std::size_t rank) { return rank ? std::to_string(rank) : "-"; }
+196: 
+197: // Shortest decimal that reads back as the same double (0.7, not 0.69999999999999996).
+198: std::string shortest(double value) {
+199:     char buffer[32];
+200:     const auto result = std::to_chars(buffer, buffer + sizeof buffer, value);
+201:     return std::string(buffer, result.ptr);
+202: }
+203: 
+204: void print_hybrid(std::ostream& output, const SearchRequest& request,
+205:                   const SearchResponse& response) {
+206:     const auto& hnsw = request.hnsw_config;
+207:     const auto& fusion = request.rrf_config;
+208:     const bool convex = fusion.method == hybrid::FusionMethod::Convex;
+209:     output << "Search mode: Hybrid\nFusion: " << std::setprecision(17);
+210:     if (convex)
+211:         output << "convex (alpha=" << shortest(fusion.alpha) << ", min-max normalized scores)";
+212:     else if (fusion.dense_weight)
+213:         output << "weighted RRF (k_rrf=" << fusion.k_rrf
+214:                << ", dense weight=" << shortest(*fusion.dense_weight) << ", lexical weight=1-dense)";
+215:     else
+216:         output << "RRF (k_rrf=" << fusion.k_rrf << ")";
+217:     output << "\nDense retriever: HNSW ("
+218:            << (request.metric == DistanceKind::Cosine ? "Cosine" : "SquaredEuclidean")
+219:            << ")\nLexical retriever: BM25 (title + text, no field boosts)"
+220:            << "\nDocuments indexed: " << response.documents_indexed
+221:            << "\nDimensions: " << response.dimension << "\nRequested K: " << request.k
+222:            << "\nCandidate K per retriever: " << response.candidate_k
+223:            << "\nDense candidates: " << response.dense_candidates
+224:            << "\nLexical candidates: " << response.lexical_candidates
+225:            << "\nFused candidates (union): " << response.fused_candidates
+226:            << "\nResults returned: " << response.fused.size()
+227:            << "\nBM25 configuration: k1=" << request.bm25_config.k1
+228:            << " b=" << request.bm25_config.b
+229:            << (request.bm25_config.strategy != lexical::Bm25Strategy::Exhaustive
+230:                    ? std::string("\nBM25 strategy: ") + strategy_name(request.bm25_config.strategy)
+231:                    : std::string())
+232:            << (request.bm25_config.analyzer != lexical::Analyzer::AsciiTechV1
+233:                    ? std::string("\nBM25 analyzer: ") +
+234:                          lexical::analyzer_name(request.bm25_config.analyzer)
+235:                    : std::string())
+236:            << (request.bm25_config.query_weighting != lexical::QueryTermWeighting::Unique
+237:                    ? "\nBM25 query weighting: frequency"
+238:                    : "")
+239:            << "\nHNSW configuration: M=" << hnsw.m << " M0=" << hnsw.m_max_0
+240:            << " efConstruction=" << hnsw.ef_construction << " efSearch=" << hnsw.ef_search
+241:            << " seed=" << hnsw.random_seed << "\nHNSW neighbor selection: "
+242:            << (hnsw.neighbor_selection == NeighborSelection::Heuristic ? "Heuristic (Algorithm 4)"
+243:                                                                        : "Simple (Algorithm 3)");
+244:     if (!response.selected_query_id.empty())
+245:         output << "\nQuery ID: " << display_id(response.selected_query_id);
+246:     output << "\nDense index build time (ms): " << number(response.index_build_time.count(), 6)
+247:            << "\nLexical index build time (ms): " << number(response.lexical_build_time.count(), 6)
+248:            << "\nIndex build time scope: HNSW graph and BM25 index (excludes input loading)";
+249:     print_quantization(output, request, response);
+250:     print_filter(output, request, response, true);
+251:     output << "\nQuery time (ms): " << number(response.query_time.count(), 6)
+252:            << "\nQuery time scope: HNSW + BM25 + " << (convex ? "fusion" : "RRF")
+253:            << " (excludes input loading, index builds and output)\n\n";
+254:     std::vector<Row> rows;
+255:     rows.reserve(response.fused.size());
+256:     for (std::size_t i = 0; i < response.fused.size(); ++i) {
+257:         const auto& row = response.fused[i];
+258:         rows.push_back({std::to_string(i + 1), display_id(row.source_id), number(row.rrf_score, 12),
+259:                         component_rank(row.dense_rank), component_rank(row.lexical_rank)});
+260:     }
+261:     print_table(output,
+262:                 {"Rank", "Document ID", convex ? "Fused Score" : "RRF Score", "Dense Rank",
+263:                  "Lexical Rank"},
+264:                 rows);
+265:     if (response.lexical_candidates == 0)
+266:         output << "\nNo lexical matches; the fused ranking uses the dense candidates only.\n";
+267: }
+268: 
+269: }  // namespace
+270: 
+271: int run(std::span<const std::string_view> arguments, std::ostream& output, std::ostream& errors) {
+272:     CliOptions options;
+273:     try {
+274:         options = parse_arguments(arguments);
+275:     } catch (const std::invalid_argument& error) {
+276:         errors << "Error: " << error.what() << "\nUse aetherindex --help for usage.\n";
+277:         return 2;
+278:     } catch (const std::exception& error) {
+279:         errors << "Error: " << error.what() << '\n';
+280:         return 4;
+281:     }
+282:     try {
+283:         if (options.show_help) {
+284:             output << help_text();
+285:             return 0;
+286:         }
+287:         if (options.convert) {
+288:             const auto converted = convert_vector_file(options.conversion);
+289:             std::ostringstream formatted;
+290:             formatted.imbue(std::locale::classic());
+291:             formatted << "AetherIndex Convert\n\nVectors written: " << converted.vectors
+292:                       << "\nDimensions: " << converted.dimension
+293:                       << "\nFormat: .avec v1 (raw FP32, little-endian, CRC-32C)";
+294:             if (converted.documents_written)
+295:                 formatted << "\nDocuments written (text only): " << converted.documents_written;
+296:             formatted << "\n\nConversion completed successfully.\n";
+297:             output << formatted.str();
+298:             return 0;
+299:         }
+300:         const auto response = SearchService{}.search(options.search);
+301:         std::ostringstream formatted;
+302:         formatted.imbue(std::locale::classic());
+303:         formatted << "AetherIndex Search\n\n";
+304:         const auto print = [&](const SearchResponse& result) {
+305:             if (options.search.mode == SearchMode::Lexical)
+306:                 print_lexical(formatted, options.search, result);
+307:             else if (options.search.mode == SearchMode::Hybrid)
+308:                 print_hybrid(formatted, options.search, result);
+309:             else
+310:                 print_vector(formatted, options.search, result);
+311:         };
+312:         if (options.search.all_queries) {
+313:             const double seconds = response.batch_time.count() / 1000.0;
+314:             formatted << "Batch queries: " << response.batch.size()
+315:                       << "\nQuery threads: " << options.search.query_threads
+316:                       << "\nBatch time (ms): " << number(response.batch_time.count(), 6)
+317:                       << "\nThroughput (queries/s): "
+318:                       << number(seconds > 0 ? response.batch.size() / seconds : 0, 1)
+319:                       << "\nBatch time scope: all queries, excluding input loading, index "
+320:                          "builds and output\n";
+321:             // Each block is exactly the single-query report for that query.
+322:             for (std::size_t i = 0; i < response.batch.size(); ++i) {
+323:                 auto view = response.batch[i];
+324:                 view.vectors_indexed = response.vectors_indexed;
+325:                 view.documents_indexed = response.documents_indexed;
+326:                 view.dimension = response.dimension;
+327:                 view.index_build_time = response.index_build_time;
+328:                 view.lexical_build_time = response.lexical_build_time;
+329:                 view.quantization_time = response.quantization_time;
+330:                 view.fp32_bytes = response.fp32_bytes;
+331:                 view.code_bytes = response.code_bytes;
+332:                 view.fp32_released = response.fp32_released;
+333:                 view.rerank = response.rerank;
+334:                 view.filtered = response.filtered;
+335:                 view.filter_matches = response.filter_matches;
+336:                 view.filter_population = response.filter_population;
+337:                 view.exact_filter = response.exact_filter;
+338:                 formatted << "\n=== Query " << i + 1 << "/" << response.batch.size() << " ===\n";
+339:                 print(view);
+340:             }
+341:         } else {
+342:             print(response);
+343:         }
+344:         formatted << "\nSearch completed successfully.\n";
+345:         output << formatted.str();
+346:         return 0;
+347:     } catch (const InputDataError& error) {
+348:         errors << "Error: " << error.what() << '\n';
+349:         return 3;
+350:     } catch (const std::exception& error) {
+351:         errors << "Error during search: " << error.what() << '\n';
+352:         return 4;
+353:     }
+354: }
+355: 
+356: }  // namespace aetherindex::cli
+
+FILE: apps/cli/cli_runner.hpp
+1: #pragma once
+2: 
+3: #include <iosfwd>
+4: #include <span>
+5: #include <string_view>
+6: 
+7: namespace aetherindex::cli {
+8: 
+9: // Results/help go to output; diagnostics go to errors. Arguments exclude argv[0].
+10: int run(std::span<const std::string_view> arguments, std::ostream& output, std::ostream& errors);
+11: 
+12: }  // namespace aetherindex::cli
+
+FILE: apps/cli/main.cpp
+1: #include <exception>
+2: #include <iostream>
+3: #include <string_view>
+4: #include <vector>
+5: 
+6: #include "cli_runner.hpp"
+7: 
+8: int main(int argc, char* argv[]) {
+9:     try {
+10:         std::vector<std::string_view> arguments;
+11:         for (int i = 1; i < argc; ++i) {
+12:             arguments.emplace_back(argv[i]);
+13:         }
+14:         return aetherindex::cli::run(arguments, std::cout, std::cerr);
+15:     } catch (const std::exception& error) {
+16:         std::cerr << "Error: " << error.what() << '\n';
+17:         return 4;
+18:     }
+19: }

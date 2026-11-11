@@ -1,13 +1,16 @@
 #include "aether/distance/distance.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <exception>
 #include <iostream>
 #include <limits>
 #include <random>
+#include <vector>
 
 #include "../test_helpers.hpp"
+#include "aether/distance/kernels.hpp"
 
 using namespace aetherindex;
 
@@ -131,12 +134,75 @@ void checkPropertiesAndReference() {
     }
 }
 
+// KR3.5: the SIMD kernels must agree with the sequential scalar references. Both are
+// FP32 sums of n terms, so each lies within n*eps*sum|term| of the exact value; the
+// tolerance is twice that (plus one ulp of slack) and is checked against long double too.
+void checkSimdMatchesScalar() {
+    std::mt19937 random(7);
+    std::uniform_real_distribution<float> coordinate(-1.0f, 1.0f);
+    constexpr float eps = std::numeric_limits<float>::epsilon();
+    for (std::size_t n : {1, 3, 4, 7, 8, 15, 16, 17, 31, 32, 33, 63, 64, 100, 127, 128, 129, 384,
+                          768, 1024, 1536}) {
+        std::vector<float> a(n), b(n);
+        for (int sample = 0; sample < 200; ++sample) {
+            long double norm_a = 0.0L, norm_b = 0.0L;
+            for (std::size_t i = 0; i < n; ++i) {
+                a[i] = coordinate(random);
+                b[i] = coordinate(random);
+                norm_a += static_cast<long double>(a[i]) * a[i];
+                norm_b += static_cast<long double>(b[i]) * b[i];
+            }
+            if (norm_a == 0.0L || norm_b == 0.0L) continue;
+            long double squared = 0.0L;  // every term is nonnegative: sum|term| == sum
+            for (std::size_t i = 0; i < n; ++i) {
+                const long double d = static_cast<long double>(a[i]) - b[i];
+                squared += d * d;
+            }
+            const float l2_tolerance =
+                2.0f * static_cast<float>(n) * eps * static_cast<float>(squared) +
+                std::numeric_limits<float>::min();
+            const float l2_simd = detail::squared_euclidean_kernel(a.data(), b.data(), n);
+            const float l2_scalar = detail::squared_euclidean_kernel_scalar(a.data(), b.data(), n);
+            require(std::abs(l2_simd - l2_scalar) <= l2_tolerance,
+                    "SIMD squared Euclidean differs from the scalar reference.");
+            require(std::abs(static_cast<long double>(l2_simd) - squared) <= l2_tolerance,
+                    "SIMD squared Euclidean differs from the long-double reference.");
+
+            // Cosine kernels take unit vectors (the store/query contract).
+            const float scale_a = static_cast<float>(1.0L / std::sqrt(norm_a));
+            const float scale_b = static_cast<float>(1.0L / std::sqrt(norm_b));
+            std::vector<float> ua(n), ub(n);
+            long double dot = 0.0L, dot_magnitude = 0.0L;
+            for (std::size_t i = 0; i < n; ++i) {
+                ua[i] = a[i] * scale_a;
+                ub[i] = b[i] * scale_b;
+                dot += static_cast<long double>(ua[i]) * ub[i];
+                dot_magnitude += std::abs(static_cast<long double>(ua[i]) * ub[i]);
+            }
+            const float cos_tolerance =
+                2.0f * static_cast<float>(n) * eps * static_cast<float>(dot_magnitude) + eps;
+            const float cos_simd = detail::cosine_unit_kernel(ua.data(), ub.data(), n);
+            const float cos_scalar = detail::cosine_unit_kernel_scalar(ua.data(), ub.data(), n);
+            const long double cos_exact = 1.0L - std::clamp(dot, -1.0L, 1.0L);
+            require(std::abs(cos_simd - cos_scalar) <= cos_tolerance,
+                    "SIMD cosine differs from the scalar reference.");
+            require(std::abs(static_cast<long double>(cos_simd) - cos_exact) <= cos_tolerance,
+                    "SIMD cosine differs from the long-double reference.");
+        }
+    }
+    require(detail::scalar_distance_kernel(DistanceKind::Cosine) == detail::cosine_unit_kernel_scalar &&
+                detail::scalar_distance_kernel(DistanceKind::SquaredEuclidean) ==
+                    detail::squared_euclidean_kernel_scalar,
+            "scalar_distance_kernel must select the scalar references.");
+}
+
 int main() {
     try {
         checkKnownDistances();
         checkValidation();
         checkNumericRange();
         checkPropertiesAndReference();
+        checkSimdMatchesScalar();
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

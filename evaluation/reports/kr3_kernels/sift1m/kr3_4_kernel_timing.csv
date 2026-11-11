@@ -1,0 +1,5 @@
+dataset,metric,dimension,variant,backend,rows,repetitions,executions,mean_ns,median_ns,p95_ns,min_ns,max_ns,stddev_ns
+sift_base.fvecs,cosine,128,scalar,Scalar FP32 (sequential),10000,50,500000,69.798424,69.27495,79.7333,59.9208,83.2292,3.52117907
+sift_base.fvecs,cosine,128,simd,NEON/FMA FP32,10000,50,500000,7.27666,7.1146,7.8541,6.2,15.3208,1.18423026
+sift_base.fvecs,squared_euclidean,128,scalar,Scalar FP32 (sequential),10000,50,500000,70.306416,71.63545,78.025,61.725,118.0333,8.51508289
+sift_base.fvecs,squared_euclidean,128,simd,NEON/FMA FP32,10000,50,500000,7.45633,7.41455,8.375,6.275,16.1334,1.3811385

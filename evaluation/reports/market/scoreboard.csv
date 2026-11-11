@@ -1,0 +1,185 @@
+benchmark,dataset,metric,ours,best_competitor,theirs,margin,status,note
+"BM25 (k1=0.9, b=0.4)",scifact,ndcg@10,0.6776773829324205,Qdrant,0.6795098277652055,-0.0018,lost~,p = 0.550; server measured over the network
+"BM25 (k1=0.9, b=0.4)",scifact,recall@100,0.9253333333333335,Lucene,0.9253333333333335,+0.0000,tied,
+"BM25 (k1=0.9, b=0.4)",scifact,mrr@10,0.6445158730158731,Qdrant,0.6457142857142858,-0.0012,lost~,p = 0.657; server measured over the network
+"BM25 (k1=1.2, b=0.75)",scifact,ndcg@10,0.6830299426716618,Lucene,0.6825754256005102,+0.0005,won~,p = 0.055
+"BM25 (k1=1.2, b=0.75)",scifact,recall@100,0.9282222222222222,Lucene,0.9282222222222222,+0.0000,tied,
+"BM25 (k1=1.2, b=0.75)",scifact,mrr@10,0.6467407407407407,Lucene,0.6464246031746032,+0.0003,won~,p = 0.187
+BM25 without stemming,scifact,ndcg@10,0.6621518324994078,Lucene,0.6651082705482465,-0.0030,lost~,p = 0.094
+BM25 without stemming,scifact,recall@100,0.8852222222222222,Lucene,0.8852222222222222,+0.0000,tied,
+BM25 without stemming,scifact,mrr@10,0.6334179894179894,Lucene,0.636431216931217,-0.0030,lost~,p = 0.094
+Dense HNSW (bge-small),scifact,ndcg@10,0.7127069247605036,Qdrant,0.7127069247605036,+0.0000,ceiling,exact search 0.7127
+Dense HNSW (bge-small),scifact,recall@100,0.9416666666666667,OpenSearch,0.945,-0.0033,ceiling,exact search 0.9417
+Dense HNSW (bge-small),scifact,mrr@10,0.6821931216931217,Qdrant,0.6821931216931217,+0.0000,ceiling,exact search 0.6822
+Hybrid,scifact,ndcg@10,0.7318288586835543,Qdrant,0.7302027206982202,+0.0016,won~,p = 0.828; server measured over the network
+Hybrid,scifact,recall@100,0.9666666666666667,Lucene + exact + RRF,0.9683333333333334,-0.0017,lost~,p = 1.000
+Hybrid,scifact,mrr@10,0.6985912698412698,Qdrant,0.6940886243386243,+0.0045,won~,p = 0.609; server measured over the network
+"BM25 (k1=0.9, b=0.4)",nfcorpus,ndcg@10,0.3202166955884398,Qdrant,0.32072621191353806,-0.0005,lost~,p = 1.000; server measured over the network
+"BM25 (k1=0.9, b=0.4)",nfcorpus,recall@100,0.2456237517779467,Qdrant,0.24778597163433808,-0.0022,lost~,p = 0.243; server measured over the network
+"BM25 (k1=0.9, b=0.4)",nfcorpus,mrr@10,0.5215452847805789,Qdrant,0.5219322816846037,-0.0004,lost~,p = 1.000; server measured over the network
+"BM25 (k1=1.2, b=0.75)",nfcorpus,ndcg@10,0.32124016979219294,Lucene,0.3208565771718236,+0.0004,won~,p = 0.656
+"BM25 (k1=1.2, b=0.75)",nfcorpus,recall@100,0.24644377183639954,Lucene,0.24632929526174846,+0.0001,won~,p = 0.623
+"BM25 (k1=1.2, b=0.75)",nfcorpus,mrr@10,0.5220575949678117,Lucene,0.5186655363899946,+0.0034,won~,p = 0.236
+BM25 without stemming,nfcorpus,ndcg@10,0.30513529399981804,Lucene,0.3048935170910162,+0.0002,won~,p = 0.726
+BM25 without stemming,nfcorpus,recall@100,0.23652950935758865,Lucene,0.23684773548641144,-0.0003,lost~,p = 0.122
+BM25 without stemming,nfcorpus,mrr@10,0.5108813700918965,Lucene,0.5112904811047225,-0.0004,lost~,p = 1.000
+Dense HNSW (bge-small),nfcorpus,ndcg@10,0.3430365191780083,Qdrant,0.34301172093409765,+0.0000,ceiling,exact search 0.3430
+Dense HNSW (bge-small),nfcorpus,recall@100,0.31073747410569685,OpenSearch,0.31240745961347327,-0.0017,lost~,p = 0.209; server measured over the network
+Dense HNSW (bge-small),nfcorpus,mrr@10,0.5268551280161187,OpenSearch,0.5268895277409209,-0.0000,ceiling,exact search 0.5269
+Hybrid,nfcorpus,ndcg@10,0.3603336633288383,Qdrant,0.36255529560156974,-0.0022,lost~,p = 0.635; server measured over the network
+Hybrid,nfcorpus,recall@100,0.3149777873792365,Qdrant,0.3127296637727161,+0.0022,won~,p = 0.532; server measured over the network
+Hybrid,nfcorpus,mrr@10,0.5530750896849967,Qdrant,0.5692134748636296,-0.0161,lost~,p = 0.117; server measured over the network
+"BM25 (k1=0.9, b=0.4)",fiqa,ndcg@10,0.23532978674734273,bm25s,0.23849291266421294,-0.0032,lost~,p = 0.211
+"BM25 (k1=0.9, b=0.4)",fiqa,recall@100,0.5400261732437659,bm25s (english-v1 tokens),0.5400261732437659,+0.0000,tied,
+"BM25 (k1=0.9, b=0.4)",fiqa,mrr@10,0.29577576915539877,Qdrant,0.2996852341759749,-0.0039,lost~,p = 0.193; server measured over the network
+"BM25 (k1=1.2, b=0.75)",fiqa,ndcg@10,0.2523392895841438,Lucene,0.2536350571086878,-0.0013,lost~,p = 0.451
+"BM25 (k1=1.2, b=0.75)",fiqa,recall@100,0.5525280660697327,Lucene,0.5488568187642262,+0.0037,won~,p = 0.057
+"BM25 (k1=1.2, b=0.75)",fiqa,mrr@10,0.3100204536547129,Lucene,0.3088728444052518,+0.0011,won~,p = 0.618
+BM25 without stemming,fiqa,ndcg@10,0.23243613623445358,Lucene,0.23195436282004975,+0.0005,won~,p = 0.724
+BM25 without stemming,fiqa,recall@100,0.49342052837423206,Lucene,0.49232313468424577,+0.0011,won~,p = 0.125
+BM25 without stemming,fiqa,mrr@10,0.2855789486576524,Lucene,0.28742590143053104,-0.0018,lost~,p = 0.283
+Dense HNSW (bge-small),fiqa,ndcg@10,0.40141968900022257,OpenSearch,0.40048130395203896,+0.0009,won~,p = 0.755; server measured over the network
+Dense HNSW (bge-small),fiqa,recall@100,0.687748581151359,OpenSearch,0.6903720379414824,-0.0026,lost~,p = 0.584; server measured over the network
+Dense HNSW (bge-small),fiqa,mrr@10,0.4857522535763276,OpenSearch,0.48384467470115616,+0.0019,won~,p = 0.503; server measured over the network
+Hybrid,fiqa,ndcg@10,0.4136999695243094,Lucene + exact + RRF,0.36085457505049195,+0.0528,won,p = 0.000
+Hybrid,fiqa,recall@100,0.6858140573418351,Lucene + exact + RRF,0.6895385821311747,-0.0037,lost~,p = 0.446
+Hybrid,fiqa,mrr@10,0.49413641485400744,Lucene + exact + RRF,0.43355930335097,+0.0606,won,p = 0.000
+"BM25 (k1=0.9, b=0.4)",arguana,ndcg@10,0.40029460572877246,bm25s,0.4080024284577256,-0.0077,lost,p = 0.001
+"BM25 (k1=0.9, b=0.4)",arguana,recall@100,0.9324324324324325,bm25s,0.938122332859175,-0.0057,lost,p = 0.009
+"BM25 (k1=0.9, b=0.4)",arguana,mrr@10,0.3179700377068798,bm25s,0.3252732055363634,-0.0073,lost,p = 0.002
+"BM25 (k1=1.2, b=0.75)",arguana,ndcg@10,0.4822538300515194,Lucene,0.4779646840099574,+0.0043,won,p = 0.002
+"BM25 (k1=1.2, b=0.75)",arguana,recall@100,0.9594594594594594,Lucene,0.9587482219061166,+0.0007,won~,p = 1.000
+"BM25 (k1=1.2, b=0.75)",arguana,mrr@10,0.39323788073788074,Lucene,0.38945166971482764,+0.0038,won,p = 0.018
+BM25 without stemming,arguana,ndcg@10,0.38451868616827706,Lucene,0.38133561528077986,+0.0032,won,p = 0.001
+BM25 without stemming,arguana,recall@100,0.9103840682788051,Lucene,0.9075391180654339,+0.0028,won~,p = 0.121
+BM25 without stemming,arguana,mrr@10,0.3027506830138409,Lucene,0.29940843098737835,+0.0033,won,p = 0.001
+Dense HNSW (bge-small),arguana,ndcg@10,0.603478301639996,Qdrant,0.603478301639996,+0.0000,ceiling,exact search 0.6035
+Dense HNSW (bge-small),arguana,recall@100,0.9879089615931721,OpenSearch,0.9886201991465149,-0.0007,ceiling,exact search 0.9879
+Dense HNSW (bge-small),arguana,mrr@10,0.5224824448508659,Qdrant,0.5224824448508659,+0.0000,ceiling,exact search 0.5225
+Hybrid,arguana,ndcg@10,0.6005174133824801,Lucene + exact + RRF,0.5353793516153221,+0.0651,won,p = 0.000
+Hybrid,arguana,recall@100,0.9893314366998578,Lucene + exact + RRF,0.9871977240398293,+0.0021,won~,p = 0.369
+Hybrid,arguana,mrr@10,0.5159957890221049,Lucene + exact + RRF,0.44601650522703157,+0.0700,won,p = 0.000
+"BM25 (k1=0.9, b=0.4)",trec-covid,ndcg@10,0.595965700142777,Qdrant,0.596416725776634,-0.0005,lost~,p = 0.624; server measured over the network
+"BM25 (k1=0.9, b=0.4)",trec-covid,recall@100,0.10905197622573554,Lucene,0.10912791399959795,-0.0001,lost~,p = 0.846
+"BM25 (k1=0.9, b=0.4)",trec-covid,mrr@10,0.8661904761904762,bm25s (english-v1 tokens),0.8661904761904762,+0.0000,tied,
+"BM25 (k1=1.2, b=0.75)",trec-covid,ndcg@10,0.613863232675699,Lucene,0.6152540050661173,-0.0014,lost~,p = 0.376
+"BM25 (k1=1.2, b=0.75)",trec-covid,recall@100,0.11224910370744555,Lucene,0.1118951955498727,+0.0004,won~,p = 0.443
+"BM25 (k1=1.2, b=0.75)",trec-covid,mrr@10,0.8833333333333333,Lucene,0.884,-0.0007,lost~,p = 1.000
+BM25 without stemming,trec-covid,ndcg@10,0.5831876224804713,Lucene,0.5822796226742236,+0.0009,won~,p = 0.713
+BM25 without stemming,trec-covid,recall@100,0.09748795565519916,Lucene,0.0966960526697113,+0.0008,won,p = 0.019
+BM25 without stemming,trec-covid,mrr@10,0.7856666666666666,Lucene,0.7829999999999999,+0.0027,won~,p = 0.500
+Dense HNSW (bge-small),trec-covid,ndcg@10,0.7577827227136613,OpenSearch,0.7577827227136613,+0.0000,ceiling,exact search 0.7578
+Dense HNSW (bge-small),trec-covid,recall@100,0.13429536761057334,OpenSearch,0.1343107874796439,-0.0000,ceiling,exact search 0.1333
+Dense HNSW (bge-small),trec-covid,mrr@10,0.9306666666666666,Qdrant,0.9306666666666666,+0.0000,ceiling,exact search 0.9307
+Hybrid,trec-covid,ndcg@10,0.7860586024129659,Lucene + exact + RRF,0.8008771365096032,-0.0148,lost~,p = 0.339
+Hybrid,trec-covid,recall@100,0.13500190988169172,OpenSearch,0.1337063442486962,+0.0013,won~,p = 0.259; server measured over the network
+Hybrid,trec-covid,mrr@10,0.9706666666666667,Lucene + exact + RRF,0.9766666666666667,-0.0060,lost~,p = 0.751
+"BM25 (k1=0.9, b=0.4)",quora,ndcg@10,0.7884549588071548,Qdrant,0.7891384737696201,-0.0007,lost~,p = 0.194; server measured over the network
+"BM25 (k1=0.9, b=0.4)",quora,recall@100,0.9733237181877119,bm25s,0.9744317714635188,-0.0011,lost~,p = 0.060
+"BM25 (k1=0.9, b=0.4)",quora,mrr@10,0.7791127380952381,Qdrant,0.7796217063492064,-0.0005,lost~,p = 0.428; server measured over the network
+"BM25 (k1=1.2, b=0.75)",quora,ndcg@10,0.8077816149234016,Lucene,0.8077086406832953,+0.0001,won~,p = 0.188
+"BM25 (k1=1.2, b=0.75)",quora,recall@100,0.9771361816594828,Lucene,0.9771244169536005,+0.0000,tied,
+"BM25 (k1=1.2, b=0.75)",quora,mrr@10,0.8016605555555556,Lucene,0.8016005555555555,+0.0001,won~,p = 0.500
+BM25 without stemming,quora,ndcg@10,0.7269569510634452,Lucene,0.7269431659197522,+0.0000,tied,
+BM25 without stemming,quora,recall@100,0.9400251978811636,Lucene,0.9400134331752812,+0.0000,tied,
+BM25 without stemming,quora,mrr@10,0.7189440079365079,Lucene,0.7189273412698413,+0.0000,tied,
+Dense HNSW (bge-small),quora,ndcg@10,0.8861440676299284,Qdrant,0.8862729716682077,-0.0001,lost~,p = 0.451; server measured over the network
+Dense HNSW (bge-small),quora,recall@100,0.9949454308657132,Qdrant,0.9951011451514274,-0.0002,lost~,p = 0.406; server measured over the network
+Dense HNSW (bge-small),quora,mrr@10,0.877983373015873,Qdrant,0.8781333730158731,-0.0002,lost~,p = 0.500; server measured over the network
+Hybrid,quora,ndcg@10,0.8955388761266723,Qdrant,0.8668892176556923,+0.0286,won,p = 0.000; server measured over the network
+Hybrid,quora,recall@100,0.9954243469482397,OpenSearch,0.9954976737264709,-0.0001,lost~,p = 0.748; server measured over the network
+Hybrid,quora,mrr@10,0.8904109126984128,Qdrant,0.8608495238095238,+0.0296,won,p = 0.000; server measured over the network
+BM25 cost,scifact,"BM25 latency p50, 1 thread (ms)",0.0215,Lucene,0.06925,3.22x,won,
+BM25 cost,scifact,"BM25 throughput, 10 threads (QPS)",282430.56,Lucene,42976.0945,6.57x,won,
+BM25 cost,scifact,"BM25 index build, 1 thread (s)",0.120228083,bm25s,0.12093612505123019,1.01x,won,Lucene includes JVM start-up; bm25s excludes tokenization
+BM25 cost,scifact,BM25 index size on disk (MB),0.909441,Lucene,1.132944,1.25x,won,
+BM25 cost,nfcorpus,"BM25 latency p50, 1 thread (ms)",0.003125,Lucene,0.037417,11.97x,won,
+BM25 cost,nfcorpus,"BM25 throughput, 10 threads (QPS)",868279.57,bm25s,22335.551837370873,38.87x,won,
+BM25 cost,nfcorpus,"BM25 index build, 1 thread (s)",0.086515583,bm25s,0.08844812493771315,1.02x,won,Lucene includes JVM start-up; bm25s excludes tokenization
+BM25 cost,nfcorpus,BM25 index size on disk (MB),0.683384,Lucene,0.815321,1.19x,won,
+BM25 cost,fiqa,"BM25 latency p50, 1 thread (ms)",0.11525,Lucene,0.152708,1.33x,won,
+BM25 cost,fiqa,"BM25 throughput, 10 threads (QPS)",65010.7453,Lucene,52744.3891,1.23x,won,
+BM25 cost,fiqa,"BM25 index build, 1 thread (s)",0.735890417,bm25s,0.9856743339914829,1.34x,won,Lucene includes JVM start-up; bm25s excludes tokenization
+BM25 cost,fiqa,BM25 index size on disk (MB),5.642739,Lucene,6.939214,1.23x,won,
+BM25 cost,arguana,"BM25 latency p50, 1 thread (ms)",0.28425,bm25s,0.29683299362659454,1.04x,won,
+BM25 cost,arguana,"BM25 throughput, 10 threads (QPS)",29823.0184,Lucene,15597.8866,1.91x,won,
+BM25 cost,arguana,"BM25 index build, 1 thread (s)",0.145108,bm25s,0.17217683303169906,1.19x,won,Lucene includes JVM start-up; bm25s excludes tokenization
+BM25 cost,arguana,BM25 index size on disk (MB),1.146135,Lucene,1.681012,1.47x,won,
+BM25 cost,trec-covid,"BM25 latency p50, 1 thread (ms)",0.277666,Lucene,0.362666,1.31x,won,
+BM25 cost,trec-covid,"BM25 throughput, 10 threads (QPS)",21640.731,Lucene,15653.5335,1.38x,won,
+BM25 cost,trec-covid,"BM25 index build, 1 thread (s)",2.88793817,bm25s,3.751046958146617,1.30x,won,Lucene includes JVM start-up; bm25s excludes tokenization
+BM25 cost,trec-covid,BM25 index size on disk (MB),20.893653,Lucene,26.453672,1.27x,won,
+BM25 cost,quora,"BM25 latency p50, 1 thread (ms)",0.164833,Lucene,0.209208,1.27x,won,
+BM25 cost,quora,"BM25 throughput, 10 threads (QPS)",42893.265,Lucene,39010.6192,1.10x,won,
+BM25 cost,quora,"BM25 index build, 1 thread (s)",0.792911292,Lucene,2.1991748809814453,2.77x,won,Lucene includes JVM start-up; bm25s excludes tokenization
+BM25 cost,quora,BM25 index size on disk (MB),7.264517,Lucene,15.801992,2.18x,won,
+Dense HNSW cost (bge-small),scifact,"throughput @R@10>=0.95, 10 threads (QPS)",416305.291,FAISS HNSWFlat,141818.826,2.94x,won,
+Dense HNSW cost (bge-small),scifact,"throughput @R@10>=0.99, 10 threads (QPS)",187324.383,FAISS HNSWFlat,86265.7705,2.17x,won,
+Dense HNSW cost (bge-small),nfcorpus,"throughput @R@10>=0.95, 10 threads (QPS)",180922.785,FAISS HNSWFlat,102588.534,1.76x,won,
+Dense HNSW cost (bge-small),nfcorpus,"throughput @R@10>=0.99, 10 threads (QPS)",110030.788,FAISS HNSWFlat,57786.9219,1.90x,won,
+Dense HNSW cost (bge-small),fiqa,"throughput @R@10>=0.95, 10 threads (QPS)",164449.6,FAISS HNSWFlat,48289.5873,3.41x,won,
+Dense HNSW cost (bge-small),fiqa,"throughput @R@10>=0.99, 10 threads (QPS)",53996.4407,FAISS HNSWFlat,13802.8968,3.91x,won,
+Dense HNSW cost (bge-small),arguana,"throughput @R@10>=0.95, 10 threads (QPS)",553597.795,FAISS HNSWFlat,290320.895,1.91x,won,
+Dense HNSW cost (bge-small),arguana,"throughput @R@10>=0.99, 10 threads (QPS)",553597.795,FAISS HNSWFlat,171362.415,3.23x,won,
+Dense HNSW cost (bge-small),trec-covid,"throughput @R@10>=0.95, 10 threads (QPS)",97221.223,FAISS HNSWFlat,60253.0871,1.61x,won,
+Dense HNSW cost (bge-small),trec-covid,"throughput @R@10>=0.99, 10 threads (QPS)",38327.6276,FAISS HNSWFlat,21687.2696,1.77x,won,
+Dense HNSW cost (bge-small),quora,"throughput @R@10>=0.95, 10 threads (QPS)",166895.104,FAISS HNSWFlat,91260.8259,1.83x,won,
+Dense HNSW cost (bge-small),quora,"throughput @R@10>=0.99, 10 threads (QPS)",61706.7154,FAISS HNSWFlat,32218.2075,1.92x,won,
+ANN,sift1m,"throughput @R@10>=0.90, 10 threads (QPS)",306606.6,hnswlib -ffast-math,127148.411,2.41x,won,ours: AetherIndex SQ8 + re-rank
+ANN,sift1m,"throughput @R@10>=0.95, 10 threads (QPS)",197924.105,hnswlib -ffast-math,80116.2217,2.47x,won,ours: AetherIndex SQ8 without FP32
+ANN,sift1m,"throughput @R@10>=0.99, 10 threads (QPS)",78523.9588,hnswlib -ffast-math,41160.8245,1.91x,won,ours: AetherIndex SQ8 + re-rank
+ANN,sift1m,"throughput @R@10>=0.95, 1 thread (QPS)",26059.0292,hnswlib -ffast-math,8858.27603,2.94x,won,ours: AetherIndex SQ8 without FP32
+ANN,sift1m,"latency p50 @R@10>=0.95, 1 thread (ms)",0.038875,hnswlib -ffast-math,0.116667,3.00x,won,ours: AetherIndex SQ8 without FP32
+ANN,sift1m,"HNSW build, 10 threads (s)",34.5080765,hnswlib -ffast-math,30.5220704,0.88x,lost,
+ANN,sift1m,HNSW structure memory (MiB),624.127373,FAISS HNSWFlat,625.856514,1.00x,won,
+ANN,sift1m,SQ8 structure memory (MiB),257.917664,FAISS HNSWSQ8,259.645576,1.01x,won,
+ANN,sift1m,"HNSW build, 1 thread (s)",258.370806,FAISS HNSWFlat,351.794874,1.36x,won,
+ANN servers,sift1m,opensearch ef=16 latency p50 (ms),,opensearch,1.2034999672323465,,n/c,no AetherIndex server
+ANN servers,sift1m,opensearch ef=32 latency p50 (ms),,opensearch,1.5796248335391283,,n/c,no AetherIndex server
+ANN servers,sift1m,opensearch ef=64 latency p50 (ms),,opensearch,1.422584056854248,,n/c,no AetherIndex server
+ANN servers,sift1m,opensearch ef=128 latency p50 (ms),,opensearch,0.8417500648647547,,n/c,no AetherIndex server
+ANN servers,sift1m,opensearch ef=256 latency p50 (ms),,opensearch,1.162499887868762,,n/c,no AetherIndex server
+ANN servers,sift1m,opensearch ef=512 latency p50 (ms),,opensearch,1.6417501028627157,,n/c,no AetherIndex server
+ANN servers,sift1m,qdrant ef=16 latency p50 (ms),,qdrant,0.7362919859588146,,n/c,no AetherIndex server
+ANN servers,sift1m,qdrant ef=32 latency p50 (ms),,qdrant,0.7752079982310534,,n/c,no AetherIndex server
+ANN servers,sift1m,qdrant ef=64 latency p50 (ms),,qdrant,1.5737500507384539,,n/c,no AetherIndex server
+ANN servers,sift1m,qdrant ef=128 latency p50 (ms),,qdrant,1.7553330399096012,,n/c,no AetherIndex server
+ANN servers,sift1m,qdrant ef=256 latency p50 (ms),,qdrant,1.3911249116063118,,n/c,no AetherIndex server
+ANN servers,sift1m,qdrant ef=512 latency p50 (ms),,qdrant,2.3828751873224974,,n/c,no AetherIndex server
+ANN,glove-100,"throughput @R@10>=0.90, 10 threads (QPS)",32690.5553,hnswlib -ffast-math,16778.425,1.95x,won,ours: AetherIndex HNSW
+ANN,glove-100,"throughput @R@10>=0.95, 10 threads (QPS)",12550.294,hnswlib -ffast-math,9028.05536,1.39x,won,ours: AetherIndex HNSW
+ANN,glove-100,"throughput @R@10>=0.99, 10 threads (QPS)",,FAISS Flat,2705.79166,,lost,AetherIndex does not reach the target
+ANN,glove-100,"throughput @R@10>=0.95, 1 thread (QPS)",1589.89537,hnswlib -ffast-math,1069.82985,1.49x,won,ours: AetherIndex HNSW
+ANN,glove-100,"latency p50 @R@10>=0.95, 1 thread (ms)",0.641833,hnswlib -ffast-math,0.974958,1.52x,won,ours: AetherIndex HNSW
+ANN,glove-100,"HNSW build, 10 threads (s)",45.7453732,hnswlib -ffast-math,42.6135176,0.93x,lost,
+ANN,glove-100,HNSW structure memory (MiB),612.24967,FAISS HNSWFlat,614.312775,1.00x,won,
+ANN,glove-100,SQ8 structure memory (MiB),273.644613,FAISS HNSWSQ8,275.706703,1.01x,won,
+ANN,glove-100,"HNSW build, 1 thread (s)",354.74299,hnswlib,459.13569,1.29x,won,
+ANN servers,glove-100,qdrant ef=16 latency p50 (ms),,qdrant,0.7591249886900187,,n/c,no AetherIndex server
+ANN servers,glove-100,qdrant ef=32 latency p50 (ms),,qdrant,0.7918330375105143,,n/c,no AetherIndex server
+ANN servers,glove-100,qdrant ef=64 latency p50 (ms),,qdrant,0.9954581037163734,,n/c,no AetherIndex server
+ANN servers,glove-100,qdrant ef=128 latency p50 (ms),,qdrant,1.1269999668002129,,n/c,no AetherIndex server
+ANN servers,glove-100,qdrant ef=256 latency p50 (ms),,qdrant,1.5984589699655771,,n/c,no AetherIndex server
+ANN servers,glove-100,qdrant ef=512 latency p50 (ms),,qdrant,2.2855419665575027,,n/c,no AetherIndex server
+ANN servers,glove-100,opensearch ef=16 latency p50 (ms),,opensearch,0.7840408943593502,,n/c,no AetherIndex server
+ANN servers,glove-100,opensearch ef=32 latency p50 (ms),,opensearch,1.8362919799983501,,n/c,no AetherIndex server
+ANN servers,glove-100,opensearch ef=64 latency p50 (ms),,opensearch,0.8865841664373875,,n/c,no AetherIndex server
+ANN servers,glove-100,opensearch ef=128 latency p50 (ms),,opensearch,2.127415966242552,,n/c,no AetherIndex server
+ANN servers,glove-100,opensearch ef=256 latency p50 (ms),,opensearch,1.2605830561369658,,n/c,no AetherIndex server
+ANN servers,glove-100,opensearch ef=512 latency p50 (ms),,opensearch,1.9118750933557749,,n/c,no AetherIndex server
+Persistence,sift1m,"load + first query, 1 thread (ms)",104.847416,FAISS HNSWFlat,51.920709,0.50x,lost,median of 3; files in the page cache
+Persistence,sift1m,saved index size (MiB),623.2535362243652,FAISS HNSWFlat,625.8567447662354,1.00x,won,
+Persistence,glove-100,"load + first query, 1 thread (ms)",118.205292,FAISS HNSWFlat,53.224792,0.45x,lost,median of 3; files in the page cache
+Persistence,glove-100,saved index size (MiB),611.2156562805176,FAISS HNSWFlat,614.3130054473877,1.01x,won,
+Dense HNSW cost,scifact,"latency p50, 1 thread (ms)",0.079625,qdrant-dense,0.5818330682814121,7.31x,n/c,server latency includes the local network
+Hybrid cost,scifact,"latency p50, 1 thread (ms)",0.167292,qdrant-hybrid,1.2213748414069414,7.30x,n/c,server latency includes the local network
+Dense HNSW cost,nfcorpus,"latency p50, 1 thread (ms)",0.078792,qdrant-dense,0.8192919194698334,10.40x,n/c,server latency includes the local network
+Hybrid cost,nfcorpus,"latency p50, 1 thread (ms)",0.098916,qdrant-hybrid,0.779125140979886,7.88x,n/c,server latency includes the local network
+Dense HNSW cost,fiqa,"latency p50, 1 thread (ms)",0.271959,qdrant-dense,1.1938328389078379,4.39x,n/c,server latency includes the local network
+Hybrid cost,fiqa,"latency p50, 1 thread (ms)",0.51925,qdrant-hybrid,1.5484169125556946,2.98x,n/c,server latency includes the local network
+Dense HNSW cost,arguana,"latency p50, 1 thread (ms)",0.079166,qdrant-dense,0.8935409132391214,11.29x,n/c,server latency includes the local network
+Hybrid cost,arguana,"latency p50, 1 thread (ms)",0.657042,qdrant-hybrid,2.268292009830475,3.45x,n/c,server latency includes the local network
+Dense HNSW cost,trec-covid,"latency p50, 1 thread (ms)",0.307417,qdrant-dense,1.1701250914484262,3.81x,n/c,server latency includes the local network
+Hybrid cost,trec-covid,"latency p50, 1 thread (ms)",0.927833,qdrant-hybrid,1.721999840810895,1.86x,n/c,server latency includes the local network
+Dense HNSW cost,quora,"latency p50, 1 thread (ms)",0.384,qdrant-dense,1.7905838321894407,4.66x,n/c,server latency includes the local network
+Hybrid cost,quora,"latency p50, 1 thread (ms)",0.679042,qdrant-hybrid,2.419917145743966,3.56x,n/c,server latency includes the local network

@@ -1,0 +1,4 @@
+dataset,system,variant,base_rows,dimension,metric,M,ef_construction,param_name,param,build_threads,build_seconds,memory_mib,library_mib,recall10,latency_queries,lat_p50_ms,lat_p95_ms,lat_p99_ms,lat_mean_ms,qps_single,query_threads,qps_batch,qps_batch_q1,qps_batch_q3,repetitions
+glove-100,aether-hnsw,default,1183514,100,cosine,16,200,ef,128,1,354.74299,733.281799,612.24967,0.85228,100,0.135167,0.177208,0.191375,0.1347758,7419.72965,10,56165.6417,56165.6417,56165.6417,1
+glove-100,hnswlib,default,1183514,100,cosine,16,200,ef,128,1,459.13569,769.922447,614.595001,0.83216,100,0.263333,0.321333,0.382542,0.25692414,3892.19946,10,34398.2753,34398.2753,34398.2753,1
+glove-100,faiss-hnsw,default,1183514,100,cosine,16,200,ef,128,1,485.097132,657.234879,614.312775,0.83186,100,0.271708,0.360542,0.388625,0.27477542,3639.33572,10,22213.0141,22213.0141,22213.0141,1

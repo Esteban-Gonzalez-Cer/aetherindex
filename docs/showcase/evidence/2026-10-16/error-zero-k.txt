@@ -1,0 +1,3 @@
+Exit code: 2
+Error: Invalid value for --k: expected a representable positive integer.
+Use aetherindex --help for usage.

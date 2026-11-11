@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/Library/Developer/CommandLineTools/usr/bin/clang++",
+    "-std=c++20",
+    "-isysroot",
+    "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-fsyntax-only",
+    "-I",
+    "<repo>/include",
+    "<repo>/src/lexical/bm25.cpp",
+    "<repo>/src/lexical/tokenizer.cpp",
+    "<repo>/src/lexical/inverted_index.cpp"
+  ],
+  "returncode": 0
+}

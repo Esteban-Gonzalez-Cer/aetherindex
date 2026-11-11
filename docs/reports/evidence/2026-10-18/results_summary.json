@@ -1,0 +1,146 @@
+{
+  "evidence_date": "2026-10-18",
+  "builds": {
+    "debug": {
+      "passed_tests": 18,
+      "ctest_seconds": 33.98,
+      "matches": 990,
+      "mean_recall_at_10": 0.99
+    },
+    "release": {
+      "passed_tests": 20,
+      "ctest_seconds": 102.7,
+      "matches": 990,
+      "mean_recall_at_10": 0.99
+    },
+    "sanitizers": {
+      "passed_tests": 18,
+      "ctest_seconds": 95.05,
+      "matches": 990,
+      "mean_recall_at_10": 0.99
+    }
+  },
+  "base_commit": "031adae19951d95ede349eaeaf295dd8d4a611d2",
+  "official_recall_histogram": {
+    "10": 90,
+    "9": 10
+  },
+  "development_sweep": [
+    {
+      "metric": "cosine",
+      "ef_search": 10,
+      "queries": 100,
+      "matches": 676,
+      "mean_recall_at_10": 0.676,
+      "minimum_recall_at_10": 0.1,
+      "observed_mean_query_ms": 0.05808211
+    },
+    {
+      "metric": "cosine",
+      "ef_search": 30,
+      "queries": 100,
+      "matches": 924,
+      "mean_recall_at_10": 0.924,
+      "minimum_recall_at_10": 0.7,
+      "observed_mean_query_ms": 0.10915549
+    },
+    {
+      "metric": "cosine",
+      "ef_search": 50,
+      "queries": 100,
+      "matches": 977,
+      "mean_recall_at_10": 0.977,
+      "minimum_recall_at_10": 0.8,
+      "observed_mean_query_ms": 0.14198539
+    },
+    {
+      "metric": "cosine",
+      "ef_search": 100,
+      "queries": 100,
+      "matches": 998,
+      "mean_recall_at_10": 0.998,
+      "minimum_recall_at_10": 0.9,
+      "observed_mean_query_ms": 0.18804167
+    },
+    {
+      "metric": "squared-euclidean",
+      "ef_search": 10,
+      "queries": 100,
+      "matches": 733,
+      "mean_recall_at_10": 0.733,
+      "minimum_recall_at_10": 0.2,
+      "observed_mean_query_ms": 0.04639502
+    },
+    {
+      "metric": "squared-euclidean",
+      "ef_search": 30,
+      "queries": 100,
+      "matches": 928,
+      "mean_recall_at_10": 0.928,
+      "minimum_recall_at_10": 0.7,
+      "observed_mean_query_ms": 0.0853888
+    },
+    {
+      "metric": "squared-euclidean",
+      "ef_search": 50,
+      "queries": 100,
+      "matches": 972,
+      "mean_recall_at_10": 0.972,
+      "minimum_recall_at_10": 0.8,
+      "observed_mean_query_ms": 0.12273912000000001
+    },
+    {
+      "metric": "squared-euclidean",
+      "ef_search": 100,
+      "queries": 100,
+      "matches": 993,
+      "mean_recall_at_10": 0.993,
+      "minimum_recall_at_10": 0.9,
+      "observed_mean_query_ms": 0.15296789
+    }
+  ],
+  "dbpedia": [
+    {
+      "metric": "cosine",
+      "ef_search": 50,
+      "queries": 20,
+      "matches": 197,
+      "mean_recall_at_10": 0.985,
+      "minimum_recall_at_10": 0.9,
+      "observed_mean_query_ms": 1.1565481,
+      "observed_mean_exact_ms": 10.4081667
+    },
+    {
+      "metric": "cosine",
+      "ef_search": 100,
+      "queries": 20,
+      "matches": 199,
+      "mean_recall_at_10": 0.995,
+      "minimum_recall_at_10": 0.9,
+      "observed_mean_query_ms": 1.8506957499999999,
+      "observed_mean_exact_ms": 10.4081667
+    }
+  ],
+  "oracle": {
+    "passed_queries": 40,
+    "checked_neighbors": 4000,
+    "max_absolute_distance_error": 5.99890916941348e-08,
+    "summary": {
+      "cosine": {
+        "queries": 20,
+        "median_query_ms": 12.454208,
+        "min_query_ms": 10.499416,
+        "max_query_ms": 17.956125
+      },
+      "squared-euclidean": {
+        "queries": 20,
+        "median_query_ms": 11.504395500000001,
+        "min_query_ms": 9.528917,
+        "max_query_ms": 12.516208
+      }
+    }
+  },
+  "dbpedia_build_ms": 26183.397,
+  "source_and_artifact_hashes_validated": true,
+  "identical_official_fixtures_across_builds": true
+}

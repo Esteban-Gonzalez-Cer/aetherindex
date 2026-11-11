@@ -1,0 +1,15 @@
+{
+  "target": "x86_64-apple-darwin",
+  "executed_on_x86": false,
+  "scope": "cross-compiled AVX2/FMA assembly only",
+  "packed_fp32_fma_count": 16,
+  "examples": [
+    "vfmadd132ps\t-128(%rsi,%rcx,4), %ymm0, %ymm4 ## ymm4 = (ymm4 * mem) + ymm0",
+    "vfmadd132ps\t-96(%rsi,%rcx,4), %ymm1, %ymm5 ## ymm5 = (ymm5 * mem) + ymm1",
+    "vfmadd132ps\t-64(%rsi,%rcx,4), %ymm2, %ymm6 ## ymm6 = (ymm6 * mem) + ymm2",
+    "vfmadd132ps\t-32(%rsi,%rcx,4), %ymm3, %ymm7 ## ymm7 = (ymm7 * mem) + ymm3"
+  ],
+  "float_to_double": [],
+  "sqrt_divide": [],
+  "pass": true
+}

@@ -1,0 +1,1 @@
+{"query_id": "Q001", "query_text": "¿Cómo encuentra HNSW vecinos cercanos sin comparar todos los vectores?", "relevant_document_ids": ["D001", "D015", "D016"], "embedding_profile": "aether-hash-trigram-v1"}

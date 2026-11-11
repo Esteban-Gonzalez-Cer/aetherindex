@@ -2,8 +2,8 @@ Start testing: Oct 12 16:27 CST
 ----------------------------------------------------------
 1/11 Testing: unit.vector_store
 1/11 Test: unit.vector_store
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_vector_store_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+Command: "<repo>/build-cli-release/tests/aether_vector_store_tests"
+Directory: <repo>/build-cli-release/tests
 "unit.vector_store" start time: Oct 12 16:27 CST
 Output:
 ----------------------------------------------------------
@@ -18,8 +18,8 @@ Test Passed.
 
 2/11 Testing: unit.vector_store_allocation
 2/11 Test: unit.vector_store_allocation
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_vector_store_allocation_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+Command: "<repo>/build-cli-release/tests/aether_vector_store_allocation_tests"
+Directory: <repo>/build-cli-release/tests
 "unit.vector_store_allocation" start time: Oct 12 16:27 CST
 Output:
 ----------------------------------------------------------
@@ -38,8 +38,8 @@ Test Passed.
 
 3/11 Testing: unit.distance
 3/11 Test: unit.distance
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_distance_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+Command: "<repo>/build-cli-release/tests/aether_distance_tests"
+Directory: <repo>/build-cli-release/tests
 "unit.distance" start time: Oct 12 16:27 CST
 Output:
 ----------------------------------------------------------
@@ -53,8 +53,8 @@ Test Passed.
 
 4/11 Testing: unit.brute_force
 4/11 Test: unit.brute_force
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_brute_force_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+Command: "<repo>/build-cli-release/tests/aether_brute_force_tests"
+Directory: <repo>/build-cli-release/tests
 "unit.brute_force" start time: Oct 12 16:27 CST
 Output:
 ----------------------------------------------------------
@@ -68,8 +68,8 @@ Test Passed.
 
 5/11 Testing: integration.storage_distance
 5/11 Test: integration.storage_distance
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_storage_distance_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+Command: "<repo>/build-cli-release/tests/aether_storage_distance_tests"
+Directory: <repo>/build-cli-release/tests
 "integration.storage_distance" start time: Oct 12 16:27 CST
 Output:
 ----------------------------------------------------------
@@ -83,8 +83,8 @@ Test Passed.
 
 6/11 Testing: integration.dense_retrieval
 6/11 Test: integration.dense_retrieval
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_query_engine_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+Command: "<repo>/build-cli-release/tests/aether_query_engine_tests"
+Directory: <repo>/build-cli-release/tests
 "integration.dense_retrieval" start time: Oct 12 16:27 CST
 Output:
 ----------------------------------------------------------
@@ -98,8 +98,8 @@ Test Passed.
 
 7/11 Testing: unit.cli_parser
 7/11 Test: unit.cli_parser
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_cli_parser_tests"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+Command: "<repo>/build-cli-release/tests/aether_cli_parser_tests"
+Directory: <repo>/build-cli-release/tests
 "unit.cli_parser" start time: Oct 12 16:27 CST
 Output:
 ----------------------------------------------------------
@@ -113,8 +113,8 @@ Test Passed.
 
 8/11 Testing: integration.search_service
 8/11 Test: integration.search_service
-Command: "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_search_service_tests" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/service-fixtures/Release"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+Command: "<repo>/build-cli-release/tests/aether_search_service_tests" "<repo>/build-cli-release/tests/service-fixtures/Release"
+Directory: <repo>/build-cli-release/tests
 "integration.search_service" start time: Oct 12 16:27 CST
 Output:
 ----------------------------------------------------------
@@ -128,8 +128,8 @@ Test Passed.
 
 9/11 Testing: e2e.cli_search
 9/11 Test: e2e.cli_search
-Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/aetherindex" "-DWORK_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/cli-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_search_test.cmake"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=<repo>/build-cli-release/aetherindex" "-DWORK_DIR=<repo>/build-cli-release/tests/cli-fixtures/Release" "-P" "<repo>/tests/e2e/cli_search_test.cmake"
+Directory: <repo>/build-cli-release/tests
 "e2e.cli_search" start time: Oct 12 16:27 CST
 Output:
 ----------------------------------------------------------
@@ -144,8 +144,8 @@ Test Passed.
 
 10/11 Testing: e2e.cli_mvp
 10/11 Test: e2e.cli_mvp
-Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/aetherindex" "-DGENERATOR_PATH=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/aether_cli_fixture_generator" "-DWORK_DIR=/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/mvp-fixtures/Release" "-P" "/Users/estebangonzalezcervantes/Documents/aetherindex/tests/e2e/cli_mvp_test.cmake"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+Command: "/opt/homebrew/bin/cmake" "-DCLI_PATH=<repo>/build-cli-release/aetherindex" "-DGENERATOR_PATH=<repo>/build-cli-release/tests/aether_cli_fixture_generator" "-DWORK_DIR=<repo>/build-cli-release/tests/mvp-fixtures/Release" "-P" "<repo>/tests/e2e/cli_mvp_test.cmake"
+Directory: <repo>/build-cli-release/tests
 "e2e.cli_mvp" start time: Oct 12 16:27 CST
 Output:
 ----------------------------------------------------------
@@ -160,8 +160,8 @@ Test Passed.
 
 11/11 Testing: e2e.cli_real_dataset
 11/11 Test: e2e.cli_real_dataset
-Command: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13" "/Users/estebangonzalezcervantes/Documents/aetherindex/scripts/validate_real_dataset.py" "--cli" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/aetherindex" "--data-dir" "/Users/estebangonzalezcervantes/Documents/aetherindex/datasets/real/dbpedia" "--k" "100" "--report" "/Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests/real-data-Release.json"
-Directory: /Users/estebangonzalezcervantes/Documents/aetherindex/build-cli-release/tests
+Command: "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13" "<repo>/scripts/validate_real_dataset.py" "--cli" "<repo>/build-cli-release/aetherindex" "--data-dir" "<repo>/datasets/real/dbpedia" "--k" "100" "--report" "<repo>/build-cli-release/tests/real-data-Release.json"
+Directory: <repo>/build-cli-release/tests
 "e2e.cli_real_dataset" start time: Oct 12 16:27 CST
 Output:
 ----------------------------------------------------------

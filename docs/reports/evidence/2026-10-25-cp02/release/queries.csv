@@ -1,0 +1,21 @@
+query_id,query,expected_document_id,expected_rank_in_top10,hit_at_10,results_returned
+"Q01","error e47 controlador",1000,1,1,6
+"Q02","nginx http_404 ruta",1185,1,1,1
+"Q03","rtx-5090 controlador estación",1370,1,1,10
+"Q04","c++ raii memoria",1555,1,1,5
+"Q05","p-214 bomba cavitación",1740,1,1,5
+"Q06","vlan_37 switch ethernet",1925,1,1,5
+"Q07","db-812 transacciones bloqueo",2110,1,1,1
+"Q08","nvme_512 almacenamiento cola",2295,1,1,10
+"Q09","tls-902 certificado vence",2480,1,1,5
+"Q10","auth_321 cuenta intentos",2665,1,1,1
+"Q11","cal-673 sensor calibración",2850,1,1,6
+"Q12","fan_208 refrigeración velocidad",3035,1,1,5
+"Q13","build-731 enlace biblioteca",3220,1,1,2
+"Q14","queue_619 consumidor confirmación",3405,1,1,1
+"Q15","backup-442 integridad restaurar",3590,1,1,1
+"Q16","servo_184 robot posición",3775,1,1,5
+"Q17","power-563 alimentación tensión",3960,1,1,1
+"Q18","ntp_297 reloj sincronizar",4145,1,1,5
+"Q19","file-486 escribir permiso",4330,1,1,1
+"Q20","heat_845 horno secado",4515,1,1,5

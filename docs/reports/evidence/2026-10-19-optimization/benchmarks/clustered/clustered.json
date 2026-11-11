@@ -1,0 +1,5 @@
+{
+"vectors":10000,"dimension":128,"queries":1000,"ef_search":30,"k":10,
+"simple_mean_recall":0.39089999999999964,"heuristic_mean_recall":0.91909999999999892,"absolute_recall_gain":0.52819999999999923,"required_absolute_gain":0.05,
+"simple_build_ms":259.25983300000001,"heuristic_build_ms":646.07716600000003,"ca_2_4_pass":true
+}

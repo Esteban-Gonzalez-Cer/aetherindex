@@ -1,0 +1,24 @@
+Contexto de la demostración (metadata externa a la CLI)
+Catálogo: 10,000 artículos; dimensión: 1024
+Artículo de consulta: 40th Flight Test Squadron
+Embedding de consulta: queries/query_00.csv
+The 40th Flight Test Squadron is a United States Air Force unit.  It is assigned to the 46th
+Operations Group, based at Eglin AFB, Florida.
+
+Algoritmo: HNSW; métrica: Cosine
+Tiempo de consulta registrado (ms): 0.875666
+Rank | Vector ID | Distancia   | Artículo recuperado
+-----+-----------+-------------+----------------------------------------------------
+   1 |     33743 | 0.511461020 | No. 40 Squadron RAAF
+   2 |     48471 | 0.539448142 | 453d Electronic Warfare Squadron
+   3 |     18175 | 0.552062094 | 380th Air Expeditionary Wing
+   4 |     69401 | 0.562297702 | No. 46 Squadron RAF
+   5 |     30180 | 0.606505632 | B46 nuclear bomb
+   6 |     68708 | 0.624085963 | 730th Air Mobility Squadron
+   7 |     36865 | 0.637296200 | No. 30 Squadron RAAF
+   8 |     13359 | 0.638013661 | VFA-154
+   9 |     16243 | 0.641383231 | 107 Squadron (Israel)
+  10 |      9040 | 0.641777515 | 26th Infantry Regiment (United States)
+
+Recall@10 de ESTA consulta: 10/10 = 1.000
+Compara IDs con BruteForce; no mide relevancia humana ni respuestas de un LLM.

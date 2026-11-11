@@ -1,0 +1,1 @@
+{"kr":"KR1.5","metric":"successful end-to-end hybrid queries","target":"all valid queries (>= 20)","documents":30,"queries":24,"passed":24,"k":10,"k_rrf":60,"absolute_score_tolerance":9.9999999999999998e-13,"informative_relevant_hit_rate_at_10":1,"note":"relevance hit rate is informative only; embeddings are a non-semantic hashing baseline","result":"PASS"}

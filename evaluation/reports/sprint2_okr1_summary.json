@@ -1,0 +1,66 @@
+{
+  "environment": {
+    "collected_utc": "2026-10-29T01:12:47+00:00",
+    "git_commit": "4203fdf10500c7c4e2cb1b1a374f83d9571612e1",
+    "working_tree_dirty": true,
+    "note": "Dirty tree: results describe HEAD plus uncommitted changes; commit, then re-run to obtain the final evaluated revision.",
+    "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "python": "3.13.5",
+    "profiles": {
+      "release": {
+        "build_dir": "build-sprint2-release",
+        "build_type": "Release",
+        "compiler": "/usr/bin/c++",
+        "cxx_flags": "",
+        "sanitizers": "OFF"
+      },
+      "debug": {
+        "build_dir": "build-sprint2-debug",
+        "build_type": "Debug",
+        "compiler": "/usr/bin/c++",
+        "cxx_flags": "",
+        "sanitizers": "OFF"
+      },
+      "sanitizers": {
+        "build_dir": "build-sprint2-sanitizers",
+        "build_type": "Debug",
+        "compiler": "/opt/homebrew/opt/llvm/bin/clang++",
+        "cxx_flags": "",
+        "sanitizers": "ON"
+      }
+    }
+  },
+  "KR1.3": {
+    "metric": "BM25 HitRate@10",
+    "target": ">= 0.90 over >= 20 queries",
+    "actual": "23/24 = 0.9583",
+    "result": "PASS",
+    "evidence": "kr1_3_bm25.csv"
+  },
+  "KR1.4": {
+    "metric": "RRF mandatory case pass rate",
+    "target": "100% (22 cases)",
+    "actual": "22/22",
+    "result": "PASS",
+    "evidence": "kr1_4_rrf.csv"
+  },
+  "KR1.5": {
+    "metric": "successful end-to-end hybrid queries",
+    "target": "20/20 or more",
+    "actual": "24/24",
+    "result": "PASS",
+    "evidence": "kr1_5_hybrid.csv"
+  },
+  "KR1.7": {
+    "metric": "mandatory tests per profile + 4/4 member reproductions",
+    "automated_profiles_green": {
+      "release": true,
+      "debug": true,
+      "sanitizers": true
+    },
+    "members_reproduced": "0/4 recorded",
+    "result": "PENDING (requires each team member's own run)",
+    "evidence": "kr1_7_acceptance.csv"
+  }
+}

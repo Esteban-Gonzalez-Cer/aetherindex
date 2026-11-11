@@ -1,0 +1,23 @@
+{
+  "system": "aetherindex-dense",
+  "data": "<repo>/datasets/market/beir/arguana",
+  "documents": 8674,
+  "queries": 1406,
+  "build_type": "Release (NDEBUG)",
+  "dense": {"index": "hnsw", "M": 16, "ef_construction": 200, "ef": 128, "build_threads": 10, "build_seconds": 0.317184791, "dimension": 384},
+  "memory_mib": 20.2344208,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50,
+  "latency_queries": 1000,
+  "repetitions": 5,
+  "lat_p50_ms": 0.079166,
+  "lat_p95_ms": 0.1015,
+  "lat_p99_ms": 0.112375,
+  "lat_mean_ms": 0.079605463,
+  "qps_single": 12561.9519,
+  "threads": 10,
+  "qps_batch": 112999.036,
+  "qps_batch_q1": 112352.664,
+  "qps_batch_q3": 113569.128
+}

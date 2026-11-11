@@ -1,5 +1,9 @@
 # Resultados del checklist T2.1–T2.6
 
+> Evidencia histórica del baseline anterior al 19-10-2026. La normalización,
+> los kernels y el grafo actuales se validan en
+> [optimización vectorial y FlatGraph](../benchmarks/OPTIMIZATION_VALIDATION.md).
+
 Se ejecutaron los escenarios de las dos capturas proporcionadas. Los seis
 criterios están cubiertos por las pruebas existentes de almacenamiento y
 distancias, reforzadas con dos comprobaciones: ID inexistente en un store

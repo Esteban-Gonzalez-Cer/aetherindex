@@ -1,0 +1,12 @@
+{
+  "system": "aetherindex-bm25",
+  "data": "<repo>/datasets/market/beir-dev/scifact",
+  "documents": 5183,
+  "queries": 809,
+  "build_type": "Release (NDEBUG)",
+  "bm25": {"k1": 0.9, "b": 0.4, "analyzer": "english-v1", "strategy": "maxscore", "query_weighting": "frequency", "build_seconds_single_thread": 0.154513791, "postings_raw_bytes": 4780016, "postings_compressed_bytes": 1580651},
+  "memory_mib": 38.3750458,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50
+}

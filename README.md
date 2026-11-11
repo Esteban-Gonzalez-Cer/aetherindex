@@ -1,660 +1,289 @@
 # AetherIndex
 
-AetherIndex es un motor de búsqueda híbrida desarrollado en C++20 que combina
-técnicas de búsqueda vectorial y recuperación de información.
+[![CI](https://github.com/Esteban-Gonzalez-Cer/aetherindex/actions/workflows/ci.yml/badge.svg)](https://github.com/Esteban-Gonzalez-Cer/aetherindex/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C.svg)
+![Dependencies: none](https://img.shields.io/badge/dependencies-none-brightgreen.svg)
 
-El proyecto contempla los siguientes algoritmos:
+A hybrid search engine written from scratch in C++20: **HNSW** approximate vector search,
+**BM25** lexical retrieval over a compressed inverted index, and **rank fusion** to combine
+them. No third-party libraries: the engine, the JSON parser, the CLI and the test harness
+are all in this repository.
 
-- HNSW (Hierarchical Navigable Small World): búsqueda aproximada de vecinos
-  más cercanos mediante índices vectoriales.
-- BM25 (Best Matching 25): recuperación de documentos mediante índices
-  invertidos y relevancia léxica.
-- RRF (Reciprocal Rank Fusion): combinación de resultados provenientes
-  de diferentes métodos de búsqueda.
+The project was built to answer one question honestly: *how close can a from-scratch
+implementation get to hnswlib, FAISS and Lucene?* Every number below comes from a
+reproducible harness that runs the competitors on the same machine, the same data and the
+same evaluation code, and the report includes the results where AetherIndex loses.
 
-El desarrollo se realiza de manera incremental mediante sprints.
+## Results at a glance
 
-La estructura de directorios y las responsabilidades de cada módulo están
-documentadas en [Arquitectura del proyecto](docs/architecture/README.md).
-Las carpetas reservadas para funcionalidades futuras contienen `.gitkeep`
-para conservarse en Git; todavía no implementan algoritmos ni servicios.
+Measured on one machine (Apple M4 Pro, macOS, Apple clang 17). Full protocol, tables and
+caveats are in the [market comparison report](docs/reports/MARKET_COMPARISON.md).
 
-`VectorStore` almacena embeddings contiguos con IDs `uint32_t`, dimensión fija
-por instancia y acceso sin copia. `distance` implementa coseno y euclidiana al
-cuadrado. Fuerza bruta utiliza estos módulos a través de `QueryEngine`. La CLI
-carga archivos CSV y coordina fuerza bruta o HNSW mediante `SearchService`, sin
-incorporar lógica de almacenamiento ni algoritmos en la presentación.
-
-## CLI mínima: inicio rápido
-
-Requisitos: CMake 3.20 o superior y un compilador con C++20. Desde la raíz del
-repositorio, en macOS/Linux con un generador de configuración única:
-
-```sh
-cmake -S . -B build-cli -DCMAKE_BUILD_TYPE=Debug
-cmake --build build-cli --parallel 4
-./build-cli/aetherindex --help
-./build-cli/aetherindex search --dataset datasets/examples/vectors.csv --query datasets/examples/query.csv --algorithm brute-force --k 2
-ctest --test-dir build-cli --output-on-failure
-```
-
-En Windows, después de configurar y compilar con Visual Studio como se explica
-más adelante:
-
-```powershell
-.\build\Debug\aetherindex.exe --help
-.\build\Debug\aetherindex.exe search --dataset datasets/examples/vectors.csv --query datasets/examples/query.csv --algorithm brute-force --k 2
-ctest --test-dir build -C Debug --output-on-failure
-```
-
-El ejemplo devuelve **ID 10 a distancia 0**, seguido de **ID 40 a distancia
-aproximada 0.2**. La salida incluye algoritmo, métrica, tamaño, dimensión, K y
-tiempo de consulta en milisegundos, seguido de una tabla con bordes y separadores
-por fila. Los IDs son enteros y las distancias muestran nueve decimales, incluyendo
-`0.000000000`; las distancias menores van primero. El tiempo mide la búsqueda y
-excluye carga de CSV y presentación.
-
-| Argumento | Contrato |
-|---|---|
-| `search` | Carga el dataset, prepara el almacenamiento y consulta en una ejecución |
-| `--dataset FILE` | Obligatorio; CSV sin encabezado: `VectorId,x1,...,xD` |
-| `--query FILE` | Obligatorio; una fila `x1,...,xD`, sin ID |
-| `--algorithm NAME` | Obligatorio; `brute-force` exacto o `hnsw` aproximado |
-| `--k INTEGER` | Entero positivo; por defecto 10; como máximo `min(K,N)` vecinos |
-| `--metric NAME` | `cosine` por defecto, o `squared-euclidean` |
-| `--m`, `--m0` | HNSW: límites de vecinos superiores/base; por defecto 16/32 |
-| `--ef-construction`, `--ef-search` | HNSW: amplitud de construcción/consulta; por defecto 100/50 |
-| `--seed INTEGER` | HNSW: semilla uint64 reproducible; por defecto 42, cero permitido |
-| `--help` | Ayuda; también `search --help` o ejecución sin argumentos |
-
-Los IDs son enteros sin signo de 32 bits únicos, incluyendo 0. Todos los
-embeddings deben tener la misma dimensión y componentes finitos. Se admiten
-decimales, notación científica, espacios/tabulaciones alrededor de los campos,
-líneas vacías y finales de línea LF/CRLF. No se admiten encabezados, comillas ni
-campos vacíos. Coseno rechaza vectores de norma cero; euclidiana al cuadrado
-los permite. Por ejemplo:
-
-```csv
-10,1.0,0.0
-20,0.0,1.0
-30,-1.0,0.0
-40,0.8,0.6
-```
-
-Consulta correspondiente:
-
-```csv
-1.0,0.0
-```
-
-**HNSW está integrado** mediante la capa de aplicación. El siguiente comando
-construye el grafo en memoria y ejecuta la consulta aproximada:
-
-```sh
-./build-cli/aetherindex search --dataset datasets/examples/vectors.csv --query datasets/examples/query.csv --algorithm hnsw --k 10
-```
-
-Para usar los datos reales ya preparados:
-
-```sh
-./build-cli-release/aetherindex search --dataset datasets/real/dbpedia/vectors.csv --query datasets/real/dbpedia/queries/query_00.csv --algorithm hnsw --k 10 --ef-search 100 --seed 42
-```
-
-La construcción se mide por separado y queda fuera de `Query time (ms)`.
-Cada ejecución vuelve a cargar los datos y construir el grafo. HNSW conserva
-IDs y topología; `VectorStore` conserva los embeddings. No se sustituye la
-búsqueda aproximada por fuerza bruta. El resultado depende de la conectividad
-y de los parámetros: configuraciones dispersas pueden recuperar menos de K
-vecinos. Ver [el contrato de HNSW](docs/algorithms/hnsw.md).
-
-Los resultados y la ayuda se escriben en `stdout`; los errores, en `stderr`.
-Códigos: **0** éxito/ayuda, **2** argumentos o configuración inválidos,
-**3** lectura/validación de datos, **4** error de búsqueda/interno, incluyendo
-desbordamiento de una distancia. Una entrada inválida cancela toda la operación.
-Los archivos deben ser archivos regulares legibles; no se admite entrada por
-stdin. No hay persistencia: los datos se vuelven a cargar en cada ejecución.
-
-Consultar [Uso y pruebas de la CLI](docs/cli.md) y
-[Validación de la tarjeta](docs/architecture/cli_validation.md) para el dataset
-reproducible de 1,000 × 128 y las consultas CLI. La
-[auditoría y validación de HNSW](docs/architecture/hnsw_validation.md) registra
-los incumplimientos de la versión recibida, las correcciones y la comparación
-contra fuerza bruta con 100 consultas independientes por métrica.
-
-El [caso real de recomendación de artículos](docs/real_world_validation.md) amplía
-la validación a **10,000 artículos DBpedia × 1,024 dimensiones**, con 20 consultas
-separadas y comparación exhaustiva contra NumPy. Usa embeddings públicos ya
-calculados y el mismo formato CSV; no requiere generar embeddings ni usar una API
-de pago. La descarga y el test de datos reales se activan explícitamente.
-
-Consultar [VectorStore y distancias](docs/algorithms/vector_store_and_distances.md)
-para el contrato y los comandos de pruebas, [Fuerza bruta](docs/algorithms/brute_force.md)
-para el flujo de búsqueda y [Evidencia de validación](docs/architecture/vector_store_validation.md)
-para los resultados registrados.
-
-## 1. Requisitos del sistema
-
-Para compilar y ejecutar AetherIndex en Windows se necesita:
-
-### Sistema operativo
-
-- Windows 10 o Windows 11 de 64 bits.
-- Arquitectura x64.
-
-### Herramientas
-
-| Herramienta | Requisito | Propósito |
+| What | AetherIndex | Reference |
 |---|---|---|
-| Git | Versión reciente | Clonar el repositorio |
-| CMake | 3.20 o superior | Configuración del proyecto |
-| Visual Studio | 2022 | Entorno de compilación |
-| MSVC | Compatible con C++20 | Compilador de C++ |
-| Windows SDK | Incluido con Visual Studio | Bibliotecas y herramientas de Windows |
+| ANN throughput, SIFT1M, Recall@10 ≥ 0.95, 10 threads | **159.1 K QPS** | hnswlib 80.1 K (built with `-ffast-math`), FAISS HNSWFlat 47.5 K |
+| ANN throughput, GloVe-100, Recall@10 ≥ 0.95 | **12.6 K QPS** | hnswlib 9.0 K, FAISS 5.2 K |
+| HNSW build, SIFT1M, 1 thread | **258 s** | FAISS 352 s, hnswlib 366 s |
+| BM25 quality, mean nDCG@10 over 6 BEIR datasets | **0.5030** | Lucene 0.5024 (no significant difference on 5 of 6) |
+| BM25 latency, 1 thread, FiQA / TREC-COVID / Quora | **0.115 / 0.278 / 0.165 ms** | Lucene 0.153 / 0.363 / 0.209 ms |
+| BM25 index size on disk, 6 BEIR datasets | **0.46–0.84× Lucene** | Lucene index directory (terms, postings, norms) |
+| Hybrid quality, mean nDCG@10 over 6 BEIR datasets | **0.6313** (convex fusion) | exact dense search 0.6178, Lucene + exact + RRF 0.6088 |
 
-**Importante:** Visual Studio Code no sustituye al compilador MSVC.
-Es necesario instalar las herramientas de compilación de C++.
+<p align="center">
+  <img src="evaluation/reports/market/plots/sift1m_qps.svg" alt="Recall versus queries per second on SIFT1M for AetherIndex, hnswlib and FAISS" width="640">
+</p>
 
-## 2. Clonar el repositorio
+What these numbers do not show:
 
-Abrir PowerShell o Windows Terminal.
+- They come from a single Apple Silicon machine. hnswlib and FAISS have more mature x86
+  kernels, so the gap may be smaller or reversed on AVX hardware. This has not been measured.
+- The BM25 analyzer that matches Lucene (`english-v1`) is opt-in. The default analyzer
+  (`ascii-tech-v1`, no stemming or stopwords) scores below Lucene on all six BEIR datasets.
+- Classic RRF fusion scores *below* dense-only search on FiQA, ArguAna and Quora. That
+  finding is why the default fusion was changed to a convex combination tuned on dev splits.
+- There is no server and no persistence, so comparisons with Qdrant and OpenSearch are
+  in-process versus network round trip, and are reported separately for that reason.
 
-Ubicarse en el directorio donde se desea descargar el proyecto.
+## Objective
 
-Ejemplo:
+**AetherIndex aims to beat every competitor on every benchmark cell.** A cell is one
+benchmark, dataset and metric. AetherIndex's shipped configuration is compared with the
+best competitor configuration measured for that cell. Quality is judged on test splits
+with parameters tuned on dev only, and cost on medians of five runs. The full rule is in
+[docs/OBJECTIVE.md](docs/OBJECTIVE.md).
 
-```powershell
-cd "$HOME\Documents"
+Today: **88 of 148 comparable cells won** (64 clearly, 24 inside noise), up from 67 of 144
+at the start of this objective. Of the 40 lost, 32 are inside noise, mostly BM25 quality
+within 0.003 of Lucene or bm25s with the same formula and tokens. Eight are clear losses:
+
+- ArguAna BM25 against bm25s's own analyzer (3 cells);
+- parallel HNSW build against hnswlib with `-ffast-math` (2 cells);
+- loading a saved HNSW index and answering a first query, about 2× slower than FAISS
+  (2 cells);
+- GloVe-100 at Recall@10 ≥ 0.99, which only exact FAISS Flat search reaches on the shared
+  grid.
+
+The [scoreboard](evaluation/reports/market/scoreboard.md) lists every cell, won or not, and
+[docs/OBJECTIVE.md](docs/OBJECTIVE.md#progress) records what changed each cell.
+
+## Quick start
+
+Requirements: CMake 3.21+ and a C++20 compiler (GCC, Clang or AppleClang). Nothing else.
+
+```sh
+git clone https://github.com/Esteban-Gonzalez-Cer/aetherindex.git
+cd aetherindex
+cmake --preset release
+cmake --build --preset release --parallel
+ctest --preset release
 ```
 
-Clonar el repositorio:
+Then run the three retrieval modes on the bundled sample data:
 
-```powershell
-git clone "https://github.com/ORGANIZACION/AetherIndex.git"
+```sh
+# Dense: HNSW over a CSV of vectors
+./build/release/aetherindex search --algorithm hnsw \
+    --dataset datasets/examples/vectors.csv --query datasets/examples/query.csv --k 2
+
+# Lexical: BM25 over a JSONL corpus
+./build/release/aetherindex search --mode lexical \
+    --dataset datasets/corpus.jsonl --query datasets/queries.jsonl --query-id Q002 --k 5
+
+# Hybrid: HNSW + BM25, fused
+./build/release/aetherindex search --mode hybrid \
+    --dataset datasets/hybrid/corpus.jsonl --query datasets/hybrid/queries.jsonl --query-id Q002 --k 5
 ```
 
-Sustituir la URL por la dirección real del repositorio.
-
-Una vez terminada la descarga, acceder al directorio:
-
-```powershell
-cd AetherIndex
-```
-
-Verificar que la descarga se realizó correctamente:
-
-```powershell
-git status
-```
-
-El comando debería indicar que nos encontramos dentro de un repositorio
-Git y mostrar el estado actual de los archivos.
-
-También se puede verificar la estructura:
-
-```powershell
-Get-ChildItem
-```
-
-Es necesario comprobar que existe el archivo:
+The hybrid query prints its configuration, timings and where each result ranked in each
+retriever (output abbreviated):
 
 ```text
-CMakeLists.txt
+Search mode: Hybrid
+Fusion: convex (alpha=0.65, min-max normalized scores)
+Dense retriever: HNSW (Cosine)
+Lexical retriever: BM25 (title + text, no field boosts)
+...
++------+-------------+----------------+------------+--------------+
+| Rank | Document ID | Fused Score    | Dense Rank | Lexical Rank |
++------+-------------+----------------+------------+--------------+
+|    1 |        D002 | 0.795486965744 |          8 |            1 |
+|    2 |        D019 | 0.681921389620 |          6 |            2 |
+|    3 |        D012 | 0.681386373910 |          2 |            5 |
++------+-------------+----------------+------------+--------------+
 ```
 
-Este archivo contiene la configuración utilizada por CMake para
-generar el sistema de compilación.
+Build an index once and query it as often as needed. A saved index answers exactly like a
+one-shot search; on SIFT1M it turns a 37 s rebuild into a 0.35 s load
+([persistence](docs/persistence.md)):
 
-## 3. Instalación de herramientas
-
-### 3.1. Verificar Git
-
-Ejecutar:
-
-```powershell
-git --version
+```sh
+./build/release/aetherindex index build --out idx --mode hybrid --dataset datasets/hybrid/corpus.jsonl
+./build/release/aetherindex search --index idx --query datasets/hybrid/queries.jsonl --query-id Q002 --k 5
+./build/release/aetherindex index delete --index idx --id D002
+./build/release/aetherindex index verify --index idx
 ```
 
-Ejemplo de salida:
+`aetherindex --help` lists every option. The most useful ones:
 
-```text
-git version 2.x.x.windows.x
+| Option | Purpose |
+|---|---|
+| `--mode vector\|lexical\|hybrid` | Retrieval mode |
+| `--m`, `--ef-construction`, `--ef-search` | HNSW graph and search width |
+| `--quantization sq8\|pq`, `--rerank N` | Traverse compressed codes, re-rank with exact FP32 |
+| `--bm25-strategy maxscore\|bmw\|wand\|taat\|exhaustive` | Top-k pruning strategy; all return identical scores |
+| `--analyzer english-v1` | Lucene-equivalent English analysis (stopwords, Porter stemming) |
+| `--fusion convex\|rrf`, `--alpha A` | Hybrid fusion method and dense weight |
+| `--filter F=V`, `--filter-date F=A..B` | Metadata filters |
+| `--all-queries --query-threads N` | Batch mode with one index build |
+| `convert --out FILE.avec` | Convert CSV/JSONL vectors to a memory-mapped binary format |
+| `index build --out DIR`, `search --index DIR` | Save an index once, then search it without rebuilding |
+| `index add`, `index delete`, `index compact` | Add, update and delete records in a saved index |
+
+## Architecture
+
+A modular monolith of small static libraries with one-way dependencies. Algorithms never
+see the CLI, and the CLI never touches storage.
+
+```mermaid
+graph TD
+    CLI[aetherindex CLI] --> APP[aether_application<br/>SearchService, loaders, filters]
+    APP --> PERSIST[aether_persistence<br/>snapshots, aether_io]
+    PERSIST --> HNSW
+    PERSIST --> LEX
+    APP --> HNSW[aether_hnsw]
+    APP --> BF[aether_brute_force]
+    APP --> LEX[aether_lexical<br/>tokenizer, inverted index, BM25]
+    APP --> HYB[aether_hybrid<br/>RRF, convex fusion]
+    APP --> Q[aether_quantization<br/>SQ8, PQ]
+    HNSW --> DIST[aether_distance<br/>NEON / AVX2 / scalar kernels]
+    BF --> DIST
+    HNSW --> STORE[aether_storage<br/>VectorStore, .avec files]
+    BF --> STORE
+    Q --> STORE
 ```
 
-Si el comando funciona, Git está instalado correctamente.
+| Module | Path | What it does |
+|---|---|---|
+| Storage | [`src/storage`](src/storage) | Contiguous, 64-byte-aligned FP32 rows with zero-copy access; memory-mapped `.avec` files |
+| Persistence | [`src/persistence`](src/persistence), [`src/io`](src/io) | Checksummed, crash-safe snapshots of every index; validated before use |
+| Distance | [`src/distance`](src/distance) | Cosine and squared-Euclidean kernels: NEON, AVX2+FMA and a scalar fallback |
+| HNSW | [`src/ann/hnsw`](src/ann/hnsw) | Flat adjacency graph, heuristic neighbor selection (Algorithm 4 of the paper), parallel build |
+| Quantization | [`src/quantization`](src/quantization) | Scalar (SQ8) and product quantization with exact re-ranking |
+| Lexical | [`src/lexical`](src/lexical) | Two analyzers, bit-packed postings, BM25 with MaxScore, Block-Max WAND, WAND and TAAT |
+| Hybrid | [`src/hybrid`](src/hybrid) | Reciprocal rank fusion (classic and weighted) and convex score fusion |
+| Application | [`src/application`](src/application) | Orchestration, CSV/JSONL loading, metadata filters |
+| CLI | [`apps/cli`](apps/cli) | Argument parsing and output only |
 
-Si no está disponible, descargarlo desde:
+## Engineering notes
 
-https://git-scm.com/downloads/win
+The parts of this project that took the most thought, and where to read about them:
 
-### 3.2. Verificar CMake
+- **Profiling changed the HNSW design.** The first assumption was that the distance kernel
+  dominated query time. A profile showed the cost was cache misses while walking neighbor
+  lists. Storing the graph as a flat array and prefetching candidate rows in batches made
+  search 1.4–1.7× faster with no change to the kernel, and no `-ffast-math`.
+  ([report](docs/reports/MARKET_COMPARISON.md), [HNSW notes](docs/algorithms/hnsw.md))
+- **One quality bug was a modelling difference, not a formula bug.** BM25 lost 0.079 nDCG@10
+  to Lucene on ArguAna only. The cause: Lucene weights a repeated query term by its
+  frequency and AetherIndex counted it once. Two cross-checks (Qdrant and bm25s reproduce
+  each behaviour exactly) confirmed it before the default was changed.
+- **Pruning strategies are verified to be bit-identical.** MaxScore, Block-Max WAND, WAND and
+  TAAT must return exactly the scores of the exhaustive path. A unit test compares 18,960
+  query/strategy combinations, including 150-term queries and mass ties.
+- **MaxScore replaced Block-Max WAND as the default.** BMW took 7.9 ms on long queries because
+  it re-sorts cursors at every step. Windowed MaxScore, the approach Lucene uses, brought
+  that to 0.3 ms.
+- **The benchmark harness is validated before it is trusted.** Lucene reproduces its published
+  BEIR numbers within ±0.005, the in-house evaluator matches `trec_eval`, and the token stream
+  of `english-v1` matches Lucene's `EnglishAnalyzer` on 99.993 % of tokens.
+- **Determinism is a contract.** A fixed seed and a single build thread give a reproducible
+  graph; the CLI has golden-file tests for all three modes.
 
-Ejecutar:
+## Testing
 
-```powershell
-cmake --version
+```sh
+ctest --preset release          # 74 tests: unit, integration, end-to-end CLI, acceptance
+cmake --preset asan && cmake --build --preset asan && ctest --preset asan   # ASan + UBSan
+cmake --preset tsan && cmake --build --preset tsan && ctest --preset tsan   # ThreadSanitizer
 ```
 
-Ejemplo de salida:
+- The suite needs no network, no Python and no external libraries.
+- On macOS, run the sanitizer presets with Homebrew LLVM; see [CONTRIBUTING.md](CONTRIBUTING.md).
+  The sanitizer runtime shipped with Apple clang 17 hangs at start-up on macOS 26.
+- The code builds with `-Wall -Wextra -Wpedantic` and zero warnings; CI enforces it with
+  `-Werror`.
+- CI builds and tests on Linux (GCC and Clang) and macOS, plus ASan/UBSan and TSan jobs.
+- Tests are plain executables registered with CTest rather than a framework, to keep the
+  project dependency-free.
 
-```text
-cmake version 4.x.x
+## Reproducing the benchmarks
+
+```sh
+cmake --preset bench && cmake --build --preset bench --parallel
 ```
 
-Si CMake no está instalado, ejecutar:
-
-```powershell
-winget install --id Kitware.CMake -e
-```
-
-Al finalizar, cerrar y volver a abrir PowerShell.
-
-Verificar nuevamente:
-
-```powershell
-cmake --version
-```
-
-### 3.3. Instalar Visual Studio 2022
-
-Descargar Visual Studio 2022 Community desde:
-
-https://visualstudio.microsoft.com/vs/older-downloads/
-
-Durante la instalación, seleccionar la carga de trabajo:
-
-**Desktop development with C++**
-
-Verificar que estén seleccionados los siguientes componentes:
-
-- MSVC v143 - VS 2022 C++ x64/x86 build tools.
-- Windows 10 SDK o Windows 11 SDK.
-- C++ CMake tools for Windows.
-
-Los nombres y versiones exactos pueden variar según la instalación.
-
-Una vez instalados los componentes, cerrar y volver a abrir
-PowerShell.
-
-## 4. Configurar el proyecto con CMake
-
-Asegurarse de estar ubicado en el directorio raíz de AetherIndex.
-
-```powershell
-cd "$HOME\Documents\AetherIndex"
-```
-
-La ruta anterior es un ejemplo. Utilizar la ubicación donde realmente
-se clonó el proyecto.
-
-Verificar que existe el archivo de configuración:
-
-```powershell
-Test-Path .\CMakeLists.txt
-```
-
-Resultado esperado:
-
-```text
-True
-```
-
-### 4.1. Configuración inicial
-
-Ejecutar:
-
-```powershell
-cmake -S . -B build -G "Visual Studio 17 2022" -A x64
-```
-
-Descripción de los parámetros:
-
-- `-S .`: utiliza el directorio actual como origen del código.
-- `-B build`: genera los archivos de compilación en la carpeta build.
-- `-G "Visual Studio 17 2022"`: selecciona el generador de Visual Studio 2022.
-- `-A x64`: configura la compilación para arquitectura de 64 bits.
-
-CMake comenzará a detectar las herramientas disponibles.
-
-Ejemplo de salida:
-
-```text
--- The CXX compiler identification is MSVC ...
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Check for working CXX compiler: ...
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- Configuring done
--- Generating done
--- Build files have been written to: .../AetherIndex/build
-```
-
-La configuración se considera exitosa cuando aparecen:
-
-```text
--- Configuring done
--- Generating done
-```
-
-Y el comando termina con código de salida 0.
-
-### 4.2. Verificar archivos generados
-
-Ejecutar:
-
-```powershell
-Get-ChildItem .\build
-```
-
-Deberían aparecer archivos similares a:
-
-```text
-build/
-├── CMakeCache.txt
-├── CMakeFiles/
-├── AetherIndex.sln
-└── ...
-```
-
-El nombre del archivo de solución dependerá de la configuración del
-proyecto.
-
-## 5. Compilación del proyecto
-
-Una vez configurado CMake, proceder con la compilación.
-
-### 5.1. Compilar en modo Debug
-
-Ejecutar desde la raíz del proyecto:
-
-```powershell
-cmake --build build --config Debug
-```
-
-Este comando utiliza MSVC para compilar los archivos fuente del proyecto.
-
-Durante la compilación aparecerán mensajes indicando los archivos
-procesados y los targets generados.
-
-La compilación se considera exitosa si:
-
-1. No existen errores de compilación.
-2. El proceso termina correctamente.
-3. Se genera el ejecutable correspondiente.
-
-### 5.2. Verificar el resultado
-
-Inmediatamente después de compilar, ejecutar:
-
-```powershell
-$LASTEXITCODE
-```
-
-Resultado esperado:
-
-```text
-0
-```
-
-Un código de salida 0 indica que el proceso de compilación finalizó
-satisfactoriamente.
-
-### 5.3. Compilar en modo Release
-
-Opcionalmente, generar una versión optimizada:
-
-```powershell
-cmake --build build --config Release
-```
-
-Diferencias principales:
-
-- Debug: orientado a depuración y diagnóstico.
-- Release: orientado a ejecución optimizada.
-
-En el generador de Visual Studio, ambas configuraciones pueden coexistir
-dentro del mismo directorio build.
-
-## 6. Ejecución del programa
-
-Una vez compilado el proyecto, localizar el ejecutable generado.
-
-### 6.1. Buscar el ejecutable
-
-Ejecutar:
-
-```powershell
-Get-ChildItem -Path .\build -Recurse -Filter *.exe
-```
-
-Este comando mostrará los archivos ejecutables disponibles dentro
-del directorio de compilación.
-
-Identificar el ejecutable correspondiente a AetherIndex.
-
-Si el target se llama `aetherindex` y utiliza las rutas predeterminadas
-del generador de Visual Studio, la ubicación probablemente será:
-
-```text
-build/Debug/aetherindex.exe
-```
-
-La ubicación exacta dependerá de la configuración de CMake.
-
-### 6.2. Ejecutar AetherIndex
-
-Si el ejecutable se encuentra en la ruta anterior:
-
-```powershell
-.\build\Debug\aetherindex.exe
-```
-
-El programa deberá iniciar y ejecutar las funcionalidades
-implementadas en la versión actual.
-
-### 6.3. Verificar la finalización
-
-Después de que el programa termine, ejecutar:
-
-```powershell
-$LASTEXITCODE
-```
-
-Resultado esperado:
-
-```text
-0
-```
-
-Este resultado confirma que el proceso terminó correctamente.
-
-Si el programa requiere argumentos o interacción del usuario,
-seguir las instrucciones correspondientes a su versión.
-
-## 7. Pruebas de reproducibilidad
-
-Esta sección permite verificar que AetherIndex puede configurarse,
-compilarse y ejecutarse desde una instalación limpia.
-
-El procedimiento debe realizarlo un integrante del equipo que no
-haya preparado previamente el entorno del proyecto.
-
-### 7.1. Verificar el repositorio
-
-Desde la raíz del proyecto:
-
-```powershell
-git status
-```
-
-Registrar la versión del código utilizada:
-
-```powershell
-git rev-parse HEAD
-```
-
-### 7.2. Eliminar compilaciones anteriores
-
-Si existe un directorio build generado anteriormente, eliminarlo:
-
-```powershell
-Remove-Item -Recurse -Force .\build
-```
-
-**Advertencia:** este comando elimina completamente el directorio
-build. Ejecutarlo únicamente desde la raíz correcta del proyecto
-y después de verificar que no contiene archivos que deban conservarse.
-
-Si se acaba de clonar el repositorio y no existe build, este paso
-puede omitirse.
-
-### 7.3. Configurar nuevamente
-
-```powershell
-cmake -S . -B build -G "Visual Studio 17 2022" -A x64
-```
-
-Comprobar que la configuración finalice sin errores.
-
-### 7.4. Compilar nuevamente
-
-```powershell
-cmake --build build --config Debug
-```
-
-Comprobar que se genere el ejecutable.
-
-### 7.5. Ejecutar nuevamente
-
-Ejecutar el binario correspondiente:
-
-```powershell
-.\build\Debug\aetherindex.exe
-```
-
-Verificar que el programa inicie y termine correctamente.
-
-### 7.6. Resultados esperados
-
-La prueba será satisfactoria cuando:
-
-- El repositorio pueda clonarse correctamente.
-- Las dependencias estén instaladas y documentadas.
-- CMake detecte un compilador compatible.
-- Se configure el proyecto sin errores.
-- El código compile correctamente.
-- Se genere el ejecutable.
-- El programa pueda ejecutarse.
-- El programa termine sin fallos inesperados.
-
-Si alguno de los pasos falla, registrar el error y comunicarlo
-al equipo de desarrollo.
-
-## 8. Problemas frecuentes
-
-### Error: 'cmake' no se reconoce como comando
-
-Causa probable:
-
-CMake no está instalado o su directorio no está incluido en PATH.
-
-Solución:
-
-Instalar CMake y reiniciar la terminal.
-
-```powershell
-winget install --id Kitware.CMake -e
-```
-
-### Error: Could not find any instance of Visual Studio
-
-Causa probable:
-
-Visual Studio 2022 no está instalado correctamente o faltan
-componentes necesarios.
-
-Solución:
-
-Abrir Visual Studio Installer y verificar que esté instalada la carga
-de trabajo:
-
-Desktop development with C++.
-
-Comprobar también la disponibilidad de MSVC y Windows SDK.
-
-### Error: No CMAKE_CXX_COMPILER could be found
-
-Causa probable:
-
-No existe un compilador de C++ disponible para la configuración
-seleccionada.
-
-Solución:
-
-Instalar las herramientas de compilación de C++ desde
-Visual Studio Installer.
-
-Después, eliminar el directorio build e intentar nuevamente.
-
-### Error: existen referencias a bibliotecas de macOS o Linux
-
-Causa probable:
-
-Alguna parte del código utiliza APIs específicas de sistemas POSIX
-que no están disponibles de forma nativa en Windows.
-
-Solución:
-
-Revisar el archivo y la funcionalidad que producen el error.
-
-Es posible que se requiera una implementación específica para Windows
-o una abstracción multiplataforma.
-
-No sustituir directamente bibliotecas sin verificar su
-compatibilidad con el diseño del proyecto.
-
-### Error: no se encuentra el ejecutable
-
-Causa probable:
-
-El archivo fue generado en un directorio diferente.
-
-Solución:
-
-```powershell
-Get-ChildItem -Path .\build -Recurse -Filter *.exe
-```
-
-Verificar la ruta real y ejecutar el binario correspondiente.
-
-## 9. Registro de evidencias
-
-Para documentar la prueba de reproducibilidad se recomienda capturar
-los siguientes resultados:
-
-1. Versión de Git, CMake y herramientas de compilación.
-2. Repositorio clonado correctamente.
-3. Configuración exitosa mediante CMake.
-4. Compilación exitosa mediante MSVC.
-5. Ejecutable generado.
-6. Ejecución del programa.
-7. Finalización sin errores.
-
-Cada evidencia debe registrar:
-
-- Fecha de ejecución.
-- Integrante responsable.
-- Sistema operativo utilizado.
-- Comando ejecutado.
-- Resultado obtenido.
-- Observaciones, si existen.
-
-## 10. Criterio de aceptación
-
-La prueba de reproducibilidad se considera aprobada cuando otro
-integrante puede seguir las instrucciones de este README para
-configurar, compilar y ejecutar AetherIndex sin depender de
-configuraciones locales no documentadas.
-
-La compatibilidad con Windows deberá confirmarse mediante una
-ejecución real de estas pruebas.
+- [`benchmarks/`](benchmarks) holds the in-tree drivers: HNSW parameter sweeps, distance
+  kernels, and the optimization suite.
+- [`benchmarks/market/`](benchmarks/market/README.md) holds the comparison harnesses for
+  hnswlib, FAISS, Lucene, bm25s, Qdrant and OpenSearch, with pinned versions and a
+  `docker-compose.yml` for the servers.
+- [`evaluation/reports/`](evaluation/reports) keeps the result summaries, per-query runs and
+  manifests that the reports cite. Raw logs are not versioned.
+
+Datasets (SIFT1M, GloVe-100, BEIR, DBpedia) are downloaded on demand by the scripts and are
+not stored in the repository.
+
+## Roadmap
+
+| Milestone | Status |
+|---|---|
+| Objective and scoreboard: every benchmark cell tracked, won or not | Done |
+| Snapshot persistence: crash-safe save and load, checksummed and validated ([design](docs/persistence.md)) | Done |
+| Adds, deletes, updates and compaction; compaction is bit-identical to a fresh build ([details](docs/persistence.md#adding-deleting-and-compacting)) | Done |
+| Concurrent updates: searches keep running while a writer inserts, deletes or compacts; TSan-clean ([details](docs/concurrency.md)) | Done |
+| Write-ahead log: adds and deletes are durable without rewriting the index, and survive a crash ([details](docs/persistence.md#write-ahead-log)) | Done |
+| Close the open scoreboard cells, then widen the margins of the won ones | In progress: 67 → 88 cells won, 8 clear losses left |
+
+## Limitations
+
+- One writer at a time (any number of concurrent searches), and no server mode. Reads
+  slow down by about 40 % while a writer links new graph nodes
+  ([measurements](docs/concurrency.md#evidence)).
+- The engine does not produce embeddings. The vectors in `datasets/hybrid/` are a
+  reproducible lexical hashing, useful for testing but not a semantic model.
+- The x86 AVX2 kernel is selected at compile time (`-DAETHER_NATIVE_SIMD=ON`); there is no
+  runtime dispatch, so a generic x86 binary uses the scalar path.
+- Developed and benchmarked on macOS/arm64. Windows (MSVC) is supported in the build files
+  but has no recorded test run.
+
+## Documentation
+
+The in-depth documentation and reports were written in Spanish, the working language of the
+team.
+
+| Document | Contents |
+|---|---|
+| [Market comparison](docs/reports/MARKET_COMPARISON.md) | Fairness protocol, all results, and the profiling work behind them |
+| [Optimization roadmap](docs/reports/OPTIMIZATION_ROADMAP.md) | Binary format, parallel build, quantization, BM25 strategies, filters |
+| [HNSW](docs/algorithms/hnsw.md), [BM25](docs/algorithms/bm25.md), [RRF](docs/algorithms/rrf.md) | Algorithm contracts and design decisions |
+| [Vector store and distances](docs/algorithms/vector_store_and_distances.md) | Storage layout and kernel contracts |
+| [CLI reference](docs/cli.md) | Every option, input formats and exit codes |
+| [Architecture](docs/architecture/README.md) | Module responsibilities and dependency rules |
+| [Persistence](docs/persistence.md) (English) | Snapshot format, crash safety, validation and load cost |
+| [Concurrency](docs/concurrency.md) (English) | Locking protocol, lock-free graph reads, TSan evidence and costs |
+
+## Team
+
+AetherIndex started as a three-person team project, developed in sprints.
+
+- [Esteban-Gonzalez-Cer](https://github.com/Esteban-Gonzalez-Cer): project architecture,
+  vector store and distance kernels, the BM25 engine and its pruning strategies, rank
+  fusion, quantization, the performance work and the market comparison campaign.
+- [JuanAngelRivera](https://github.com/JuanAngelRivera): the first HNSW graph and layer
+  search, BM25 integration into the CLI, the JSON loader and the labelled test corpus.
+- [kr-zvr](https://github.com/kr-zvr): HNSW level hierarchy.
+
+## License
+
+[MIT](LICENSE)

@@ -1,0 +1,23 @@
+{
+  "system": "aetherindex-dense",
+  "data": "<repo>/datasets/market/beir/nfcorpus",
+  "documents": 3633,
+  "queries": 323,
+  "build_type": "Release (NDEBUG)",
+  "dense": {"index": "hnsw", "M": 16, "ef_construction": 200, "ef": 128, "build_threads": 10, "build_seconds": 0.120617417, "dimension": 384},
+  "memory_mib": 11.5468979,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50,
+  "latency_queries": 323,
+  "repetitions": 5,
+  "lat_p50_ms": 0.078792,
+  "lat_p95_ms": 0.094667,
+  "lat_p99_ms": 0.100959,
+  "lat_mean_ms": 0.0795242601,
+  "qps_single": 12574.7791,
+  "threads": 10,
+  "qps_batch": 106613.855,
+  "qps_batch_q1": 105263.158,
+  "qps_batch_q3": 109643.316
+}

@@ -1,0 +1,3 @@
+dataset,metric,dimension,scalar_mean_ns,simd_mean_ns,scalar_median_ns,simd_median_ns,mean_reduction_pct,speedup,meets_kr3_6
+sift_base.fvecs,cosine,128,69.798424,7.27666,69.27495,7.1146,89.5747503,9.59209637,true
+sift_base.fvecs,squared_euclidean,128,70.306416,7.45633,71.63545,7.41455,89.3945241,9.42909126,true

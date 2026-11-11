@@ -1,0 +1,1 @@
+{"mode":"load","repeat":3,"queries":1000,"warmup":100,"k":10,"m":16,"m0":32,"ef_construction":100,"ef_search":50,"threads":1,"build_type":"Release (NDEBUG)","compiler":"Apple LLVM 17.0.0 (clang-1700.6.3.2)","dataset":"synthetic Gaussian mixture written as CSV and JSONL","vectors":100000,"dimension":128,"scope":"production loaders: parse + validate + VectorStore insert"}

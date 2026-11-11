@@ -1,0 +1,12 @@
+Working directory: <repo>
+Command: build-testing-hybrid-2026-10-30/aetherindex search --mode hybrid --dataset docs/reports/evidence/2026-10-30-hybrid-checklist/fixtures/wrong-corpus-dimension.jsonl --query datasets/hybrid/queries.jsonl --query-id Q001
+Started UTC: 2026-10-30T16:35:52.957862+00:00
+Expected exit: 3
+Actual exit: 3
+Test verdict: PASS
+
+--- stdout ---
+(empty)
+
+--- stderr ---
+Error: docs/reports/evidence/2026-10-30-hybrid-checklist/fixtures/wrong-corpus-dimension.jsonl:document 'D002': invalid vector dimension or embedding.

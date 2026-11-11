@@ -1,0 +1,159 @@
+dataset,system,label,family,ndcg@10,recall@100,mrr@10
+scifact,lucene,Lucene BM25 (Porter),BM25,0.678909,0.925333,0.645659
+scifact,aether-bm25,AetherIndex BM25 english-v1,BM25,0.67951,0.925333,0.645714
+scifact,aether-bm25-freq,"AetherIndex BM25 english-v1, frecuencia",BM25,0.677677,0.925333,0.644516
+scifact,bm25s-matched,bm25s (tokens english-v1),BM25,0.677677,0.925333,0.644516
+scifact,bm25s,bm25s (por defecto),BM25,0.676188,0.912667,0.641307
+scifact,qdrant-bm25,Qdrant sparse BM25,BM25,0.67951,0.925333,0.645714
+scifact,opensearch-bm25,OpenSearch BM25,BM25,0.678909,0.925333,0.645659
+scifact,lucene-plain,Lucene sin stemming/stopwords,BM25 sin stemming,0.665108,0.885222,0.636431
+scifact,aether-bm25-ascii,AetherIndex BM25 ascii-tech-v1,BM25 sin stemming,0.643518,0.865889,0.60871
+scifact,aether-bm25-plain,"AetherIndex BM25 english-plain-v1, frecuencia",BM25 sin stemming,0.662152,0.885222,0.633418
+scifact,lucene-k1.2,Lucene BM25 k1=1.2 b=0.75,BM25 k1=1.2,0.682575,0.928222,0.646425
+scifact,aether-bm25-k1.2,AetherIndex BM25 k1=1.2 b=0.75,BM25 k1=1.2,0.687009,0.928222,0.649193
+scifact,aether-bm25-freq-k1.2,"AetherIndex BM25 k1=1.2 b=0.75, frecuencia",BM25 k1=1.2,0.68303,0.928222,0.646741
+scifact,exact,Exacto (fuerza bruta),Denso,0.712707,0.941667,0.682193
+scifact,aether-dense,AetherIndex HNSW FP32,Denso,0.712707,0.941667,0.682193
+scifact,aether-sq8,AetherIndex HNSW SQ8,Denso,0.712707,0.941667,0.682193
+scifact,qdrant-dense,Qdrant HNSW,Denso,0.712707,0.941667,0.682193
+scifact,opensearch-dense,OpenSearch k-NN,Denso,0.712707,0.945,0.682193
+scifact,aether-hybrid,AetherIndex híbrido RRF,Híbrido,0.730349,0.968333,0.694255
+scifact,aether-hybrid-freq,"AetherIndex híbrido RRF, frecuencia",Híbrido,0.729179,0.968333,0.693519
+scifact,aether-hybrid-wrrf,"AetherIndex RRF ponderado (global, dev)",Híbrido,0.723919,0.945,0.694989
+scifact,aether-hybrid-convex,"AetherIndex convexo (global, dev)",Híbrido,0.731829,0.966667,0.698591
+scifact,aether-hybrid-wrrf-dev,"AetherIndex RRF ponderado (por dataset, dev)",Híbrido,0.726497,0.945,0.695434
+scifact,aether-hybrid-convex-dev,"AetherIndex convexo (por dataset, dev)",Híbrido,0.731829,0.966667,0.698591
+scifact,reference-hybrid,Referencia: Lucene + exacto + RRF,Híbrido,0.727342,0.968333,0.691866
+scifact,qdrant-hybrid,Qdrant híbrido RRF,Híbrido,0.730203,0.968333,0.694089
+scifact,opensearch-hybrid,OpenSearch híbrido RRF,Híbrido,0.728595,0.968333,0.692474
+nfcorpus,lucene,Lucene BM25 (Porter),BM25,0.320555,0.245625,0.521382
+nfcorpus,aether-bm25,AetherIndex BM25 english-v1,BM25,0.320726,0.247774,0.521932
+nfcorpus,aether-bm25-freq,"AetherIndex BM25 english-v1, frecuencia",BM25,0.320217,0.245624,0.521545
+nfcorpus,bm25s-matched,bm25s (tokens english-v1),BM25,0.320217,0.245636,0.521545
+nfcorpus,bm25s,bm25s (por defecto),BM25,0.31771,0.245709,0.520042
+nfcorpus,qdrant-bm25,Qdrant sparse BM25,BM25,0.320726,0.247786,0.521932
+nfcorpus,opensearch-bm25,OpenSearch BM25,BM25,0.320555,0.245683,0.521382
+nfcorpus,lucene-plain,Lucene sin stemming/stopwords,BM25 sin stemming,0.304894,0.236848,0.51129
+nfcorpus,aether-bm25-ascii,AetherIndex BM25 ascii-tech-v1,BM25 sin stemming,0.293482,0.225786,0.501188
+nfcorpus,aether-bm25-plain,"AetherIndex BM25 english-plain-v1, frecuencia",BM25 sin stemming,0.305135,0.23653,0.510881
+nfcorpus,lucene-k1.2,Lucene BM25 k1=1.2 b=0.75,BM25 k1=1.2,0.320857,0.246329,0.518666
+nfcorpus,aether-bm25-k1.2,AetherIndex BM25 k1=1.2 b=0.75,BM25 k1=1.2,0.321879,0.248207,0.5225
+nfcorpus,aether-bm25-freq-k1.2,"AetherIndex BM25 k1=1.2 b=0.75, frecuencia",BM25 k1=1.2,0.32124,0.246444,0.522058
+nfcorpus,exact,Exacto (fuerza bruta),Denso,0.343012,0.311007,0.526855
+nfcorpus,aether-dense,AetherIndex HNSW FP32,Denso,0.343037,0.310737,0.526855
+nfcorpus,aether-sq8,AetherIndex HNSW SQ8,Denso,0.342352,0.311646,0.525307
+nfcorpus,qdrant-dense,Qdrant HNSW,Denso,0.343012,0.311007,0.526855
+nfcorpus,opensearch-dense,OpenSearch k-NN,Denso,0.342503,0.312407,0.52689
+nfcorpus,aether-hybrid,AetherIndex híbrido RRF,Híbrido,0.36204,0.313854,0.571871
+nfcorpus,aether-hybrid-freq,"AetherIndex híbrido RRF, frecuencia",Híbrido,0.361166,0.312607,0.569162
+nfcorpus,aether-hybrid-wrrf,"AetherIndex RRF ponderado (global, dev)",Híbrido,0.353113,0.310925,0.553789
+nfcorpus,aether-hybrid-convex,"AetherIndex convexo (global, dev)",Híbrido,0.360334,0.314978,0.553075
+nfcorpus,aether-hybrid-wrrf-dev,"AetherIndex RRF ponderado (por dataset, dev)",Híbrido,0.357788,0.311227,0.562955
+nfcorpus,aether-hybrid-convex-dev,"AetherIndex convexo (por dataset, dev)",Híbrido,0.364078,0.311095,0.572031
+nfcorpus,reference-hybrid,Referencia: Lucene + exacto + RRF,Híbrido,0.361776,0.311316,0.56842
+nfcorpus,qdrant-hybrid,Qdrant híbrido RRF,Híbrido,0.362555,0.31273,0.569213
+nfcorpus,opensearch-hybrid,OpenSearch híbrido RRF,Híbrido,0.360737,0.311634,0.565293
+fiqa,lucene,Lucene BM25 (Porter),BM25,0.236067,0.539486,0.295584
+fiqa,aether-bm25,AetherIndex BM25 english-v1,BM25,0.237826,0.535408,0.299685
+fiqa,aether-bm25-freq,"AetherIndex BM25 english-v1, frecuencia",BM25,0.23533,0.540026,0.295776
+fiqa,bm25s-matched,bm25s (tokens english-v1),BM25,0.23533,0.540026,0.295776
+fiqa,bm25s,bm25s (por defecto),BM25,0.238493,0.538215,0.298977
+fiqa,qdrant-bm25,Qdrant sparse BM25,BM25,0.237826,0.535408,0.299685
+fiqa,opensearch-bm25,OpenSearch BM25,BM25,0.236067,0.539486,0.295584
+fiqa,lucene-plain,Lucene sin stemming/stopwords,BM25 sin stemming,0.231954,0.492323,0.287426
+fiqa,aether-bm25-ascii,AetherIndex BM25 ascii-tech-v1,BM25 sin stemming,0.223811,0.486208,0.278552
+fiqa,aether-bm25-plain,"AetherIndex BM25 english-plain-v1, frecuencia",BM25 sin stemming,0.232436,0.493421,0.285579
+fiqa,lucene-k1.2,Lucene BM25 k1=1.2 b=0.75,BM25 k1=1.2,0.253635,0.548857,0.308873
+fiqa,aether-bm25-k1.2,AetherIndex BM25 k1=1.2 b=0.75,BM25 k1=1.2,0.250883,0.553865,0.309633
+fiqa,aether-bm25-freq-k1.2,"AetherIndex BM25 k1=1.2 b=0.75, frecuencia",BM25 k1=1.2,0.252339,0.552528,0.31002
+fiqa,exact,Exacto (fuerza bruta),Denso,0.403474,0.696288,0.487861
+fiqa,aether-dense,AetherIndex HNSW FP32,Denso,0.40142,0.687749,0.485752
+fiqa,aether-sq8,AetherIndex HNSW SQ8,Denso,0.40142,0.688829,0.485752
+fiqa,qdrant-dense,Qdrant HNSW,Denso,0.398874,0.68622,0.483232
+fiqa,opensearch-dense,OpenSearch k-NN,Denso,0.400481,0.690372,0.483845
+fiqa,aether-hybrid,AetherIndex híbrido RRF,Híbrido,0.35685,0.685548,0.430942
+fiqa,aether-hybrid-freq,"AetherIndex híbrido RRF, frecuencia",Híbrido,0.358569,0.688598,0.431668
+fiqa,aether-hybrid-wrrf,"AetherIndex RRF ponderado (global, dev)",Híbrido,0.407966,0.68852,0.488574
+fiqa,aether-hybrid-convex,"AetherIndex convexo (global, dev)",Híbrido,0.4137,0.685814,0.494136
+fiqa,aether-hybrid-wrrf-dev,"AetherIndex RRF ponderado (por dataset, dev)",Híbrido,0.410139,0.68852,0.496617
+fiqa,aether-hybrid-convex-dev,"AetherIndex convexo (por dataset, dev)",Híbrido,0.415314,0.694513,0.496024
+fiqa,reference-hybrid,Referencia: Lucene + exacto + RRF,Híbrido,0.360855,0.689539,0.433559
+fiqa,qdrant-hybrid,Qdrant híbrido RRF,Híbrido,0.354454,0.68546,0.427396
+fiqa,opensearch-hybrid,OpenSearch híbrido RRF,Híbrido,0.358828,0.689228,0.430191
+arguana,lucene,Lucene BM25 (Porter),BM25,0.396983,0.932432,0.314494
+arguana,aether-bm25,AetherIndex BM25 english-v1,BM25,0.317826,0.835704,0.249462
+arguana,aether-bm25-freq,"AetherIndex BM25 english-v1, frecuencia",BM25,0.400295,0.932432,0.31797
+arguana,bm25s-matched,bm25s (tokens english-v1),BM25,0.400295,0.932432,0.31797
+arguana,bm25s,bm25s (por defecto),BM25,0.408002,0.938122,0.325273
+arguana,qdrant-bm25,Qdrant sparse BM25,BM25,0.318005,0.835704,0.249926
+arguana,opensearch-bm25,OpenSearch BM25,BM25,0.396983,0.932432,0.314494
+arguana,lucene-plain,Lucene sin stemming/stopwords,BM25 sin stemming,0.381336,0.907539,0.299408
+arguana,aether-bm25-ascii,AetherIndex BM25 ascii-tech-v1,BM25 sin stemming,0.324386,0.817923,0.252092
+arguana,aether-bm25-plain,"AetherIndex BM25 english-plain-v1, frecuencia",BM25 sin stemming,0.384519,0.910384,0.302751
+arguana,lucene-k1.2,Lucene BM25 k1=1.2 b=0.75,BM25 k1=1.2,0.477965,0.958748,0.389452
+arguana,aether-bm25-k1.2,AetherIndex BM25 k1=1.2 b=0.75,BM25 k1=1.2,0.406219,0.915363,0.32299
+arguana,aether-bm25-freq-k1.2,"AetherIndex BM25 k1=1.2 b=0.75, frecuencia",BM25 k1=1.2,0.482254,0.959459,0.393238
+arguana,exact,Exacto (fuerza bruta),Denso,0.603478,0.987909,0.522482
+arguana,aether-dense,AetherIndex HNSW FP32,Denso,0.603478,0.987909,0.522482
+arguana,aether-sq8,AetherIndex HNSW SQ8,Denso,0.603478,0.987909,0.522482
+arguana,qdrant-dense,Qdrant HNSW,Denso,0.603478,0.987909,0.522482
+arguana,opensearch-dense,OpenSearch k-NN,Denso,0.603478,0.98862,0.522482
+arguana,aether-hybrid,AetherIndex híbrido RRF,Híbrido,0.483099,0.984353,0.397724
+arguana,aether-hybrid-freq,"AetherIndex híbrido RRF, frecuencia",Híbrido,0.537234,0.986486,0.447544
+arguana,aether-hybrid-wrrf,"AetherIndex RRF ponderado (global, dev)",Híbrido,0.60248,0.987909,0.518013
+arguana,aether-hybrid-convex,"AetherIndex convexo (global, dev)",Híbrido,0.600517,0.989331,0.515996
+arguana,reference-hybrid,Referencia: Lucene + exacto + RRF,Híbrido,0.535379,0.987198,0.446017
+arguana,qdrant-hybrid,Qdrant híbrido RRF,Híbrido,0.480028,0.983642,0.393687
+arguana,opensearch-hybrid,OpenSearch híbrido RRF,Híbrido,0.53488,0.987198,0.445339
+trec-covid,lucene,Lucene BM25 (Porter),BM25,0.593453,0.109128,0.852857
+trec-covid,aether-bm25,AetherIndex BM25 english-v1,BM25,0.596366,0.108494,0.86619
+trec-covid,aether-bm25-freq,"AetherIndex BM25 english-v1, frecuencia",BM25,0.595966,0.109052,0.86619
+trec-covid,bm25s-matched,bm25s (tokens english-v1),BM25,0.595966,0.109052,0.86619
+trec-covid,bm25s,bm25s (por defecto),BM25,0.588735,0.107517,0.838524
+trec-covid,qdrant-bm25,Qdrant sparse BM25,BM25,0.596417,0.108494,0.86619
+trec-covid,opensearch-bm25,OpenSearch BM25,BM25,0.593453,0.109105,0.852857
+trec-covid,lucene-plain,Lucene sin stemming/stopwords,BM25 sin stemming,0.58228,0.096696,0.783
+trec-covid,aether-bm25-ascii,AetherIndex BM25 ascii-tech-v1,BM25 sin stemming,0.538727,0.085325,0.7665
+trec-covid,aether-bm25-plain,"AetherIndex BM25 english-plain-v1, frecuencia",BM25 sin stemming,0.583188,0.097488,0.785667
+trec-covid,lucene-k1.2,Lucene BM25 k1=1.2 b=0.75,BM25 k1=1.2,0.615254,0.111895,0.884
+trec-covid,aether-bm25-k1.2,AetherIndex BM25 k1=1.2 b=0.75,BM25 k1=1.2,0.612259,0.112465,0.883333
+trec-covid,aether-bm25-freq-k1.2,"AetherIndex BM25 k1=1.2 b=0.75, frecuencia",BM25 k1=1.2,0.613863,0.112249,0.883333
+trec-covid,exact,Exacto (fuerza bruta),Denso,0.757783,0.13325,0.930667
+trec-covid,aether-dense,AetherIndex HNSW FP32,Denso,0.757783,0.134295,0.930667
+trec-covid,aether-sq8,AetherIndex HNSW SQ8,Denso,0.757783,0.134526,0.930667
+trec-covid,qdrant-dense,Qdrant HNSW,Denso,0.755717,0.133294,0.930667
+trec-covid,opensearch-dense,OpenSearch k-NN,Denso,0.757783,0.134311,0.930667
+trec-covid,aether-hybrid,AetherIndex híbrido RRF,Híbrido,0.80263,0.13369,0.976667
+trec-covid,aether-hybrid-freq,"AetherIndex híbrido RRF, frecuencia",Híbrido,0.799395,0.133855,0.976667
+trec-covid,aether-hybrid-wrrf,"AetherIndex RRF ponderado (global, dev)",Híbrido,0.80074,0.134367,0.99
+trec-covid,aether-hybrid-convex,"AetherIndex convexo (global, dev)",Híbrido,0.786059,0.135002,0.970667
+trec-covid,reference-hybrid,Referencia: Lucene + exacto + RRF,Híbrido,0.800877,0.133105,0.976667
+trec-covid,qdrant-hybrid,Qdrant híbrido RRF,Híbrido,0.800744,0.133399,0.963333
+trec-covid,opensearch-hybrid,OpenSearch híbrido RRF,Híbrido,0.79859,0.133706,0.976667
+quora,lucene,Lucene BM25 (Porter),BM25,0.788421,0.973312,0.779058
+quora,aether-bm25,AetherIndex BM25 english-v1,BM25,0.789303,0.973622,0.779909
+quora,aether-bm25-freq,"AetherIndex BM25 english-v1, frecuencia",BM25,0.788455,0.973324,0.779113
+quora,bm25s-matched,bm25s (tokens english-v1),BM25,0.788455,0.973384,0.779113
+quora,bm25s,bm25s (por defecto),BM25,0.787011,0.974432,0.77695
+quora,qdrant-bm25,Qdrant sparse BM25,BM25,0.789138,0.973546,0.779622
+quora,opensearch-bm25,OpenSearch BM25,BM25,0.788421,0.973415,0.779058
+quora,lucene-plain,Lucene sin stemming/stopwords,BM25 sin stemming,0.726943,0.940013,0.718927
+quora,aether-bm25-ascii,AetherIndex BM25 ascii-tech-v1,BM25 sin stemming,0.724418,0.939552,0.717038
+quora,aether-bm25-plain,"AetherIndex BM25 english-plain-v1, frecuencia",BM25 sin stemming,0.726957,0.940025,0.718944
+quora,lucene-k1.2,Lucene BM25 k1=1.2 b=0.75,BM25 k1=1.2,0.807709,0.977124,0.801601
+quora,aether-bm25-k1.2,AetherIndex BM25 k1=1.2 b=0.75,BM25 k1=1.2,0.808812,0.977863,0.802559
+quora,aether-bm25-freq-k1.2,"AetherIndex BM25 k1=1.2 b=0.75, frecuencia",BM25 k1=1.2,0.807782,0.977136,0.801661
+quora,exact,Exacto (fuerza bruta),Denso,0.886381,0.995259,0.878183
+quora,aether-dense,AetherIndex HNSW FP32,Denso,0.886144,0.994945,0.877983
+quora,aether-sq8,AetherIndex HNSW SQ8,Denso,0.886144,0.994945,0.877983
+quora,qdrant-dense,Qdrant HNSW,Denso,0.886273,0.995101,0.878133
+quora,opensearch-dense,OpenSearch k-NN,Denso,0.885518,0.994265,0.877333
+quora,aether-hybrid,AetherIndex híbrido RRF,Híbrido,0.86617,0.995512,0.85997
+quora,aether-hybrid-freq,"AetherIndex híbrido RRF, frecuencia",Híbrido,0.866209,0.995462,0.860152
+quora,aether-hybrid-wrrf,"AetherIndex RRF ponderado (global, dev)",Híbrido,0.888599,0.994956,0.881308
+quora,aether-hybrid-convex,"AetherIndex convexo (global, dev)",Híbrido,0.895539,0.995424,0.890411
+quora,aether-hybrid-wrrf-dev,"AetherIndex RRF ponderado (por dataset, dev)",Híbrido,0.889569,0.994956,0.88188
+quora,aether-hybrid-convex-dev,"AetherIndex convexo (por dataset, dev)",Híbrido,0.897648,0.995794,0.892162
+quora,reference-hybrid,Referencia: Lucene + exacto + RRF,Híbrido,0.866308,0.995448,0.86024
+quora,qdrant-hybrid,Qdrant híbrido RRF,Híbrido,0.866889,0.995448,0.86085
+quora,opensearch-hybrid,OpenSearch híbrido RRF,Híbrido,0.865211,0.995498,0.859214

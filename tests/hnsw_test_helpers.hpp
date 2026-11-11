@@ -43,6 +43,20 @@ inline void populate(VectorStore& store, const std::vector<std::vector<float>>& 
     }
 }
 
+inline std::vector<VectorId> neighbor_ids(const HnswIndex& index, VectorId id, std::size_t layer) {
+    std::vector<VectorId> result;
+    for (InternalId node : index.neighbors(id, layer)) result.push_back(index.external_id(node));
+    return result;
+}
+
+inline std::vector<std::vector<VectorId>> topology(const HnswIndex& index, VectorId id) {
+    std::vector<std::vector<VectorId>> result;
+    for (std::size_t layer = 0; layer <= index.find_node(id)->max_level; ++layer) {
+        result.push_back(neighbor_ids(index, id, layer));
+    }
+    return result;
+}
+
 inline void check_graph(const HnswIndex& index, const VectorStore& store,
                         std::span<const VectorId> indexed_ids) {
     const auto report = index.validate_graph();
@@ -64,23 +78,24 @@ inline void check_graph(const HnswIndex& index, const VectorStore& store,
     std::size_t actual_max_level = 0;
     for (VectorId id : indexed_ids) {
         require(index.contains(id) && store.contains(id), "Indexed IDs must exist in both owners.");
-        const auto* node = index.find_node(id);
+        const auto node = index.find_node(id);
         require(node && node->id == id, "Node lookup must preserve the full vector ID.");
         require(node->max_level <= index.config().max_level,
                 "A generated level exceeds the configured safety limit.");
-        require(node->neighbors.size() == node->max_level + 1,
-                "Every node must have all layers through its maximum level.");
+        require(index.external_id(node->internal_id) == id,
+                "Dense internal positions must translate to external IDs.");
         actual_max_level = std::max(actual_max_level, node->max_level);
-        for (std::size_t layer = 0; layer < node->neighbors.size(); ++layer) {
+        for (std::size_t layer = 0; layer <= node->max_level; ++layer) {
             const auto limit = layer == 0 ? index.config().m_max_0 : index.config().m;
-            require(node->neighbors[layer].size() <= limit, "Per-layer neighbor limit exceeded.");
+            require(index.neighbors(id, layer).size() <= limit,
+                    "Per-layer neighbor limit exceeded.");
             std::unordered_set<VectorId> seen;
-            for (VectorId neighbor : node->neighbors[layer]) {
+            for (VectorId neighbor : neighbor_ids(index, id, layer)) {
                 require(neighbor != id && seen.insert(neighbor).second,
                         "A graph contains a self edge or duplicate neighbor.");
-                const auto* target = index.find_node(neighbor);
+                const auto target = index.find_node(neighbor);
                 require(target && store.contains(neighbor), "An edge points to a missing node.");
-                require(target->max_level >= layer && target->neighbors.size() > layer,
+                require(target->max_level >= layer,
                         "An edge points to a node absent from its layer.");
             }
         }
@@ -107,7 +122,11 @@ inline void check_results(const HnswIndex& index, const VectorStore& store,
                 "Search distances must be finite and sorted in ascending order.");
         const auto expected =
             compute_distance(query, *store.find(result.id), store.distance_kind());
-        require(result.distance == expected, "Search must use the shared Distance result exactly.");
+        const float tolerance = store.distance_kind() == DistanceKind::Cosine
+                                    ? 1e-6f
+                                    : std::max(1e-5f, std::abs(expected) * 1e-6f);
+        require(std::abs(result.distance - expected) < tolerance,
+                "Prepared search must agree with the general distance API within FP32 tolerance.");
         previous = result.distance;
     }
 }

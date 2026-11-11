@@ -1,0 +1,2 @@
+Error: Missing required option: --query.
+Use aetherindex --help for usage.

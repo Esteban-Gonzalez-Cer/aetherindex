@@ -1,0 +1,27 @@
+Contexto de la demostración (metadata externa a la CLI)
+Catálogo: 10,000 artículos; dimensión: 1024
+Artículo de consulta: MacRobertson's
+Embedding de consulta: queries/query_13.csv
+MacRobertson's, officially the MacRobertson's Steam Confectionery Works, was the name of a
+company that produced chocolates and various other confectionery in Australia. The company was
+founded in 1880 by Sir Macpherson Robertson and takes its name from a combination of his first
+and last name. The company was based for over 100 years in Fitzroy, but later moved to
+Ringwood, Victoria.
+
+Algoritmo: HNSW; métrica: Cosine
+Tiempo de consulta registrado (ms): 1.679459
+Rank | Vector ID | Distancia   | Artículo recuperado
+-----+-----------+-------------+----------------------------------------------------
+   1 |     65635 | 0.463266820 | John Robertson (Scottish Labour Party founder)
+   2 |     19498 | 0.553108931 | Rod MacDonald
+   3 |     40946 | 0.553993702 | James Forbes-Robertson
+   4 |     34534 | 0.559264362 | F. Ross Johnson
+   5 |      8837 | 0.579713106 | George Augustus Robinson
+   6 |     29606 | 0.580263138 | Dick Smith (retailer)
+   7 |     43739 | 0.587079287 | Norman Macfarlane, Baron Macfarlane of Bearsden
+   8 |     44747 | 0.589314759 | E. D. Smith
+   9 |     13163 | 0.593231022 | Macgregor, Queensland
+  10 |     12498 | 0.603256524 | Lloyd Morrison
+
+Recall@10 de ESTA consulta: 10/10 = 1.000
+Compara IDs con BruteForce; no mide relevancia humana ni respuestas de un LLM.

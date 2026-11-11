@@ -1,0 +1,12 @@
+Working directory: <repo>
+Command: /usr/bin/clang++ -std=c++20 -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -Iinclude -Wall -Wextra -Wpedantic -Werror docs/reports/evidence/2026-10-30-hybrid-checklist/hybrid_checklist_probe.cpp <repo>/build-testing-hybrid-2026-10-30/libaether_application.a <repo>/build-testing-hybrid-2026-10-30/libaether_hnsw.a <repo>/build-testing-hybrid-2026-10-30/libaether_lexical.a <repo>/build-testing-hybrid-2026-10-30/libaether_hybrid.a <repo>/build-testing-hybrid-2026-10-30/libaether_brute_force.a <repo>/build-testing-hybrid-2026-10-30/libaether_distance.a <repo>/build-testing-hybrid-2026-10-30/libaether_quantization.a <repo>/build-testing-hybrid-2026-10-30/libaether_storage.a -pthread -o <repo>/build-testing-hybrid-2026-10-30/hybrid_checklist_probe
+Started UTC: 2026-10-30T16:33:41.740505+00:00
+Expected exit: 0
+Actual exit: 0
+Test verdict: PASS
+
+--- stdout ---
+(empty)
+
+--- stderr ---
+(empty)

@@ -1,0 +1,1 @@
+{"mode":"hybrid","repeat":3,"queries":1000,"warmup":100,"k":10,"m":16,"m0":32,"ef_construction":100,"ef_search":50,"threads":1,"build_type":"Release (NDEBUG)","compiler":"Apple LLVM 17.0.0 (clang-1700.6.3.2)","dataset":"Zipf text + Gaussian mixture vectors bound by DocumentId","documents":100000,"dimension":128,"candidate_k":50,"k_rrf":60,"peak_rss_mib":672.141}

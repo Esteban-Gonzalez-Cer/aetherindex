@@ -1,0 +1,27 @@
+{
+  "system": "qdrant-hybrid",
+  "dataset": "nfcorpus",
+  "documents": 3633,
+  "queries": 323,
+  "ingest_and_index_seconds": 7.082851249957457,
+  "container_memory_mib": 1068.032,
+  "image": "sha256:9bfc89f9914fc14876a88c05270685921a55b8877b254a98bcc1cc2f0a424cd2",
+  "k1": 0.9,
+  "b": 0.4,
+  "hnsw": {
+    "M": 16,
+    "ef_construction": 200,
+    "ef": 128
+  },
+  "qdrant_indexed_vectors": 3633,
+  "latency_queries": 323,
+  "repetitions": 5,
+  "lat_p50_ms": 0.779125140979886,
+  "lat_p95_ms": 1.2463340535759926,
+  "lat_p99_ms": 1.5373749192804098,
+  "lat_mean_ms": 0.9443746243917813,
+  "threads": 10,
+  "qps_batch": 4933.227700198847,
+  "qps_batch_q1": 4844.433824057251,
+  "qps_batch_q3": 4934.376988916825
+}

@@ -1,5 +1,9 @@
 # Caso real: recomendación de artículos relacionados
 
+> Los resultados guardados en este documento corresponden al baseline inicial.
+> El corpus y los comandos siguen siendo útiles; los cambios numéricos y las
+> mediciones actuales están en [validación de optimizaciones](benchmarks/OPTIMIZATION_VALIDATION.md).
+
 ## Caso de uso y fuente
 
 Una base de conocimiento puede sugerir artículos relacionados con el que está

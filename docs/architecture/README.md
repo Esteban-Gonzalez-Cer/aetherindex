@@ -1,9 +1,9 @@
 # Arquitectura de AetherIndex
 
 AetherIndex es un monolito modular en C++20 con dependencias
-unidireccionales. VectorStore, distancias escalares, fuerza bruta, HNSW y la
-aplicación/CLI están implementados; los demás módulos se incorporarán
-progresivamente.
+unidireccionales. VectorStore, kernels FP32/SIMD, fuerza bruta, HNSW y la
+aplicación/CLI, BM25 de CP-02 y RRF de CP-03 están implementados; los demás
+módulos se incorporarán progresivamente.
 
 ## Estructura actual
 
@@ -24,10 +24,13 @@ aetherindex/
 │       │   ├── brute_force/
 │       │   └── hnsw/
 │       │       ├── hnsw_config.hpp
+│       │       ├── flat_graph.hpp
 │       │       ├── hnsw_node.hpp
 │       │       └── hnsw_index.hpp
 │       ├── lexical/
 │       ├── hybrid/
+│       │   ├── rrf.hpp
+│       │   └── rrf_config.hpp
 │       ├── persistence/
 │       └── application/
 ├── src/
@@ -40,6 +43,7 @@ aetherindex/
 │   │       └── hnsw_index.cpp
 │   ├── lexical/
 │   ├── hybrid/
+│   │   └── rrf.cpp
 │   ├── persistence/
 │   ├── application/
 │   └── api/
@@ -82,10 +86,10 @@ headers internos están en `src/`. Por ejemplo:
 |---|---|---|
 | `core` | Identificadores, tipos, configuración y errores comunes | Biblioteca estándar |
 | `storage` | `VectorStore` para embeddings; `DocumentStore` para texto y metadata | `core` |
-| `distance` | Métricas escalares y futuros kernels SIMD | `core` |
+| `distance` | API validada y kernels FP32/SIMD | `core` |
 | `ann/brute_force` | Búsqueda exacta y referencia para evaluar HNSW | `core`, `storage`, `distance` |
 | `ann/hnsw` | Grafo, niveles, inserción, búsqueda y selección de vecinos | `core`, `storage`, `distance` |
-| `lexical` | Tokenizer, índice invertido y BM25 | `core`, `storage` |
+| `lexical` | Tokenizer, índice invertido, estadísticas y BM25 | `core`; CP-02 recibe texto, sin requerir `storage` |
 | `hybrid` | Fusión de rankings mediante RRF | `core` |
 | `persistence` | Serialización y futuros adaptadores de almacenamiento con `mmap` | Estructuras que serializa, sin dependencias inversas |
 | `application` | Orquestación mediante `IndexEngine` y `QueryEngine` | Recuperación densa, léxica, híbrida y stores |
@@ -110,7 +114,8 @@ No se permitirán dependencias circulares.
 
 Estos nombres son una guía para las siguientes implementaciones. Ya existen
 `vector_store.cpp`, `scalar_distance.cpp`, `brute_force_index.cpp`, `hnsw_index.cpp`,
-`query_engine.cpp`, `search_service.cpp`, `csv_loader.cpp` y
+`query_engine.cpp`, `search_service.cpp`, `csv_loader.cpp`, `json_loader.cpp`, los tres archivos de
+`src/lexical/` de CP-02, `src/hybrid/rrf.cpp` de CP-03 y
 `cmake/Sanitizers.cmake`; el resto sigue reservado. No se crean archivos fuente vacíos.
 
 | Carpeta | Archivos previstos |
@@ -118,13 +123,13 @@ Estos nombres son una guía para las siguientes implementaciones. Ya existen
 | `cmake` | `CompilerWarnings.cmake`, `Sanitizers.cmake`, `BuildOptions.cmake` |
 | `src/core` | `config.cpp`, `error.cpp`; los tipos actuales se definen en headers |
 | `src/storage` | `vector_store.cpp`, `document_store.cpp` |
-| `src/distance` | `scalar_distance.cpp`; futuros kernels SIMD separados |
+| `src/distance` | `distance.cpp` (validación) y `scalar_distance.cpp` (kernels FP32/SIMD) |
 | `src/ann/brute_force` | `brute_force_index.cpp` |
 | `src/ann/hnsw` | `hnsw_index.cpp`; búsqueda por capa y selección separadas como helpers en ese archivo |
 | `src/lexical` | `tokenizer.cpp`, `inverted_index.cpp`, `bm25.cpp` |
 | `src/hybrid` | `rrf.cpp` |
 | `src/persistence` | `serializer.cpp`, `mmap_storage.cpp` |
-| `src/application` | `query_engine.cpp`, `search_service.cpp`, lector interno `csv_loader.hpp/.cpp`; futuro `index_engine.cpp` |
+| `src/application` | `query_engine.cpp`, `search_service.cpp`, lector CSV interno `csv_loader.hpp/.cpp` y `json_loader.cpp`; futuro `index_engine.cpp` |
 | `apps/server` | `main.cpp` cuando se implemente gRPC |
 
 ## Evolución
@@ -133,7 +138,8 @@ Estos nombres son una guía para las siguientes implementaciones. Ya existen
   HNSW y aplicación/CLI básica.
 - **Sprint 2:** `DocumentStore`, tokenizer, índice invertido, BM25, RRF y
   consultas híbridas.
-- **Posteriormente:** SIMD, persistencia, `mmap`, concurrencia y gRPC.
+- **Optimización posterior al Sprint 1:** normalización, SIMD, Top-K acotado y FlatGraph/Algoritmo 4.
+- **Posteriormente:** persistencia, `mmap`, concurrencia y gRPC.
 
 `tests/unit` verificará componentes aislados; `tests/integration`, módulos
 combinados; `tests/e2e`, flujos a través de interfaces externas. `benchmarks/`
@@ -144,12 +150,19 @@ las decisiones arquitectónicas y `scripts/` contendrá utilidades de desarrollo
 
 CMake construye los siguientes targets:
 
-- `aether_core`: `VectorId`, `EmbeddingValue`, `DistanceKind` y `SearchResult` (headers).
+- `aether_core`: `VectorId`, `DocumentId`, `EmbeddingValue`, `DistanceKind`,
+  `SearchResult` y `RankedResult` (headers).
 - `aether_storage`: biblioteca compilada de `VectorStore`, dependiente de core.
-- `aether_distance`: biblioteca escalar de coseno y euclidiana al cuadrado, dependiente de core.
+- `aether_lexical`: tokenizer ASCII/UTF-8 conservador, postings y BM25, dependiente
+  únicamente de core y biblioteca estándar. No enlaza HNSW, CLI ni RRF.
+- `aether_hybrid`: fusión RRF de dos rankings documentales, con constante positiva
+  configurable y Top-K determinístico; solo depende de core y biblioteca estándar.
+- `aether_distance`: API general y kernels FP32/SIMD de coseno y euclidiana al cuadrado, dependiente de core.
 - `aether_brute_force`: búsqueda exacta, enlazada con storage y distance.
 - `aether_hnsw`: grafo e índice aproximado; depende de core/storage y enlaza distance de forma privada.
-- `aether_application`: `QueryEngine`, `SearchService` y lector CSV interno; enlaza fuerza bruta y HNSW de forma privada.
+- `aether_application`: `QueryEngine`, `SearchService` y lectores CSV/JSONL;
+  enlaza fuerza bruta, HNSW y BM25 de forma privada. El parsing JSON y las
+  asociaciones de IDs permanecen en aplicación, fuera de los algoritmos.
 - `aether_cli`: interpretación de argumentos y presentación, dependiente de aplicación.
 - `aetherindex`: punto de entrada, enlazado con `aether_cli`.
 - `aether_sanitizers`: opciones de instrumentación, activas solo con
@@ -158,8 +171,8 @@ CMake construye los siguientes targets:
 Cada store tiene dimensión y métrica fijas. La métrica se comparte a través de
 core, por lo que storage no depende de distance. El llamador posee el store;
 ni `QueryEngine` ni los algoritmos mantienen copias de embeddings. `QueryEngine`
-admite un store para fuerza bruta o un `HnswIndex` ya preparado para búsqueda
-aproximada. `SearchService` valida la solicitud y configuración antes de abrir
+admite un store para fuerza bruta, un `HnswIndex` para búsqueda aproximada o un
+`Bm25Index` construido para búsqueda textual. `SearchService` valida la solicitud y configuración antes de abrir
 archivos, crea el store local, procesa una fila CSV por vez y valida la consulta.
 Para HNSW construye el grafo recorriendo los IDs del store antes de llamar a
 `QueryEngine`. El grafo y el store se destruyen al terminar la operación.
@@ -177,51 +190,42 @@ HNSW se selecciona con `--algorithm hnsw`; sus parámetros de CLI son `--m`,
 con nueve decimales y una tabla con bordes. La selección aproximada no tiene
 fallback a fuerza bruta.
 
-Los headers implementados bajo `include/` son `aether/core/types.hpp`,
-`aether/core/search_result.hpp`, `aether/storage/vector_store.hpp`,
-`aether/distance/distance.hpp`, `aether/ann/brute_force/brute_force_index.hpp`,
-`aether/ann/hnsw/hnsw_config.hpp`, `aether/ann/hnsw/hnsw_node.hpp`,
-`aether/ann/hnsw/hnsw_index.hpp`, `aether/application/query_engine.hpp` y
-`aether/application/search_service.hpp`.
-Los headers de CLI permanecen en `apps/cli/` y el lector CSV es interno a
-aplicación. Las APIs anteriores basadas en
-`VectorEntry` se sustituyeron, sin adaptadores de compatibilidad.
+Los contratos numéricos, de memoria y de búsqueda actuales están en
+[VectorStore y distancias](../algorithms/vector_store_and_distances.md),
+[Fuerza bruta](../algorithms/brute_force.md) y [HNSW](../algorithms/hnsw.md).
+Core añade asignación alineada, normalización y `PreparedQuery`; ninguno de
+estos headers depende de storage, algoritmos ni aplicación.
 
-CTest registra 16 pruebas: almacenamiento, rollback ante fallas de asignación,
-distancias, fuerza bruta, integración storage/distancias, búsqueda mediante
-QueryEngine, parser CLI, servicio de búsqueda, flujo CLI y diez consultas MVP
-Top-10 sobre 1,000 × 128, además de cuatro pruebas unitarias HNSW, Recall y flujo
-CLI HNSW. Se pueden desactivar con `-DBUILD_TESTING=OFF`. Recuperación léxica,
-RRF, persistencia, gRPC y un framework de benchmarks siguen pendientes. La CLI muestra
-ayuda al ejecutarse sin argumentos; la demostración anterior fija en código se
-sustituyó por archivos CSV y el comando `search`. Las pruebas de `QueryEngine`
-conservan el ranking del ejemplo original.
+Cosine se normaliza al insertar (norma mínima 1e-7); el stride físico del store
+se rellena a múltiplos de 16 floats sin cambiar la dimensión lógica. QueryEngine
+prepara la consulta una vez. Los algoritmos llaman al kernel compartido y
+resuelven filas con posiciones densas públicas, sin hashes por comparación.
+BruteForce usa max-heap de capacidad K. HNSW guarda Layer 0 y superiores en
+arenas alineados; solo cuatro buffers globales son propietarios de la topología,
+con niveles uint8 y offsets uint32. Sus vecinos son posiciones internas, y
+`ids()[internal]` recupera el identificador externo al presentar resultados.
 
-Los escenarios optativos `e2e.cli_real_dataset` e
-`integration.hnsw_real_dataset`, habilitados mediante `AETHER_REAL_DATA_DIR`,
-elevan la suite a 18 pruebas. Utilizan 10,000 artículos DBpedia × 1,024 dimensiones y
-20 consultas separadas. Comparan Top-100 de ambas métricas contra un cálculo
-exhaustivo independiente en NumPy float64 para fuerza bruta y Recall@10 HNSW
-contra fuerza bruta, con amplitudes 50 y 100 sobre el mismo grafo. Los scripts de preparación/evaluación
-permanecen fuera del motor; no se agregan dependencias al binario C++ ni a los
-16 tests predeterminados. Ver [el caso real](../real_world_validation.md).
+La selección HNSW predeterminada es diversificada (Algoritmo 4), con extensión
+opcional implementada y relleno de descartados. `--neighbor-selection simple`
+permite comparar con Algoritmo 3. Una poda puede dejar enlaces unidireccionales.
+Los invariantes no garantizan conectividad ni Recall: ambos se evalúan aparte.
+Una excepción después de activar un nodo exige reconstruir el índice; errores
+de búsqueda no lo invalidan y el store nunca se modifica desde HNSW.
 
-La validación estructural de HNSW comprueba IDs, embeddings, niveles, capas,
-grados, enlaces, punto de entrada y cantidad de inserciones. No demuestra por
-sí misma conectividad ni Recall. La selección inicial conserva los vecinos más
-cercanos, con desempate por ID; una poda puede dejar enlaces de un solo sentido.
-Las consultas devuelven como máximo `min(k,N)` nodos alcanzables. Los errores de
-precondición conservan el grafo. Una excepción después de comenzar una mutación
-de inserción marca el índice como inutilizable y exige reconstruirlo; no se
-afirma rollback transaccional. Los errores durante búsquedas no lo invalidan.
+CTest registra 56 comprobaciones normales: las 52 de CP-03 y módulos previos,
+más cuatro para parsing JSON, servicio léxico, CLI BM25 y referencia del corpus.
+Los dos casos reales optativos (`AETHER_REAL_DATA_DIR`) y el corpus léxico
+externo (`AETHER_BM25_CORPUS_DIR`) se registran por separado. La opción
+`AETHER_BUILD_BENCHMARKS=ON` compila drivers separados; con
+`AETHER_REGISTER_PERFORMANCE_TESTS=ON` se registran umbrales de Top-K, memoria,
+Recall agrupado y, si hay DBpedia, p99, además de inspección del ensamblador
+en arquitecturas/compiladores compatibles. Estas mediciones no se deducen de
+los segundos totales de CTest. El perfil PMU de caché necesita Linux y permisos
+para `perf`; no es una dependencia del motor ni de la suite normal.
 
-Consultar [VectorStore y distancias](../algorithms/vector_store_and_distances.md),
-[Fuerza bruta](../algorithms/brute_force.md) y
-[HNSW](../algorithms/hnsw.md),
-[Evidencia de VectorStore](vector_store_validation.md),
-[Uso de CLI](../cli.md), [Validación HNSW](hnsw_validation.md) y
-[Validación histórica de CLI](cli_validation.md).
-
-La configuración existente de formato y análisis estático se conserva. Los
-artefactos de compilación se generan en `build/` y están excluidos mediante
-`.gitignore`; los archivos ya versionados allí conservan su estado en Git.
+Ver [protocolo y reproducción](../benchmarks/OPTIMIZATION_VALIDATION.md) y
+[validación inicial histórica](hnsw_validation.md). BM25 y RRF se documentan en
+[CP-02](../algorithms/bm25.md) y [CP-03](../algorithms/rrf.md). La orquestación
+híbrida de QueryEngine y su CLI están implementadas ([CLI híbrida](../cli_hybrid.md)). La
+[CLI BM25](../cli_bm25.md) también está conectada a QueryEngine; persistencia, concurrencia
+y gRPC permanecen pendientes.

@@ -1,0 +1,27 @@
+{
+  "system": "opensearch-dense",
+  "dataset": "arguana",
+  "documents": 8674,
+  "queries": 1406,
+  "ingest_and_index_seconds": 3.7023664170410484,
+  "container_memory_mib": 4228.096,
+  "image": "sha256:3b55f6b6249cfdb92b52ee59adc8a266203ba9ef9f5d82544fad6f1af2f3609e",
+  "k1": 0.9,
+  "b": 0.4,
+  "hnsw": {
+    "M": 16,
+    "ef_construction": 200,
+    "ef": 128
+  },
+  "qdrant_indexed_vectors": null,
+  "latency_queries": 1000,
+  "repetitions": 5,
+  "lat_p50_ms": 2.1781669929623604,
+  "lat_p95_ms": 2.8347501065582037,
+  "lat_p99_ms": 4.675084026530385,
+  "lat_mean_ms": 2.232661419780925,
+  "threads": 10,
+  "qps_batch": 3259.4121765175214,
+  "qps_batch_q1": 3238.2276694938596,
+  "qps_batch_q3": 3311.5250721244215
+}

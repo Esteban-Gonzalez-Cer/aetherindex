@@ -1,0 +1,27 @@
+# Server products for the market comparison. Run one service at a time, on this machine
+# only (ports bound to 127.0.0.1), with nothing else measuring:
+#   docker compose -f benchmarks/market/docker-compose.yml up -d qdrant
+# Images are pinned; run_servers.py records their digests.
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.20.0
+    ports: ["127.0.0.1:6333:6333", "127.0.0.1:6334:6334"]
+    cpus: 10
+    mem_limit: 7g
+    volumes: ["qdrant-storage:/qdrant/storage"]
+  opensearch:
+    image: opensearchproject/opensearch:3.9.0
+    environment:
+      discovery.type: single-node
+      DISABLE_SECURITY_PLUGIN: "true"
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      OPENSEARCH_JAVA_OPTS: "-Xms3g -Xmx3g"
+    ports: ["127.0.0.1:9200:9200"]
+    cpus: 10
+    mem_limit: 7g
+    ulimits:
+      nofile: {soft: 65536, hard: 65536}
+    volumes: ["opensearch-data:/usr/share/opensearch/data"]
+volumes:
+  qdrant-storage:
+  opensearch-data:

@@ -1,5 +1,9 @@
 # Validación — Crear CLI mínima
 
+> Evidencia histórica del baseline anterior al 19-10-2026. La normalización,
+> los kernels y el grafo actuales se validan en
+> [optimización vectorial y FlatGraph](../benchmarks/OPTIMIZATION_VALIDATION.md).
+
 Fecha local: **2026-10-12**, America/Mexico_City. Implementación verificada en
 macOS ARM64. Esta entrega cubre la CLI con el algoritmo disponible,
 **BruteForce**. HNSW no está implementado; sus criterios funcionales se mantienen

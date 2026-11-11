@@ -1,0 +1,1 @@
+{"check":"1.5","passed":true,"corpus_documents":4,"dense_vectors":4,"explicit_bindings":[[9010,101],[7000,102],[42,103],[11,104]],"fused_document_ids":[102,101,104,103],"missing_binding_rejected":true,"non_injective_binding_rejected":true}

@@ -1,76 +1,50 @@
-# Fuerza bruta: integración y contrato
+# Fuerza bruta con Top-K acotado
 
-La búsqueda procede de `aetherindex-feature-fuerza-bruta` y ahora consume
-`VectorStore` mediante sus interfaces públicas. La copia original en Downloads
-permanece intacta. Se conserva el namespace `aetherindex` y el algoritmo de
-recorrido completo, ordenación y truncamiento top-k.
+`bruteForceSearch(store, query, k)` sigue siendo la referencia exhaustiva: evalúa
+los N embeddings con la métrica del store y devuelve los K mejores. No aproxima
+ni omite candidatos. El cambio de selección reduce el espacio auxiliar de O(N)
+a O(K), y el costo de ordenación de O(N log N) a O(N log K).
 
-## API actual
+## Flujo
 
-```cpp
-std::vector<SearchResult> bruteForceSearch(
-    const VectorStore& database,
-    std::span<const EmbeddingValue> query,
-    std::size_t k);
-```
+1. Si K=0 o el store está vacío, devuelve vacío antes de validar la consulta.
+2. `QueryEngine` construye un `PreparedQuery`: valida, alinea, rellena con ceros
+   y normaliza una sola vez si la métrica es Cosine.
+3. `bruteForceSearchPrepared` recorre posiciones densas públicas del store.
+   Lee `ids()[position]` y `data_by_position(position)`, sin hashes por distancia,
+   copias de embeddings ni acceso a datos privados.
+4. Un max-heap de pares `(distancia FP32, ID externo)` retiene como máximo
+   `min(K,N)` candidatos. Su raíz es el peor resultado retenido.
+5. Solo reemplaza la raíz si llega un candidato mejor. Extrae el heap de atrás
+   hacia delante para devolver orden ascendente. Los empates se resuelven por ID.
 
-`QueryEngine::search` expone los mismos argumentos como entrada de la aplicación
-y ofrece una sobrecarga separada para un índice HNSW ya construido.
-La CLI llama a `SearchService`, que carga los archivos y consulta `QueryEngine`;
-la búsqueda no contiene entrada/salida ni datos
-de ejemplo. El algoritmo recorre `ids()`, obtiene cada vista con `find()` y llama
-`compute_distance()` con `distance_kind()` del store. No copia embeddings.
+El trabajo total es O(ND + N log K), con O(K) resultados temporales y O(D)
+para preparar la consulta. Si K es cercano a N, la ventaja del heap disminuye.
+La búsqueda directa también prepara la consulta una sola vez; la entrada
+preparada evita repetir esa preparación cuando llama `QueryEngine`.
 
-Los identificadores son `VectorId` (`uint32_t`), incluyendo cero y su máximo.
-`SearchResult::distance` es una distancia: valores menores se ordenan primero.
-La dimensión y la métrica permanecen fijas durante la vida del store.
+## Distancias y errores
 
-## Archivos
+Cosine usa producto punto de vectores unitarios; SquaredEuclidean conserva
+magnitudes y suma diferencias al cuadrado. Ambos comparten los kernels de
+`distance`, con acumulación FP32 y SIMD cuando la arquitectura lo permite.
+Dimensiones incompatibles, consultas no finitas o norma cero Cosine producen
+`invalid_argument`. Un resultado squared no representable produce
+`overflow_error`, sin entregar un ranking parcial. El almacenamiento no cambia.
 
-| Responsabilidad | Ubicación |
-|---|---|
-| API de búsqueda | `include/aether/ann/brute_force/brute_force_index.hpp` |
-| Implementación | `src/ann/brute_force/brute_force_index.cpp` |
-| Almacenamiento propietario | `include/aether/storage/vector_store.hpp` |
-| Tipos e identificadores | `include/aether/core/types.hpp`, `search_result.hpp` |
-| API de distancias | `include/aether/distance/distance.hpp` |
-| Kernels escalares | `src/distance/scalar_distance.cpp` |
-| Coordinación de carga y búsqueda | `include/aether/application/search_service.hpp` |
-| Interfaz de terminal | `apps/cli/main.cpp`, `cli_parser.cpp`, `cli_runner.cpp` |
+La firma pública continúa recibiendo `const VectorStore&`, `span<const float>`
+y `size_t k`; los IDs son uint32, incluyendo cero y UINT32_MAX. No se admiten
+lecturas simultáneas con inserciones o reservas de memoria.
 
-Las APIs anteriores basadas en `VectorEntry`, IDs `int` y
-`squaredEuclideanDistance(vector, vector)` se reemplazaron, sin wrappers.
+## Verificación
 
-## Comportamiento
+`unit.optimization_contracts` compara el resultado completo con un oráculo de
+ordenación total usando el mismo kernel: dos métricas, K pequeño/grande y
+empates en el corte. Esto comprueba la selección exacta bajo el cálculo FP32.
+La paridad matemática frente al coseno tradicional se comprueba por separado.
 
-- Devuelve como máximo `k` resultados, ordenados por distancia ascendente.
-- Si `k == 0` o el store está vacío, devuelve una lista vacía antes de validar
-  la consulta, incluso si esta tiene dimensiones incorrectas.
-- En una búsqueda efectiva, dimensiones incompatibles, consultas vacías o no
-  finitas y consultas de norma cero con coseno producen `std::invalid_argument`.
-- Los resultados euclidianos al cuadrado que exceden `float` producen
-  `std::overflow_error`, sin devolver un ranking parcial.
-- El orden relativo de los empates permanece sin especificar.
-- La búsqueda no modifica el almacenamiento. No admite escrituras simultáneas.
-
-Para `N` embeddings de dimensión `D`, el coste es `O(ND + N log N)` y el espacio
-adicional es `O(N)`. No se incorpora una optimización top-k.
-
-El store y la CLI utilizan coseno por defecto. La CLI admite también
-`--metric squared-euclidean` y carga archivos CSV mediante `search`. El ejemplo
-original de euclidiana al cuadrado, con IDs `1`, `2`, `4` y distancias
-`4.92`, `5.14`, `9.77`, sigue validándose mediante `QueryEngine`.
-La CLI ejecuta carga y búsqueda en memoria en un único comando, sin persistencia.
-Ver [Uso de la CLI](../cli.md).
-
-La implementación [HNSW](hnsw.md) comparte el store, la métrica y `SearchResult`,
-y utiliza fuerza bruta como referencia exacta de Recall@10 en las pruebas. HNSW
-recorre el grafo y puede omitir vecinos; nunca sustituye una consulta aproximada
-por este recorrido exhaustivo. Su desempate por ID es explícito, mientras que
-fuerza bruta mantiene el orden de empates sin especificar. El protocolo de
-Recall evita empates ambiguos en el corte Top-10.
-
-Ver [VectorStore y distancias](vector_store_and_distances.md) para compilación,
-sanitizers, vida útil de las vistas y contrato numérico, y la
-[validación HNSW](../architecture/hnsw_validation.md) para evidencias.
-`DocumentId`, BM25, RRF, persistencia y un framework de benchmarks permanecen pendientes.
+El benchmark optativo de CA-1.3 usa N=100,000, D=128 y K=10: ordenación total y
+heap tienen idéntico kernel y preparación. Conserva muestras, alterna el orden
+de ejecución y mide únicamente la búsqueda. No atribuye mejoras de SIMD o
+normalización al cambio de Top-K. Ver [protocolo](../../benchmarks/optimization_protocol.json)
+y [reproducción de benchmarks](../benchmarks/OPTIMIZATION_VALIDATION.md).

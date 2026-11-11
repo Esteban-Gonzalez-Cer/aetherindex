@@ -1,0 +1,31 @@
+AetherIndex CLI
+
+Usage:
+  aetherindex search --dataset FILE --query FILE --algorithm NAME [options]
+  aetherindex --help
+
+Options:
+  --dataset FILE       Required: CSV rows ID,x1,...,xD
+  --query FILE         Required: one CSV row x1,...,xD (without an ID)
+  --algorithm NAME     Required: brute-force (exact) | hnsw (approximate)
+  --k INTEGER          Positive number of neighbors (default: 10)
+  --metric NAME        cosine (default) | squared-euclidean
+  --m INTEGER          HNSW upper-layer neighbor limit (default: 16; >= 2)
+  --m0 INTEGER         HNSW base-layer neighbor limit (default: 32; >= M)
+  --ef-construction N  HNSW construction search width (default: 100; >= M)
+  --ef-search N        HNSW query search width (default: 50; > 0)
+  --seed INTEGER       HNSW unsigned 64-bit seed, including zero (default: 42)
+  --help               Show help (also: search --help)
+
+CSV: no headers or quotes; finite floats; unique unsigned 32-bit IDs.
+Spaces/tabs around fields and blank lines are allowed. All dimensions must match.
+Cosine rejects all-zero vectors; squared Euclidean permits them.
+Results are sorted by increasing distance; at most min(k, dataset size) are returned.
+Distances use nine decimal places; IDs stay integers in the bordered results table.
+Query time is reported in milliseconds and excludes CSV loading and output.
+HNSW graph construction is reported separately and excluded from query time.
+HNSW uses max(efSearch,k), capped by index size; sparse graphs may return fewer neighbors.
+HNSW options require --algorithm hnsw; its graph is rebuilt in each execution.
+Data is loaded and searched in one execution. There is no persistence.
+
+Exit codes: 0 success/help, 2 arguments, 3 input data, 4 search/internal error.

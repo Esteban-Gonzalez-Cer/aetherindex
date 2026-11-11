@@ -1,0 +1,26 @@
+AetherIndex Search
+
+Algorithm: HNSW
+Distance metric: Cosine
+Vectors indexed: 4
+Dimensions: 2
+Requested K: 10
+Results returned: 4
+HNSW configuration: M=16 M0=32 efConstruction=100 efSearch=50 seed=42
+HNSW neighbor selection: Heuristic (Algorithm 4)
+Index build time scope: graph construction only (excludes input loading)
+Query time scope: search only (excludes input loading)
+
++------+-----------+-------------+
+| Rank | Vector ID | Distance    |
++------+-----------+-------------+
+|    1 |        10 | 0.000000000 |
++------+-----------+-------------+
+|    2 |        40 | 0.199999988 |
++------+-----------+-------------+
+|    3 |        20 | 1.000000000 |
++------+-----------+-------------+
+|    4 |        30 | 2.000000000 |
++------+-----------+-------------+
+
+Search completed successfully.

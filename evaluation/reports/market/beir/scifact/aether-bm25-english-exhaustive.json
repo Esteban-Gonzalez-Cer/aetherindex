@@ -1,0 +1,23 @@
+{
+  "system": "aetherindex-bm25",
+  "data": "<repo>/datasets/market/beir/scifact",
+  "documents": 5183,
+  "queries": 300,
+  "build_type": "Release (NDEBUG)",
+  "bm25": {"k1": 0.9, "b": 0.4, "analyzer": "english-v1", "strategy": "exhaustive", "query_weighting": "unique", "build_seconds_single_thread": 0.139664625, "postings_raw_bytes": 4780016, "postings_compressed_bytes": 0},
+  "memory_mib": 33.2812958,
+  "depth": 101,
+  "latency_k": 10,
+  "candidate_k": 50,
+  "latency_queries": 300,
+  "repetitions": 5,
+  "lat_p50_ms": 0.244792,
+  "lat_p95_ms": 0.398625,
+  "lat_p99_ms": 0.430583,
+  "lat_mean_ms": 0.24011372,
+  "qps_single": 4164.6933,
+  "threads": 10,
+  "qps_batch": 27204.6143,
+  "qps_batch_q1": 26894.5725,
+  "qps_batch_q3": 27346.8945
+}

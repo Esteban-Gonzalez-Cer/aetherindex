@@ -12,6 +12,7 @@ void check_nearest_neighbor_selection() {
     config.m = 2;
     config.m_max_0 = 4;
     config.max_level = 0;
+    config.neighbor_selection = NeighborSelection::Simple;
     HnswIndex index(store, config);
     for (std::size_t row = 0; row < 20; ++row) {
         const std::array<float, 2> embedding = {static_cast<float>(row), 0};
@@ -26,7 +27,7 @@ void check_nearest_neighbor_selection() {
     index.insert(999);
     const std::vector<VectorId> expected = {hnsw_test::fixture_id(10), hnsw_test::fixture_id(11),
                                             hnsw_test::fixture_id(9), hnsw_test::fixture_id(12)};
-    require(index.find_node(999)->neighbors[0] == expected,
+    require(hnsw_test::neighbor_ids(index, 999, 0) == expected,
             "Nearest-only selection must choose the four closest base-layer candidates in order.");
     hnsw_test::check_graph(index, store, store.ids());
 }
@@ -53,9 +54,9 @@ int main() {
         bool base_exceeds_upper_limit = false;
         std::size_t edges = 0;
         for (VectorId id : store.ids()) {
-            const auto* node = index.find_node(id);
-            for (std::size_t layer = 0; layer < node->neighbors.size(); ++layer) {
-                const auto degree = node->neighbors[layer].size();
+            const auto node = index.find_node(id);
+            for (std::size_t layer = 0; layer <= node->max_level; ++layer) {
+                const auto degree = index.neighbors(id, layer).size();
                 edges += degree;
                 saturated_base = saturated_base || (layer == 0 && degree == config.m_max_0);
                 saturated_upper = saturated_upper || (layer > 0 && degree == config.m);

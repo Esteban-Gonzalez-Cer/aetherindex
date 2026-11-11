@@ -33,7 +33,7 @@ endfunction()
 function(check_hnsw_metadata output count)
     foreach(fragment "Algorithm: HNSW" "Results returned: ${count}\n"
                      "Search completed successfully."
-                     "Index build time scope: graph construction only \\(excludes CSV loading\\)")
+                     "Index build time scope: graph construction only \\(excludes input loading\\)")
         if(NOT output MATCHES "${fragment}")
             message(FATAL_ERROR "HNSW output missing '${fragment}': ${output}")
         endif()

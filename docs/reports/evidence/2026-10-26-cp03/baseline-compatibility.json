@@ -1,0 +1,18 @@
+{
+  "base_head": "0d15fd0f66134cd371601ec0a13070c47e7dcfa7",
+  "baseline_findings": [
+    "CMake referenced absent src/application/jsonl_loader.cpp; tracked implementation is json_loader.cpp.",
+    "Headers referenced absent aether/application/jsonl_loader.hpp.",
+    "JSONL loader used obsolete VectorStore default constructor and add_vector().",
+    "SearchService used string methods on filesystem::path, obsolete lexical API, and unchecked queries[0].",
+    "JSONL search bypassed the selected HNSW index, did not propagate the requested metric and loaded queries inside the search timer."
+  ],
+  "repair_scope": "Compile/API compatibility and explicit missing-embedding guards for the existing vector path. No hybrid QueryEngine, full JSONL parser replacement or corpus embedding generation.",
+  "regression_test": "integration.jsonl_service_compatibility",
+  "production_source_sha256": {
+    "CMakeLists.txt": "714e543cf4c98929f527bd1baddbf9533fca1de6fbe485404d56eb167c184c36",
+    "include/aether/application/json_loader.hpp": "522dc00c9bb905fd95da0f3d6800c4e5591f6a0f54a07ca5ae717778b0c29c1b",
+    "src/application/json_loader.cpp": "fd9cd1670ef0e1754462cf456b02887cc1b40bef6dd881454bda83245d332273",
+    "src/application/search_service.cpp": "ff5dc07ee7c2ac96e9eeedc563b153bb65d3f930c9a5b625867d9c1dc7bb61f4"
+  }
+}

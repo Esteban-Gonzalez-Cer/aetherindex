@@ -125,7 +125,9 @@ std::unique_ptr<VectorStore> load_csv_dataset(const std::filesystem::path& path,
                                      std::to_string(store->dimension()) + ", found " +
                                      std::to_string(embedding.size()) + ".");
             case InsertStatus::InvalidEmbedding:
-                throw InputDataError(prefix + "cosine metric does not accept all-zero embeddings.");
+                throw InputDataError(
+                    prefix +
+                    "cosine metric does not accept all-zero embeddings or L2 norms below 1e-7.");
         }
     }
     check_read(input, path);

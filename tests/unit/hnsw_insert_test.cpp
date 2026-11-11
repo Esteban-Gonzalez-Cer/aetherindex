@@ -21,8 +21,8 @@ void check_first_node_and_full_id_range() {
     require(index.max_level() && *index.max_level() == index.find_node(0)->max_level,
             "First entry point and index maximum level must agree.");
     hnsw_test::check_graph(index, store, store.ids());
-    for (const auto& neighbors : index.find_node(0)->neighbors) {
-        require(neighbors.empty(), "The first node cannot already have neighbors.");
+    for (std::size_t layer = 0; layer <= index.find_node(0)->max_level; ++layer) {
+        require(index.neighbors(0, layer).empty(), "The first node cannot already have neighbors.");
     }
     hnsw_test::check_results(index, store, first, index.search(first, 1), 1);
     require(index.search(first, 1)[0].id == 0, "Singleton search must return its indexed ID.");
@@ -78,12 +78,15 @@ void check_incremental_insertion_and_storage_reallocation() {
     hnsw_test::check_results(index, store, data[137], index.search(data[137], 10), 10);
     for (std::size_t row = 0; row < data.size(); ++row) {
         const auto stored = *store.find(hnsw_test::fixture_id(row));
-        require(std::equal(stored.begin(), stored.end(), data[row].begin()),
-                "HNSW insertion/search must not change stored embedding components.");
+        const PreparedQuery expected(data[row], store.dimension(), store.distance_kind());
+        require(std::equal(stored.begin(), stored.end(), expected.values().begin()),
+                "HNSW insertion/search must not change normalized embedding components.");
     }
 
     std::vector<HnswNode> snapshot;
+    std::vector<std::vector<std::vector<VectorId>>> edge_snapshot;
     for (VectorId id : store.ids()) snapshot.push_back(*index.find_node(id));
+    for (VectorId id : store.ids()) edge_snapshot.push_back(hnsw_test::topology(index, id));
     const auto entry = index.entry_point();
     const auto max_level = index.max_level();
     requireInvalidArgument([&] { index.insert(10); }, "Duplicate index IDs must be rejected.");
@@ -91,9 +94,11 @@ void check_incremental_insertion_and_storage_reallocation() {
                            "IDs absent from VectorStore must be rejected.");
     require(index.entry_point() == entry && index.max_level() == max_level && index.size() == 200,
             "Rejected insertions must preserve entry point, levels and count.");
-    for (const auto& before : snapshot) {
-        const auto* after = index.find_node(before.id);
-        require(after->max_level == before.max_level && after->neighbors == before.neighbors,
+    for (std::size_t i = 0; i < snapshot.size(); ++i) {
+        const auto& before = snapshot[i];
+        const auto after = index.find_node(before.id);
+        require(after->max_level == before.max_level &&
+                    hnsw_test::topology(index, before.id) == edge_snapshot[i],
                 "Rejected insertion must not modify graph topology.");
     }
     hnsw_test::check_graph(index, store, store.ids());
