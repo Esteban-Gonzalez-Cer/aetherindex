@@ -42,8 +42,9 @@ What these numbers do not show:
   (`ascii-tech-v1`, no stemming or stopwords) scores below Lucene on all six BEIR datasets.
 - Classic RRF fusion scores *below* dense-only search on FiQA, ArguAna and Quora. That
   finding is why the default fusion was changed to a convex combination tuned on dev splits.
-- There is no server and no persistence, so comparisons with Qdrant and OpenSearch are
-  in-process versus network round trip, and are reported separately for that reason.
+- AetherIndex is a library with a CLI, not a server, so latency comparisons with Qdrant and
+  OpenSearch are in-process versus network round trip, and are reported separately for that
+  reason.
 
 ## Objective
 
@@ -203,7 +204,7 @@ The parts of this project that took the most thought, and where to read about th
 ## Testing
 
 ```sh
-ctest --preset release          # 74 tests: unit, integration, end-to-end CLI, acceptance
+ctest --preset release          # 83 tests: unit, integration, end-to-end CLI, acceptance
 cmake --preset asan && cmake --build --preset asan && ctest --preset asan   # ASan + UBSan
 cmake --preset tsan && cmake --build --preset tsan && ctest --preset tsan   # ThreadSanitizer
 ```
